@@ -1,0 +1,91 @@
+[build-system]
+requires = [ "setuptools >= 35.0.2", "wheel >= 0.29.0", "setuptools_scm[toml]==7.0.5"]
+build-backend = "setuptools.build_meta"
+
+
+
+[project]
+name = "jatic_tests"
+dynamic = ["version"]
+description = "Utilities for developing test suites for JATIC-related projects."
+readme = "README.md"
+requires-python = ">=3.7"
+dependencies=[
+  "pytest >= 6.2.5",
+  "hypothesis >= 6.28.0",
+  "typing-extensions >= 4.1.0",
+]
+license = {file = "../LICENSE.txt"}
+keywords= [ "machine learning", "testing", "pytest"]
+
+authors = [
+  {name = "Ryan Soklaski", email = "ryan.soklaski@ll.mit.edu" },
+]
+maintainers = [
+  {name = "Ryan Soklaski", email = "ryan.soklaski@ll.mit.edu" },
+]
+
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Scientific/Engineering",
+    "Programming Language :: Python :: 3 :: Only",
+]
+
+
+[project.urls]
+"Homepage" = "https://llcad-github.llan.ll.mit.edu/AIT/jatic_packages/jatic_tests"
+"Bug Reports" = "https://llcad-github.llan.ll.mit.edu/AIT/jatic_packages/issues"
+"Source" = "https://llcad-github.llan.ll.mit.edu/AIT/jatic_packages"
+
+
+
+[tool.setuptools_scm]
+write_to = "src/jatic_tests/_version.py"
+version_scheme = "no-guess-dev"
+
+
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+exclude = ["tests*", "tests.*"]
+
+[tool.setuptools.package-data]
+jatic_tests = ["py.typed"]
+
+
+
+[tool.isort]
+known_first_party = ["jatic_tests", "tests"]
+profile = "black"
+combine_as_imports = true
+
+
+
+[tool.coverage.report]
+omit = ["src/jatic_tests/_version.py"]
+
+
+[tool.pytest.ini_options]
+xfail_strict=true
+
+
+[tool.pyright]
+include = ["src"]
+exclude = [
+       "**/node_modules",
+       "**/__pycache__",
+       "src/jatic_tests/_version.py",
+       "**/third_party",
+]
+reportUnnecessaryTypeIgnoreComment = true
+reportUnnecessaryIsInstance = false

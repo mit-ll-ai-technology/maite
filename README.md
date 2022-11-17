@@ -1,2 +1,2 @@
 # jatic_packages
-An mono repo for jatic-[protocols, testing, ...]
+A mono repo for jatic-[protocols, testing, ...]
