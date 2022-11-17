@@ -15,7 +15,7 @@ dependencies=[
   "hypothesis >= 6.28.0",
   "typing-extensions >= 4.1.0",
 ]
-license = {file = "../LICENSE.txt"}
+license = {file = "LICENSE.txt"}
 keywords= [ "machine learning", "testing", "pytest"]
 
 authors = [
@@ -47,7 +47,9 @@ classifiers = [
 
 
 [tool.setuptools_scm]
-write_to = "src/jatic_tests/_version.py"
+root = ".."
+relative_to = "__file__,"
+write_to = "jatic_tests/src/jatic_tests/_version.py"
 version_scheme = "no-guess-dev"
 
 
