@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 
 [project]
-name = "jatic_tests"
+name = "jatic_toolbox"
 dynamic = ["version"]
 description = "Utilities for developing test suites for JATIC-related projects."
 readme = "README.md"
@@ -40,16 +40,14 @@ classifiers = [
 
 
 [project.urls]
-"Homepage" = "https://llcad-github.llan.ll.mit.edu/AIT/jatic_packages/jatic_tests"
-"Bug Reports" = "https://llcad-github.llan.ll.mit.edu/AIT/jatic_packages/issues"
-"Source" = "https://llcad-github.llan.ll.mit.edu/AIT/jatic_packages"
+"Homepage" = "https://llcad-github.llan.ll.mit.edu/AIT/jatic_toolbox/"
+"Bug Reports" = "https://llcad-github.llan.ll.mit.edu/AIT/jatic_toolbox/issues"
+"Source" = "https://llcad-github.llan.ll.mit.edu/AIT/jatic_toolbox"
 
 
 
 [tool.setuptools_scm]
-root = ".."
-relative_to = "__file__,"
-write_to = "jatic_tests/src/jatic_tests/_version.py"
+write_to = "src/jatic_toolbox/_version.py"
 version_scheme = "no-guess-dev"
 
 
@@ -62,19 +60,19 @@ where = ["src"]
 exclude = ["tests*", "tests.*"]
 
 [tool.setuptools.package-data]
-jatic_tests = ["py.typed"]
+jatic_toolbox = ["py.typed"]
 
 
 
 [tool.isort]
-known_first_party = ["jatic_tests", "tests"]
+known_first_party = ["jatic_toolbox", "tests"]
 profile = "black"
 combine_as_imports = true
 
 
 
 [tool.coverage.report]
-omit = ["src/jatic_tests/_version.py"]
+omit = ["src/jatic_toolbox/_version.py"]
 
 
 [tool.pytest.ini_options]
@@ -86,7 +84,7 @@ include = ["src"]
 exclude = [
        "**/node_modules",
        "**/__pycache__",
-       "src/jatic_tests/_version.py",
+       "src/jatic_toolbox/_version.py",
        "**/third_party",
 ]
 reportUnnecessaryTypeIgnoreComment = true
