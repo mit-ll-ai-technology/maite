@@ -1,5 +1,5 @@
 """
-Utilities for checking user inputs to interfaces and raising legible, explicit error
+Utilities for validating argument types and values that raise clear error
 messages.
 """
 
