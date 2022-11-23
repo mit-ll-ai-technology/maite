@@ -46,12 +46,33 @@ def check_type(
         The argument's name.
 
     arg : T (Any)
-        The argument
+        The argument.
 
     type_ : type | tuple[type, ...]
 
     optional : bool, keyword, optional (default=False)
-        If ``True``, then ``arg`` can be None."""
+        If ``True``, then ``arg`` can be None.
+
+    Returns
+    -------
+    T
+
+    Raises
+    ------
+    InvalidArgument
+        `arg` is not of the expected type.
+
+    Examples
+    --------
+    >>> check_type('apple', 1, int)
+    1
+    >>> check_type('apple', 1, bool)
+    InvalidArgument: Expected `apple` to be of type `bool`. Got 1 (type: `int`).
+    >>> check_type('apple', 1, (int, bool))
+    1
+    >>> check_type('apple', None, (int, bool), optional=True)
+    None
+    """
     if optional and arg is None:
         return arg
 
@@ -62,7 +83,7 @@ def check_type(
             clause = f"of type {_safe_name(type_)}"
 
         raise InvalidArgument(
-            f"Expected `{name}` to be {'None or ' if optional else ''}{clause}. Got {arg} "
+            f"Expected `{name}` to be {'`None` or ' if optional else ''}{clause}. Got {arg} "
             f"(type: {_safe_name(type(arg))})."
         )
     return arg
@@ -73,10 +94,10 @@ def check_domain(
     name: str,
     value: C,
     *,
-    min_: Comparable,
-    max_: Optional[Comparable] = None,
-    incl_min: bool = ...,
-    incl_max: bool = ...,
+    lower: Comparable,
+    upper: Optional[Comparable] = None,
+    incl_low: bool = ...,
+    incl_up: bool = ...,
     lower_name: str = ...,
     upper_name: str = ...,
 ) -> C:
@@ -88,10 +109,10 @@ def check_domain(
     name: str,
     value: C,
     *,
-    min_: Optional[Comparable] = None,
-    max_: Comparable,
-    incl_min: bool = ...,
-    incl_max: bool = ...,
+    lower: Optional[Comparable] = None,
+    upper: Comparable,
+    incl_low: bool = ...,
+    incl_up: bool = ...,
     lower_name: str = ...,
     upper_name: str = ...,
 ) -> C:
@@ -102,72 +123,111 @@ def check_domain(
     name: str,
     value: C,
     *,
-    min_: Optional[Comparable] = None,
-    max_: Optional[Comparable] = None,
-    incl_min: bool = True,
-    incl_max: bool = True,
+    lower: Optional[Comparable] = None,
+    upper: Optional[Comparable] = None,
+    incl_low: bool = True,
+    incl_up: bool = True,
     lower_name: str = "",
     upper_name: str = "",
 ) -> C:
     """
+    Checks that an argument falls within `[lower <=] arg [<= upper]`
 
+    Parameters
+    ----------
+    name : str
+        The argument's name.
 
-    Examples
-    --------
-    >>> domain_check("x", 1, min_=20)
-    InvalidArgument: `x` must satisfy 20 <= x  Got: 1
+    value : Comparable
 
-    >>> domain_check("x", 1, min_=1, incl_min=False)
-    InvalidArgument: `x` must satisfy 1 < x  Got: 1
+    lower : Optional[Comparable]
+        The lower bound of the domain. This bound is not checked
+        if unspecified.
 
-    >>> domain_check("x", 1, min_=1, incl_min=True) # ok
-    1
-    >>> domain_check("x", 0.0, min_=-10, max_=10)  # ok
-    0.0
+    upper : Optional[Comparable]
+        The upper bound of the domain. This bound is not checked
+        if unspecified.
+
+    incl_low : bool, optional (default=True)
+        If `True`, the lower bound is inclusive.
+
+    incl_up : bool, optional (default=True)
+        If `True`, the upper bound is inclusive.
+
+    lower_name: str = ""
+        If specified, includes the name of the lower bound in the
+        error message.
+
+    upper_name: str = ""
+        If specified, includes the name of the upper bound in the
+        error message.
+
+    Returns
+    -------
+    value : Comparable
 
     Raises
     ------
-    InvalidArgument"""
+    InvalidArgument
+        `value` does not satisfy the inequality.
+
+    Unsatisfiable
+        An internal assertion error when the provided domain
+        bounds cannot be satisfied.
+
+    Examples
+    --------
+    >>> domain_check("x", 1, lower=20)
+    InvalidArgument: `x` must satisfy 20 <= x  Got: 1
+
+    >>> domain_check("x", 1, lower=1, incl_low=False)
+    InvalidArgument: `x` must satisfy 1 < x  Got: 1
+
+    >>> domain_check("x", 1, lower=1, incl_low=True) # ok
+    1
+    >>> domain_check("x", 0.0, lower=-10, upper=10)  # ok
+    0.0
+    """
     # check internal params
     check_type("name", name, str)
-    check_type("incl_min", incl_min, bool)
-    check_type("incl_max", incl_max, bool)
+    check_type("incl_low", incl_low, bool)
+    check_type("incl_up", incl_up, bool)
 
-    if min_ is not None and max_ is not None:
-        if incl_max and incl_min:
-            if not (min_ <= max_):
-                raise Unsatisfiable(f"{min_} <= {max_}")
-        elif not min_ < max_:
-            raise Unsatisfiable(f"{min_} < {max_}")
-    elif min_ is None and max_ is None:
-        raise Unsatisfiable("Neither `min_` nor `max_` were specified.")
+    if lower is not None and upper is not None:
+        if incl_up and incl_low:
+            if not (lower <= upper):
+                raise Unsatisfiable(f"{lower} <= {upper}")
+        elif not lower < upper:
+            raise Unsatisfiable(f"{lower} < {upper}")
+    elif lower is None and upper is None:
+        raise Unsatisfiable("Neither `lower` nor `upper` were specified.")
 
     min_satisfied = (
-        (min_ <= value if incl_min else min_ < value) if min_ is not None else True
+        (lower <= value if incl_low else lower < value) if lower is not None else True
     )
     max_satisfied = (
-        (value <= max_ if incl_max else value < max_) if max_ is not None else True
+        (value <= upper if incl_up else value < upper) if upper is not None else True
     )
 
     if not min_satisfied or not max_satisfied:
-        lsymb = "<=" if incl_min else "<"
-        rsymb = "<=" if incl_max else "<"
+        lsymb = "<=" if incl_low else "<"
+        rsymb = "<=" if incl_up else "<"
 
-        err_msg = f"`{name}` must satisfy"
+        err_msg = f"`{name}` must satisfy `"
 
-        if min_ is not None:
-            if lower_name:  # pragma: no cover
-                min_ = f"{lower_name}(= {min_})"
-            err_msg += f" {min_} {lsymb}"
+        if lower is not None:
+            if lower_name:
+                lower = f"{lower_name}={lower}"
+            err_msg += f"{lower} {lsymb} "
 
-        err_msg += f" {name}"
+        err_msg += f"{name}"
 
-        if max_ is not None:
+        if upper is not None:
             if upper_name:
-                max_ = f"{upper_name}(= {max_})"
-            err_msg += f" {rsymb} {max_}"
+                upper = f"{upper_name}={upper}"
+            err_msg += f" {rsymb} {upper}"
 
-        err_msg += f"  Got: {value}"
+        err_msg += f"`.  Got: `{value}`."
 
         raise InvalidArgument(err_msg)
     return cast(C, value)
