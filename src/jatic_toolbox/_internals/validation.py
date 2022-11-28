@@ -1,17 +1,33 @@
-from typing import Any, Optional, Tuple, TypeVar, Union, cast, overload
+from enum import Enum, EnumMeta
+from itertools import chain
+from typing import (
+    Any,
+    Collection,
+    Optional,
+    Tuple,
+    Type,
+    TypeVar,
+    Union,
+    cast,
+    overload,
+)
 
 from typing_extensions import Protocol
 
 from .errors import InvalidArgument
 
-T = TypeVar("T", bound=Any)
+T = TypeVar("T")
 N = TypeVar("N", int, float)
 C = TypeVar("C", bound="Comparable")
 
 
+def _tick(x: str):
+    return "`" + x + "`"
+
+
 def _safe_name(x: Any, ticked: bool = True) -> str:
     out = getattr(x, "__name__", str(x))
-    return f"`{out}`" if ticked else out
+    return _tick(out) if ticked else out
 
 
 class Comparable(Protocol):
@@ -55,7 +71,8 @@ def check_type(
 
     Returns
     -------
-    T
+    arg : T
+        The input value, unchanged.
 
     Raises
     ------
@@ -83,8 +100,8 @@ def check_type(
             clause = f"of type {_safe_name(type_)}"
 
         raise InvalidArgument(
-            f"Expected `{name}` to be {'`None` or ' if optional else ''}{clause}. Got {arg} "
-            f"(type: {_safe_name(type(arg))})."
+            f"Expected `{name}` to be {'`None` or ' if optional else ''}{clause}. Got "
+            f"`{arg}` (type: {_safe_name(type(arg))})."
         )
     return arg
 
@@ -92,7 +109,7 @@ def check_type(
 @overload
 def check_domain(
     name: str,
-    value: C,
+    arg: C,
     *,
     lower: Comparable,
     upper: Optional[Comparable] = None,
@@ -107,7 +124,7 @@ def check_domain(
 @overload
 def check_domain(
     name: str,
-    value: C,
+    arg: C,
     *,
     lower: Optional[Comparable] = None,
     upper: Comparable,
@@ -121,7 +138,7 @@ def check_domain(
 
 def check_domain(
     name: str,
-    value: C,
+    arg: C,
     *,
     lower: Optional[Comparable] = None,
     upper: Optional[Comparable] = None,
@@ -138,7 +155,7 @@ def check_domain(
     name : str
         The argument's name.
 
-    value : Comparable
+    arg : Comparable
 
     lower : Optional[Comparable]
         The lower bound of the domain. This bound is not checked
@@ -164,12 +181,13 @@ def check_domain(
 
     Returns
     -------
-    value : Comparable
+    arg : Comparable
+        The input value, unchanged.
 
     Raises
     ------
     InvalidArgument
-        `value` does not satisfy the inequality.
+        `arg` does not satisfy the inequality.
 
     Unsatisfiable
         An internal assertion error when the provided domain
@@ -203,10 +221,10 @@ def check_domain(
         raise Unsatisfiable("Neither `lower` nor `upper` were specified.")
 
     min_satisfied = (
-        (lower <= value if incl_low else lower < value) if lower is not None else True
+        (lower <= arg if incl_low else lower < arg) if lower is not None else True
     )
     max_satisfied = (
-        (value <= upper if incl_up else value < upper) if upper is not None else True
+        (arg <= upper if incl_up else arg < upper) if upper is not None else True
     )
 
     if not min_satisfied or not max_satisfied:
@@ -227,7 +245,105 @@ def check_domain(
                 upper = f"{upper_name}={upper}"
             err_msg += f" {rsymb} {upper}"
 
-        err_msg += f"`.  Got: `{value}`."
+        err_msg += f"`.  Got: `{arg}`."
 
         raise InvalidArgument(err_msg)
-    return cast(C, value)
+    return cast(C, arg)
+
+
+class SupportsEq(Protocol):
+    def __eq__(self, __o: object) -> bool:
+        ...
+
+
+def check_one_of(
+    name: str,
+    arg: T,
+    collection: Union[Collection, Type[Enum]],
+    *vals: SupportsEq,
+    requires_identity: bool = False,
+) -> T:
+    """Checks that `arg` is a member of `collection` or of *args.
+
+    Parameters
+    ----------
+    name : str
+        The argument's name.
+
+    arg : T (Any)
+        The argument.
+
+    collection : Collection | Type[Enum]
+        Any collection (i.e., supports `__iter__` and `__contains__`) or enum type.
+
+    *vals : Any
+        Additional values to check `arg` against.
+
+    requires_identity : bool, optional (default=False)
+        If `True`, all (non hash-based) membership checks are performed element-wise
+        using `x is e` rather  than the default `x is e or x == e`.
+
+        This can be helpful for ensuring strict identity, e.g., preventing `1` from
+        matching against `True`.
+
+    Returns
+    -------
+    arg : T
+        The input value, unchanged.
+
+    Raises
+    ------
+    InvalidArgument
+        `arg` is not of a member of `collections` nor `vals`.
+
+    Unsatisfiable
+        An internal assertion error when the provided collection is empty.
+
+    Examples
+    --------
+    >>> check_one_of("foo", None, [1, 2])
+    InvalidArgument: Expected `foo` to be one of: 1, 2. Got `None`.
+
+    Including `None` as an acceptable value
+
+    >>> check_one_of("foo", None, [1, 2], None)
+    None
+
+    Enforcing strict identity using `requires_identity`:
+
+    >>> check_one_of("foo", 1, [True])  # `1` == `True`
+    1
+
+    >>> check_one_of("foo", 1, [True], requires_identity=True)
+
+    Support for enums:
+
+    >>> from enum import Enum
+    >>> class Pet(Enum):
+    ...     cat = 1
+    ...     dog = 2
+
+    >>> check_one_of("bar", None, Pet)
+    InvalidArgument: Expected `bar` to be one of: Pet.cat, Pet.dog. Got `88`.
+
+    >>> check_one_of("bar", Pet.cat, Pet)
+    <Pet.cat: 1>
+    """
+
+    if isinstance(collection, EnumMeta):
+        if isinstance(arg, collection):
+            return arg
+    elif requires_identity:
+        if any(arg is x for x in chain(collection, vals)):
+            return arg
+    elif arg in collection or arg in vals:
+        return arg
+
+    values = sorted(set(str(x) for x in chain(collection, vals)))
+    if not values:
+        raise Unsatisfiable("`collections` and `args` are both empty.")
+
+    raise InvalidArgument(
+        f"Expected `{name}` to be{' one of' if len(values) > 1 else ''}: "
+        f"{', '.join(values)}. Got `{arg}`."
+    )

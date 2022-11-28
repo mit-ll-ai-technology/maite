@@ -2,14 +2,15 @@
 # Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).
 # SPDX-License-Identifier: MIT
 import re
-from typing import Union
+from enum import Enum, Flag
+from typing import Any, Collection, NamedTuple, Tuple, Union
 
 import hypothesis.strategies as st
 import pytest
 from hypothesis import assume, given, settings
 
 from jatic_toolbox._internals.errors import InvalidArgument
-from jatic_toolbox.utils.validation import check_domain, check_type
+from jatic_toolbox.utils.validation import check_domain, check_one_of, check_type
 
 
 def everything_except(excluded_types):
@@ -27,25 +28,25 @@ any_types = st.from_type(type)
 @given(
     name=st.sampled_from(["name_a", "name_b"]),
     target_type=st.shared(any_types, key="target_type"),
-    value=st.shared(any_types, key="target_type").flatmap(everything_except),
+    arg=st.shared(any_types, key="target_type").flatmap(everything_except),
 )
-def test_check_type_catches_bad_type(name, target_type, value):
+def test_check_type_catches_bad_type(name, target_type, arg):
     with pytest.raises(InvalidArgument):
-        check_type(name, arg=value, type_=target_type)
+        check_type(name, arg=arg, type_=target_type)
 
 
 @given(
     target_type=st.shared(any_types, key="target_type"),
-    value=st.shared(any_types, key="target_type").flatmap(st.from_type),
+    arg=st.shared(any_types, key="target_type").flatmap(st.from_type),
 )
-def test_check_type_passes_good_type(target_type, value):
-    check_type("dummy", arg=value, type_=target_type)
+def test_check_type_passes_good_type(target_type, arg):
+    check_type("dummy", arg=arg, type_=target_type)
 
 
 @given(...)
-def test_check_multiple_types(value: Union[str, int]):
-    out = check_type("dummy", value, type_=(str, int))
-    assert out == value
+def test_check_multiple_types(arg: Union[str, int]):
+    out = check_type("dummy", arg, type_=(str, int))
+    assert out == arg
 
 
 def test_no_bounds():
@@ -57,41 +58,41 @@ def test_no_bounds():
     "kwargs",
     [
         pytest.param(
-            dict(value=1, lower=1, upper=1, incl_low=False, incl_up=False),
+            dict(arg=1, lower=1, upper=1, incl_low=False, incl_up=False),
             marks=pytest.mark.xfail(raises=AssertionError, strict=True),
             id="1 < ... < 1",
         ),
         pytest.param(
-            dict(value=1, lower=1, upper=1, incl_low=True, incl_up=False),
+            dict(arg=1, lower=1, upper=1, incl_low=True, incl_up=False),
             marks=pytest.mark.xfail(raises=AssertionError, strict=True),
             id="1 <= ... < 1",
         ),
         pytest.param(
-            dict(value=1, lower=1, upper=1, incl_low=True, incl_up=True),
+            dict(arg=1, lower=1, upper=1, incl_low=True, incl_up=True),
             id="1 <= ... <= 1",
         ),
         pytest.param(
-            dict(value=1, lower=1, upper=1, incl_low=False, incl_up=True),
+            dict(arg=1, lower=1, upper=1, incl_low=False, incl_up=True),
             marks=pytest.mark.xfail(raises=AssertionError, strict=True),
             id="1 < ... <= 1",
         ),
         pytest.param(
-            dict(value=1, lower=2, upper=1, incl_low=False, incl_up=False),
+            dict(arg=1, lower=2, upper=1, incl_low=False, incl_up=False),
             marks=pytest.mark.xfail(raises=AssertionError, strict=True),
             id="2 < ... < 1",
         ),
         pytest.param(
-            dict(value=1, lower=2, upper=1, incl_low=True, incl_up=False),
+            dict(arg=1, lower=2, upper=1, incl_low=True, incl_up=False),
             marks=pytest.mark.xfail(raises=AssertionError, strict=True),
             id="2 <= ... < 1",
         ),
         pytest.param(
-            dict(value=1, lower=2, upper=1, incl_low=False, incl_up=True),
+            dict(arg=1, lower=2, upper=1, incl_low=False, incl_up=True),
             marks=pytest.mark.xfail(raises=AssertionError, strict=True),
             id="2 < ... <= 1",
         ),
         pytest.param(
-            dict(value=1, lower=2, upper=1, incl_low=True, incl_up=True),
+            dict(arg=1, lower=2, upper=1, incl_low=True, incl_up=True),
             marks=pytest.mark.xfail(raises=AssertionError, strict=True),
             id="2 <= ... <= 1",
         ),
@@ -105,20 +106,20 @@ def test_min_max_ordering(kwargs):
     "kwargs",
     [
         pytest.param(
-            dict(value=1, lower=1, incl_low=False),
+            dict(arg=1, lower=1, incl_low=False),
             marks=pytest.mark.xfail(raises=InvalidArgument, strict=True),
-            id="lower:1 < value:1",
+            id="lower:1 < arg:1",
         ),
-        pytest.param(dict(value=1, lower=1, incl_low=True), id="lower:1 <= value:1"),
+        pytest.param(dict(arg=1, lower=1, incl_low=True), id="lower:1 <= arg:1"),
         pytest.param(
-            dict(value=1, upper=1, incl_up=False),
+            dict(arg=1, upper=1, incl_up=False),
             marks=pytest.mark.xfail(raises=InvalidArgument, strict=True),
-            id="value:1 < upper:1",
+            id="arg:1 < upper:1",
         ),
-        pytest.param(dict(value=1, upper=1, incl_up=True), id="value:1 <= upper:1"),
+        pytest.param(dict(arg=1, upper=1, incl_up=True), id="arg:1 <= upper:1"),
         pytest.param(
-            dict(value=1, lower=1, upper=1, incl_low=True, incl_up=True),
-            id="lower:1 <= value:1 <= upper:1",
+            dict(arg=1, lower=1, upper=1, incl_low=True, incl_up=True),
+            id="lower:1 <= arg:1 <= upper:1",
         ),
     ],
 )
@@ -155,7 +156,7 @@ def test_valid_inequalities(
         assume(False)
         assert False
 
-    value = (
+    arg = (
         data.draw(
             st.floats(
                 min_value=lower,
@@ -163,7 +164,7 @@ def test_valid_inequalities(
                 exclude_max=not incl_up,
                 exclude_min=not incl_low,
             ),
-            label="value",
+            label="arg",
         )
         if lower != upper
         else lower
@@ -171,12 +172,81 @@ def test_valid_inequalities(
 
     check_domain(
         "dummy",
-        value=value,
+        arg=arg,
         lower=lower,
         upper=upper,
         incl_up=incl_up,
         incl_low=incl_low,
     )
+
+
+class CheckOneOfInputs(NamedTuple):
+    arg: Any
+    collection: Collection = []
+    vals: Tuple[Any, ...] = ()
+    requires_identity: bool = False
+    name: str = "foo"
+
+
+class AClass:
+    pass
+
+
+class BClass:
+    pass
+
+
+FooEnum = Enum("Foo", ["a", "b"])
+BarEnum = Enum("Bar", ["c", "d"])
+FlagEnum = Flag("Flag", ["e", "f"])
+
+collections = st.lists(st.sampled_from([True, BClass(), BClass]), unique=True)
+
+
+@given(
+    arg=st.sampled_from([None, False, AClass(), AClass, FooEnum, FooEnum.a])
+    | st.integers(-5, 0),
+    collection=collections | st.just(BarEnum) | st.just(FlagEnum),
+    vals=collections,
+    requires_identity=st.booleans(),
+)
+def test_check_one_of_catches_bad_inputs(arg, collection, vals, requires_identity):
+    if not collection and not vals:
+        assume(False)
+
+    with pytest.raises(InvalidArgument):
+        check_one_of("foo", arg, collection, *vals, requires_identity=requires_identity)
+
+
+@given(...)
+def test_check_one_of_supports_enum(arg: Union[FooEnum, FlagEnum]):  # type: ignore
+    assert check_one_of("foo", arg, type(arg)) is arg
+
+
+@given(
+    arg=st.sampled_from([None, False, AClass(), AClass, FooEnum, FooEnum.a])
+    | st.integers(-5, 0),
+    collection=collections,
+    vals=collections,
+    requires_identity=st.booleans(),
+)
+def test_check_one_of_passes(
+    arg, collection: list, vals: list, requires_identity: bool
+):
+    collection.append(arg)
+    assert (
+        check_one_of("foo", arg, collection, *vals, requires_identity=requires_identity)
+        is arg
+    )
+    assert (
+        check_one_of("foo", arg, vals, *collection, requires_identity=requires_identity)
+        is arg
+    )
+
+
+def test_check_one_of_raises_unsatisfiable():
+    with pytest.raises(AssertionError):
+        check_one_of("foo", 1, [])
 
 
 @pytest.mark.parametrize(
@@ -216,15 +286,50 @@ def test_valid_inequalities(
         ),
         (
             lambda: check_type("arg", 1, str),
-            r"Expected `arg` to be of type `str`. Got 1 (type: `int`).",
+            r"Expected `arg` to be of type `str`. Got `1` (type: `int`).",
         ),
         (
             lambda: check_type("arg", 1, (str, bool)),
-            r"Expected `arg` to be of types: `str`, `bool`. Got 1 (type: `int`).",
+            r"Expected `arg` to be of types: `str`, `bool`. Got `1` (type: `int`).",
         ),
         (
             lambda: check_type("arg", 1, (str, bool), optional=True),
-            r"Expected `arg` to be `None` or of types: `str`, `bool`. Got 1 (type: `int`).",
+            r"Expected `arg` to be `None` or of types: `str`, `bool`. Got `1` (type: `int`).",
+        ),
+        (
+            lambda: check_one_of("foo", 1, [], requires_identity=True),
+            r"`collections` and `args` are both empty.",
+        ),
+        (
+            lambda: check_one_of("foo", 1, [True], requires_identity=True),
+            r"Expected `foo` to be: True. Got `1`.",
+        ),
+        (
+            lambda: check_one_of("foo", 1, [], True, requires_identity=True),
+            r"Expected `foo` to be: True. Got `1`.",
+        ),
+        (
+            lambda: check_one_of("bar", 1, [True, False], requires_identity=True),
+            r"Expected `bar` to be one of: False, True. Got `1`.",
+        ),
+        (
+            lambda: check_one_of("bar", 1, [True, False], 2, requires_identity=True),
+            r"Expected `bar` to be one of: 2, False, True. Got `1`.",
+        ),
+        (
+            lambda: check_one_of("bar", 1, [], True, False, 2, requires_identity=True),
+            r"Expected `bar` to be one of: 2, False, True. Got `1`.",
+        ),
+        (
+            # error message should remove redundant names
+            lambda: check_one_of(
+                "bar", 1, [True], True, False, 2, requires_identity=True
+            ),
+            r"Expected `bar` to be one of: 2, False, True. Got `1`.",
+        ),
+        (
+            lambda: check_one_of("bar", [1], Enum("Foo", ["a", "b"])),
+            r"Expected `bar` to be one of: Foo.a, Foo.b. Got `[1]`.",
         ),
     ],
 )
