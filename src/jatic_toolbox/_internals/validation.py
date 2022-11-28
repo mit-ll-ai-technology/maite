@@ -2,6 +2,7 @@ from enum import Enum, EnumMeta
 from itertools import chain
 from typing import (
     Any,
+    Callable,
     Collection,
     Optional,
     Tuple,
@@ -263,7 +264,7 @@ def check_one_of(
     *vals: SupportsEq,
     requires_identity: bool = False,
 ) -> T:
-    """Checks that `arg` is a member of `collection` or of *args.
+    """Checks that `arg` is a member of `collection` or of `vals`.
 
     Parameters
     ----------
@@ -274,7 +275,7 @@ def check_one_of(
         The argument.
 
     collection : Collection | Type[Enum]
-        Any collection (i.e., supports `__iter__` and `__contains__`) or enum type.
+        Any collection (i.e., supports `__contains__` and `__iter__`) or enum type.
 
     *vals : Any
         Additional values to check `arg` against.
@@ -347,3 +348,43 @@ def check_one_of(
         f"Expected `{name}` to be{' one of' if len(values) > 1 else ''}: "
         f"{', '.join(values)}. Got `{arg}`."
     )
+
+
+def chain_validators(*validators: Callable[[str, Any], Any]) -> Callable[[str, T], T]:
+    """Enables validators, functions like `(name: str, arg: T, [...]) -> T`, to be
+    chained together.
+
+    This is meant to be used with partial'd validators, where only the `name` and
+    `arg` fields need be populated.
+
+    Parameters
+    ----------
+    validators : Callable[[str, T], T]
+        Accepts `name` and `arg`, and returns `arg` if it is a valid input, otherwise
+        should raise `InvalidArgument`.
+
+    Returns
+    -------
+    chained_validators : Callable[[str, T], T]
+        Calls each validator in order from low-index to high-index.
+
+    Examples
+    --------
+    >>> from functools import partial
+    >>> is_int = partial(check_type, type_=int)
+    >>> is_pos = partial(check_domain, lower=0)
+    >>> check_pos_int = chain_validators(is_int, is_pos)
+    >>> check_pos_int("foo", 10)
+    10
+    >>> check_pos_int("foo", ["a"])
+    InvalidArgument: Expected `foo` to be of type `int`. Got `['a']` (type: `list`).
+    >>> check_pos_int("foo", -1)
+    InvalidArgument: `foo` must satisfy `0 <= foo`.  Got: `-1`.
+    """
+
+    def chain(name: str, arg: T) -> T:
+        for v in validators:
+            v(name, arg)
+        return arg
+
+    return chain

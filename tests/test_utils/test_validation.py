@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 import re
 from enum import Enum, Flag
+from functools import partial
 from typing import Any, Collection, NamedTuple, Tuple, Union
 
 import hypothesis.strategies as st
@@ -10,7 +11,12 @@ import pytest
 from hypothesis import assume, given, settings
 
 from jatic_toolbox._internals.errors import InvalidArgument
-from jatic_toolbox.utils.validation import check_domain, check_one_of, check_type
+from jatic_toolbox.utils.validation import (
+    chain_validators,
+    check_domain,
+    check_one_of,
+    check_type,
+)
 
 
 def everything_except(excluded_types):
@@ -249,6 +255,15 @@ def test_check_one_of_raises_unsatisfiable():
         check_one_of("foo", 1, [])
 
 
+def test_chain_validators():
+    pass
+
+
+is_int = partial(check_type, type_=int)
+is_pos = partial(check_domain, lower=0)
+check_pos_int = chain_validators(is_int, is_pos)
+
+
 @pytest.mark.parametrize(
     "expr, msg",
     [
@@ -330,6 +345,14 @@ def test_check_one_of_raises_unsatisfiable():
         (
             lambda: check_one_of("bar", [1], Enum("Foo", ["a", "b"])),
             r"Expected `bar` to be one of: Foo.a, Foo.b. Got `[1]`.",
+        ),
+        (
+            lambda: check_pos_int("foo", ["a"]),
+            r"Expected `foo` to be of type `int`. Got `['a']` (type: `list`).",
+        ),
+        (
+            lambda: check_pos_int("foo", -1),
+            r"`foo` must satisfy `0 <= foo`.  Got: `-1`.",
         ),
     ],
 )
