@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from jatic_toolbox._internals.testing.pyright import pyright_analyze
+from jatic_toolbox.testing.pyright import pyright_analyze
 
 
 def test_pyright_catches_errors():
