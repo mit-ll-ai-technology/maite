@@ -1,6 +1,7 @@
 import inspect
 import json
 import os
+import re
 import shutil
 import subprocess
 import tempfile
@@ -63,18 +64,61 @@ def chdir():
             os.chdir(old_dir)
 
 
+# `docstring_re` is derived from https://github.com/python/cpython/blob/main/Lib/doctest.py
+# which is free for copy/reuse under GPL license
+#
+# This regular expression is used to find doctest examples in a
+# string.  It defines two groups: `source` is the source code
+# (including leading indentation and prompts); `indent` is the
+# indentation of the first (PS1) line of the source code; and
+# `want` is the expected output (including leading indentation).
+docstring_re = re.compile(
+    r"""
+    # Source consists of a PS1 line followed by zero or more PS2 lines.
+    (?P<source>
+        (?:^(?P<indent> [ ]*) >>>    .*)    # PS1 line
+        (?:\n           [ ]*  \.\.\. .*)*)  # PS2 lines
+    \n?
+    """,
+    re.MULTILINE | re.VERBOSE,
+)
+
+
+def get_docstring_examples(doc: str) -> str:
+    prefix = ">>> "
+
+    # contains input lines of docstring examples with all indentation
+    # and REPL markers removed
+    src_lines: List[str] = []
+
+    for source, indent in docstring_re.findall(doc):
+        source: str
+        indent: str
+        for line in source.splitlines():
+            src_lines.append(line[len(indent) + len(prefix) :])
+        src_lines.append("")  # newline between blocks
+    return "\n".join(src_lines)
+
+
 def pyright_analyze(
     code_or_path,
     pyright_config: Optional[Dict[str, Any]] = None,
-    path_to_pyright: Union[Path, None] = PYRIGHT_PATH,
     *,
+    path_to_pyright: Union[Path, None] = PYRIGHT_PATH,
+    preamble: str = "",
     python_version: Optional[str] = None,
     report_unnecessary_type_ignore_comment: Optional[bool] = None,
     type_checking_mode: Optional[Literal["basic", "strict"]] = None,
+    overwrite_config_ok: bool = False,
+    scan_docstring: bool = False,
 ) -> PyrightOutput:
     """
-    Scans a Python object (e.g., a function) or file(s) using pyright and returns a JSON
-    summary of the scan.
+    Scans a Python object (e.g., a function), docstring, or file(s) using pyright and
+    returns a JSON summary of the scan.
+
+    Some common pyright configuration options are exposed via this function for
+    convenience; a full pyright JSON config can be specified to completely control
+    the behavior of pyright.
 
     Parameters
     ----------
@@ -85,19 +129,30 @@ def pyright_analyze(
     pyright_config : None | dict[str, Any]
         A JSON configuration for pyright's settings [1]_.
 
-    path_to_pyright: Path
+    preamble: str, optional (default='')
+        A "header" added to the source code that will be scanned. E.g., this can be
+        useful for adding import statements.
+
+    path_to_pyright: Path, keyword-only
         Path to the pyright executable. Defaults to `shutil.where('pyright')` if the
         executable can be found.
 
-    python_version: Optional[str]
+    python_version: Optional[str], keyword-only
         The version of Python used for this execution environment as a string in the
         format "M.m". E.g., "3.9" or "3.7"
 
-    report_unnecessary_type_ignore_comment: Optional[bool]
+    report_unnecessary_type_ignore_comment: Optional[bool], keyword-only
         If `True` specifying `# type: ignore` for an expression that would otherwise
         not result in an error
 
-    type_checking_mode: Optional[Literal["basic", "strict"]] = None,
+    type_checking_mode: Optional[Literal["basic", "strict"]], keyword-only
+
+    overwrite_config_ok : bool, optional (default=False)
+        If `True`, and if pyright configuration options are specified, this function
+        will temporarily overwrite an existing pyrightconfig.json file, if necessary.
+
+        This option should be used with caution if tests using `pyright_analyze` are
+        being used concurrently.
 
     Returns
     -------
@@ -149,24 +204,22 @@ def pyright_analyze(
       'informationCount': 0,
       'timeInSec': 0.29}}
 
-    All imports must occur within the context of the scanned-object. For example,
-    consider the following
+    All imports must occur within the context of the scanned-object, or the imports can
+    be specified in a preamble. For example, consider the following
 
-    >>> import math
+    >>> import math  # import statement is not be in scope of `f`
     >>> def f():
     ...     math.acos(1)
     >>> pyright_analyze(f)["summary"]["errorCount"]
     1
 
-    The import statement needs to be moved to the body of `f` in order to eliminate this
-    error.
+    We can add a 'preamble' do that the `math` module is imported.
 
-    >>> def g():
-    ...     import math
-    ...     math.acos(1)
-    >>> pyright_analyze(f)["summary"]["errorCount"]
+    >>> pyright_analyze(f, preamble="import math")["summary"]["errorCount"]
     0
     """
+    TMP_CONFIG_HEADER = r"// temp config written by pyright_analyze" + "\n"
+
     if path_to_pyright is None:
         raise ModuleNotFoundError(
             "`pyright` was not found. It may need to be installed."
@@ -189,11 +242,25 @@ def pyright_analyze(
     if type_checking_mode is not None:
         pyright_config["typeCheckingMode"] = type_checking_mode
 
-    source = (
-        textwrap.dedent((inspect.getsource(code_or_path)))
-        if not isinstance(code_or_path, (str, Path))
-        else None
-    )
+    if scan_docstring and (
+        isinstance(code_or_path, (Path, str))
+        or getattr(code_or_path, "__doc__") is None
+    ):
+        raise ValueError(
+            "`scan_docstring=True` can only be specified when `code_or_path` is an "
+            "object with a `__doc__` attribute that returns a string."
+        )
+
+    if not isinstance(code_or_path, (str, Path)):
+        if preamble and not preamble.endswith("\n"):
+            preamble = preamble + "\n"
+        if not scan_docstring:
+            source = preamble + textwrap.dedent((inspect.getsource(code_or_path)))
+        else:
+            source = preamble + get_docstring_examples(code_or_path.__doc__)
+            print(source)
+    else:
+        source = None
 
     with chdir():
         cwd = Path.cwd()
@@ -206,8 +273,30 @@ def pyright_analyze(
                 file_.exists()
             ), f"Specified path {file_} does not exist. Cannot be scanned by pyright."
 
+        config_path = (
+            file_.parent if file_.is_file() else file_
+        ) / "pyrightconfig.json"
+
+        if not overwrite_config_ok and config_path.exists() and pyright_config:
+            raise ValueError(
+                f"pyright config located at {config_path.absolute()} would be "
+                "temporarily overwritten by this test. To permit this, specify "
+                "`overwrite_config_ok=True`."
+            )
+
+        old_pyright_config = config_path.read_text() if config_path.exists() else None
+        skip_config_delete = False
+
+        if old_pyright_config and old_pyright_config.startswith(TMP_CONFIG_HEADER):
+            # In the case where pyright_analyze is being run concurrently and
+            # encountered a temp config that pyright_analyze wrote, we ought not
+            # restore that temp config as this could inadvertently overwrite the
+            # *correct* config that was restored during the execution of this function
+            skip_config_delete = True
+            old_pyright_config = None
+
         if pyright_config:
-            (cwd / "pyrightconfig.json").write_text(json.dumps(pyright_config))
+            config_path.write_text(TMP_CONFIG_HEADER + json.dumps(pyright_config))
 
         proc = subprocess.run(
             [str(path_to_pyright.absolute()), str(file_.absolute()), "--outputjson"],
@@ -221,3 +310,8 @@ def pyright_analyze(
         except Exception:
             print(proc.stdout)
             raise
+        finally:
+            if not skip_config_delete and config_path.is_file():
+                os.remove(config_path)
+            if old_pyright_config is not None:
+                config_path.write_text(old_pyright_config)
