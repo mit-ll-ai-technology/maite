@@ -1,3 +1,5 @@
+# pyright: strict
+
 from enum import Enum, EnumMeta
 from itertools import chain
 from typing import (
@@ -260,7 +262,7 @@ class SupportsEq(Protocol):
 def check_one_of(
     name: str,
     arg: T,
-    collection: Union[Collection, Type[Enum]],
+    collection: Union[Collection[Any], Type[Enum]],
     *vals: SupportsEq,
     requires_identity: bool = False,
 ) -> T:
@@ -324,7 +326,7 @@ def check_one_of(
     ...     cat = 1
     ...     dog = 2
 
-    >>> check_one_of("bar", None, Pet)
+    >>> check_one_of("bar", 88, Pet)
     InvalidArgument: Expected `bar` to be one of: Pet.cat, Pet.dog. Got `88`.
 
     >>> check_one_of("bar", Pet.cat, Pet)
@@ -335,6 +337,7 @@ def check_one_of(
         if isinstance(arg, collection):
             return arg
     elif requires_identity:
+        collection = cast(Collection[Any], collection)
         if any(arg is x for x in chain(collection, vals)):
             return arg
     elif arg in collection or arg in vals:
@@ -366,7 +369,8 @@ def chain_validators(*validators: Callable[[str, Any], Any]) -> Callable[[str, T
     Returns
     -------
     chained_validators : Callable[[str, T], T]
-        Calls each validator in order from low-index to high-index.
+        A function of signature `chain(name: str, arg: T) -> T` that calls each
+        validator as `val(name, arg)` in order from low-index to high-index.
 
     Examples
     --------
