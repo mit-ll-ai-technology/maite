@@ -198,15 +198,15 @@ def check_domain(
 
     Examples
     --------
-    >>> domain_check("x", 1, lower=20)
+    >>> check_domain("x", 1, lower=20)
     InvalidArgument: `x` must satisfy 20 <= x  Got: 1
 
-    >>> domain_check("x", 1, lower=1, incl_low=False)
+    >>> check_domain("x", 1, lower=1, incl_low=False)
     InvalidArgument: `x` must satisfy 1 < x  Got: 1
 
-    >>> domain_check("x", 1, lower=1, incl_low=True) # ok
+    >>> check_domain("x", 1, lower=1, incl_low=True) # ok
     1
-    >>> domain_check("x", 0.0, lower=-10, upper=10)  # ok
+    >>> check_domain("x", 0.0, lower=-10, upper=10)  # ok
     0.0
     """
     # check internal params

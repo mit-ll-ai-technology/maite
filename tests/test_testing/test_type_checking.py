@@ -62,15 +62,6 @@ def test_scan_path_to_code():
     assert results["summary"]["filesAnalyzed"] > 2
 
 
-def test_scan_path_to_code2():
-    results = pyright_analyze(
-        Path.cwd(),
-        report_unnecessary_type_ignore_comment=False,
-        overwrite_config_ok=True,
-    )
-    assert results["summary"]["filesAnalyzed"] > 2
-
-
 def test_preamble():
     import math
 

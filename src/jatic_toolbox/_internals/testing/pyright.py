@@ -315,3 +315,10 @@ def pyright_analyze(
                 os.remove(config_path)
             if old_pyright_config is not None:
                 config_path.write_text(old_pyright_config)
+
+
+def list_error_messages(results: PyrightOutput) -> List[str]:
+    """A convenience function that returns a list of error messages reported by pyright."""
+    return [
+        e["message"] for e in results["generalDiagnostics"] if e["severity"] == "error"
+    ]
