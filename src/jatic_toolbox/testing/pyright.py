@@ -7,4 +7,8 @@ from jatic_toolbox._internals.testing.pyright import (
     pyright_analyze,
 )
 
-__all__ = ["pyright_analyze", "PyrightOutput", "list_error_messages"]
+__all__ = [
+    "pyright_analyze",
+    "PyrightOutput",
+    "list_error_messages",
+]

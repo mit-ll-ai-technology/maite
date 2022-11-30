@@ -1,6 +1,7 @@
 import pytest
 
 from jatic_toolbox.testing.pyright import list_error_messages, pyright_analyze
+from jatic_toolbox.testing.pytest_fixtures import cleandir
 from jatic_toolbox.utils.validation import (
     chain_validators,
     check_domain,
@@ -14,6 +15,7 @@ preamble = """from jatic_toolbox.utils.validation import (
     check_one_of,
     check_type,
 )
+from jatic_toolbox.testing.pytest_fixtures import cleandir
 """
 
 
@@ -24,6 +26,7 @@ preamble = """from jatic_toolbox.utils.validation import (
         check_domain,
         check_one_of,
         check_type,
+        cleandir,
     ],
 )
 def test_docstrings_scan_clean_via_pyright(func):

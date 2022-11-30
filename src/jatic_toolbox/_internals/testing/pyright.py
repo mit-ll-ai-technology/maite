@@ -100,6 +100,59 @@ def get_docstring_examples(doc: str) -> str:
     return "\n".join(src_lines)
 
 
+def rst_to_code(src: str):
+    block: Optional[List[str]] = None  # lines in code block
+    indentation: Optional[str] = None  # leading whitespace before .. code-block
+    preamble: Optional[str] = None  # python or pycon
+    n = -float("inf")  # line no in code block
+    blocks: List[str] = []  # respective code blocks, each ready for processing
+
+    def add_block(
+        block: Optional[List[str]],
+        preamble: Optional[str],
+        blocks: List[str],
+    ):
+        if block:
+            block_str = "\n".join(block) + "\n"
+            assert preamble
+            if "pycon" in preamble:
+                blocks.append(get_docstring_examples(block_str))
+            else:
+                blocks.append(textwrap.dedent(block_str))
+
+    for line in src.splitlines():
+        n += 1
+
+        if line.strip().startswith(".. code-block:: py"):
+            # Entering code block
+            add_block(block, preamble, blocks)
+            n = -1
+            block = []
+            indentation = line.split("..")[0] + " " * 3
+            preamble = line.split("::")[-1].strip()
+            continue
+
+        if (n == 0 and line.strip()) or 0 < n < 2 and not line:
+            # skip :caption: or up to 2 blank lines
+            continue
+
+        if indentation is not None and not (
+            line.startswith(indentation) or not line.strip()
+        ):
+            # encountering non-empty line that isn't within
+            # minimum indentation leaves the code block
+            add_block(block, preamble, blocks)
+            block = None
+            n = -float("inf")
+
+        if block is None:
+            # outside of code block
+            continue
+        block.append(line)
+    add_block(block, preamble, blocks)
+    return "\n".join(blocks)
+
+
 def pyright_analyze(
     code_or_path,
     pyright_config: Optional[Dict[str, Any]] = None,
@@ -113,7 +166,7 @@ def pyright_analyze(
     scan_docstring: bool = False,
 ) -> PyrightOutput:
     """
-    Scans a Python object (e.g., a function), docstring, or file(s) using pyright and
+    Scans a Python object (e.g., a function), docstring, or file using pyright and
     returns a JSON summary of the scan.
 
     Some common pyright configuration options are exposed via this function for
@@ -122,9 +175,9 @@ def pyright_analyze(
 
     Parameters
     ----------
-    func : SourceObjectType | str | Path
-        A function, module-object, class, or method to scan. Or, a path to a file or
-        directory to scan.
+    code_or_path : SourceObjectType | str | Path
+        A function, module-object, class, or method to scan. Or, a path to a file
+        to scan. Supported file formats are .py and .rst.
 
     pyright_config : None | dict[str, Any]
         A JSON configuration for pyright's settings [1]_.
@@ -169,6 +222,12 @@ def pyright_analyze(
     ----------
     .. [1] https://github.com/microsoft/pyright/blob/main/docs/configuration.md
     .. [2] https://github.com/microsoft/pyright/blob/main/docs/command-line.md#json-output
+
+    Notes
+    -----
+    When supplying a single .rst file, code blocks demarcated by
+    `.. code-block:: py[thon,con]` are parsed and used to populate a single temporary
+    .py file that pyright will scan.
 
     Examples
     --------
@@ -219,6 +278,34 @@ def pyright_analyze(
 
     >>> pyright_analyze(f, preamble="import math")["summary"]["errorCount"]
     0
+
+    Scanning a function's docstring.
+
+    >>> def plus_1(x: int):
+    ...     '''
+    ...     Examples
+    ...     --------
+    ...     >>> from mylib import plus_1
+    ...     >>> plus_1('2')  # <- pyright_analyze will catch typo
+    ...     3
+    ...     '''
+    ...     return x + 1
+    >>> pyright_analyze(plus_1)["summary"]["errorCount"]
+    1
+
+    Fixing the docstring issue
+
+    >>> def plus_1(x: int):
+    ...     '''
+    ...     Examples
+    ...     --------
+    ...     >>> from mylib import plus_1
+    ...     >>> plus_1(2)
+    ...     3
+    ...     '''
+    ...     return x + 1
+    >>> pyright_analyze(plus_1)["summary"]["errorCount"]
+    0
     """
     TMP_CONFIG_HEADER = r"// temp config written by pyright_analyze" + "\n"
 
@@ -260,7 +347,9 @@ def pyright_analyze(
             source = preamble + textwrap.dedent((inspect.getsource(code_or_path)))
         else:
             source = preamble + get_docstring_examples(code_or_path.__doc__)
-            print(source)
+
+    elif Path(code_or_path).suffix == ".rst":
+        source = rst_to_code(Path(code_or_path).read_text("utf-8"))
     else:
         source = None
 
@@ -322,5 +411,7 @@ def pyright_analyze(
 def list_error_messages(results: PyrightOutput) -> List[str]:
     """A convenience function that returns a list of error messages reported by pyright."""
     return [
-        e["message"] for e in results["generalDiagnostics"] if e["severity"] == "error"
+        f"(line start) {e['range']['start']['line']}: {e['message']}"
+        for e in results["generalDiagnostics"]
+        if e["severity"] == "error"
     ]

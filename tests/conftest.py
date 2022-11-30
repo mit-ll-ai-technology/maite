@@ -1,4 +1,7 @@
+import hypothesis.strategies as st
 from hypothesis import register_random
+
+st.register_type_strategy(st.DataObject, st.data())
 
 
 class TorchRandomWrapper:
