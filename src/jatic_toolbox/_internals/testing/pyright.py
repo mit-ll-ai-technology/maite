@@ -111,7 +111,41 @@ def get_docstring_examples(doc: str) -> str:
     return "\n".join(src_lines)
 
 
-def rst_to_code(src: str):
+def rst_to_code(src: str) -> str:
+    """
+    Consumes rst-formatted text like::
+
+       lopsem est decorum
+
+       .. code-block:: python
+          :caption: blah
+          :name: bark bark
+
+          import math
+          x = 1+1
+
+       foorbarius ist barfooium
+
+       .. code-block:: pycon
+          :caption: blah
+
+          >>> print("hi")
+          hi
+          >>> 2+1
+
+    and returns the string::
+
+       '''
+       import math
+       x = 1+1
+
+
+       print("hi")
+
+       2+1
+       '''
+
+    """
     block: Optional[List[str]] = None  # lines in code block
     indentation: Optional[str] = None  # leading whitespace before .. code-block
     preamble: Optional[str] = None  # python or pycon
@@ -122,7 +156,7 @@ def rst_to_code(src: str):
         block: Optional[List[str]],
         preamble: Optional[str],
         blocks: List[str],
-    ) -> str:
+    ):
         if block:
             block_str = "\n".join(block) + "\n"
             assert preamble
@@ -133,9 +167,10 @@ def rst_to_code(src: str):
 
     for line in src.splitlines():
         n += 1
+        # 0 <= n: if within code block
 
         if line.strip().startswith(".. code-block:: py"):
-            # Entering code block
+            # Entering python/pycon code block
             add_block(block, preamble, blocks)
             n = -1
             block = []
@@ -143,23 +178,36 @@ def rst_to_code(src: str):
             preamble = line.split("::")[-1].strip()
             continue
 
-        if (n == 0 and line.strip()) or 0 < n < 2 and not line:
-            # skip :caption: or up to 2 blank lines
+        if n < 0:
+            # outside of code block
             continue
 
-        if indentation is not None and not (
-            line.startswith(indentation) or not line.strip()
-        ):
+        assert indentation is not None
+        assert block is not None
+
+        if not (line.startswith(indentation) or not line.strip()):
             # encountering non-empty line that isn't within
             # minimum indentation leaves the code block
             add_block(block, preamble, blocks)
             block = None
             n = -float("inf")
-
-        if block is None:
-            # outside of code block
             continue
+
+        if n == 0:
+            # first line of code block is either empty or a directive
+            stripped = line.strip()
+            if not stripped:
+                continue
+
+            if line.startswith(indentation):
+                if stripped.startswith(":"):
+                    n = -1
+                    # skip directive, act as if we are at top of code block
+                    continue
+            del stripped
+
         block.append(line)
+
     add_block(block, preamble, blocks)
     return "\n".join(blocks)
 

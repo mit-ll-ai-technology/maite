@@ -62,6 +62,9 @@ src2 = """
 
 src3 = """
     .. code-block:: python
+       :caption: blah
+       :foo: a
+       :bar: b
 
        from pathlib import Path
    
