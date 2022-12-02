@@ -1,5 +1,5 @@
 # flake8: noqa
-
+import json
 import re
 from pathlib import Path
 
@@ -56,10 +56,10 @@ def test_python_version():
 
 
 def test_scan_path_to_code():
+    import jatic_toolbox
+
     results = pyright_analyze(
-        Path.cwd(),
-        report_unnecessary_type_ignore_comment=True,
-        overwrite_config_ok=True,
+        Path(jatic_toolbox.__file__).parent, report_unnecessary_type_ignore_comment=True
     )
     assert results["summary"]["filesAnalyzed"] > 2
 
@@ -170,3 +170,33 @@ def test_scan_ipynb(src, expected_num_error):
     assert results["summary"]["errorCount"] == expected_num_error, list_error_messages(
         results
     )
+
+
+@pytest.mark.parametrize("dir_", [None, "foo"])
+@pytest.mark.usefixtures("cleandir")
+def test_scan_doesnt_clobber_preexisting_pyright_config(dir_: str):
+    d = Path.cwd() if not dir_ else Path.cwd() / dir_
+    d.mkdir(exist_ok=True)
+
+    config = d / "pyrightconfig.json"
+    file_ = d / "file.py"
+
+    pyright_target = file_ if not dir_ else d
+
+    config.write_text(json.dumps({"reportUnnecessaryTypeIgnoreComment": False}))
+    expected_config = config.read_text("utf-8")
+    file_.write_text("x = 1 + 1  # type: ignore")
+
+    results = pyright_analyze(
+        pyright_target,
+        pyright_config={"reportUnnecessaryTypeIgnoreComment": True},
+    )
+    post_run_config = config.read_text("utf-8")
+
+    assert (
+        results["summary"]["errorCount"] == 1
+        and 'Unnecessary "# type: ignore" comment'
+        in results["generalDiagnostics"][0]["message"]
+    )
+
+    assert expected_config == post_run_config

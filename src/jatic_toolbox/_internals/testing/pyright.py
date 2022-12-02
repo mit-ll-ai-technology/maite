@@ -122,7 +122,7 @@ def rst_to_code(src: str):
         block: Optional[List[str]],
         preamble: Optional[str],
         blocks: List[str],
-    ):
+    ) -> str:
         if block:
             block_str = "\n".join(block) + "\n"
             assert preamble
@@ -168,21 +168,25 @@ def pyright_analyze(
     code_or_path,
     pyright_config: Optional[Dict[str, Any]] = None,
     *,
+    scan_docstring: bool = False,
     path_to_pyright: Union[Path, None] = PYRIGHT_PATH,
     preamble: str = "",
     python_version: Optional[str] = None,
     report_unnecessary_type_ignore_comment: Optional[bool] = None,
     type_checking_mode: Optional[Literal["basic", "strict"]] = None,
-    overwrite_config_ok: bool = False,
-    scan_docstring: bool = False,
 ) -> PyrightOutput:
     """
     Scans a Python object (e.g., a function), docstring, or file using pyright and
     returns a JSON summary of the scan.
 
+    `.py`, `.rst`, and `.ipynb` file formats are supported.
+
     Some common pyright configuration options are exposed via this function for
     convenience; a full pyright JSON config can be specified to completely control
     the behavior of pyright.
+
+    This function requires that pyright is installed and can be run from the command
+    line [1]_.
 
     Parameters
     ----------
@@ -190,40 +194,43 @@ def pyright_analyze(
         A function, module-object, class, or method to scan. Or, a path to a file
         to scan. Supported file formats are `.py`, `.rst`, and `.ipynb`.
 
-    pyright_config : None | dict[str, Any]
-        A JSON configuration for pyright's settings [1]_.
+        Specifying a directory is permitted, but only `.py` files in that directory
+        will be scanned. All files will be copied to a temporary directory before being
+        scanned.
 
-    preamble: str, optional (default='')
+    pyright_config : None | dict[str, Any]
+        A JSON configuration for pyright's settings [2]_.
+
+    scan_docstring : bool, optional (default=False), keyword-only
+        If `True` pyright will scan the docstring examples of the specified code object,
+        rather than the code object itself.
+
+        Example code blocks are expected to have the doctest format [3]_.
+
+    preamble : str, optional (default=''), keyword-only
         A "header" added to the source code that will be scanned. E.g., this can be
         useful for adding import statements.
 
-    path_to_pyright: Path, keyword-only
-        Path to the pyright executable. Defaults to `shutil.where('pyright')` if the
-        executable can be found.
+    path_to_pyright : Path, keyword-only
+        Path to the pyright executable (see installation instructions: [4]_).
+        Defaults to `shutil.where('pyright')` if the executable can be found.
 
-    python_version: Optional[str], keyword-only
+    python_version : Optional[str], keyword-only
         The version of Python used for this execution environment as a string in the
         format "M.m". E.g., "3.9" or "3.7"
 
-    report_unnecessary_type_ignore_comment: Optional[bool], keyword-only
+    report_unnecessary_type_ignore_comment : Optional[bool], keyword-only
         If `True` specifying `# type: ignore` for an expression that would otherwise
         not result in an error will cause pyright to report an error.
 
-    type_checking_mode: Optional[Literal["basic", "strict"]], keyword-only
+    type_checking_mode : Optional[Literal["basic", "strict"]], keyword-only
         Modifies pyright's default settings for what it marks as a warning verses an
-        error.
-
-    overwrite_config_ok : bool, optional (default=False)
-        If `True`, and if pyright configuration options are specified, this function
-        will temporarily overwrite an existing pyrightconfig.json file if necessary.
-
-        This option should be used with caution if tests using `pyright_analyze` are
-        being run concurrently that impact the same config file.
+        error. Defaults to 'basic'.
 
     Returns
     -------
     PyrightOutput : TypedDict
-        The JSON-decoded results of the scan [2]_.
+        The JSON-decoded results of the scan [3]_.
             - version: str
             - time: str
             - generalDiagnostics: List[DiagnosticDict] (one entry per error/warning)
@@ -231,8 +238,10 @@ def pyright_analyze(
 
     References
     ----------
-    .. [1] https://github.com/microsoft/pyright/blob/main/docs/configuration.md
-    .. [2] https://github.com/microsoft/pyright/blob/main/docs/command-line.md#json-output
+    .. [1] https://github.com/microsoft/pyright/blob/aad650ec373a9894c6f13490c2950398095829c6/README.md#command-line
+    .. [2] https://github.com/microsoft/pyright/blob/main/docs/configuration.md
+    .. [3] https://docs.python.org/3/library/doctest.html
+    .. [4] https://github.com/microsoft/pyright/blob/main/docs/command-line.md#json-output
 
     Notes
     -----
@@ -297,11 +306,11 @@ def pyright_analyze(
     ...     Examples
     ...     --------
     ...     >>> from mylib import plus_1
-    ...     >>> plus_1('2')  # <- pyright_analyze will catch typo
+    ...     >>> plus_1('2')  # <- pyright_analyze will catch typo (str instead of int)
     ...     3
     ...     '''
     ...     return x + 1
-    >>> pyright_analyze(plus_1)["summary"]["errorCount"]
+    >>> pyright_analyze(plus_1, scan_docstring=True)["summary"]["errorCount"]
     1
 
     Fixing the docstring issue
@@ -315,10 +324,9 @@ def pyright_analyze(
     ...     3
     ...     '''
     ...     return x + 1
-    >>> pyright_analyze(plus_1)["summary"]["errorCount"]
+    >>> pyright_analyze(plus_1, scan_docstring=True)["summary"]["errorCount"]
     0
     """
-    TMP_CONFIG_HEADER = r"// temp config written by pyright_analyze" + "\n"
 
     if path_to_pyright is None:
         raise ModuleNotFoundError(
@@ -376,56 +384,38 @@ def pyright_analyze(
     with chdir():
         cwd = Path.cwd()
         if source is not None:
+
             file_ = cwd / "source.py"
-            file_.write_text(source)
+            file_.write_text(source, encoding="utf-8")
         else:
             file_ = Path(code_or_path).absolute()
             assert (
                 file_.exists()
             ), f"Specified path {file_} does not exist. Cannot be scanned by pyright."
+            if file_ != cwd:
+                cp = shutil.copytree if file_.is_dir() else shutil.copy
+                file_ = cp(file_, cwd / file_.name)
 
-        config_path = (
-            file_.parent if file_.is_file() else file_
-        ) / "pyrightconfig.json"
-
-        if not overwrite_config_ok and config_path.exists() and pyright_config:
-            raise ValueError(
-                f"pyright config located at {config_path.absolute()} would be "
-                "temporarily overwritten by this test. To permit this, specify "
-                "`overwrite_config_ok=True`."
-            )
-
-        old_pyright_config = config_path.read_text() if config_path.exists() else None
-        skip_config_delete = False
-
-        if old_pyright_config and old_pyright_config.startswith(TMP_CONFIG_HEADER):
-            # In the case where pyright_analyze is being run concurrently and
-            # encountered a temp config that pyright_analyze wrote, we ought not
-            # restore that temp config as this could inadvertently overwrite the
-            # *correct* config that was restored during the execution of this function
-            skip_config_delete = True
-            old_pyright_config = None
+        run_dir = file_.parent if file_.is_file() else file_
+        config_path = run_dir / "pyrightconfig.json"
 
         if pyright_config:
-            config_path.write_text(TMP_CONFIG_HEADER + json.dumps(pyright_config))
+            config_path.write_text(json.dumps(pyright_config))
 
+        proc = None
         proc = subprocess.run(
             [str(path_to_pyright.absolute()), str(file_.absolute()), "--outputjson"],
-            cwd=file_.parent,
+            cwd=run_dir,
             encoding="utf-8",
             text=True,
             capture_output=True,
         )
         try:
             return json.loads(proc.stdout)
-        except Exception:
-            print(proc.stdout)
-            raise
-        finally:
-            if not skip_config_delete and config_path.is_file():
-                os.remove(config_path)
-            if old_pyright_config is not None:
-                config_path.write_text(old_pyright_config)
+        except Exception as e:
+            if proc is not None:
+                print(proc.stdout)
+            raise e
 
 
 def list_error_messages(results: PyrightOutput) -> List[str]:
