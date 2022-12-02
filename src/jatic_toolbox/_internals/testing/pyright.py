@@ -13,6 +13,17 @@ from typing import Any, Dict, List, Optional, Union
 from typing_extensions import Literal, NotRequired, TypedDict
 
 
+def notebook_to_py_text(path_to_nb: Path) -> str:
+    try:
+        import jupytext
+    except ImportError:
+        raise ImportError(
+            "`jupytext` must be installed in order to run pyright on jupyter notebooks."
+        )
+    ntbk = jupytext.read(path_to_nb, fmt="ipynb")
+    return jupytext.writes(ntbk, fmt=".py")
+
+
 class _Summary(TypedDict):
     filesAnalyzed: int
     errorCount: int
@@ -175,9 +186,9 @@ def pyright_analyze(
 
     Parameters
     ----------
-    code_or_path : SourceObjectType | str | Path
+    code_or_path : SourceObjectType | Path
         A function, module-object, class, or method to scan. Or, a path to a file
-        to scan. Supported file formats are .py and .rst.
+        to scan. Supported file formats are `.py`, `.rst`, and `.ipynb`.
 
     pyright_config : None | dict[str, Any]
         A JSON configuration for pyright's settings [1]_.
@@ -340,18 +351,27 @@ def pyright_analyze(
             "object with a `__doc__` attribute that returns a string."
         )
 
-    if not isinstance(code_or_path, (str, Path)):
+    if isinstance(code_or_path, str):
+        code_or_path = Path(code_or_path)
+
+    if isinstance(code_or_path, Path):
+        code_or_path = code_or_path.absolute()
+        if code_or_path.suffix == ".rst":
+            source = rst_to_code(code_or_path.read_text("utf-8"))
+        elif code_or_path.suffix == ".ipynb":
+            source = notebook_to_py_text(code_or_path)
+        else:
+            source = None
+    else:
         if preamble and not preamble.endswith("\n"):
             preamble = preamble + "\n"
         if not scan_docstring:
             source = preamble + textwrap.dedent((inspect.getsource(code_or_path)))
         else:
-            source = preamble + get_docstring_examples(code_or_path.__doc__)
-
-    elif Path(code_or_path).suffix == ".rst":
-        source = rst_to_code(Path(code_or_path).read_text("utf-8"))
-    else:
-        source = None
+            docstring = inspect.getdoc(code_or_path)
+            if docstring is None:
+                raise ValueError(f"{code_or_path} does not have a docstring to scan.")
+            source = preamble + get_docstring_examples(docstring)
 
     with chdir():
         cwd = Path.cwd()

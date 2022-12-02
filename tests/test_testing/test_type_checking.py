@@ -1,9 +1,11 @@
+# flake8: noqa
+
 import re
 from pathlib import Path
 
 import pytest
 
-from jatic_toolbox.testing.pyright import pyright_analyze
+from jatic_toolbox.testing.pyright import list_error_messages, pyright_analyze
 
 
 def test_pyright_catches_errors():
@@ -95,3 +97,76 @@ def test_scan_docstring():
         d["message"] for d in results["generalDiagnostics"] if d["severity"] == "error"
     ]
     assert message.startswith('Operator "+" not supported for types')
+
+
+rst_good_1 = """
+    .. code-block:: python
+
+       from pathlib import Path
+   
+       def print_file(x: Path) -> None:
+           with x.open("r") as f: 
+               print(f.read())
+"""
+
+rst_good_2 = """
+    .. code-block:: pycon
+
+       >>> from pathlib import Path
+       >>>
+       >>> def print_file(x: Path) -> None:
+       ...     with x.open("r") as f: 
+       ...         print(f.read())
+"""
+
+rst_bad_1 = """
+    .. code-block:: python
+
+       from pathlib import Path
+   
+       def print_file(x: int) -> None:
+           with x.open("r") as f: 
+               print(f.read())
+"""
+
+rst_bad_2 = """
+    .. code-block:: pycon
+
+       >>> from pathlib import Path
+       >>>
+       >>> def print_file(x: int) -> None:
+       ...     with x.open("r") as f: 
+       ...         print(f.read())
+"""
+
+
+@pytest.mark.usefixtures("cleandir")
+@pytest.mark.parametrize(
+    "src, expected_num_error",
+    [
+        (rst_good_1, 0),
+        (rst_good_2, 0),
+        (rst_bad_1, 1),
+        (rst_bad_2, 1),
+    ],
+)
+def test_scan_rst(src: str, expected_num_error: int):
+    Path("file.rst").write_text(src)  # file will be written to a tmp dir
+    results = pyright_analyze("file.rst")
+    assert results["summary"]["errorCount"] == expected_num_error, list_error_messages(
+        results
+    )
+
+
+@pytest.mark.filterwarnings("ignore:Jupyter is migrating its paths")
+@pytest.mark.parametrize("src, expected_num_error", [("1 + 'a'", 1), ("1 + 2", 0)])
+@pytest.mark.usefixtures("cleandir")
+def test_scan_ipynb(src, expected_num_error):
+    import jupytext
+
+    jupytext.write(jupytext.reads(src, fmt=".py"), "file.ipynb", fmt=".ipynb")
+
+    results = pyright_analyze("file.ipynb")
+    assert results["summary"]["errorCount"] == expected_num_error, list_error_messages(
+        results
+    )
