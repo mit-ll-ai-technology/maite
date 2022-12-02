@@ -437,9 +437,11 @@ def pyright_analyze(
             file_.write_text(source, encoding="utf-8")
         else:
             file_ = Path(code_or_path).absolute()
-            assert (
-                file_.exists()
-            ), f"Specified path {file_} does not exist. Cannot be scanned by pyright."
+            if not file_.exists():
+                raise FileNotFoundError(
+                    f"Specified path {file_} does not exist. Cannot be scanned by pyright."
+                )
+
             if file_ != cwd:
                 cp = shutil.copytree if file_.is_dir() else shutil.copy
                 file_ = cp(file_, cwd / file_.name)
