@@ -4,7 +4,7 @@
 
 ## jatic_toolbox.protocols
 
-Defines common types – such as an inference-mode object detector – factor to be leveraged across JATIC projects. These are specifically designed to be protocols, which support structural subtyping. As a result developers and users can satisfy typed interfaces without having to explicitly subclass these custom types. These help to promote common interfaces across JATIC projects without introducing explicit inter-dependencies between them.
+Defines common types – such as an inference-mode object detector – factor to be leveraged across JATIC projects. These are specifically designed to be [protocols](https://peps.python.org/pep-0544/), which support structural subtyping. As a result developers and users can satisfy typed interfaces without having to explicitly subclass these custom types. These help to promote common interfaces across JATIC projects without introducing explicit inter-dependencies between them.
 
 
 ## jatic_toolbox.interop
