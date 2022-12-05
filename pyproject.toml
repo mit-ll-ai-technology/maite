@@ -15,10 +15,6 @@ dependencies=[
   "hypothesis >= 6.28.0",
   "typing-extensions >= 4.1.0",
 ]
-[project.optional-dependencies]
-test = [
-    "jupytext >= 1.14.0",
-]
 
 license = {file = "LICENSE.txt"}
 keywords= [ "machine learning", "testing", "pytest"]
@@ -43,6 +39,10 @@ classifiers = [
     "Programming Language :: Python :: 3 :: Only",
 ]
 
+[project.optional-dependencies]
+test = [
+    "jupytext >= 1.14.0",
+]
 
 [project.urls]
 "Homepage" = "https://llcad-github.llan.ll.mit.edu/AIT/jatic_toolbox/"
