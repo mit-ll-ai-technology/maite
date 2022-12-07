@@ -1,3 +1,5 @@
+from itertools import chain
+
 import pytest
 
 from jatic_toolbox.testing.docs import validate_docstring
@@ -62,7 +64,12 @@ def make_func(
     return f
 
 
-def make_class(class_doc, init_doc, method_doc: str = "", property_doc: str = ""):
+def make_class(
+    class_doc: str = "",
+    init_doc: str = "",
+    method_doc: str = "",
+    property_doc: str = "",
+):
     class Class:
         def __init__(self, x: int) -> None:
             ...
@@ -83,7 +90,7 @@ def make_class(class_doc, init_doc, method_doc: str = "", property_doc: str = ""
     if method_doc:
         Class.method.__doc__ = method_doc
     if property_doc:
-        Class.prop.__doc__ = method_doc
+        Class.prop.__doc__ = property_doc
     return Class
 
 
@@ -133,6 +140,31 @@ def make_class(class_doc, init_doc, method_doc: str = "", property_doc: str = ""
                 examples=">>> 1+1\n2",
             ),
             "",
+        ),
+        make_class(
+            form_doc(
+                "A class thing.",
+                "This class does things.\nIt does lots of things.",
+                params="x : str\n    About x.",
+                examples=">>> 1+1\n2",
+            ),
+            "",
+            method_doc=form_doc(
+                "A class thing.",
+                "This class does things.\nIt does lots of things.",
+                params="y : str\n    About x.",
+                examples=">>> 1+1\n2",
+            ),
+        ),
+        pytest.param(
+            make_class(),
+            marks=pytest.mark.xfail(raises=AssertionError, strict=True),
+            id="BadClass",
+        ),
+        pytest.param(
+            make_func(),
+            marks=pytest.mark.xfail(raises=AssertionError, strict=True),
+            id="bad_func",
         ),
     ],
 )
@@ -207,3 +239,42 @@ def test_bad_doc(obj, ignore_codes, error_codes):
     results = validate_docstring(obj, ignore=ignore_codes)
     assert set(results["errors"]) == set(error_codes), results["errors"]
     assert results["error_count"] == sum(len(v) for v in results["errors"].values())
+
+
+def test_ignore_method():
+    class_bad_method = make_class(
+        method_doc=form_doc(
+            "A class thing.",
+            "This class does things.\nIt does lots of things.",
+            params="y : str\n    About x.",
+        ),
+    )
+    results1 = validate_docstring(class_bad_method, method_ignore=["EX01", "SA01"])
+    assert results1["error_count"] == 1, results1["errors"]
+
+    results2 = validate_docstring(class_bad_method)
+    assert results2["error_count"] == 2
+    assert "GL08" in results2["errors"]
+    del results2["errors"]["GL08"]
+    assert all(
+        msg.startswith("Class.method") for msg in chain(*results2["errors"].values())
+    )
+
+
+def test_ignore_property():
+    class_bad_method = make_class(
+        property_doc=form_doc(
+            "A class thing.",
+            "This class does things.\nIt does lots of things.",
+        ),
+    )
+    results1 = validate_docstring(class_bad_method, property_ignore=["EX01", "SA01"])
+    assert results1["error_count"] == 1, results1["errors"]
+
+    results2 = validate_docstring(class_bad_method)
+    assert results2["error_count"] == 2
+    assert "GL08" in results2["errors"]
+    del results2["errors"]["GL08"]
+    assert all(
+        msg.startswith("Class.prop") for msg in chain(*results2["errors"].values())
+    )
