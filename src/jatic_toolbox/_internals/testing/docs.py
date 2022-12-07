@@ -1,7 +1,8 @@
 from collections import defaultdict
-from typing import Any, Collection, Dict, List, Set, Tuple, cast
+from itertools import chain
+from typing import Any, Callable, Collection, Dict, List, Set, Tuple, cast
 
-from typing_extensions import Literal, TypeAlias, TypedDict
+from typing_extensions import Literal, NotRequired, TypeAlias, TypedDict
 
 NumpyDocErrorCode: TypeAlias = Literal[
     "GL01",
@@ -58,13 +59,15 @@ class _NumpyDocValidate(TypedDict):
 class NumPyDocResults(TypedDict):
     error_count: int
     errors: Dict[NumpyDocErrorCode, List[str]]
-    ignored_errors: Dict[NumpyDocErrorCode, List[str]]
     file: str
     file_line: int
+    ignored_errors: NotRequired[Dict[NumpyDocErrorCode, List[str]]]
 
 
 def validate_docstring(
-    obj: Any, ignore: Collection[NumpyDocErrorCode] = ("SA01",)
+    obj: Any,
+    ignore: Collection[NumpyDocErrorCode] = ("SA01",),
+    include_ignored_errors: bool = False,
 ) -> NumPyDocResults:
     """
     Validate an object's docstring against the NumPy docstring standard [1]_.
@@ -76,10 +79,15 @@ def validate_docstring(
     ----------
     obj : Any
         A function, class, module, or method whose docstring will be validated.
+        If `obj` is a class, its public methods and properties will be traversed and
+        their doc strings will be included in the validation process.
 
-    ignore : Collection[ErrorCode]
+    ignore : Collection[ErrorCode], optional (default=['SA01'])
         One or more error codes to be excluded from the reported errors. See the
         Notes section for a list of error codes.
+
+    include_ignored_errors : bool, optional (default=False)
+        If `True`, include the errors that were ignored during the validation.
 
     Returns
     -------
@@ -170,8 +178,8 @@ def validate_docstring(
      'file': 'home/scratch.py',
      'file_line': 1}
     """
-    # TODO: for classes, traverse class' methods?
     try:
+        from numpydoc.docscrape import ClassDoc
         from numpydoc.validate import get_doc_object, validate
     except ImportError:
         raise ImportError("`numpydoc` must be installed in order to use this function.")
@@ -184,26 +192,74 @@ def validate_docstring(
             f"code(s): {unknown}"
         )
 
-    if not isinstance(obj, str):
-        obj = get_doc_object(obj)
-    results = cast(_NumpyDocValidate, validate(obj))
+    validate = cast(Callable[[Any], _NumpyDocValidate], validate)
 
     errors: Dict[NumpyDocErrorCode, List[str]] = defaultdict(list)
     ignored_errors: Dict[NumpyDocErrorCode, List[str]] = defaultdict(list)
-    num_errors = len(results["errors"])
 
-    num_errors = 0
-    for err_code, err_msg in results["errors"]:
-        if err_code not in ignore:
-            num_errors += 1
-            errors[err_code].append(err_msg)
+    def update_errors(
+        new_errors: List[Tuple[NumpyDocErrorCode, str]], prefix: str = ""
+    ) -> None:
+        for err_code, err_msg in new_errors:
+            if err_code not in ignore:
+                errors[err_code].append(prefix + err_msg)
+            else:
+                ignored_errors[err_code].append(prefix + err_msg)
+
+    doc_obj = get_doc_object(obj)
+
+    results = validate(doc_obj)
+
+    update_errors(results["errors"])
+
+    if isinstance(doc_obj, ClassDoc):
+        if hasattr(obj, "__init__"):
+            init_results = validate(get_doc_object(obj.__init__))
+            if "GL08" in init_results["errors"]:
+                init_results = None
         else:
-            ignored_errors[err_code].append(err_msg)
+            init_results = None
 
-    return NumPyDocResults(
-        error_count=num_errors,
+        if init_results:
+            # Ignore 'missing section' errors unless the error occurs in both the
+            # class docstring and in the __init__ docstring
+            if "GLO8" in results["errors"]:
+                # class does not have docstring; defer to __init__
+                results = init_results
+            else:
+                update_errors(
+                    init_results["errors"], prefix=f"{obj.__name__}.__init__: "
+                )
+
+                init_codes = set(c for c, _ in init_results["errors"])
+                results_codes = set(c for c, _ in results["errors"])
+                resolved: List[NumpyDocErrorCode] = [
+                    code
+                    for code in errors
+                    if code.endswith("01")
+                    and ((code not in init_codes) ^ (code not in results_codes))
+                ]
+
+                for item in resolved:
+                    errors.pop(item)
+
+                for code, msgs in errors.items():
+                    if code.endswith("01") and len(msgs) == 2:
+                        msgs.pop()
+
+        del init_results
+
+        for name in chain(doc_obj.properties, doc_obj.methods):
+            attr_results = validate(get_doc_object(getattr(obj, name)))
+            prefix = f"{obj.__name__}.{name}: "
+            update_errors(attr_results["errors"], prefix=prefix)
+
+    out = NumPyDocResults(
+        error_count=sum((len(x) for x in errors.values()), start=0),
         errors=dict(errors),
-        ignored_errors=dict(ignored_errors),
         file=results["file"],
         file_line=results["file_line"],
     )
+    if include_ignored_errors:
+        out["ignored_errors"] = dict(ignored_errors)
+    return out
