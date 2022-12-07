@@ -209,34 +209,32 @@ def validate_docstring(
     doc_obj = get_doc_object(obj)
 
     results = validate(doc_obj)
+    results_codes = set(c for c, _ in results["errors"])
 
     update_errors(results["errors"])
 
     if isinstance(doc_obj, ClassDoc):
         if hasattr(obj, "__init__"):
             init_results = validate(get_doc_object(obj.__init__))
-            if "GL08" in init_results["errors"]:
-                init_results = None
+            init_codes = set(c for c, _ in init_results["errors"])
         else:
             init_results = None
+            init_codes = {}
 
-        if init_results:
-            # Ignore 'missing section' errors unless the error occurs in both the
-            # class docstring and in the __init__ docstring
-            if "GLO8" in results["errors"]:
+        if init_results and "GL08" not in init_codes:
+            if "GLO8" in results_codes:
                 # class does not have docstring; defer to __init__
                 results = init_results
             else:
                 update_errors(
                     init_results["errors"], prefix=f"{obj.__name__}.__init__: "
                 )
-
-                init_codes = set(c for c, _ in init_results["errors"])
-                results_codes = set(c for c, _ in results["errors"])
+                # Ignore 'missing section' errors unless the error occurs in both the
+                # class docstring and in the __init__ docstring
                 resolved: List[NumpyDocErrorCode] = [
                     code
                     for code in errors
-                    if code.endswith("01")
+                    if (code.endswith("01") or code == "GL08")
                     and ((code not in init_codes) ^ (code not in results_codes))
                 ]
 

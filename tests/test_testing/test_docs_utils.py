@@ -106,6 +106,34 @@ def make_class(class_doc, init_doc, method_doc: str = "", property_doc: str = ""
             ),
             form_doc(params="x : str\n    About x."),
         ),
+        make_class(
+            form_doc(
+                examples=">>> 1+1\n2",
+            ),
+            form_doc(
+                "A class thing.",
+                "This class does things.\nIt does lots of things.",
+                params="x : str\n    About x.",
+            ),
+        ),
+        make_class(
+            "",
+            form_doc(
+                "A class thing.",
+                "This class does things.\nIt does lots of things.",
+                params="x : str\n    About x.",
+                examples=">>> 1+1\n2",
+            ),
+        ),
+        make_class(
+            form_doc(
+                "A class thing.",
+                "This class does things.\nIt does lots of things.",
+                params="x : str\n    About x.",
+                examples=">>> 1+1\n2",
+            ),
+            "",
+        ),
     ],
 )
 def test_good_doc(obj):
@@ -113,23 +141,69 @@ def test_good_doc(obj):
     assert results["error_count"] == 0, results["errors"]
 
 
-bad_doc = make_func(
+bad_doc_func = make_func(
     "Compute result.",
     "Uses math to do thing.",
     params="z : int\n    About x.\ny : str\n    About y.",
     returns="int\n    The result.",
 )
 
+bad_doc_class = make_class(
+    form_doc(
+        "A class thing.",
+        "This class does things.\nIt does lots of things.",
+        "",
+        examples=">>> 1+1\n2",
+    ),
+    form_doc(params="x : str\n    About x."),
+)
+
 
 @pytest.mark.parametrize(
     "obj, ignore_codes, error_codes",
     [
-        (bad_doc, ["SA01"], ["EX01", "PR01", "PR02"]),
-        (bad_doc, ["EX01", "SA01"], ["PR01", "PR02"]),
-        (bad_doc, ["EX01", "SA01", "PR01"], ["PR02"]),
-        (bad_doc, ["EX01", "SA01", "PR01", "PR02"], []),
+        (bad_doc_func, ["SA01"], ["EX01", "PR01", "PR02"]),
+        (bad_doc_func, ["EX01", "SA01"], ["PR01", "PR02"]),
+        (bad_doc_func, ["EX01", "SA01", "PR01"], ["PR02"]),
+        (bad_doc_func, ["EX01", "SA01", "PR01", "PR02"], []),
+        (
+            make_class(
+                form_doc(
+                    "A class thing.",
+                    "This class does things.\nIt does lots of things.",
+                    "",
+                    examples=">>> 1+1\n2",
+                ),
+                form_doc(params="x : str\n    About x."),
+            ),
+            ["SA01"],
+            [],
+        ),
+        (
+            make_class(
+                form_doc(
+                    "A class thing.",
+                    "This class does things.\nIt does lots of things.",
+                ),
+                form_doc(params="x : str\n    About x."),
+            ),
+            ["SA01", "EX01"],
+            [],
+        ),
+        (
+            make_class(
+                form_doc(
+                    "A class thing.",
+                    "This class does things.\nIt does lots of things.",
+                ),
+                "",
+            ),
+            ["SA01", "EX01", "PR01"],
+            [],
+        ),
     ],
 )
 def test_bad_doc(obj, ignore_codes, error_codes):
     results = validate_docstring(obj, ignore=ignore_codes)
     assert set(results["errors"]) == set(error_codes), results["errors"]
+    assert results["error_count"] == sum(len(v) for v in results["errors"].values())
