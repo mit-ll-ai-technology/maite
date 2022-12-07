@@ -223,11 +223,10 @@ def pyright_analyze(
     report_unnecessary_type_ignore_comment: Optional[bool] = None,
     type_checking_mode: Optional[Literal["basic", "strict"]] = None,
 ) -> PyrightOutput:
-    """
-    Scans a Python object (e.g., a function), docstring, or file using pyright and
-    returns a JSON summary of the scan.
+    r"""
+    Scan a Python object, docstring, or file with pyright.
 
-    `.py`, `.rst`, and `.ipynb` file formats are supported.
+    The following file formats are supported: `.py`, `.rst`, and `.ipynb`
 
     Some common pyright configuration options are exposed via this function for
     convenience; a full pyright JSON config can be specified to completely control
@@ -255,17 +254,17 @@ def pyright_analyze(
 
         Example code blocks are expected to have the doctest format [3]_.
 
-    preamble : str, optional (default=''), keyword-only
-        A "header" added to the source code that will be scanned. E.g., this can be
-        useful for adding import statements.
-
     path_to_pyright : Path, keyword-only
         Path to the pyright executable (see installation instructions: [4]_).
         Defaults to `shutil.where('pyright')` if the executable can be found.
 
+    preamble : str, optional (default=''), keyword-only
+        A "header" added to the source code that will be scanned. E.g., this can be
+        useful for adding import statements.
+
     python_version : Optional[str], keyword-only
         The version of Python used for this execution environment as a string in the
-        format "M.m". E.g., "3.9" or "3.7"
+        format "M.m". E.g., "3.9" or "3.7".
 
     report_unnecessary_type_ignore_comment : Optional[bool], keyword-only
         If `True` specifying `# type: ignore` for an expression that would otherwise
@@ -277,12 +276,34 @@ def pyright_analyze(
 
     Returns
     -------
-    PyrightOutput : TypedDict
+    Dict[str, Any]
         The JSON-decoded results of the scan [3]_.
             - version: str
             - time: str
             - generalDiagnostics: List[DiagnosticDict] (one entry per error/warning)
             - summary: SummaryDict
+
+        See Notes for more details.
+
+    Notes
+    -----
+    When supplying a single .rst file, code blocks demarcated by
+    `.. code-block:: py[thon,con]` are parsed and used to populate a single temporary
+    .py file that pyright will scan.
+
+    `SummaryDict` consists of:
+        - filesAnalyzed: int
+        - errorCount: int
+        - warningCount: int
+        - informationCount: int
+        - timeInSec: float
+
+    `DiagnosticDict` consists of:
+        - file: str
+        - severity: Literal["error", "warning", "information"]
+        - message: str
+        - range: _Range
+        - rule: NotRequired[str]
 
     References
     ----------
@@ -290,12 +311,6 @@ def pyright_analyze(
     .. [2] https://github.com/microsoft/pyright/blob/main/docs/configuration.md
     .. [3] https://docs.python.org/3/library/doctest.html
     .. [4] https://github.com/microsoft/pyright/blob/main/docs/command-line.md#json-output
-
-    Notes
-    -----
-    When supplying a single .rst file, code blocks demarcated by
-    `.. code-block:: py[thon,con]` are parsed and used to populate a single temporary
-    .py file that pyright will scan.
 
     Examples
     --------
@@ -307,7 +322,7 @@ def pyright_analyze(
     >>> pyright_analyze(f)
     {'version': '1.1.281',
      'time': '1669686515154',
-     'generalDiagnostics': [{'file': 'C:\\Users\\RY26099\\AppData\\Local\\Temp\\12\\tmpcxc7erfq\\source.py',
+     'generalDiagnostics': [{'file': 'source.py',
        'severity': 'error',
        'message': 'Operator "+" not supported for types "Literal[1]" and "str"\n\xa0\xa0Operator "+" not supported for types "Literal[1]" and "str"',
        'range': {'start': {'line': 1, 'character': 11},
@@ -375,7 +390,6 @@ def pyright_analyze(
     >>> pyright_analyze(plus_1, scan_docstring=True)["summary"]["errorCount"]
     0
     """
-
     if path_to_pyright is None:
         raise ModuleNotFoundError(
             "`pyright` was not found. It may need to be installed."

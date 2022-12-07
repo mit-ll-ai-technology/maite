@@ -8,7 +8,8 @@ import pytest
 
 @pytest.fixture()
 def cleandir() -> Iterable[str]:
-    """Run a test with temporary directory as the current working directory.
+    """
+    Run a test with temporary directory as the current working directory.
 
     This is helpful for running tests that require file I/O that could pollute
     local directories. File cleanup is handled automatically.

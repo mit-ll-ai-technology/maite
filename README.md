@@ -28,6 +28,3 @@ Tools that help developers create a rigorous automated test suite for their JATI
 pytest fixtures for initializing test functions with common models, datasets, and other inputs that are useful for testing machine learning code.
 - Functions running static type checking tests using [pyright](https://github.com/microsoft/pyright) in a pytest test suite, including scans of both source code and example documentation code blocks.
 - [Hypothesis strategies](https://hypothesis.readthedocs.io/en/latest/) for driving property-based tests of interfaces that leverage JATIC protocols.
-
-
-

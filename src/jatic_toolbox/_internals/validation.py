@@ -57,7 +57,8 @@ class Unsatisfiable(AssertionError):
 def check_type(
     name: str, arg: T, type_: Union[type, Tuple[type, ...]], *, optional: bool = False
 ) -> T:
-    """Checks that an argument is an instance of one or more types.
+    """
+    Check that an argument is an instance of one or more types.
 
     Parameters
     ----------
@@ -68,14 +69,16 @@ def check_type(
         The argument.
 
     type_ : type | tuple[type, ...]
+        The type that `arg` should belong to. If multiple types are provided
+        then checks that `arg` is an instance of at least one of them.
 
     optional : bool, keyword, optional (default=False)
         If ``True``, then ``arg`` can be None.
 
     Returns
     -------
-    arg : T
-        The input value, unchanged.
+    T
+        The input value, `arg`, unchanged.
 
     Raises
     ------
@@ -151,7 +154,7 @@ def check_domain(
     upper_name: str = "",
 ) -> C:
     """
-    Checks that an argument falls within `[lower <=] arg [<= upper]`
+    Check that an argument falls within `[lower <=] arg [<= upper]`.
 
     Parameters
     ----------
@@ -159,6 +162,7 @@ def check_domain(
         The argument's name.
 
     arg : Comparable
+        The value to be checked.
 
     lower : Optional[Comparable]
         The lower bound of the domain. This bound is not checked
@@ -174,18 +178,18 @@ def check_domain(
     incl_up : bool, optional (default=True)
         If `True`, the upper bound is inclusive.
 
-    lower_name: str = ""
+    lower_name : str = ""
         If specified, includes the name of the lower bound in the
         error message.
 
-    upper_name: str = ""
+    upper_name : str = ""
         If specified, includes the name of the upper bound in the
         error message.
 
     Returns
     -------
-    arg : Comparable
-        The input value, unchanged.
+    Comparable
+        The input value, `arg`, unchanged.
 
     Raises
     ------
@@ -266,7 +270,8 @@ def check_one_of(
     *vals: SupportsEq,
     requires_identity: bool = False,
 ) -> T:
-    """Checks that `arg` is a member of `collection` or of `vals`.
+    """
+    Check that `arg` is a member of `collection` or of `vals`.
 
     Parameters
     ----------
@@ -291,8 +296,8 @@ def check_one_of(
 
     Returns
     -------
-    arg : T
-        The input value, unchanged.
+    T
+        The input value, `arg`, unchanged.
 
     Raises
     ------
@@ -354,21 +359,22 @@ def check_one_of(
 
 
 def chain_validators(*validators: Callable[[str, Any], Any]) -> Callable[[str, T], T]:
-    """Enables validators, functions like `(name: str, arg: T, [...]) -> T`, to be
-    chained together.
+    """
+    Enable validators to be chained together.
 
-    This is meant to be used with partial'd validators, where only the `name` and
-    `arg` fields need be populated.
+    Validators are functions like `(name: str, arg: T, [...]) -> T`. This is meant to be
+    used with partial'd validators, where only the `name` and `arg` fields need be
+    populated.
 
     Parameters
     ----------
-    validators : Callable[[str, T], T]
+    *validators : Callable[[str, T], T]
         Accepts `name` and `arg`, and returns `arg` if it is a valid input, otherwise
         should raise `InvalidArgument`.
 
     Returns
     -------
-    chained_validators : Callable[[str, T], T]
+    Callable[[str, T], T]
         A function of signature `chain(name: str, arg: T) -> T` that calls each
         validator as `val(name, arg)` in order from low-index to high-index.
 
