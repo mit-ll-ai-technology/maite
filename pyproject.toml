@@ -39,7 +39,11 @@ classifiers = [
 ]
 
 [project.optional-dependencies]
-test = ["jupytext >= 1.14.0"]
+test = [
+  "jupytext >= 1.14.0",
+  "numpydoc >= 1.5.0",
+  "pyright >= 1.1.280",
+]
 
 [project.urls]
 "Homepage" = "https://llcad-github.llan.ll.mit.edu/AIT/jatic_toolbox/"
