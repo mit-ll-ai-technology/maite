@@ -103,7 +103,8 @@ exclude = [
   "**/node_modules",
   "**/__pycache__",
   "src/jatic_toolbox/_version.py",
-  "**/third_party",
+  "tests/conftest.py",
+  "tests/test_testing/test_type_checking.py"
 ]
 reportUnnecessaryTypeIgnoreComment = true
 reportUnnecessaryIsInstance = false
@@ -151,9 +152,8 @@ basepython = python3.9
 deps = pyright==1.1.282
        mypy==0.982
 
-commands = pyright --lib tests/annotations/ src/
+commands = pyright --lib src/
            pyright --ignoreexternal --verifytypes jatic_toolbox
-           mypy --warn-unused-ignores --non-interactive --install-types tests/annotations/mypy_checks.py
 
 [testenv:auto-format]
 skip_install=true

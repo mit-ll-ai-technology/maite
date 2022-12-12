@@ -212,7 +212,7 @@ def rst_to_code(src: str) -> str:
 
 
 def pyright_analyze(
-    code_or_path,
+    code_or_path: Any,
     pyright_config: Optional[Dict[str, Any]] = None,
     *,
     scan_docstring: bool = False,
