@@ -200,3 +200,30 @@ def test_scan_doesnt_clobber_preexisting_pyright_config(dir_: str):
     )
 
     assert expected_config == post_run_config
+
+
+@pytest.mark.parametrize("suffix", [".py", ".ipynb", ".rst", "/"])
+def test_analyze_missing_file(suffix):
+    with pytest.raises(FileNotFoundError, match=r"Cannot be scanned by pyright."):
+        pyright_analyze(f"moo{suffix}")
+
+
+def test_bad_path_to_pyright():
+    def f():
+        ...
+
+    bad_path = "not/a/path/pyright"
+    with pytest.raises(FileNotFoundError, match=rf"{bad_path} – doesn't exist."):
+        pyright_analyze(f, path_to_pyright=Path(bad_path))
+
+
+def test_list_error_messages():
+    def f(x: int):
+        return x.lower()
+
+    results = pyright_analyze(f)
+    listed_errors = list_error_messages(results)
+    assert len(listed_errors) == 1
+    assert listed_errors[0].startswith(
+        '(line start) 1: Cannot access member "lower" for type "int"'
+    )
