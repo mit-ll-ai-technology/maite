@@ -1,7 +1,5 @@
 # jatic_toolbox
 
-![image](brand/Hydra-Zen_logo_full_filled_bkgrnd_small.png)
-
 
 <p align="center">
   <a>
