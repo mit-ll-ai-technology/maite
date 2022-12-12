@@ -158,6 +158,7 @@ def test_scan_rst(src: str, expected_num_error: int):
     )
 
 
+@pytest.mark.filterwarnings("ignore:the imp module is deprecate")
 @pytest.mark.filterwarnings("ignore:Jupyter is migrating its paths")
 @pytest.mark.parametrize("src, expected_num_error", [("1 + 'a'", 1), ("1 + 2", 0)])
 @pytest.mark.usefixtures("cleandir")
@@ -212,8 +213,10 @@ def test_bad_path_to_pyright():
     def f():
         ...
 
-    bad_path = "not/a/path/pyright"
-    with pytest.raises(FileNotFoundError, match=rf"{bad_path} – doesn't exist."):
+    bad_path = Path("not/a/path/pyright")
+    with pytest.raises(
+        FileNotFoundError, match=re.escape(f"{str(bad_path)} – doesn't exist.")
+    ):
         pyright_analyze(f, path_to_pyright=Path(bad_path))
 
 
