@@ -149,8 +149,10 @@ commands = pytest -n auto tests/test_docstrings.py -vv
 usedevelop = true
 basepython = python3.9
 deps = pyright>=1.1.282
+       numpy
+       torch
 
-commands = pyright --lib src/
+commands = pyright --lib src/ tests/
            pyright --ignoreexternal --verifytypes jatic_toolbox
 
 [testenv:auto-format]

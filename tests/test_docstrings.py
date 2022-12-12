@@ -2,7 +2,7 @@ import pytest
 
 from jatic_toolbox.testing.docs import validate_docstring
 from jatic_toolbox.testing.pyright import list_error_messages, pyright_analyze
-from jatic_toolbox.testing.pytest_fixtures import cleandir
+from jatic_toolbox.testing.pytest import cleandir
 from jatic_toolbox.utils.validation import (
     chain_validators,
     check_domain,
@@ -17,7 +17,7 @@ preamble = """from jatic_toolbox.utils.validation import (
     check_type,
 )
 from jatic_toolbox.testing.docs import validate_docstring
-from jatic_toolbox.testing.pytest_fixtures import cleandir
+from jatic_toolbox.testing.pytest import cleandir
 """
 
 

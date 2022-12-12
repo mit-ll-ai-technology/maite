@@ -4,7 +4,7 @@ import sys
 
 import hypothesis.strategies as st
 
-from jatic_toolbox.testing.pytest_fixtures import cleandir  # noqa: F401
+from jatic_toolbox.testing.pytest import cleandir  # noqa: F401
 
 st.register_type_strategy(st.DataObject, st.data())
 

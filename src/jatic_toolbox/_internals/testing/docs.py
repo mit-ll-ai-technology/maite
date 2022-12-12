@@ -225,9 +225,10 @@ def validate_docstring(
     ...
     ...     Examples
     ...     --------
-    ...     >>> person('Brad', 22)
+    ...     person('Brad', 22)
     ...     '''
-    ...     ...
+    ...     return
+    ...
 
     Let's ignore the need for an Extended Summary and a See Also section.
 
