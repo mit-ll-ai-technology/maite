@@ -22,7 +22,10 @@ dependencies = [
 license = { file = "LICENSE.txt" }
 keywords = ["machine learning", "testing", "pytest"]
 
-authors = [{ name = "Ryan Soklaski", email = "ryan.soklaski@ll.mit.edu" }]
+authors = [{ name = "Ryan Soklaski", email = "ryan.soklaski@ll.mit.edu" },
+           {name = "Justin Goodwin", email = "jgoodwin@ll.mit.edu" },
+           {name = "Michael Yee", email = "myee@ll.mit.edu" },
+           ]
 maintainers = [{ name = "Ryan Soklaski", email = "ryan.soklaski@ll.mit.edu" }]
 
 classifiers = [
@@ -43,6 +46,8 @@ test = [
   "jupytext >= 1.14.0",
   "numpydoc >= 1.5.0",
   "pyright >= 1.1.280",
+  "pytest >= 7.0.0",
+  "hypothesis >= 6.61.0",
 ]
 
 [project.urls]
@@ -98,7 +103,83 @@ exclude = [
   "**/node_modules",
   "**/__pycache__",
   "src/jatic_toolbox/_version.py",
-  "**/third_party",
+  "tests/conftest.py",
+  "tests/test_testing/test_type_checking.py"
 ]
 reportUnnecessaryTypeIgnoreComment = true
 reportUnnecessaryIsInstance = false
+
+
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+isolated_build = True
+envlist = py37, py38, py39, py310
+
+[gh-actions]
+python =
+  3.7: py37
+  3.8: py38
+  3.9: py39
+  3.10: py310
+
+
+[testenv]
+passenv = *
+deps = pytest-xdist
+extras = test
+
+commands = pytest -n auto \
+           {posargs}
+
+
+[testenv:coverage]
+deps = {[testenv]deps}
+       coverage[toml]
+       pytest-cov
+usedevelop = true
+basepython = python3.9
+setenv = NUMBA_DISABLE_JIT=1
+commands = pytest --cov-report term-missing --cov-config=pyproject.toml --cov-fail-under=100 --cov=jatic_toolbox -n auto tests
+
+[testenv:scan-docs]
+commands = pytest -n auto tests/test_docstrings.py -vv
+
+[testenv:typecheck]
+usedevelop = true
+basepython = python3.9
+deps = pyright>=1.1.282
+
+commands = pyright --lib src/
+           pyright --ignoreexternal --verifytypes jatic_toolbox
+
+[testenv:auto-format]
+skip_install=true
+deps =
+    autoflake
+    black
+    isort
+commands =
+    autoflake --recursive --in-place --remove-duplicate-keys --remove-unused-variables src/ tests/
+    isort src/ tests/
+    black src/ tests/
+
+[testenv:enforce-format]
+skip_install=true
+basepython=python3.9
+deps=black
+     isort
+     flake8
+commands=
+    black src/ tests/ --diff --check
+    isort src/ tests/ --diff --check
+    flake8 src/ tests/
+
+
+[testenv:docs]
+basepython=python3.9
+changedir=docs
+deps=-r{toxinidir}/docs/requirements.txt
+commands=
+    sphinx-build -b html -d {envtmpdir}/doctrees ./source  {envdir}/build/html
+"""

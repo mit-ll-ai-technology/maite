@@ -1,7 +1,8 @@
 # flake8: noqa
 
-import hypothesis.strategies as st
 import sys
+
+import hypothesis.strategies as st
 
 from jatic_toolbox.testing.pytest_fixtures import cleandir  # noqa: F401
 
@@ -10,9 +11,9 @@ st.register_type_strategy(st.DataObject, st.data())
 # Skip collection of tests that don't work on the current version of Python.
 collect_ignore_glob = []
 
-if 'torch' in sys.modules:
+if "torch" in sys.modules:
     from hypothesis import register_random
-    
+
     class TorchRandomWrapper:
         def __init__(self):
 
@@ -23,7 +24,6 @@ if 'torch' in sys.modules:
             self.seed = default_generator.manual_seed
             self.getstate = default_generator.get_state
             self.setstate = default_generator.set_state
-
 
     r = TorchRandomWrapper()
     # Note: do not specifying TorchRandomWrapper() inline. It will be garbage collected

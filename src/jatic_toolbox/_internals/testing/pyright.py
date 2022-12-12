@@ -204,7 +204,6 @@ def rst_to_code(src: str) -> str:
                     n = -1
                     # skip directive, act as if we are at top of code block
                     continue
-            del stripped
 
         block.append(line)
 
@@ -213,7 +212,7 @@ def rst_to_code(src: str) -> str:
 
 
 def pyright_analyze(
-    code_or_path,
+    code_or_path: Any,
     pyright_config: Optional[Dict[str, Any]] = None,
     *,
     scan_docstring: bool = False,
@@ -390,13 +389,13 @@ def pyright_analyze(
     >>> pyright_analyze(plus_1, scan_docstring=True)["summary"]["errorCount"]
     0
     """
-    if path_to_pyright is None:
+    if path_to_pyright is None:  # pragma: no cover
         raise ModuleNotFoundError(
             "`pyright` was not found. It may need to be installed."
         )
     if not path_to_pyright.is_file():
         raise FileNotFoundError(
-            f"`path_to_pyright – {path_to_pyright} – doesn't exist."
+            f"`path_to_pyright` – {path_to_pyright} – doesn't exist."
         )
     if not pyright_config:
         pyright_config = {}
@@ -426,6 +425,10 @@ def pyright_analyze(
 
     if isinstance(code_or_path, Path):
         code_or_path = code_or_path.absolute()
+        if not code_or_path.exists():
+            raise FileNotFoundError(
+                f"Specified path {code_or_path} does not exist. Cannot be scanned by pyright."
+            )
         if code_or_path.suffix == ".rst":
             source = rst_to_code(code_or_path.read_text("utf-8"))
         elif code_or_path.suffix == ".ipynb":
@@ -439,8 +442,7 @@ def pyright_analyze(
             source = preamble + textwrap.dedent((inspect.getsource(code_or_path)))
         else:
             docstring = inspect.getdoc(code_or_path)
-            if docstring is None:
-                raise ValueError(f"{code_or_path} does not have a docstring to scan.")
+            assert docstring is not None
             source = preamble + get_docstring_examples(docstring)
 
     with chdir():
@@ -451,11 +453,6 @@ def pyright_analyze(
             file_.write_text(source, encoding="utf-8")
         else:
             file_ = Path(code_or_path).absolute()
-            if not file_.exists():
-                raise FileNotFoundError(
-                    f"Specified path {file_} does not exist. Cannot be scanned by pyright."
-                )
-
             if file_ != cwd:
                 cp = shutil.copytree if file_.is_dir() else shutil.copy
                 file_ = cp(file_, cwd / file_.name)
@@ -476,7 +473,7 @@ def pyright_analyze(
         )
         try:
             return json.loads(proc.stdout)
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             if proc is not None:
                 print(proc.stdout)
             raise e
