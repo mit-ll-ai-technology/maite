@@ -11,4 +11,3 @@ repos:
     rev: v5.10.1
     hooks:
     -   id: isort
-    args: [--config, .flake8]
