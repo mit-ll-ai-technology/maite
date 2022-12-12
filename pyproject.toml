@@ -114,7 +114,7 @@ reportUnnecessaryIsInstance = false
 legacy_tox_ini = """
 [tox]
 isolated_build = True
-envlist = py37, py38, py39, py310, ml-env
+envlist = py37, py38, py39, py310
 
 [gh-actions]
 python =
@@ -142,14 +142,13 @@ basepython = python3.9
 setenv = NUMBA_DISABLE_JIT=1
 commands = pytest --cov-report term-missing --cov-config=pyproject.toml --cov-fail-under=100 --cov=jatic_toolbox -n auto tests
 
-[testenv:pyright-scan-docs]
-commands = pytest -n auto tests/test_docs_typecheck.py -vv
-
+[testenv:scan-docs]
+commands = pytest -n auto tests/test_docstrings.py -vv
 
 [testenv:typecheck]
 usedevelop = true
 basepython = python3.9
-deps = pyright==1.1.282
+deps = pyright>=1.1.282
 
 commands = pyright --lib src/
            pyright --ignoreexternal --verifytypes jatic_toolbox
