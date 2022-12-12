@@ -47,8 +47,8 @@ def test_check_type_passes_good_type(target_type, arg):
 
 
 @given(...)
-def test_check_multiple_types(arg: Union[str, int]):
-    out = check_type("dummy", arg, type_=(str, int))
+def test_check_multiple_types(arg: Union[str, int, None]):
+    out = check_type("dummy", arg, type_=(str, int), optional=True)
     assert out == arg
 
 
@@ -252,13 +252,14 @@ def test_check_one_of_raises_unsatisfiable():
         check_one_of("foo", 1, [])
 
 
-def test_chain_validators():
-    pass
-
-
 is_int = partial(check_type, type_=int)
 is_pos = partial(check_domain, lower=0)
 check_pos_int = chain_validators(is_int, is_pos)
+
+
+@given(st.integers(0, 10))
+def test_chain_validators_pass_through(x: int):
+    assert x == check_pos_int("arg", x)
 
 
 @pytest.mark.parametrize(
