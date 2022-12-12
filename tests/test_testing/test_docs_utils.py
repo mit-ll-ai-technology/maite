@@ -1,7 +1,10 @@
 from itertools import chain
+from typing import Optional
 
 import pytest
+from pytest import param
 
+from jatic_toolbox.errors import InvalidArgument
 from jatic_toolbox.testing.docs import validate_docstring
 
 
@@ -65,14 +68,16 @@ def make_func(
 
 
 def make_class(
-    class_doc: str = "",
-    init_doc: str = "",
+    class_doc: Optional[str] = None,
+    init_doc: Optional[str] = None,
     method_doc: str = "",
     property_doc: str = "",
 ):
     class Class:
-        def __init__(self, x: int) -> None:
-            ...
+        if init_doc is not None:
+
+            def __init__(self, x: int) -> None:
+                ...
 
         if method_doc:
 
@@ -85,8 +90,12 @@ def make_class(
             def prop(self):
                 ...
 
-    Class.__doc__ = class_doc
-    Class.__init__.__doc__ = init_doc
+    if class_doc is not None:
+        Class.__doc__ = class_doc
+
+    if init_doc is not None:
+        Class.__init__.__doc__ = init_doc
+
     if method_doc:
         Class.method.__doc__ = method_doc
     if property_doc:
@@ -111,7 +120,31 @@ def make_class(
                 "",
                 examples=">>> 1+1\n2",
             ),
-            form_doc(params="x : str\n    About x."),
+            form_doc(params="x : int\n    About x."),
+        ),
+        make_class(
+            init_doc=form_doc(
+                "A class thing.",
+                "This class does things.\nIt does lots of things.",
+                params="x : int\n    About x.",
+                examples=">>> 1+1\n2",
+            ),
+        ),
+        make_class(
+            form_doc(
+                "A class thing.",
+                "This class does things.\nIt does lots of things.",
+                params="x : int\n    About x.",
+                examples=">>> 1+1\n2",
+            ),
+            init_doc="",
+        ),
+        make_class(
+            form_doc(
+                "A class thing.",
+                "This class does things.\nIt does lots of things.",
+                examples=">>> 1+1\n2",
+            ),
         ),
         make_class(
             form_doc(
@@ -194,11 +227,11 @@ bad_doc_class = make_class(
 @pytest.mark.parametrize(
     "obj, ignore_codes, error_codes",
     [
-        (bad_doc_func, ["SA01"], ["EX01", "PR01", "PR02"]),
-        (bad_doc_func, ["EX01", "SA01"], ["PR01", "PR02"]),
-        (bad_doc_func, ["EX01", "SA01", "PR01"], ["PR02"]),
-        (bad_doc_func, ["EX01", "SA01", "PR01", "PR02"], []),
-        (
+        param(bad_doc_func, ["SA01"], ["EX01", "PR01", "PR02"], id="check_ignore0"),
+        param(bad_doc_func, ["EX01", "SA01"], ["PR01", "PR02"], id="check_ignore1"),
+        param(bad_doc_func, ["EX01", "SA01", "PR01"], ["PR02"], id="check_ignore2"),
+        param(bad_doc_func, ["EX01", "SA01", "PR01", "PR02"], [], id="check_ignore3"),
+        param(
             make_class(
                 form_doc(
                     "A class thing.",
@@ -210,8 +243,9 @@ bad_doc_class = make_class(
             ),
             ["SA01"],
             [],
+            id="ignore extended summary",
         ),
-        (
+        param(
             make_class(
                 form_doc(
                     "A class thing.",
@@ -221,8 +255,9 @@ bad_doc_class = make_class(
             ),
             ["SA01", "EX01"],
             [],
+            id="ignore examples",
         ),
-        (
+        param(
             make_class(
                 form_doc(
                     "A class thing.",
@@ -232,13 +267,34 @@ bad_doc_class = make_class(
             ),
             ["SA01", "EX01", "PR01"],
             [],
+            id="ignore params and examples",
         ),
+        param(
+            make_class(
+                form_doc(
+                    "A class thing.",
+                    "This class does things.\nIt does lots of things.",
+                    params="x : str\n    About x.",
+                    examples=">>> 1+1\n2",
+                )
+            ),
+            ["SA01"],
+            ["PR02"],
+            id="error: documented param x is unknown",
+        ),
+        param(make_class(), [], ["GL08"], id="error: No class docstring"),
     ],
 )
 def test_bad_doc(obj, ignore_codes, error_codes):
-    results = validate_docstring(obj, ignore=ignore_codes)
+    results = validate_docstring(obj, ignore=ignore_codes, include_ignored_errors=True)
     assert set(results["errors"]) == set(error_codes), results["errors"]
+    assert set(results["ignored_errors"]) == set(ignore_codes)
     assert results["error_count"] == sum(len(v) for v in results["errors"].values())
+
+
+def test_bad_error_code():
+    with pytest.raises(InvalidArgument, match=r"NOTACODE"):
+        validate_docstring(make_class(), ignore=["NOTACODE"])  # type: ignore
 
 
 def test_ignore_method():

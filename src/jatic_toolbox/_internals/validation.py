@@ -17,7 +17,7 @@ from typing import (
 
 from typing_extensions import Protocol
 
-from .errors import InvalidArgument
+from jatic_toolbox.errors import InvalidArgument
 
 T = TypeVar("T")
 N = TypeVar("N", int, float)

@@ -7,7 +7,7 @@ import hypothesis.strategies as st
 import pytest
 from hypothesis import assume, given, settings
 
-from jatic_toolbox._internals.errors import InvalidArgument
+from jatic_toolbox.errors import InvalidArgument
 from jatic_toolbox.utils.validation import (
     chain_validators,
     check_domain,
