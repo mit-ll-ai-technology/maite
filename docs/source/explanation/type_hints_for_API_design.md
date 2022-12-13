@@ -31,9 +31,10 @@ Thus the goal of this document is to provide:
     - [Validate early in your program and use narrow types to prove that you did so](#validate-early-in-your-program-and-use-narrow-types-to-prove-that-you-did-so)
       - [Type narrowing](#type-narrowing)
     - [Preventing type checkers from being noisy or unreliable](#preventing-type-checkers-from-being-noisy-or-unreliable)
-      - [Picking a static type checker](#picking-a-static-type-checker)
-        - [mypy](#mypy)
-        - [pyright](#pyright)
+    - [Picking a static type checker](#picking-a-static-type-checker)
+      - [mypy](#mypy)
+      - [pyright](#pyright)
+  - [Additional resources](#additional-resources)
 
 
 ## A quick introduction to writing statically typed Python code
@@ -196,7 +197,9 @@ Thus, **runtime type checkers transform annotations from being documentation to 
 
 ### Parsers
 
-A parser takes in data, validates at runtime that said data adheres to some requirements or schema, and then returns the data *as a more specific type* – one that reflects that the data has been validated[^parse]. You then write your library's interfaces in terms of these more specific – or narrowed – types, so that those functions need not be responsible for performing the same validation in multiple places. This helps us organize software systems into a parsing phase, where the bulk of all validation and error-handling occurs, and an execution phase, where we are working with types that "prove" that our functions will not fail due to malformed data. Libraries like [pydantic](https://pydantic-docs.helpmanual.io/) and [phantom-types](https://github.com/antonagestam/phantom-types) provide useful types and parsing capabilities towards this end.
+A parser takes in data, validates at runtime that said data adheres to some requirements or schema, and then returns the data *as a more specific type* – one that reflects that the data has been validated[^parse]. You then write your library's interface[^interface] in terms of these more specific – or narrowed – types, so that those functions need not be responsible for performing the same validation in multiple places. This helps us organize software systems into a parsing phase, where the bulk of all validation and error-handling occurs, and an execution phase, where we are working with types that "prove" that our functions will not fail due to malformed data. Libraries like [pydantic](https://pydantic-docs.helpmanual.io/) and [phantom-types](https://github.com/antonagestam/phantom-types) provide useful types and parsing capabilities towards this end.
+
+[^interface]: A library's interface is comprised of the set of symbols – modules, functions, classes, and other objects – that it exposes. Refer to [this document](https://github.com/microsoft/pyright/blob/92b4028cd5fd483efcf3f1cdb8597b2d4edd8866/docs/typed-libraries.md#library-interface) for the rules that type checkers follow to determine which symbols comprise a library's interface.
 
 We will see concrete examples of this parsing paradigm in practice later.
 
@@ -803,7 +806,7 @@ Ultimately, these rules – in conjunction with the other goals specified throug
 [^grokit]: grok (`/ɡräk/`): understand (something) intuitively or by empathy.
 
 
-#### Picking a static type checker
+### Picking a static type checker
 
 > A final, boring, and unfortunate section of this otherwise fun-filled article.
 
@@ -811,9 +814,9 @@ A challenge with maintaining typed Python code is: there are multiple type check
 
 Accordingly, there can be advantages to having a development team standardize on a single type checker when it comes to scanning their internal code base. That being said, it is preferable to design one's publicly-facing API to be compatible with both mypy and pyright, while only standardizing on one for full internal scans. This will also help increase the likelihood that, e.g., PyCharm's type checker will also be compatible with the public API (and thus PyCharm users will have a high-quality experience using your library).
 
-The following are the pros, cons, and other pertinent details of mypy and pyright.
+The following are some of the pros, cons, and other pertinent details of mypy and pyright.
 
-##### mypy
+#### mypy
 
 **Pros**: mypy is the defacto standard type checker for Python. It is well-known, and, among projects that do use a type checker, there is a good chance that they are using mypy. It has a plugin system that permits added flexibility, so that projects can achieve some things that are otherwise impossible in Python's typing system.
 
@@ -822,7 +825,7 @@ The following are the pros, cons, and other pertinent details of mypy and pyrigh
 
 **Who Uses It**: Most projects that run a static type checker as part of their testing processes.
 
-##### pyright
+#### pyright
 
 **Pros**: pyright is very fast to incorporate the latest Python typing features, often times out-pacing mypy by months or sometimes even years. Its developers are quick to fix bugs and make improvements: they typically release a new version of pyright each week. Because pyright is used under the hood by VSCode's Python extension, it is by far the most widely-used type-checker for Python[^pywhat]. A major benefit of this is that it is trivial for VSCode users to start using pyright, and to get instant feedback from it as they are writing code.
 
@@ -832,3 +835,9 @@ The following are the pros, cons, and other pertinent details of mypy and pyrigh
 
 
 **Who Uses It**: Nearly all VSCode Python users, and developers who want to hone the experience of VSCode users. 
+
+## Additional resources
+
+- [mypy's documentation](https://mypy.readthedocs.io/en/stable/index.html): a great resource for learning about typing concepts as well as the concrete details of Python's typing features and its shortcomings.
+- [pyright's typing guidance for Python libraries](https://github.com/microsoft/pyright/blob/92b4028cd5fd483efcf3f1cdb8597b2d4edd8866/docs/typed-libraries.md#typing-guidance-for-python-libraries): provides an in-depth description of what it means for a library to be "type complete". Also provides useful recommendations of best practices.
+- [The `typing` module's documentation](https://typing.readthedocs.io/en/latest/): includes best practices and recommendations for writing tests for annotations.
