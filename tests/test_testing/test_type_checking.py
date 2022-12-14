@@ -220,6 +220,14 @@ def test_bad_path_to_pyright():
         pyright_analyze(f, path_to_pyright=Path(bad_path))
 
 
+@pytest.mark.usefixtures("cleandir")
+def test_unsupported_file_type():
+    f = Path.cwd() / "file.txt"
+    f.touch()
+    with pytest.raises(ValueError, match=re.escape("File type .txt not supported")):
+        pyright_analyze(f)
+
+
 def test_list_error_messages():
     def f(x: int):
         return x.lower()
