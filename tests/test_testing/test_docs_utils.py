@@ -368,3 +368,22 @@ class TaggedClass:
 )
 def test_tag_parsing(obj, expected_codes):
     assert _get_numpy_tags(obj) == expected_codes
+
+
+class A:
+    # doc-ignore: GL08
+
+    def f(self):
+        """Hello"""
+        # doc-ignore: SA04 not-a-code ES01 SS03, EX01
+        ...
+
+
+@pytest.mark.parametrize("obj, num_err", [(tagged_f, 1), (A, 4)])
+def test_validates_respects_comments(obj, num_err):
+
+    assert validate_docstring(obj)["error_count"] == 0, validate_docstring(obj)
+    assert (
+        validate_docstring(obj, ignore_via_comments_allowed=False)["error_count"]
+        == num_err
+    )
