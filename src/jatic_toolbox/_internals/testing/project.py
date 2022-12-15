@@ -72,7 +72,7 @@ def _pyright_type_completeness(
         raise ModuleNotFoundError(
             "`pyright` was not found. It may need to be installed."
         )
-    if not path_to_pyright.is_file():
+    if not path_to_pyright.is_file():  # pragma: no
         raise FileNotFoundError(
             f"`path_to_pyright` – {path_to_pyright} – doesn't exist."
         )
@@ -96,9 +96,10 @@ def _pyright_type_completeness(
         print(proc.stdout)
         raise e
 
+    scan_section = out["typeCompleteness"]
     for k in ["packageRootDirectory", "moduleRootDirectory", "pyTypedPath"]:
-        if k in out:
-            out[k] = Path(out[k])
+        if k in scan_section:
+            scan_section[k] = Path(scan_section[k])
 
     return out
 
@@ -212,7 +213,7 @@ class ModuleScan:
         out = scan(module_name, path_to_pyright=path_to_pyright)
         _summary = out["summary"]
         if _summary["errorCount"] > 0 and _summary["filesAnalyzed"] == 0:
-            raise FileNotFoundError(
+            raise ModuleNotFoundError(
                 f"No files were found to analyze in associatation "
                 f"with module `{module_name}`. The module may not be installed or "
                 f"there may be a typo in the name."
