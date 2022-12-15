@@ -124,7 +124,7 @@ def rst_to_code(src: str) -> str:
           import math
           x = 1+1
 
-       foorbarius ist barfooium
+       foorbarius isbarfooium
 
        .. code-block:: pycon
           :caption: blah

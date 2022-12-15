@@ -29,7 +29,8 @@ def count_vowels(x: str) -> int:  # `: str` and `-> int` are the annotations
 
 In the parlance of Python these annotations are referred to as type-hints because *they are not enforced at runtime by the Python interpreter*. This is a critical point: **type annotations do not add runtime checking/enforcements of types** without the help of separate 3rd party tools. On their own, type annotations are effectively a form of documentation[^hints_as_docs]. That being said, we will see that there is an ecosystem of excellent 3rd party tools – static and runtime type checkers, and data parsers – that make Python's typing features invaluable.
 
-[^hints_as_docs]: This alone makes type annotations worthwhile! In effect, type annotations are the only language-enforced standard for documentation in Python; they are concise, expressive, and more widely understood (by both users and IDEs) than any other means of documenting interfaces in one's code.
+[^hints_as_docs]: This alone mak
+es type annotations worthwhile! In effect, type annotations are the only language-enforced standard for documentation in Python; they are concise, expressive, and more widely understood (by both users and IDEs) than any other means of documenting interfaces in one's code.
 
 Before we move on, let's look at a few example code snippets to familiarize ourselves a bit more with Python's type annotation syntax and what they can express.
 
@@ -62,7 +63,7 @@ List[str]
 Mapping[str, float]
 
 # A type named Person that has two attributes: `name` (str) and `age` (int)
-# and a "greeting" method, which accepts no intputs and returns a string
+# and a "greeting" method, which accepts no inputs and returns a string
 class Person:
     name: str
     age: int
@@ -124,7 +125,7 @@ pyright 1.1.266
   /home/rsokl/rai/example.py:11:16 - error: Argument of type "dict_keys[str, int]" cannot be assigned to parameter "x" of type "Iterable[int]" in function "process_data"
     TypeVar "_T_co@Iterable" is covariant
       "str" is incompatible with "int" (reportGeneralTypeIssues)
-1 error, 0 warnings, 0 informations 
+1 error, 0 warnings, 0 information 
 Completed in 0.578sec
 ```
 
@@ -330,7 +331,7 @@ Channel: TypeAlias = int
 Time: TypeAlias = int
 Batch: TypeAlias = int
 
-# Some representative utility funtions for loading tensor data
+# Some representative utility functions for loading tensor data
 def load_time_series(path: str) -> Tensor[Time]: ...
 def load_image(path: str) -> Tensor[Channel, Height, Width]: ...
 def load_video(path: str) -> Tensor[Time, Channel, Height, Width]: ...
