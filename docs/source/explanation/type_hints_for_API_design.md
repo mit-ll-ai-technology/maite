@@ -17,26 +17,6 @@ Thus the goal of this document is to provide:
 > To get a feel for mypy and pyright (and their differences) try writing/running snippets in the browser-based [mypy-playground](https://mypy-play.net/?mypy=latest&python=3.10) and [pyright playground](https://pyright-playground.decorator-factory.su/) (note: the pyright playground is blocked on lab browsers :( ). **Do not paste work-specific code into these**. 
 
 
-**Table of Contents**
-- [A Primer on Python Typing: Relevant Language Features, Methods, and Tools for the T\&E Framework](#a-primer-on-python-typing-relevant-language-features-methods-and-tools-for-the-te-framework)
-  - [A quick introduction to writing statically typed Python code](#a-quick-introduction-to-writing-statically-typed-python-code)
-  - [Tools that make type annotations worthwhile](#tools-that-make-type-annotations-worthwhile)
-    - [Static Type Checkers](#static-type-checkers)
-    - [Runtime type checkers](#runtime-type-checkers)
-    - [Parsers](#parsers)
-  - [Justifying Our Emphasis on Typing in the T\&E Framework](#justifying-our-emphasis-on-typing-in-the-te-framework)
-  - [Motivating the Adoption of Specific Typing Features and Methods in the T\&E Framework](#motivating-the-adoption-of-specific-typing-features-and-methods-in-the-te-framework)
-    - [On using annotations to write legible documentation](#on-using-annotations-to-write-legible-documentation)
-    - [Typed interfaces should be informative, inspire good design, and be easy to satisfy](#typed-interfaces-should-be-informative-inspire-good-design-and-be-easy-to-satisfy)
-    - [Validate early in your program and use narrow types to prove that you did so](#validate-early-in-your-program-and-use-narrow-types-to-prove-that-you-did-so)
-      - [Type narrowing](#type-narrowing)
-    - [Preventing type checkers from being noisy or unreliable](#preventing-type-checkers-from-being-noisy-or-unreliable)
-    - [Picking a static type checker](#picking-a-static-type-checker)
-      - [mypy](#mypy)
-      - [pyright](#pyright)
-  - [Additional resources](#additional-resources)
-
-
 ## A quick introduction to writing statically typed Python code
 
 Writing a type-annotated Python function simply means that we annotate the function's signature to describe the types of its input(s) and output(s).
@@ -49,7 +29,8 @@ def count_vowels(x: str) -> int:  # `: str` and `-> int` are the annotations
 
 In the parlance of Python these annotations are referred to as type-hints because *they are not enforced at runtime by the Python interpreter*. This is a critical point: **type annotations do not add runtime checking/enforcements of types** without the help of separate 3rd party tools. On their own, type annotations are effectively a form of documentation[^hints_as_docs]. That being said, we will see that there is an ecosystem of excellent 3rd party tools – static and runtime type checkers, and data parsers – that make Python's typing features invaluable.
 
-[^hints_as_docs]: This alone makes type annotations worthwhile! In effect, type annotations are the only language-enforced standard for documentation in Python; they are concise, expressive, and more widely understood (by both users and IDEs) than any other means of documenting interfaces in one's code.
+[^hints_as_docs]: This alone mak
+es type annotations worthwhile! In effect, type annotations are the only language-enforced standard for documentation in Python; they are concise, expressive, and more widely understood (by both users and IDEs) than any other means of documenting interfaces in one's code.
 
 Before we move on, let's look at a few example code snippets to familiarize ourselves a bit more with Python's type annotation syntax and what they can express.
 
@@ -82,7 +63,7 @@ List[str]
 Mapping[str, float]
 
 # A type named Person that has two attributes: `name` (str) and `age` (int)
-# and a "greeting" method, which accepts no intputs and returns a string
+# and a "greeting" method, which accepts no inputs and returns a string
 class Person:
     name: str
     age: int
@@ -144,7 +125,7 @@ pyright 1.1.266
   /home/rsokl/rai/example.py:11:16 - error: Argument of type "dict_keys[str, int]" cannot be assigned to parameter "x" of type "Iterable[int]" in function "process_data"
     TypeVar "_T_co@Iterable" is covariant
       "str" is incompatible with "int" (reportGeneralTypeIssues)
-1 error, 0 warnings, 0 informations 
+1 error, 0 warnings, 0 information 
 Completed in 0.578sec
 ```
 
@@ -350,7 +331,7 @@ Channel: TypeAlias = int
 Time: TypeAlias = int
 Batch: TypeAlias = int
 
-# Some representative utility funtions for loading tensor data
+# Some representative utility functions for loading tensor data
 def load_time_series(path: str) -> Tensor[Time]: ...
 def load_image(path: str) -> Tensor[Channel, Height, Width]: ...
 def load_video(path: str) -> Tensor[Time, Channel, Height, Width]: ...

@@ -24,7 +24,7 @@ def notebook_to_py_text(path_to_nb: Path) -> str:
     return jupytext.writes(ntbk, fmt=".py")
 
 
-class _Summary(TypedDict):
+class Summary(TypedDict):
     filesAnalyzed: int
     errorCount: int
     warningCount: int
@@ -32,21 +32,21 @@ class _Summary(TypedDict):
     timeInSec: float
 
 
-class _LineInfo(TypedDict):
+class LineInfo(TypedDict):
     line: int
     character: int
 
 
-class _Range(TypedDict):
-    start: _LineInfo
-    end: _LineInfo
+class Range(TypedDict):
+    start: LineInfo
+    end: LineInfo
 
 
-class _Diagnostic(TypedDict):
+class Diagnostic(TypedDict):
     file: str
     severity: Literal["error", "warning", "information"]
     message: str
-    range: _Range
+    range: Range
     rule: NotRequired[str]
 
 
@@ -55,8 +55,8 @@ class PyrightOutput(TypedDict):
 
     version: str
     time: str
-    generalDiagnostics: List[_Diagnostic]
-    summary: _Summary
+    generalDiagnostics: List[Diagnostic]
+    summary: Summary
 
 
 _found_path = shutil.which("pyright")
@@ -124,7 +124,7 @@ def rst_to_code(src: str) -> str:
           import math
           x = 1+1
 
-       foorbarius ist barfooium
+       foorbarius isbarfooium
 
        .. code-block:: pycon
           :caption: blah
@@ -253,7 +253,7 @@ def pyright_analyze(
 
         Example code blocks are expected to have the doctest format [3]_.
 
-    path_to_pyright : Path, keyword-only
+    path_to_pyright : Path, optional, keyword-only
         Path to the pyright executable (see installation instructions: [4]_).
         Defaults to `shutil.where('pyright')` if the executable can be found.
 
@@ -424,7 +424,7 @@ def pyright_analyze(
         code_or_path = Path(code_or_path)
 
     if isinstance(code_or_path, Path):
-        code_or_path = code_or_path.absolute()
+        code_or_path = code_or_path.resolve()
         if not code_or_path.exists():
             raise FileNotFoundError(
                 f"Specified path {code_or_path} does not exist. Cannot be scanned by pyright."
@@ -433,6 +433,11 @@ def pyright_analyze(
             source = rst_to_code(code_or_path.read_text("utf-8"))
         elif code_or_path.suffix == ".ipynb":
             source = notebook_to_py_text(code_or_path)
+        elif code_or_path.is_file() and code_or_path.suffix != ".py":
+            raise ValueError(
+                f"{code_or_path}: File type {code_or_path.suffix} not supported by "
+                "`pyright_analyze`."
+            )
         else:
             source = None
     else:
@@ -463,7 +468,6 @@ def pyright_analyze(
         if pyright_config:
             config_path.write_text(json.dumps(pyright_config))
 
-        proc = None
         proc = subprocess.run(
             [str(path_to_pyright.absolute()), str(file_.absolute()), "--outputjson"],
             cwd=run_dir,
@@ -474,8 +478,7 @@ def pyright_analyze(
         try:
             return json.loads(proc.stdout)
         except Exception as e:  # pragma: no cover
-            if proc is not None:
-                print(proc.stdout)
+            print(proc.stdout)
             raise e
 
 

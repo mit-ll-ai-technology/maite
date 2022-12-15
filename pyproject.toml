@@ -172,10 +172,12 @@ basepython=python3.9
 deps=black
      isort
      flake8
+     codespell
 commands=
     black src/ tests/ --diff --check
     isort src/ tests/ --diff --check
     flake8 src/ tests/
+    codespell src/ docs/
 
 
 [testenv:docs]

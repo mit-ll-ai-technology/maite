@@ -1,6 +1,8 @@
 import pytest
+from pytest import param
 
 from jatic_toolbox.testing.docs import validate_docstring
+from jatic_toolbox.testing.project import ModuleScan, get_public_symbols
 from jatic_toolbox.testing.pyright import list_error_messages, pyright_analyze
 from jatic_toolbox.testing.pytest import cleandir
 from jatic_toolbox.utils.validation import (
@@ -9,16 +11,15 @@ from jatic_toolbox.utils.validation import (
     check_one_of,
     check_type,
 )
+from tests import module_scan
 
-preamble = """from jatic_toolbox.utils.validation import (
-    chain_validators,
-    check_domain,
-    check_one_of,
-    check_type,
+# Generates a string that imports all symbols from the jatic toolbox's public API.
+preamble = "\n".join(
+    [
+        "from {} import {}".format(*x["name"].rsplit(".", maxsplit=1))
+        for x in get_public_symbols(module_scan("jatic_toolbox"))
+    ]
 )
-from jatic_toolbox.testing.docs import validate_docstring
-from jatic_toolbox.testing.pytest import cleandir
-"""
 
 
 @pytest.mark.parametrize(
@@ -30,6 +31,17 @@ from jatic_toolbox.testing.pytest import cleandir
         check_one_of,
         check_type,
         cleandir,
+        ModuleScan,
+        get_public_symbols,
+        param(
+            pyright_analyze,
+            marks=pytest.mark.xfail(
+                raises=AssertionError,
+                strict=True,
+                reason="pyright_analyze docstring intentionally includes "
+                "type-check errors.",
+            ),
+        ),
     ],
 )
 def test_docstrings_scan_clean_via_pyright(func):
@@ -52,6 +64,8 @@ def test_docstrings_scan_clean_via_pyright(func):
         check_one_of,
         check_type,
         cleandir,
+        ModuleScan,
+        get_public_symbols,
     ],
 )
 def test_docstrings_adhere_to_numpydoc(func):

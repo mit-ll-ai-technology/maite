@@ -4,6 +4,7 @@ from typing import Optional
 import pytest
 from pytest import param
 
+from jatic_toolbox._internals.testing.docs import _get_numpy_tags
 from jatic_toolbox.errors import InvalidArgument
 from jatic_toolbox.testing.docs import validate_docstring
 
@@ -333,4 +334,56 @@ def test_ignore_property():
     del results2["errors"]["GL08"]
     assert all(
         msg.startswith("Class.prop") for msg in chain(*results2["errors"].values())
+    )
+
+
+def tagged_f():
+    # doc-ignore: GL08
+    # doc-ignore: RT03 RT05
+    return
+
+
+class TaggedClass:
+    # doc-ignore: GL08,GL02    RT01  ,  EX01
+
+    def prop(self):
+        """Bye"""
+        # doc-ignore: YD01,SS06
+        ...
+
+    def f(self):
+        """Hello"""
+        # doc-ignore: SA04 not-a-code EX01, SA04
+        ...
+
+
+@pytest.mark.parametrize(
+    "obj,expected_codes",
+    [
+        (tagged_f, {"GL08", "RT03", "RT05"}),
+        (TaggedClass, {"GL08", "GL02", "RT01", "EX01"}),
+        (TaggedClass.f, {"EX01", "SA04"}),
+        (TaggedClass.prop, {"YD01", "SS06"}),
+    ],
+)
+def test_tag_parsing(obj, expected_codes):
+    assert _get_numpy_tags(obj) == expected_codes
+
+
+class A:
+    # doc-ignore: GL08
+
+    def f(self):
+        """Hello"""
+        # doc-ignore: SA04 not-a-code ES01 SS03, EX01
+        ...
+
+
+@pytest.mark.parametrize("obj, num_err", [(tagged_f, 1), (A, 4)])
+def test_validates_respects_comments(obj, num_err):
+
+    assert validate_docstring(obj)["error_count"] == 0, validate_docstring(obj)
+    assert (
+        validate_docstring(obj, ignore_via_comments_allowed=False)["error_count"]
+        == num_err
     )

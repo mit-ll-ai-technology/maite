@@ -30,7 +30,7 @@ the latest pre-release of jatic-toolbox with:
 
 
 Learning About jatic-toolbox
-========================
+============================
 
 Our docs are divided into four sections: Tutorials, How-Tos, Explanations, and 
 Reference.
