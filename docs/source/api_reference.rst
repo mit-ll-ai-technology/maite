@@ -58,3 +58,12 @@ bottom of any given reference page to see the examples.
    :toctree: generated/
 
    cleandir
+
+
+.. currentmodule:: jatic_toolbox.testing.project
+
+.. autosummary::
+   :toctree: generated/
+
+   ModuleScan
+   get_public_symbols

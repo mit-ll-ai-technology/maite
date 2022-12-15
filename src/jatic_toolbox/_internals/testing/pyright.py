@@ -7,8 +7,6 @@ import subprocess
 import tempfile
 import textwrap
 from contextlib import contextmanager
-from copy import deepcopy
-from functools import _CacheInfo as CacheInfo, lru_cache
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
@@ -26,7 +24,7 @@ def notebook_to_py_text(path_to_nb: Path) -> str:
     return jupytext.writes(ntbk, fmt=".py")
 
 
-class _Summary(TypedDict):
+class Summary(TypedDict):
     filesAnalyzed: int
     errorCount: int
     warningCount: int
@@ -34,21 +32,21 @@ class _Summary(TypedDict):
     timeInSec: float
 
 
-class _LineInfo(TypedDict):
+class LineInfo(TypedDict):
     line: int
     character: int
 
 
-class _Range(TypedDict):
-    start: _LineInfo
-    end: _LineInfo
+class Range(TypedDict):
+    start: LineInfo
+    end: LineInfo
 
 
-class _Diagnostic(TypedDict):
+class Diagnostic(TypedDict):
     file: str
     severity: Literal["error", "warning", "information"]
     message: str
-    range: _Range
+    range: Range
     rule: NotRequired[str]
 
 
@@ -57,50 +55,8 @@ class PyrightOutput(TypedDict):
 
     version: str
     time: str
-    generalDiagnostics: List[_Diagnostic]
-    summary: _Summary
-
-
-class Symbol(TypedDict):
-    category: Literal[
-        "class",
-        "constant",
-        "function",
-        "method",
-        "module",
-        "symbol",
-        "type alias",
-        "variable",
-    ]
-    name: str
-    referenceCount: int
-    isExported: bool
-    isTypeKnown: bool
-    isTypeAmbiguous: bool
-    diagnostics: List[_Diagnostic]
-
-
-class CompletenessSection(TypedDict):
-    packageName: str
-    packageRootDirectory: Path
-    moduleName: str
-    moduleRootDirectory: Path
-    ignoreUnknownTypesFromImports: bool
-    pyTypedPath: NotRequired[Path]
-    exportedSymbolCounts: dict
-    otherSymbolCounts: dict
-    missingFunctionDocStringCount: int
-    missingClassDocStringCount: int
-    missingDefaultParamCount: int
-    completenessScore: float
-    modules: list
-    symbols: List[Symbol]
-
-
-class TypeCompletenessResults(PyrightOutput):
-    """The schema for the JSON output of a type completeness scan"""
-
-    typeCompleteness: CompletenessSection
+    generalDiagnostics: List[Diagnostic]
+    summary: Summary
 
 
 _found_path = shutil.which("pyright")
@@ -297,7 +253,7 @@ def pyright_analyze(
 
         Example code blocks are expected to have the doctest format [3]_.
 
-    path_to_pyright : Path, keyword-only
+    path_to_pyright : Path, optional, keyword-only
         Path to the pyright executable (see installation instructions: [4]_).
         Defaults to `shutil.where('pyright')` if the executable can be found.
 
@@ -533,76 +489,3 @@ def list_error_messages(results: PyrightOutput) -> List[str]:
         for e in results["generalDiagnostics"]
         if e["severity"] == "error"
     ]
-
-
-def _pyright_type_completeness(
-    module_name: str,
-    *,
-    path_to_pyright: Union[Path, None],
-) -> TypeCompletenessResults:
-
-    module_name = module_name.replace("-", "_")
-
-    if path_to_pyright is None:  # pragma: no cover
-        raise ModuleNotFoundError(
-            "`pyright` was not found. It may need to be installed."
-        )
-    if not path_to_pyright.is_file():
-        raise FileNotFoundError(
-            f"`path_to_pyright` – {path_to_pyright} – doesn't exist."
-        )
-
-    proc = subprocess.run(
-        [
-            str(PYRIGHT_PATH),
-            "--ignoreexternal",
-            "--outputjson",
-            "--verifytypes",
-            module_name,
-        ],
-        cwd=Path.cwd(),
-        encoding="utf-8",
-        text=True,
-        capture_output=True,
-    )
-    try:
-        out = json.loads(proc.stdout)
-    except Exception as e:  # pragma: no cover
-        print(proc.stdout)
-        raise e
-
-    for k in ["packageRootDirectory", "moduleRootDirectory", "pyTypedPath"]:
-        if k in out:
-            out[k] = Path(out[k])
-
-    return out
-
-
-class ModuleScan:
-    """Uses pyright's type completeness scan to summarize a module's contents.
-
-    By default, `ModuleScan`'s __call__ is cached to reduce overhead for getting
-    scan results for a module multiple times. Each `ModuleScan` instance shares a
-    separate cache."""
-
-    def __init__(self) -> None:
-        self._cached_scan = lru_cache(maxsize=256, typed=False)(
-            _pyright_type_completeness
-        )
-
-    def __call__(
-        self,
-        module_name: str,
-        *,
-        path_to_pyright: Union[Path, None] = PYRIGHT_PATH,
-        cached: bool = True,
-    ) -> TypeCompletenessResults:
-        scan = self._cached_scan if cached else _pyright_type_completeness
-        out = scan(module_name, path_to_pyright=path_to_pyright)
-        return deepcopy(out) if cached else out
-
-    def clear_cache(self) -> None:
-        self._cached_scan.cache_clear()
-
-    def cache_info(self) -> CacheInfo:
-        return self._cached_scan.cache_info()

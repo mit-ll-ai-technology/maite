@@ -17,26 +17,6 @@ Thus the goal of this document is to provide:
 > To get a feel for mypy and pyright (and their differences) try writing/running snippets in the browser-based [mypy-playground](https://mypy-play.net/?mypy=latest&python=3.10) and [pyright playground](https://pyright-playground.decorator-factory.su/) (note: the pyright playground is blocked on lab browsers :( ). **Do not paste work-specific code into these**. 
 
 
-**Table of Contents**
-- [A Primer on Python Typing: Relevant Language Features, Methods, and Tools for the T\&E Framework](#a-primer-on-python-typing-relevant-language-features-methods-and-tools-for-the-te-framework)
-  - [A quick introduction to writing statically typed Python code](#a-quick-introduction-to-writing-statically-typed-python-code)
-  - [Tools that make type annotations worthwhile](#tools-that-make-type-annotations-worthwhile)
-    - [Static Type Checkers](#static-type-checkers)
-    - [Runtime type checkers](#runtime-type-checkers)
-    - [Parsers](#parsers)
-  - [Justifying Our Emphasis on Typing in the T\&E Framework](#justifying-our-emphasis-on-typing-in-the-te-framework)
-  - [Motivating the Adoption of Specific Typing Features and Methods in the T\&E Framework](#motivating-the-adoption-of-specific-typing-features-and-methods-in-the-te-framework)
-    - [On using annotations to write legible documentation](#on-using-annotations-to-write-legible-documentation)
-    - [Typed interfaces should be informative, inspire good design, and be easy to satisfy](#typed-interfaces-should-be-informative-inspire-good-design-and-be-easy-to-satisfy)
-    - [Validate early in your program and use narrow types to prove that you did so](#validate-early-in-your-program-and-use-narrow-types-to-prove-that-you-did-so)
-      - [Type narrowing](#type-narrowing)
-    - [Preventing type checkers from being noisy or unreliable](#preventing-type-checkers-from-being-noisy-or-unreliable)
-    - [Picking a static type checker](#picking-a-static-type-checker)
-      - [mypy](#mypy)
-      - [pyright](#pyright)
-  - [Additional resources](#additional-resources)
-
-
 ## A quick introduction to writing statically typed Python code
 
 Writing a type-annotated Python function simply means that we annotate the function's signature to describe the types of its input(s) and output(s).
