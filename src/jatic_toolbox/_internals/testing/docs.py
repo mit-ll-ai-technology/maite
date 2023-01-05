@@ -356,6 +356,12 @@ def validate_docstring(
 
     update_errors(results["errors"], ignore=get_tags(obj) | ignore)
 
+    # We want to avoid forcing redundant sections between the class-level
+    # docstring and the docstring for the class' __init__. Here we ignore
+    # an error in one section if the error is not present in the other section.
+    #
+    # E.g., the class-level doc can be missing the Parameters section as long
+    # as the __init__ is not also missing that section.
     if isinstance(doc_obj, ClassDoc):
 
         init_results = validate(get_doc_object(obj.__init__))
