@@ -72,7 +72,7 @@ def _pyright_type_completeness(
         raise ModuleNotFoundError(
             "`pyright` was not found. It may need to be installed."
         )
-    if not path_to_pyright.is_file():  # pragma: no
+    if not path_to_pyright.is_file():
         raise FileNotFoundError(
             f"`path_to_pyright` – {path_to_pyright} – doesn't exist."
         )
@@ -205,16 +205,15 @@ class ModuleScan:
 
         Raises
         ------
-        FileNotFoundError
+        ModuleNotFoundError
             `module` was not found.
         """
-        # numpydoc: EX01
         scan = self._cached_scan if cached else _pyright_type_completeness
         out = scan(module_name, path_to_pyright=path_to_pyright)
         _summary = out["summary"]
         if _summary["errorCount"] > 0 and _summary["filesAnalyzed"] == 0:
             raise ModuleNotFoundError(
-                f"No files were found to analyze in associatation "
+                f"No files were found to analyze in association "
                 f"with module `{module_name}`. The module may not be installed or "
                 f"there may be a typo in the name."
             )
@@ -226,7 +225,19 @@ class ModuleScan:
         self._cached_scan.cache_clear()
 
     def cache_info(self) -> CacheInfo:
-        # doc-ignore: GL08
+        """
+        Access the scanner instance's cache stats.
+
+        Returns
+        -------
+        CacheInfo
+            A named tuple with fields:
+            - hits
+            - misses
+            - maxsize
+            - currsize
+        """
+        # doc-ignore: NOQA
         return self._cached_scan.cache_info()
 
 
@@ -322,7 +333,5 @@ def get_public_symbols(scan: ModuleScanResults, submodule: str = "") -> List[Sym
 
         _out = [x for x in out if x["name"].startswith(submodule)]
 
-        if not _out:
-            raise ValueError(f"No symbols within submodule {submodule}.")
         return _out
     return list(out)

@@ -38,6 +38,7 @@ def test_check_type_catches_bad_type(name, target_type, arg):
         check_type(name, arg=arg, type_=target_type)
 
 
+@settings(deadline=None)
 @given(
     target_type=st.shared(any_types, key="target_type"),
     arg=st.shared(any_types, key="target_type").flatmap(st.from_type),

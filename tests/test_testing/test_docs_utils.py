@@ -379,7 +379,16 @@ class A:
         ...
 
 
-@pytest.mark.parametrize("obj, num_err", [(tagged_f, 1), (A, 4)])
+class B:
+    # doc-ignore: GL08
+
+    def f(self):
+        """Hello"""
+        # doc-ignore: SA04 not-a-code NOQA
+        ...
+
+
+@pytest.mark.parametrize("obj, num_err", [(tagged_f, 1), (A, 4), (B, 4)])
 def test_validates_respects_comments(obj, num_err):
 
     assert validate_docstring(obj)["error_count"] == 0, validate_docstring(obj)

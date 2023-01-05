@@ -60,6 +60,7 @@ NumpyDocErrorCode: TypeAlias = Literal[
     "SA03",
     "SA04",
     "EX01",
+    "NOQA",
 ]
 
 ERRORCODES: Set[NumpyDocErrorCode] = set(NumpyDocErrorCode.__args__)  # type: ignore
@@ -170,15 +171,16 @@ def validate_docstring(
 
     ignore : Collection[ErrorCode], optional (default=['SA01'])
         One or more error codes to be excluded from the reported errors. See the
-        Notes section for a list of error codes.
+        Notes section for a list of error codes. NOQA can be specified to ignore
+        *all* errors.
 
     method_ignore : Optional[Collection[ErrorCode]]
         For method docstring. One or more error codes to be excluded from the reported
-        errors. If not specified, defers to `ignored`.
+        errors. If not specified, defers to the codes specified in `ignore`.
 
     property_ignore : Optional[Collection[ErrorCode]]
         For property doc strings. One or more error codes to be excluded from the
-        reported errors. If not specified, defers to `ignored`.
+        reported errors. If not specified, defers to the codes specified in `ignore`.
 
     include_ignored_errors : bool, optional (default=False)
         If `True`, include the errors that were ignored during the validation.
@@ -202,6 +204,7 @@ def validate_docstring(
     Notes
     -----
     The following are the error codes that can be returned by this validation function:
+    - NOQA: Can be specified to ignore all error codes.
     - GL01: Docstring text (summary) should start in the line immediately after the opening quotes.
     - GL02: Closing quotes should be placed in the line after the last text in the docstring.
     - GL03: Double line break found.
@@ -343,6 +346,9 @@ def validate_docstring(
         ignore: Set[NumpyDocErrorCode],
         prefix: str = "",
     ) -> None:
+        if "NOQA" in ignore:
+            return
+
         for err_code, err_msg in new_errors:
             if err_code not in ignore:
                 errors[err_code].append(prefix + err_msg)
