@@ -247,7 +247,7 @@ class ModuleScan:
         return self._cached_scan.cache_info()
 
 
-def _is_special_method(name: str) -> bool:
+def _is_dunder(name: str) -> bool:
 
     *_, name = name.split(".")
     out = (
@@ -260,7 +260,7 @@ def _is_special_method(name: str) -> bool:
 
 
 def get_public_symbols(
-    scan: ModuleScanResults, submodule: str = "", include_special_methods: bool = False
+    scan: ModuleScanResults, submodule: str = "", include_dunder_names: bool = False
 ) -> List[Symbol]:
     """
     Return all public symbols (functions, classes, etc.) from a module's API.
@@ -277,8 +277,8 @@ def get_public_symbols(
     submodule : str, optional
         If specified, only symbols from the specified submodule are included.
 
-    include_special_methods : bool, default=False
-        If `True`, then methods like `__init__` of public classes will
+    include_dunder_names : bool, default=False
+        If `True`, then symbols like the `__init__` method of public classes will
         be included among the public symbols.
 
     Returns
@@ -349,15 +349,14 @@ def get_public_symbols(
     """
     check_type("scan", scan, Mapping)
     check_type("submodule", submodule, str)
-    check_type("include_special_methods", include_special_methods, bool)
+    check_type("include_dunder_names", include_dunder_names, bool)
 
     out = (x for x in scan["typeCompleteness"]["symbols"] if x["isExported"])
-    if not include_special_methods:
-        out = (
-            x
-            for x in out
-            if not (x["category"] == "method" and _is_special_method(x["name"]))
-        )
+    if not include_dunder_names:
+        # It is overly restrictive to only check for methods.
+        # E.g. a dataclass' `__new__` method is actually
+        # categorized as a function
+        out = (x for x in out if not _is_dunder(x["name"]))
     if submodule:
         if any(not x.isidentifier() for x in submodule.split(".")):
             raise InvalidArgument(f"{submodule} is not a valid module name.")

@@ -81,7 +81,7 @@ def test_known_scan():
 @pytest.mark.parametrize("submodule", ["", "jatic_toolbox.testing.project"])
 def test_public_symbols(submodule):
     symbols = get_public_symbols(
-        module_scan("jatic_toolbox"), submodule=submodule, include_special_methods=False
+        module_scan("jatic_toolbox"), submodule=submodule, include_dunder_names=False
     )
     names = set(s["name"] for s in symbols)
     assert {
@@ -151,6 +151,15 @@ def test_special_method_filtering():
                     diagnostics=[],
                 ),
                 Symbol(
+                    category="function",
+                    name="foo.SomeClass.__dataclass_method__",
+                    referenceCount=1,
+                    isExported=True,
+                    isTypeKnown=True,
+                    isTypeAmbiguous=False,
+                    diagnostics=[],
+                ),
+                Symbol(
                     category="method",
                     name="foo.SomeClass.public_method__",
                     referenceCount=1,
@@ -168,23 +177,12 @@ def test_special_method_filtering():
                     isTypeAmbiguous=False,
                     diagnostics=[],
                 ),
-                Symbol(
-                    category="function",
-                    name="foo.__a_function__",
-                    referenceCount=1,
-                    isExported=True,
-                    isTypeKnown=True,
-                    isTypeAmbiguous=False,
-                    diagnostics=[],
-                ),
             ],
         ),
     )
-    symbols_with_special = get_public_symbols(
-        dummy_results, include_special_methods=True
-    )
+    symbols_with_special = get_public_symbols(dummy_results, include_dunder_names=True)
     symbols_without_special = get_public_symbols(
-        dummy_results, include_special_methods=False
+        dummy_results, include_dunder_names=False
     )
 
     assert set(x["name"] for x in symbols_with_special) == {
@@ -192,12 +190,11 @@ def test_special_method_filtering():
         "foo.SomeClass.__init__",
         "foo.SomeClass.public_method__",
         "foo.SomeClass.___not_special___",
-        "foo.__a_function__",
+        "foo.SomeClass.__dataclass_method__",
     }
 
     assert set(x["name"] for x in symbols_without_special) == {
         "foo.SomeClass",
         "foo.SomeClass.public_method__",
         "foo.SomeClass.___not_special___",
-        "foo.__a_function__",
     }
