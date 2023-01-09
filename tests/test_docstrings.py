@@ -14,6 +14,7 @@ from jatic_toolbox.utils.validation import (
 from tests import module_scan
 
 # Generates a string that imports all symbols from the jatic toolbox's public API.
+# TODO: Make this a convenience function exposed via our public API?
 preamble = "\n".join(
     [
         "from {} import {}".format(*x["name"].rsplit(".", maxsplit=1))
