@@ -35,6 +35,12 @@ class Symbol(TypedDict):
     diagnostics: List[Diagnostic]
 
 
+class SymbolCounts(TypedDict):
+    withKnownType: int
+    withAmbiguousType: int
+    withUnknownType: int
+
+
 class CompletenessSection(TypedDict):
     packageName: str
     packageRootDirectory: Path
@@ -42,8 +48,8 @@ class CompletenessSection(TypedDict):
     moduleRootDirectory: Path
     ignoreUnknownTypesFromImports: bool
     pyTypedPath: NotRequired[Path]
-    exportedSymbolCounts: dict
-    otherSymbolCounts: dict
+    exportedSymbolCounts: SymbolCounts
+    otherSymbolCounts: SymbolCounts
     missingFunctionDocStringCount: int
     missingClassDocStringCount: int
     missingDefaultParamCount: int
@@ -241,7 +247,21 @@ class ModuleScan:
         return self._cached_scan.cache_info()
 
 
-def get_public_symbols(scan: ModuleScanResults, submodule: str = "") -> List[Symbol]:
+def _is_special_method(name: str) -> bool:
+
+    *_, name = name.split(".")
+    out = (
+        name.startswith("__")
+        and name.endswith("__")
+        and not name.startswith("___")
+        and not name.endswith("___")
+    )
+    return out
+
+
+def get_public_symbols(
+    scan: ModuleScanResults, submodule: str = "", include_special_methods: bool = False
+) -> List[Symbol]:
     """
     Return all public symbols (functions, classes, etc.) from a module's API.
 
@@ -252,10 +272,14 @@ def get_public_symbols(scan: ModuleScanResults, submodule: str = "") -> List[Sym
     Parameters
     ----------
     scan : ModuleScanResults
-        The result of a scane performed by `ModuleScan.__call__`.
+        The result of a scan performed by `ModuleScan.__call__`.
 
     submodule : str, optional
         If specified, only symbols from the specified submodule are included.
+
+    include_special_methods : bool, default=False
+        If `True`, then methods like `__init__` of public classes will
+        be included among the public symbols.
 
     Returns
     -------
@@ -325,8 +349,15 @@ def get_public_symbols(scan: ModuleScanResults, submodule: str = "") -> List[Sym
     """
     check_type("scan", scan, Mapping)
     check_type("submodule", submodule, str)
+    check_type("include_special_methods", include_special_methods, bool)
 
     out = (x for x in scan["typeCompleteness"]["symbols"] if x["isExported"])
+    if not include_special_methods:
+        out = (
+            x
+            for x in out
+            if not (x["category"] == "method" and _is_special_method(x["name"]))
+        )
     if submodule:
         if any(not x.isidentifier() for x in submodule.split(".")):
             raise InvalidArgument(f"{submodule} is not a valid module name.")

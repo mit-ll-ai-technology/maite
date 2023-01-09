@@ -18,6 +18,7 @@ preamble = "\n".join(
     [
         "from {} import {}".format(*x["name"].rsplit(".", maxsplit=1))
         for x in get_public_symbols(module_scan("jatic_toolbox"))
+        if x["category"] in {"module", "function", "class", "type alias"}
     ]
 )
 

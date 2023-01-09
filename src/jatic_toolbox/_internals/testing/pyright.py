@@ -211,6 +211,7 @@ def rst_to_code(src: str) -> str:
     return "\n".join(blocks)
 
 
+# TODO: Add support for markdown
 def pyright_analyze(
     code_or_path: Any,
     pyright_config: Optional[Dict[str, Any]] = None,
