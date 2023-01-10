@@ -27,7 +27,7 @@ def create_huggingface_dataset_config(path: str, **dataset_kwargs: Any) -> ZenSt
     Returns
     -------
     ZenStore
-        JATIC datsets config store with added HuggingFace dataset configurations.
+        JATIC dataset config store with added HuggingFace dataset configurations.
 
     Examples
     --------
