@@ -158,6 +158,82 @@ def test_scan_rst(src: str, expected_num_error: int):
     )
 
 
+md_good_1 = """
+    blah blah
+
+    ```python
+       from pathlib import Path
+   
+       def print_file(x: Path) -> None:
+           with x.open("r") as f: 
+               print(f.read())
+    ```
+    ya ya
+    ````
+    ```python
+    just an example in a literal block
+    ```
+    ````
+    ``python
+    not a block
+    ``
+"""
+
+md_good_2 = """
+    ```pycon
+
+    >>> from pathlib import Path
+    >>>
+    >>> def print_file(x: Path) -> None:
+    ...     with x.open("r") as f: 
+    ...         print(f.read())
+    ```
+    ``pycon
+    not a block
+    ``
+"""
+
+md_bad_1 = """
+    ```python
+       from pathlib import Path
+   
+       def print_file(x: int) -> None:
+           with x.open("r") as f: 
+               print(f.read())
+    ```
+"""
+
+md_bad_2 = """
+
+    ```pycon
+
+    >>> from pathlib import Path
+    >>>
+    >>> def print_file(x: int) -> None:
+    ...     with x.open("r") as f: 
+    ...         print(f.read())
+    ```
+"""
+
+
+@pytest.mark.usefixtures("cleandir")
+@pytest.mark.parametrize(
+    "src, expected_num_error",
+    [
+        (md_good_1, 0),
+        (md_good_2, 0),
+        (md_bad_1, 1),
+        (md_bad_2, 1),
+    ],
+)
+def test_scan_md(src: str, expected_num_error: int):
+    Path("file.md").write_text(src)  # file will be written to a tmp dir
+    results = pyright_analyze("file.md")
+    assert results["summary"]["errorCount"] == expected_num_error, list_error_messages(
+        results
+    )
+
+
 @pytest.mark.filterwarnings("ignore:the imp module is deprecate")
 @pytest.mark.filterwarnings("ignore:Jupyter is migrating its paths")
 @pytest.mark.parametrize("src, expected_num_error", [("1 + 'a'", 1), ("1 + 2", 0)])

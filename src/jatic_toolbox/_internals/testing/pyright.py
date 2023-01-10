@@ -211,7 +211,107 @@ def rst_to_code(src: str) -> str:
     return "\n".join(blocks)
 
 
-# TODO: Add support for markdown
+def md_to_code(src: str) -> str:
+    """
+    Consumes markdown-formatted text like::
+
+       lopsem est decorum
+
+       ```python
+       import math
+       x = 1+1
+       ```
+
+       foorbarius isbarfooium
+
+       ```pycon
+        >>> print("hi")
+        hi
+        >>> 2+1
+        ```
+
+    and returns the string::
+
+       '''
+       import math
+       x = 1+1
+
+
+       print("hi")
+
+       2+1
+       '''
+
+    """
+    block: Optional[List[str]] = None  # lines in code block
+    indentation: Optional[str] = None  # leading whitespace before .. code-block
+    preamble: Optional[str] = None  # python or pycon
+    blocks: List[str] = []  # respective code blocks, each ready for processing
+
+    # inside
+    # ````
+    # <literal markdown>
+    # ````
+    in_literal_block: bool = False
+
+    # inside
+    # ```py[con][thon]
+    # <code>
+    # ```
+    in_code_block: bool = False
+
+    def add_block(
+        block: Optional[List[str]],
+        preamble: Optional[str],
+        blocks: List[str],
+    ):
+        if block:
+            block_str = "\n".join(block) + "\n"
+            assert preamble
+            if "pycon" == preamble:
+                blocks.append(get_docstring_examples(block_str))
+            elif "python" == preamble:
+                blocks.append(textwrap.dedent(block_str))
+            else:
+                # unknown block
+                pass
+
+    for line in src.splitlines():
+        stripped = line.strip()
+
+        if stripped == "`" * 4:
+            in_literal_block = not in_literal_block
+
+        if not in_literal_block and stripped.startswith("```py"):
+            # Entering python/pycon code block
+            add_block(block, preamble, blocks)
+            assert not in_code_block, line
+            in_code_block = True
+            block = []
+            indentation = ""
+            preamble = line.split("`" * 3)[-1].strip()
+            continue
+
+        if not in_code_block:
+            # outside of code block
+            continue
+
+        assert indentation is not None
+        assert block is not None
+
+        if not in_literal_block and stripped == "`" * 3:
+            # encountering ``` leaves the code block
+            add_block(block, preamble, blocks)
+            block = None
+            in_code_block = False
+            continue
+
+        block.append(line)
+
+    add_block(block, preamble, blocks)
+    return "\n".join(blocks)
+
+
 def pyright_analyze(
     code_or_path: Any,
     pyright_config: Optional[Dict[str, Any]] = None,
@@ -226,7 +326,7 @@ def pyright_analyze(
     r"""
     Scan a Python object, docstring, or file with pyright.
 
-    The following file formats are supported: `.py`, `.rst`, and `.ipynb`
+    The following file formats are supported: `.py`, `.rst`, `.md`, and `.ipynb`.
 
     Some common pyright configuration options are exposed via this function for
     convenience; a full pyright JSON config can be specified to completely control
@@ -239,7 +339,7 @@ def pyright_analyze(
     ----------
     code_or_path : SourceObjectType | Path
         A function, module-object, class, or method to scan. Or, a path to a file
-        to scan. Supported file formats are `.py`, `.rst`, and `.ipynb`.
+        to scan. Supported file formats are `.py`, `.rst`, `.md, and `.ipynb`.
 
         Specifying a directory is permitted, but only `.py` files in that directory
         will be scanned. All files will be copied to a temporary directory before being
@@ -432,6 +532,8 @@ def pyright_analyze(
             )
         if code_or_path.suffix == ".rst":
             source = rst_to_code(code_or_path.read_text("utf-8"))
+        elif code_or_path.suffix == ".md":
+            source = md_to_code(code_or_path.read_text("utf-8"))
         elif code_or_path.suffix == ".ipynb":
             source = notebook_to_py_text(code_or_path)
         elif code_or_path.is_file() and code_or_path.suffix != ".py":
