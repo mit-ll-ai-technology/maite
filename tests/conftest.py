@@ -3,6 +3,7 @@
 import sys
 
 import hypothesis.strategies as st
+import pkg_resources
 
 from jatic_toolbox.testing.pytest import cleandir  # noqa: F401
 
@@ -30,3 +31,29 @@ if "torch" in sys.modules:
     register_random(r)
 else:
     collect_ignore_glob.append("requires_torch/**")
+
+
+_installed = {pkg.key for pkg in pkg_resources.working_set}
+
+
+hydra_zen_installed = "hydra-zen" in _installed
+if not hydra_zen_installed:
+    collect_ignore_glob.append("*hydra_zen*.py")
+
+
+huggingface_installed = True
+for _module_name in ("datasets", "transformers", "huggingface-hub"):
+    if _module_name not in _installed:
+        huggingface_installed = False
+        break
+if not huggingface_installed:
+    collect_ignore_glob.append("*huggingface*.py")
+
+
+smqtk_installed = True
+for _module_name in ("smqtk-detection", "numba"):
+    if _module_name not in _installed:
+        smqtk_installed = False
+        break
+if not smqtk_installed or sys.version_info >= (3, 10):
+    collect_ignore_glob.append("*smqtk*.py")
