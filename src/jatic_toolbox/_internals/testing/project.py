@@ -63,6 +63,7 @@ class ModuleScanResults(PyrightOutput):
 
     The output type of `jatic_toolbox.testing.project.ModuleScan.__call__"""
 
+    # doc-ignore: NOQA
     typeCompleteness: CompletenessSection
 
 

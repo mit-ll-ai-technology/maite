@@ -53,6 +53,7 @@ class Diagnostic(TypedDict):
 class PyrightOutput(TypedDict):
     """The schema for the JSON output of a pyright scan"""
 
+    # # doc-ignore: NOQA
     version: str
     time: str
     generalDiagnostics: List[Diagnostic]
@@ -586,7 +587,19 @@ def pyright_analyze(
 
 
 def list_error_messages(results: PyrightOutput) -> List[str]:
-    """A convenience function that returns a list of error messages reported by pyright."""
+    """A convenience function that returns a list of error messages reported by pyright.
+
+    Parameters
+    ----------
+    results : PyrightOutput
+        The results of pyright_analyze.
+
+    Returns
+    -------
+    list[str]
+        A list of error messages.
+    """
+    # doc-ignore: EX01 SA01 GL01
     return [
         f"(line start) {e['range']['start']['line']}: {e['message']}"
         for e in results["generalDiagnostics"]

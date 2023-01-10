@@ -22,6 +22,7 @@ class BoundingBox(Protocol):
 class ObjectDetectionOutput:
     """An object detection output protocol."""
 
+    # doc-ignore: NOQA
     boxes: Iterable[BoundingBox]
     scores: Iterable[ClassScores]
 
