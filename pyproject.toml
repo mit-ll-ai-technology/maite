@@ -50,6 +50,35 @@ test = [
   "hypothesis >= 6.61.0",
 ]
 
+hydra_zen = ["hydra-zen >= 0.9.0"]
+
+huggingface = [
+  "datasets >= 2.7.1",
+  "huggingface-hub >= 0.11.1",
+  "transformers >= 4.25.1",
+  "timm >= 0.6.12",
+  "opencv-python-headless >= 4.6.0.66",
+]
+
+smqtk = [
+  "smqtk-detection >= 0.19.0",
+  "numba >= 0.56.4",
+  "opencv-python-headless >= 4.6.0.66",
+  "pooch >= 1.6.0",
+]
+
+all_interop = [
+  "datasets >= 2.7.1",
+  "huggingface-hub >= 0.11.1",
+  "hydra-zen >= 0.9.0",
+  "pooch >= 1.6.0",
+  "smqtk-detection >= 0.19.0",
+  "transformers >= 4.25.1",
+  "numba >= 0.56.4",
+  "opencv-python-headless >= 4.6.0.66",
+  "timm >= 0.6.12"
+]
+
 [project.urls]
 "Homepage" = "https://llcad-github.llan.ll.mit.edu/AIT/jatic_toolbox/"
 "Bug Reports" = "https://llcad-github.llan.ll.mit.edu/AIT/jatic_toolbox/issues"
@@ -114,7 +143,7 @@ reportUnnecessaryIsInstance = false
 legacy_tox_ini = """
 [tox]
 isolated_build = True
-envlist = py37, py38, py39, py310
+envlist = py37, py38, py39
 
 [gh-actions]
 python =
@@ -132,8 +161,23 @@ description = Runs test suite parallelized in the specified python enviornment a
 passenv = *
 deps = pytest-xdist
 extras = test
+         hydra_zen
+         huggingface
+         smqtk
 
 commands = pytest tests/ {posargs: -n auto --maxprocesses=4}
+
+
+[testenv:py310]
+description = Runs test suite parallelized for jatic_toolbox.interop 
+              against number of available processes (up to 4). 
+              Run `tox -e interop -- -n 0` to run tests with 
+              parallelization disabled.
+deps = {[testenv]deps}
+extras = test
+       hydra_zen
+       huggingface
+basepython = python3.10
 
 
 [testenv:coverage]
@@ -142,6 +186,10 @@ description = Runs test suite and measures test-coverage. Fails if coverage is
 deps = {[testenv]deps}
        coverage[toml]
        pytest-cov
+extras = test
+       hydra_zen
+       huggingface
+       smqtk
 usedevelop = true
 basepython = python3.9
 setenv = NUMBA_DISABLE_JIT=1
@@ -162,6 +210,9 @@ basepython = python3.9
 deps = pyright>=1.1.282
        numpy
        torch
+       hydra_zen
+       huggingface
+       smqtk
 
 commands = pyright --lib src/ tests/
            pyright --ignoreexternal --verifytypes jatic_toolbox
