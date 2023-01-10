@@ -138,7 +138,7 @@ commands = pytest tests/ {posargs: -n auto --maxprocesses=4}
 
 [testenv:coverage]
 description = Runs test suite and measures test-coverage. Fails if coverage is 
-              below 100%. Run `tox -e coverage -- -n 0` to disable parallelization.
+              below 100 prcnt. Run `tox -e coverage -- -n 0` to disable parallelization.
 deps = {[testenv]deps}
        coverage[toml]
        pytest-cov
@@ -151,11 +151,11 @@ commands = pytest tests/ --cov-report term-missing --cov-config=pyproject.toml -
 description = Validate that the jatic-toolbox's public API has docstrings that adhere
               to the numpydoc standard, and that their example sections "scan clean"
               under pyright.
-commands = pytest -n auto tests/test_docstrings.py -vv
+commands = pytest tests/test_docstrings.py -vv  {posargs: -n auto --maxprocesses=4}
 
 [testenv:typecheck]
 description = Ensure that the jatic-toolbox's source code and test suite scan clean
-              under pyright, and that the jatic-toolbox's public API has a 100%
+              under pyright, and that the jatic-toolbox's public API has a 100 prcnt
               type-completeness score.
 usedevelop = true
 basepython = python3.9
