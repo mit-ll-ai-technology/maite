@@ -3,6 +3,7 @@ from typing import Optional
 
 import pytest
 from pytest import param
+from typing_extensions import Protocol, TypedDict
 
 from jatic_toolbox._internals.testing.docs import _get_numpy_tags
 from jatic_toolbox.errors import InvalidArgument
@@ -396,3 +397,29 @@ def test_validates_respects_comments(obj, num_err):
         validate_docstring(obj, ignore_via_comments_allowed=False)["error_count"]
         == num_err
     )
+
+
+class Parent:
+    def f():
+        ...
+
+
+class Child(Parent):
+    # doc-ignore: GL08
+    #
+    # method f should not be scanned
+    ...
+
+
+class AProtocol(Protocol):
+    def meth(self):
+        ...
+
+
+class ATypedDict(TypedDict):
+    x: int
+
+
+@pytest.mark.parametrize("obj", [Child, AProtocol, ATypedDict])
+def test_no_scan(obj):
+    assert validate_docstring(obj)["error_count"] == 0, validate_docstring(obj)

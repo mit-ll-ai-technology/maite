@@ -17,7 +17,7 @@ from typing import (
     overload,
 )
 
-from typing_extensions import Literal, NotRequired, TypeAlias, TypedDict
+from typing_extensions import Literal, NotRequired, Protocol, TypeAlias, TypedDict
 
 from jatic_toolbox._internals.validation import check_type
 from jatic_toolbox.errors import InvalidArgument
@@ -74,6 +74,7 @@ AUTO_INIT_DOC = _C.__init__.__doc__
 
 
 class _NumpyDocValidate(TypedDict):
+    # doc-ignore: NOQA
     type: Literal["function", "type"]
     docstring: str
     deprecated: bool
@@ -83,6 +84,7 @@ class _NumpyDocValidate(TypedDict):
 
 
 class NumPyDocResults(TypedDict):
+    # doc-ignore: NOQA
     error_count: int
     errors: Dict[NumpyDocErrorCode, List[str]]
     file: str
@@ -91,11 +93,22 @@ class NumPyDocResults(TypedDict):
 
 
 class NumPyDocResultsWithIgnored(NumPyDocResults):
+    # doc-ignore: NOQA
     ignored_errors: Dict[NumpyDocErrorCode, List[str]]
 
 
 doc_ignore_re = re.compile(r"#\s?doc-ignore:(.*)")
 _comma_or_whitespace = re.compile(r"[,\s+]")
+
+
+def _is_typed_dict(obj: Any) -> bool:
+    if not isinstance(obj, type):
+        return False
+
+    return all(
+        hasattr(obj, attr)
+        for attr in ("__required_keys__", "__optional_keys__", "__optional_keys__")
+    )
 
 
 def _get_numpy_tags(obj: Any) -> Set[NumpyDocErrorCode]:
@@ -355,6 +368,11 @@ def validate_docstring(
             else:
                 ignored_errors[err_code].append(prefix + err_msg)
 
+    if _is_typed_dict(obj):
+        ignore.add("NOQA")
+    elif isinstance(obj, type) and issubclass(obj, Protocol):
+        ignore.add("NOQA")
+
     doc_obj = get_doc_object(obj)
 
     results = validate(doc_obj)
@@ -402,6 +420,14 @@ def validate_docstring(
             zip_longest([], doc_obj.properties, fillvalue=property_ignore),
             zip_longest([], doc_obj.methods, fillvalue=method_ignore),
         ):
+            if isinstance(obj, type) and issubclass(obj, Protocol):
+                # protocol attributes don't need docstrings
+                break
+
+            if name not in obj.__dict__:
+                # don't scan inherited methods/attrs
+                continue
+
             assert isinstance(name, str)
             _ignore = cast(Set[NumpyDocErrorCode], _ignore)
             _member = getattr(obj, name)
