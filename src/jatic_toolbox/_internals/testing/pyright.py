@@ -245,7 +245,6 @@ def md_to_code(src: str) -> str:
 
     """
     block: Optional[List[str]] = None  # lines in code block
-    indentation: Optional[str] = None  # leading whitespace before .. code-block
     preamble: Optional[str] = None  # python or pycon
     blocks: List[str] = []  # respective code blocks, each ready for processing
 
@@ -289,7 +288,6 @@ def md_to_code(src: str) -> str:
             assert not in_code_block, line
             in_code_block = True
             block = []
-            indentation = ""
             preamble = line.split("`" * 3)[-1].strip()
             continue
 
@@ -297,7 +295,6 @@ def md_to_code(src: str) -> str:
             # outside of code block
             continue
 
-        assert indentation is not None
         assert block is not None
 
         if not in_literal_block and stripped == "`" * 3:

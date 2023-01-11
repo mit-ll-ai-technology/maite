@@ -1,6 +1,8 @@
 from pathlib import Path
+from typing import List
 
 import pytest
+from pytest import param
 
 from jatic_toolbox.errors import InvalidArgument
 from jatic_toolbox.testing.project import (
@@ -10,9 +12,12 @@ from jatic_toolbox.testing.project import (
     Symbol,
     SymbolCounts,
     get_public_symbols,
+    import_public_symbols,
 )
 from jatic_toolbox.testing.pyright import Summary
 from tests import module_scan
+
+ParameterSet = type(param("s"))
 
 
 def test_bad_module_name():
@@ -198,3 +203,34 @@ def test_special_method_filtering():
         "foo.SomeClass.public_method__",
         "foo.SomeClass.___not_special___",
     }
+
+
+def test_import_symbols():
+    results = module_scan("jatic_dummy.basic")
+    out = list(import_public_symbols(results))
+
+    from jatic_dummy.basic.stuff import (
+        AClass,
+        ADataClass,
+        AProtocol,
+        ATypedDict,
+        a_func,
+    )
+
+    expected_stuff = {a_func, AClass, ADataClass, AProtocol, ATypedDict}
+    assert len(out) == len(expected_stuff)
+    assert set(out) == expected_stuff
+
+
+def test_import_pytest_xskip():
+    results = module_scan("jatic_dummy.basic")
+    out: List[str] = [
+        x.values[0]
+        for x in import_public_symbols(results, skip_module_not_found="pytest-skip")
+        if isinstance(x, ParameterSet)
+    ]  # type: ignore
+
+    expected = {
+        "jatic_dummy.basic.needs_mygrad.func_needs_mygrad",
+    }
+    assert sorted(out) == sorted(expected)

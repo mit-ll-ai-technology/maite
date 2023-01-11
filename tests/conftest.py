@@ -1,16 +1,41 @@
 # flake8: noqa
 
+import subprocess
 import sys
+from importlib.util import find_spec
+from pathlib import Path
 
 import hypothesis.strategies as st
 import pkg_resources
 
 from jatic_toolbox.testing.pytest import cleandir  # noqa: F401
+from tests import all_dummy_subpkgs
 
 st.register_type_strategy(st.DataObject, st.data())
 
 # Skip collection of tests that don't work on the current version of Python.
 collect_ignore_glob = []
+
+
+def _safe_find_spec(pkg: str):
+    # returning `None` means that module/subpackage is not installed
+    try:
+        return find_spec(pkg)
+    except ModuleNotFoundError:
+        return None
+
+
+for subpkg in all_dummy_subpkgs:
+    if _safe_find_spec(f"jatic_dummy.{subpkg}") is None:
+        subprocess.check_call(
+            [
+                sys.executable,
+                "-m",
+                "pip",
+                "install",
+                str((Path(__file__).parent / f"dummy_projects/{subpkg}").absolute()),
+            ]
+        )
 
 if "torch" in sys.modules:
     from hypothesis import register_random

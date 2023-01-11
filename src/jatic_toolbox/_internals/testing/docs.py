@@ -22,6 +22,8 @@ from typing_extensions import Literal, NotRequired, Protocol, TypeAlias, TypedDi
 from jatic_toolbox._internals.validation import check_type
 from jatic_toolbox.errors import InvalidArgument
 
+from ..utils import is_typed_dict
+
 NumpyDocErrorCode: TypeAlias = Literal[
     "GL01",
     "GL02",
@@ -99,16 +101,6 @@ class NumPyDocResultsWithIgnored(NumPyDocResults):
 
 doc_ignore_re = re.compile(r"#\s?doc-ignore:(.*)")
 _comma_or_whitespace = re.compile(r"[,\s+]")
-
-
-def _is_typed_dict(obj: Any) -> bool:
-    if not isinstance(obj, type):
-        return False
-
-    return all(
-        hasattr(obj, attr)
-        for attr in ("__required_keys__", "__optional_keys__", "__optional_keys__")
-    )
 
 
 def _get_numpy_tags(obj: Any) -> Set[NumpyDocErrorCode]:
@@ -368,7 +360,7 @@ def validate_docstring(
             else:
                 ignored_errors[err_code].append(prefix + err_msg)
 
-    if _is_typed_dict(obj):
+    if is_typed_dict(obj):
         ignore.add("NOQA")
     elif isinstance(obj, type) and issubclass(obj, Protocol):
         ignore.add("NOQA")
