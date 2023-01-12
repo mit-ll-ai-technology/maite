@@ -2,7 +2,7 @@
 
 This directory is designed to house independent pip-installable projects that we can test the jatic-toolbox against. Specifically, they are meant to serve as small, static projects with known contents/problems, and we can assert that the jatic-toolbox produces the expected results when processing them.
 
-The projects are designed to be installed under the same namespace package, called `jatic_dummy`. E.g. the `basic` package, when installed, is imported as `jatic_dummy.basic`. See [this documentation](https://packaging.python.org/en/latest/guides/packaging-namespace-packages/) (specifically the 2nd of the first 2 examples) to understand our approach to packaging namespace packages.
+The projects are designed to be installed under the same namespace package, called `jatic_dummy`. E.g. the `basic` package, when installed, is imported as `jatic_dummy.basic`. This keeps the local environment from being "polluted" with a bunch of tersely-named packages, and instead promotes a cleanly structured namespace. See [this documentation](https://packaging.python.org/en/latest/guides/packaging-namespace-packages/) (specifically the 2nd of the first 2 examples) to understand our approach to packaging namespace packages.
 
 The basic structure of a package is (replace `<pkg_name>`):
 
