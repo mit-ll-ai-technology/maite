@@ -2,8 +2,9 @@ import json
 import subprocess
 from copy import deepcopy
 from functools import _CacheInfo as CacheInfo, lru_cache
+from importlib import import_module
 from pathlib import Path
-from typing import List, Mapping, Union
+from typing import Any, Collection, FrozenSet, Generator, List, Mapping, Union
 
 from typing_extensions import Literal, NotRequired, TypedDict
 
@@ -13,20 +14,26 @@ from jatic_toolbox._internals.testing.pyright import (
     PyrightOutput,
 )
 from jatic_toolbox.errors import InvalidArgument
-from jatic_toolbox.utils.validation import check_type
+from jatic_toolbox.utils.validation import check_one_of, check_type
+
+from ..utils import is_typed_dict
+
+Category = Literal[
+    "class",
+    "constant",
+    "function",
+    "method",
+    "module",
+    "symbol",
+    "type alias",
+    "variable",
+]
+
+CATEGORIES: FrozenSet[Category] = frozenset(Category.__args__)  # type: ignore
 
 
 class Symbol(TypedDict):
-    category: Literal[
-        "class",
-        "constant",
-        "function",
-        "method",
-        "module",
-        "symbol",
-        "type alias",
-        "variable",
-    ]
+    category: Category
     name: str
     referenceCount: int
     isExported: bool
@@ -366,3 +373,125 @@ def get_public_symbols(
 
         return _out
     return list(out)
+
+
+def import_public_symbols(
+    scan: ModuleScanResults,
+    submodule: str = "",
+    categories: Collection[Category] = frozenset(["function", "class"]),
+    skip_module_not_found: Union[bool, Literal["pytest-skip"]] = True,
+) -> Generator[Any, None, None]:
+    """
+    Import and yield all public symbols (functions, classes, etc.) from a module's API.
+
+    This function expects the results of a scan performed by
+    `jatic_toolbox.testing.project.ModuleScan`, which requires that `pyright` is
+    installed.
+
+    Parameters
+    ----------
+    scan : ModuleScanResults
+        The result of a scan performed by `ModuleScan.__call__`.
+
+    submodule : str, optional
+        If specified, only symbols from the specified submodule are included.
+
+    categories : Collection[Category], default=('function', 'class')
+        The symbol categories to include.
+
+        Valid categories are:
+           - class
+           - constant
+           - function
+           - method
+           - module
+           - symbol
+           - type alias
+           - variable
+
+    skip_module_not_found : bool | Literal["pytest-skip"], default=True
+        If `True`, symbols that cannot be imported due to a `ModuleNotFound` error
+        are skipped (e.g., due to missing optional dependencies). If `False`, the
+        `ModuleNotFound` error is raised.
+
+        If `'pytest-skip'` is specified a pytest param of the symbol name – marked
+        by pytest to skip – is yielded when the import raises a `ModuleNotFound` error.
+        This is useful when `import_public_symbols` is used to populate a parameterized
+        test, so that skipped symbols are documented.
+
+    Yields
+    ------
+    Any
+        The imported symbol.
+
+    Examples
+    --------
+    Basic usage.
+
+    >>> from jatic_toolbox.testing.project import import_public_symbols, ModuleScan
+    >>> scanner = ModuleScan()
+    >>> results = scanner("pyright")
+    >>> list(import_public_symbols(results))[:2]
+    [<function pyright.cli.entrypoint() -> NoReturn>,
+    <function pyright.cli.main(args: List[str], **kwargs: Any) -> int>]
+    """
+    for cat in categories:
+        check_one_of("categories", cat, CATEGORIES)
+
+    categories = set(categories)
+
+    symbols = filter(
+        lambda symbol: symbol["category"] in categories,
+        sorted(
+            get_public_symbols(scan, submodule=submodule),
+            key=lambda symbol: symbol["name"],
+        ),
+    )
+
+    err = (ModuleNotFoundError, AttributeError) if skip_module_not_found else ()
+    cached_typeddict_names = set()
+
+    for symbol in symbols:
+        module_path, name = symbol["name"].rsplit(".", maxsplit=1)
+
+        # TODO: probably need a more sophisticated method for importing
+        # e.g. https://github.com/facebookresearch/hydra/blob/9ce67207488965431c69b2e2b8e1a2baa0ada4b8/hydra/_internal/utils.py#L614
+
+        if (
+            symbol["category"] == "function"
+            and module_path in cached_typeddict_names
+            and "method" not in categories
+        ):
+            continue
+
+        try:
+            module = import_module(module_path)
+        except err:
+            if skip_module_not_found == "pytest-skip":
+                # pytest should be kept optional.
+                import pytest
+
+                yield pytest.param(
+                    symbol["name"],
+                    marks=pytest.mark.skip(reason="Module not found."),
+                )
+            else:
+                continue
+        else:
+
+            try:
+                obj = getattr(module, name)
+                if symbol["category"] == "class" and is_typed_dict(obj):
+                    cached_typeddict_names.add(symbol["name"])
+
+                yield obj
+            except err:  # pragma: no cover
+                # it is possible that a symbol is unreachable at runtime
+                if skip_module_not_found == "pytest-skip":
+                    # pytest should be kept optional.
+                    import pytest
+
+                    yield pytest.param(
+                        symbol["name"],
+                        marks=pytest.mark.skip(reason="Module not found."),
+                    )

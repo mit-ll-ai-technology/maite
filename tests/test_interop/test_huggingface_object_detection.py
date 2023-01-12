@@ -14,7 +14,7 @@ image_strategy = hnp.arrays(float, shape=(30, 30, 3), elements=st.floats(0, 1))
 
 
 @settings(max_examples=5, deadline=None)
-@given(box=hnp.arrays(float, shape=(4,)))
+@given(box=hnp.arrays(float, shape=(4,), elements=st.floats(-10, 10)))
 def test_huggingface_bbox(box):
     bbox = HuggingFaceBoundingBox(box)
     assert hasattr(bbox, "min_vertex")

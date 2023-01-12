@@ -5,6 +5,7 @@ from jatic_toolbox._internals.testing.project import (
     Symbol,
     SymbolCounts,
     get_public_symbols,
+    import_public_symbols,
 )
 
 __all__ = [
@@ -14,4 +15,5 @@ __all__ = [
     "Symbol",
     "SymbolCounts",
     "get_public_symbols",
+    "import_public_symbols",
 ]
