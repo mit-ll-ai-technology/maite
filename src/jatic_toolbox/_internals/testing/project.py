@@ -456,6 +456,11 @@ def import_public_symbols(
 
         # TODO: probably need a more sophisticated method for importing
         # e.g. https://github.com/facebookresearch/hydra/blob/9ce67207488965431c69b2e2b8e1a2baa0ada4b8/hydra/_internal/utils.py#L614
+        #
+        # For example, if 'method' is included in `categories` then we can cash each
+        # class-object that we import and then getattr on it when we encounter a
+        # method/variable on that class. Because the symbols are sorted alphabetically
+        # we are always guaranteed to encounter a class object before its members.
 
         if (
             symbol["category"] == "function"
