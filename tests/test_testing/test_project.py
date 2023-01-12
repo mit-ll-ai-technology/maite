@@ -222,7 +222,7 @@ def test_import_symbols():
     assert set(out) == expected_stuff
 
 
-def test_import_pytest_xskip():
+def test_import_pytest_skip():
     results = module_scan("jatic_dummy.basic")
     out: List[str] = [
         x.values[0]
@@ -234,3 +234,13 @@ def test_import_pytest_xskip():
         "jatic_dummy.basic.needs_mygrad.func_needs_mygrad",
     }
     assert sorted(out) == sorted(expected)
+
+
+def test_validate_import_public_symbols_input():
+    results = module_scan("jatic_dummy.basic")
+
+    with pytest.raises(
+        InvalidArgument,
+        match=r"Expected `skip_module_not_found` to be one of: False, True, pytest-skip. Got `pytest-blah`.",
+    ):
+        list(import_public_symbols(results, skip_module_not_found="pytest-blah"))  # type: ignore

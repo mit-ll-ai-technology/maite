@@ -14,8 +14,6 @@ description = "Utilities for developing test suites for JATIC-related projects."
 readme = "README.md"
 requires-python = ">=3.7"
 dependencies = [
-  "pytest >= 6.2.5",
-  "hypothesis >= 6.28.0",
   "typing-extensions >= 4.1.0",
 ]
 
@@ -48,6 +46,10 @@ test = [
   "pyright >= 1.1.280",
   "pytest >= 7.0.0",
   "hypothesis >= 6.61.0",
+]
+
+testing = [
+  "pytest >= 6.0.0",
 ]
 
 hydra_zen = ["hydra-zen >= 0.9.0"]
@@ -117,8 +119,8 @@ exclude_lines = [
   'class .*\bProtocol(\[.+\])?\):',
   '@(abc\.)?abstractmethod',
   '@(typing\.)?overload',
-  'except ImportError:',
-  'except ModuleNotFoundError:',
+  'except ImportError',
+  'except ModuleNotFoundError',
   'if (typing\.)?TYPE_CHECKING:',
 ]
 
