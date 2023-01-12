@@ -435,6 +435,21 @@ def import_public_symbols(
     [<function pyright.cli.entrypoint() -> NoReturn>,
     <function pyright.cli.main(args: List[str], **kwargs: Any) -> int>]
     """
+
+    if isinstance(skip_module_not_found, bool):
+        marker = None
+    elif skip_module_not_found == "pytest-skip":
+        # pytest should be kept optional.
+        from pytest import mark, param
+
+        marker = mark.skip(reason="Module not found.")
+    else:
+        check_one_of(
+            "skip_module_not_found", skip_module_not_found, [True, False, "pytest-skip"]
+        )
+        marker = None  # pragma: no cover
+        raise Exception("unreachable")  # pragma: no cover
+
     for cat in categories:
         check_one_of("categories", cat, CATEGORIES)
 
@@ -472,14 +487,9 @@ def import_public_symbols(
         try:
             module = import_module(module_path)
         except err:
-            if skip_module_not_found == "pytest-skip":
-                # pytest should be kept optional.
-                import pytest
+            if marker is not None:
+                yield param(symbol["name"], marks=marker)  # type: ignore
 
-                yield pytest.param(
-                    symbol["name"],
-                    marks=pytest.mark.skip(reason="Module not found."),
-                )
             else:
                 continue
         else:
@@ -492,11 +502,7 @@ def import_public_symbols(
                 yield obj
             except err:  # pragma: no cover
                 # it is possible that a symbol is unreachable at runtime
-                if skip_module_not_found == "pytest-skip":
-                    # pytest should be kept optional.
-                    import pytest
-
-                    yield pytest.param(
-                        symbol["name"],
-                        marks=pytest.mark.skip(reason="Module not found."),
-                    )
+                if marker is not None:
+                    yield param(symbol["name"], marks=marker)  # type: ignore
+                else:
+                    continue
