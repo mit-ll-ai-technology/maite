@@ -225,6 +225,10 @@ class ModuleScan:
         scan = self._cached_scan if cached else _pyright_type_completeness
         out = scan(module_name, path_to_pyright=path_to_pyright)
         _summary = out["summary"]
+        # TODO: If a project does not have a py.typed file then no files will be analyzed.
+        #       This does *not* mean that the module was not found. Instead, we should
+        #       raise an error that explicitly states that the project was found be requires
+        #       a py.typed file in order to be analyzed
         if _summary["errorCount"] > 0 and _summary["filesAnalyzed"] == 0:
             raise ModuleNotFoundError(
                 f"No files were found to analyze in association "
