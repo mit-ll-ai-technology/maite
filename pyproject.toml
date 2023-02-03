@@ -63,7 +63,7 @@ huggingface = [
 ]
 
 smqtk = [
-  "smqtk-detection >= 0.19.0",
+  "smqtk-detection == 0.19.0",
   "numba >= 0.56.4",
   "opencv-python-headless >= 4.6.0.66",
   "pooch >= 1.6.0",
@@ -145,7 +145,7 @@ reportUnnecessaryIsInstance = false
 legacy_tox_ini = """
 [tox]
 isolated_build = True
-envlist = py37, py38, py39
+envlist = py37, py38, py39, py310
 
 [gh-actions]
 python =
@@ -171,10 +171,8 @@ commands = pytest tests/ {posargs: -n auto --maxprocesses=4}
 
 
 [testenv:py310]
-description = Runs test suite parallelized for jatic_toolbox.interop 
-              against number of available processes (up to 4). 
-              Run `tox -e interop -- -n 0` to run tests with 
-              parallelization disabled.
+description = Runs test suite parallelized in the a python 3.10 enviornment and 
+              against number of available processes (up to 4).
 deps = {[testenv]deps}
 extras = test
        hydra_zen
@@ -202,6 +200,7 @@ description = Validate that the jatic-toolbox's public API has docstrings that a
               to the numpydoc standard, and that their example sections "scan clean"
               under pyright.
 commands = pytest tests/test_docstrings.py -vv  {posargs: -n auto --maxprocesses=4}
+basepython = python3.9
 
 [testenv:typecheck]
 description = Ensure that the jatic-toolbox's source code and test suite scan clean
