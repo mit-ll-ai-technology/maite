@@ -3,8 +3,8 @@ import pytest
 from hypothesis import given, settings
 
 from jatic_toolbox.errors import InvalidArgument
-from jatic_toolbox.interop.smqtk.configs import create_smqtk_model_config
-from jatic_toolbox.interop.smqtk.object_detection import CenterNetVisdrone
+from jatic_toolbox.interop.hydra_zen import create_smqtk_model_config
+from jatic_toolbox.interop.smqtk import CenterNetVisdrone
 from jatic_toolbox.testing.pyright import pyright_analyze
 
 
