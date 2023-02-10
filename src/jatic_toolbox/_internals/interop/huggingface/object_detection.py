@@ -1,51 +1,31 @@
 import warnings
-from typing import Any, Iterable, Sequence
+from dataclasses import dataclass
+from typing import Any, Dict, List, Literal, Sequence
 
 import numpy as np
 import torch as tr
 from PIL.Image import Image
 from transformers import AutoFeatureExtractor, AutoModelForObjectDetection
+from typing_extensions import TypeAlias
 
 from jatic_toolbox.errors import InvalidArgument
-from jatic_toolbox.protocols.array import ArrayLike
-from jatic_toolbox.protocols.object_detection import (
-    BoundingBox,
-    ObjectDetection,
-    ObjectDetectionOutput,
-)
+from jatic_toolbox.protocols import ImageType, NDArray, ObjectDetector, ShapedArray
 from jatic_toolbox.utils.validation import check_type
 
-__all__ = ["HuggingFaceObjectDetector", "HuggingFaceBoundingBox"]
+__all__ = ["HuggingFaceObjectDetector"]
+
+HFProcessedDetection: TypeAlias = List[
+    Dict[Literal["scores", "labels", "boxes"], tr.Tensor]
+]
 
 
-class HuggingFaceBoundingBox(BoundingBox):
-    """
-    Implementation of `BoundingBox` for HuggingFace output.
-    """
-
-    def __init__(self, bbox: Sequence[float]):
-        """
-        Initialize HuggingFace bounding box.
-
-        Parameters
-        ----------
-        bbox : Sequence[float]
-            Bounding box as [x1, y1, x2, y2].
-
-        Examples
-        --------
-        >> hf_bbox = HuggingFaceBoundingBox([0, 1, 2, 3])
-        >> hf_bbox.min_vertex
-        [0, 1]
-        >> hf_bbox.max_vertex
-        [2, 3]
-        """
-        x1, y1, x2, y2 = bbox
-        self.min_vertex = [x1, y1]
-        self.max_vertex = [x2, y2]
+@dataclass
+class HuggingFaceObjectDetectionOutput:
+    boxes: List[NDArray]
+    scores: List[List[Dict[str, float]]]
 
 
-class HuggingFaceObjectDetector(ObjectDetection):
+class HuggingFaceObjectDetector(ObjectDetector):
     """
     Wrapper for HuggingFace object detection models.
 
@@ -67,10 +47,7 @@ class HuggingFaceObjectDetector(ObjectDetection):
 
         Examples
         --------
-        >> import numpy as np
-        >> data = np.random.uniform(0, 255, size=(200, 200, 3))
-        >> hf_object_detector = HuggingFaceObjectDetector(model="facebook/detr-resnet-50")
-        >> detection_output = hf_object_detector([data])
+        >>> hf_object_detector = HuggingFaceObjectDetector(model="facebook/detr-resnet-50")
         """
         super().__init__()
         check_type("model", model, str)
@@ -85,36 +62,47 @@ class HuggingFaceObjectDetector(ObjectDetection):
         except OSError as e:  # pragma: no cover
             raise InvalidArgument(e)
 
-    def __call__(
-        self, img_iter: Iterable[ArrayLike]
-    ) -> Iterable[ObjectDetectionOutput]:
+    def __call__(self, data: Sequence[ImageType]) -> HuggingFaceObjectDetectionOutput:
         """
         Extract object detection for HuggingFace Object Detection models.
 
         Parameters
         ----------
-        img_iter : Iterable[PIL.Image.Image | numpy.ndarray | torch.Tensor]
-            An array of images.
+        data : Sequence[ImageType]
+            An array of images.  Inputs can be `PIL.Image`, `NDArray`, or `torch.Tensor`
+            but HuggingFace converts all types to NumPy for feature extraction.
 
         Returns
         -------
-        List[ObjectDetectionOutput]
-            A list of object detection bounding boxes with corresponding scores.
+        HuggingFaceObjectDetectionOutput
+            An object detection object containing bounding boxes with corresponding scores.
 
         Examples
         --------
-        >> import numpy as np
-        >> image = np.random.uniform(0, 255, size=(200, 200, 3))
-        >> hf_object_detector = HuggingFaceObjectDetector(model="facebook/detr-resnet-50")
-        >> detections = hf_object_detector([image])
+        First create a random NumPy image array:
+
+        >>> import numpy as np
+        >>> image = np.random.uniform(0, 255, size=(200, 200, 3))
+
+        Load a HuggingFace object detection model and execute on
+        the above image:
+
+        >>> hf_object_detector = HuggingFaceObjectDetector(model="facebook/detr-resnet-50")
+        >>> detections = hf_object_detector([image])
+
+        We can check to verify the output contains `boxes` and `scores` attributes:
+
+        >>> from jatic_toolbox.protocols import HasObjectDetections
+        >>> assert isinstance(detections, HasObjectDetections)
         """
-        arr_iter = []
-        for img in img_iter:
+        arr_iter: List[ShapedArray] = []
+        for img in data:
             check_type("img", img, (Image, np.ndarray, tr.Tensor))
             if isinstance(img, tr.Tensor):
                 warnings.warn(
                     "HuggingFace feature extractors convert input data to NumPy arrays (input data type: `torch.Tensor`)"
                 )
+
             arr_iter.append(np.asarray(img))
 
         with tr.no_grad():
@@ -124,29 +112,30 @@ class HuggingFaceObjectDetector(ObjectDetection):
             target_sizes = tr.IntTensor(
                 [[img.shape[0], img.shape[1]] for img in arr_iter]
             )
-            results = self.feature_extractor.post_process_object_detection(
-                outputs, target_sizes=target_sizes
+            results: HFProcessedDetection = (
+                self.feature_extractor.post_process_object_detection(
+                    outputs, target_sizes=target_sizes
+                )
             )
-            scores = tr.softmax(outputs.logits, dim=-1).numpy()
+            scores: tr.Tensor = tr.softmax(outputs.logits, dim=-1).numpy()
 
-        dets = []
-        for i, _ in enumerate(img_iter):
-            boxes = results[i]["boxes"].numpy()
-            dets.append(self._hfboxes_to_jatic(boxes, scores[i]))
-        return dets
+        output_scores: List[List[Dict[str, float]]] = []
+        output_boxes: List[NDArray] = []
+        for i in range(len(data)):  # pragma: no cover
+            output_boxes.append(results[i]["boxes"].numpy())
+            output_scores.append(self._process_scores(scores[i]))
 
-    def _hfboxes_to_jatic(
-        self, boxes: Iterable[ArrayLike], scores: Iterable[ArrayLike]
-    ) -> ObjectDetectionOutput:
-        """Convert HuggingFace Bounding Boxes to JATIC Bounding Boxes"""
-        boxes = np.asarray(boxes)
-        scores = np.asarray(scores)
+        return HuggingFaceObjectDetectionOutput(
+            boxes=output_boxes, scores=output_scores
+        )
 
-        output_scores = []
-        output_boxes = []
-        for j in range(len(boxes)):
-            output_boxes.append(HuggingFaceBoundingBox(boxes[j]))
-            output_scores.append(
-                {k: scores[j][k].item() for k in range(len(scores[j]))}
-            )
-        return ObjectDetectionOutput(boxes=output_boxes, scores=output_scores)
+    def _process_scores(self, scores) -> List[Dict[str, float]]:
+        """
+        Process scores.
+
+        Added to implement test.
+        """
+        scores_i = []
+        for j in range(len(scores)):
+            scores_i.append({k: scores[j][k].item() for k in range(len(scores[j]))})
+        return scores_i

@@ -1,7 +1,7 @@
 import pytest
 from hydra_zen import ZenStore
 
-from jatic_toolbox.interop.huggingface.configs import (
+from jatic_toolbox.interop.hydra_zen import (
     create_huggingface_dataset_config,
     create_huggingface_model_config,
 )

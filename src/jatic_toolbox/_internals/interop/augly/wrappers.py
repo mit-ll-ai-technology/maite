@@ -1,13 +1,14 @@
 import random
-from typing import Any, Callable, List, Optional, TypeAlias, Union
+from typing import Any, Callable, List, Optional, Union
 
 import numpy as np
 from augly.image import aug_np_wrapper
 from numpy.typing import NDArray
 from PIL.Image import Image as PILImage
 from torch.utils._pytree import tree_flatten, tree_unflatten
+from typing_extensions import TypeAlias
 
-from jatic_toolbox.protocols import Augmentation, PyTree
+from jatic_toolbox.protocols import Augmentation, NestedCollection
 
 Audio: TypeAlias = NDArray
 Image: TypeAlias = PILImage
@@ -22,7 +23,7 @@ class Augly(Augmentation[T]):
 
         Parameters
         ----------
-        aug_fun : Callable[[T, ...], T]
+        aug_fun : Callable[..., T]
             An AugLy callable to transform data.
 
         **kwargs : Any
@@ -59,9 +60,9 @@ class Augly(Augmentation[T]):
 
     def __call__(
         self,
-        *inputs: PyTree[T],
+        *inputs: NestedCollection[T],
         rng: Optional[Union[int, random.Random]] = None,
-    ) -> PyTree[T]:
+    ) -> NestedCollection[T]:
         """
         Pipeline for augmentating data with Augly [1]_.
 
@@ -70,7 +71,7 @@ class Augly(Augmentation[T]):
         aug_fun : Callable
             An Augly function.
 
-        *inputs : PyTree[T]
+        *inputs : NestedCollection[T]
             Inputs to augment.
 
         rng : Optional[RandomState] = None
@@ -78,7 +79,7 @@ class Augly(Augmentation[T]):
 
         Returns
         -------
-        PyTree[T]
+        NestedCollection[T]
             All augmented inputs in the same format is
             the inputs.
 
@@ -132,14 +133,15 @@ class Augly(Augmentation[T]):
         >>> assert np.all(out[0]!=out3[0])
         >>> assert np.all(out[0]==out4[0])
         """
-        if isinstance(rng, int):
-            random.Random(int)
-        elif isinstance(rng, random.Random):
-            random.setstate(rng.getstate())
-        elif rng is not None:
-            raise ValueError(
-                f"rng must be int or `random.Random` object not {type(rng)}"
-            )
+        if rng is not None:
+            if isinstance(rng, int):
+                random.seed(rng)
+            elif isinstance(rng, random.Random):
+                random.setstate(rng.getstate())
+            else:
+                raise ValueError(
+                    f"rng must be int or `random.Random` object not {type(rng)}"
+                )
 
         if isinstance(rng, int):
             random.seed(rng)

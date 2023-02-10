@@ -1,11 +1,13 @@
+from dataclasses import is_dataclass
+
 import hypothesis.extra.numpy as hnp
 import hypothesis.strategies as st
 import pytest
 import torch as tr
 from hypothesis import given, settings
 
-from jatic_toolbox._internals.interop.smqtk.object_detection import _MODELS
-from jatic_toolbox.interop.smqtk.object_detection import CenterNetVisdrone
+from jatic_toolbox.interop.smqtk import _MODELS, CenterNetVisdrone
+from jatic_toolbox.protocols import HasObjectDetections
 
 image_strategy = hnp.arrays(
     float, shape=(30, 30, 3), elements=st.floats(0, 1, width=32)
@@ -26,7 +28,6 @@ def test_smqtk(models, image, to_tensor):
     else:
         dets = object_detector([image])
 
-    assert isinstance(dets, list)
-    assert len(dets) == 1
-    assert hasattr(dets[0], "boxes")
-    assert hasattr(dets[0], "scores")
+    assert is_dataclass(dets)
+    assert isinstance(dets, HasObjectDetections)
+    assert len(dets.boxes) == len(dets.scores)

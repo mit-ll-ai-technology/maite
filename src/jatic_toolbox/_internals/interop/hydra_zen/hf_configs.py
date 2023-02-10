@@ -5,8 +5,9 @@ from datasets.load import load_dataset
 from huggingface_hub.hf_api import list_models
 from hydra_zen import ZenStore, builds
 
-from jatic_toolbox._internals.interop.hydra_zen import jatic_store
 from jatic_toolbox.interop import huggingface
+
+from .store import jatic_store
 
 jatic_datasets = jatic_store(group="dataset")
 jatic_models = jatic_store(group="model")
@@ -96,7 +97,7 @@ def create_huggingface_model_config(**list_models_kwargs: Any) -> ZenStore:
                 _found = 1
                 jatic_models(
                     builds(
-                        huggingface.object_detection.HuggingFaceObjectDetector,
+                        huggingface.HuggingFaceObjectDetector,
                         model=m.modelId,
                     ),
                     name=name,

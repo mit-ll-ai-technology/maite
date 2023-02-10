@@ -1,5 +1,6 @@
 import warnings
-from typing import Any, Iterable, List
+from dataclasses import dataclass
+from typing import Any, Dict, List, Sequence
 
 import numpy as np
 import pooch
@@ -8,13 +9,7 @@ from PIL.Image import Image
 from smqtk_detection.impls.detect_image_objects import centernet
 
 from jatic_toolbox.errors import InternalError, InvalidArgument
-from jatic_toolbox.protocols.array import ArrayLike
-from jatic_toolbox.protocols.object_detection import (
-    ObjectDetection,
-    ObjectDetectionOutput,
-)
-
-# from jatic_toolbox.protocols import ArrayLike, ObjectDetection, ObjectDetectionOutput
+from jatic_toolbox.protocols import ImageType, NDArray, ObjectDetector
 from jatic_toolbox.utils.validation import check_type
 
 if not centernet.usable:  # pragma: no cover
@@ -43,7 +38,13 @@ _MODELS = {
 }
 
 
-class CenterNetVisdrone(ObjectDetection):
+@dataclass
+class SMQTKObjectDetectionOutput:
+    boxes: List[NDArray]
+    scores: List[List[Dict[str, float]]]
+
+
+class CenterNetVisdrone(ObjectDetector):
     """
     Wrapper for CenterNet model pretrained on the visdrone2019 dataset.
     """
@@ -62,7 +63,7 @@ class CenterNetVisdrone(ObjectDetection):
 
         Examples
         --------
-        >> centernet = CenterNetVisdrone(model="resnet50")
+        >>> centernet = CenterNetVisdrone(model="resnet50")
         """
         check_type("model name", model, str)
         centernet_model_file = self._get_model_file(model)
@@ -93,47 +94,59 @@ class CenterNetVisdrone(ObjectDetection):
 
         return pooch.retrieve(**_MODELS[model])
 
-    def __call__(self, img_iter: Iterable[ArrayLike]) -> List[ObjectDetectionOutput]:
+    def __call__(self, data: Sequence[ImageType]) -> SMQTKObjectDetectionOutput:
         """
         Object Detector for CenterNet.
 
         Parameters
         ----------
-        img_iter : Iterable[ArrayLike]
-            An array of images.
+        data: Sequence[ImageType]
+            An array of images.  Inputs can be `PIL.Image`, `NDArray`, or `torch.Tensor`
+            .
 
         Returns
         -------
-        List[ObjectDetectionOutput]
+        SMQTKObjectDetectionOutput
             A list of object detection bounding boxes with corresponding scores.
 
         Examples
         --------
-        >> import numpy as np
-        >> image = np.random.uniform(0, 255, size=(200, 200, 3))
+        First create a random NumPy image array:
+
+        >>> import numpy as np
+        >>> image = np.random.uniform(0, 255, size=(200, 200, 3))
+
         >> centernet = CenterNetVisdrone(model="resnet50")
-        >> detections = centernet([image])
+        >>> detections = centernet([image])
+
+        We can check to verify the output contains `boxes` and `scores` attributes:
+
+        >>> from jatic_toolbox.protocols import HasObjectDetections
+        >>> assert isinstance(detections, HasObjectDetections)
         """
         arr_iter = []
-        for img in img_iter:
+        for img in data:
             check_type("img", img, (Image, np.ndarray, tr.Tensor))
             if isinstance(img, tr.Tensor):
                 warnings.warn(
                     "SMQTK expects NumPy arrays (input data type: `torch.Tensor`)"
                 )
+                img = img.detach().cpu().numpy()
             arr_iter.append(np.asarray(img))
 
-        arr_iter = [np.asarray(img) for img in img_iter]
         smqt_output = self._detector(arr_iter)
 
-        detector_output = []
+        all_boxes: List[NDArray] = []
+        all_scores: List[List[Dict[str, float]]] = []
         for dets in smqt_output:
             boxes = []
             scores = []
             for bbox, label_score in dets:
-                boxes.append(bbox)
+                flatten_box = np.hstack([bbox.min_vertex, bbox.max_vertex])
+                boxes.append(flatten_box)
                 scores.append(label_score)
 
-            detector_output.append(ObjectDetectionOutput(boxes=boxes, scores=scores))
+            all_boxes.append(np.asarray(boxes))
+            all_scores.append(scores)
 
-        return detector_output
+        return SMQTKObjectDetectionOutput(boxes=all_boxes, scores=all_scores)

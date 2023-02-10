@@ -1,7 +1,7 @@
 import pytest
 from hydra_zen import ZenStore
 
-from jatic_toolbox.interop.smqtk.configs import create_smqtk_model_config
+from jatic_toolbox.interop.hydra_zen import create_smqtk_model_config
 
 
 @pytest.mark.parametrize(

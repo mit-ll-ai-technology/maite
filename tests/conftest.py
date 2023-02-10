@@ -82,3 +82,7 @@ for _module_name in ("smqtk-detection", "numba"):
         break
 if not smqtk_installed or sys.version_info >= (3, 10):
     collect_ignore_glob.append("*smqtk*.py")
+
+augly_installed = "augly" in _installed
+if not augly_installed:
+    collect_ignore_glob.append("*augly*.py")
