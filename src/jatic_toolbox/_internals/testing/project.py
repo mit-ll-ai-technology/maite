@@ -79,7 +79,6 @@ def _pyright_type_completeness(
     *,
     path_to_pyright: Union[Path, None],
 ) -> ModuleScanResults:
-
     module_name = module_name.replace("-", "_")
 
     if path_to_pyright is None:  # pragma: no cover
@@ -260,7 +259,6 @@ class ModuleScan:
 
 
 def _is_dunder(name: str) -> bool:
-
     *_, name = name.split(".")
     out = (
         name.startswith("__")
@@ -497,7 +495,6 @@ def import_public_symbols(
             else:
                 continue
         else:
-
             try:
                 obj = getattr(module, name)
                 if symbol["category"] == "class" and is_typed_dict(obj):

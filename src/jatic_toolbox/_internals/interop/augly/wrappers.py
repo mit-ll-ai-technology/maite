@@ -1,25 +1,28 @@
 import random
-from typing import Any, Callable, List, Optional, Union
+from typing import Any, Callable, List, Optional, Tuple, Union
 
 import numpy as np
 from augly.image import aug_np_wrapper
 from numpy.typing import NDArray
 from PIL.Image import Image as PILImage
+from torch import Tensor
 from torch.utils._pytree import tree_flatten, tree_unflatten
 from typing_extensions import TypeAlias
 
-from jatic_toolbox.protocols import Augmentation, NestedCollection
+from jatic_toolbox.protocols import TypedCollection
+
+__all__ = ["Augly"]
 
 Audio: TypeAlias = NDArray
 Image: TypeAlias = PILImage
 URL: TypeAlias = Union[str, List[str]]
-T: TypeAlias = Union[Image, Audio, URL]
+T: TypeAlias = Union[Image, Audio, URL, Tensor]
 
 
-class Augly(Augmentation[T]):
+class Augly:
     def __init__(self, aug_fun: Callable[..., T], **kwargs: Any):
         """
-        Returns a JATIC Augmentation for an AugLy [1]_ transform.
+        Return a JATIC Augmentation for an AugLy [1]_ transform.
 
         Parameters
         ----------
@@ -28,11 +31,6 @@ class Augly(Augmentation[T]):
 
         **kwargs : Any
             Optional arguments for `aug_fun`.
-
-        Returns
-        -------
-        Augmentation[T]
-            A JATIC augmentation function.
 
         References
         ----------
@@ -49,7 +47,7 @@ class Augly(Augmentation[T]):
         transformation:
 
         >>> from augly.images import RandomAspectRatio
-        >>> xform = augly(RandomAspectRatio)
+        >>> xform = Augly(RandomAspectRatio)
 
         Lastly, generate the augmentation:
 
@@ -60,18 +58,15 @@ class Augly(Augmentation[T]):
 
     def __call__(
         self,
-        *inputs: NestedCollection[T],
+        *inputs: TypedCollection[T],
         rng: Optional[Union[int, random.Random]] = None,
-    ) -> NestedCollection[T]:
+    ) -> Union[TypedCollection[T], Tuple[TypedCollection[T], ...]]:
         """
         Pipeline for augmentating data with Augly [1]_.
 
         Parameters
         -----------
-        aug_fun : Callable
-            An Augly function.
-
-        *inputs : NestedCollection[T]
+        *inputs : TypedCollection[T]
             Inputs to augment.
 
         rng : Optional[RandomState] = None
@@ -79,7 +74,7 @@ class Augly(Augmentation[T]):
 
         Returns
         -------
-        NestedCollection[T]
+        TypedCollection[T]
             All augmented inputs in the same format is
             the inputs.
 
@@ -101,7 +96,7 @@ class Augly(Augmentation[T]):
         the augmentation for PIL and NumPy arrays.
 
         >>> from augly.images import RandomAspectRatio
-        >>> xform = augly(RandomAspectRatio())
+        >>> xform = Augly(RandomAspectRatio())
 
         We can execute on a single image:
 

@@ -42,7 +42,6 @@ if "torch" in sys.modules:
 
     class TorchRandomWrapper:
         def __init__(self):
-
             # This class provides a shim that matches torch to stdlib random,
             # and lets us avoid importing torch until it's already in use.
             from torch import default_generator

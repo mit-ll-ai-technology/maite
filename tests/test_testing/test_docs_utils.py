@@ -391,7 +391,6 @@ class B:
 
 @pytest.mark.parametrize("obj, num_err", [(tagged_f, 1), (A, 4), (B, 4)])
 def test_validates_respects_comments(obj, num_err):
-
     assert validate_docstring(obj)["error_count"] == 0, validate_docstring(obj)
     assert (
         validate_docstring(obj, ignore_via_comments_allowed=False)["error_count"]
@@ -400,7 +399,7 @@ def test_validates_respects_comments(obj, num_err):
 
 
 class Parent:
-    def f():
+    def f(self):
         ...
 
 

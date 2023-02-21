@@ -5,11 +5,12 @@ from typing import Any, Dict, List, Sequence
 import numpy as np
 import pooch
 import torch as tr
+from numpy.typing import NDArray
 from PIL.Image import Image
 from smqtk_detection.impls.detect_image_objects import centernet
 
 from jatic_toolbox.errors import InternalError, InvalidArgument
-from jatic_toolbox.protocols import ImageType, NDArray, ObjectDetector
+from jatic_toolbox.protocols import ImageType, ObjectDetector
 from jatic_toolbox.utils.validation import check_type
 
 if not centernet.usable:  # pragma: no cover
