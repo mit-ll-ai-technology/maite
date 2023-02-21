@@ -9,24 +9,15 @@ from typing import (
     Tuple,
     TypeVar,
     Union,
-    runtime_checkable,
 )
 
-from numpy.typing import ArrayLike as NumpyArrayLike, NDArray
-from torch import Tensor as TorchTensor
-from typing_extensions import Protocol, TypeAlias
-
-try:
-    from PIL.Image import Image
-except ImportError:
-    Image = TypeVar("Image")
+from PIL.Image import Image
+from typing_extensions import Protocol, TypeAlias, runtime_checkable, Self
 
 __all__ = [
-    "NestedCollection",
+    "TypedCollection",
     "ImageType",
     "ArrayLike",
-    "NDArray",
-    "Tensor",
     "Augmentation",
     "ModelOutput",
     "HasProbs",
@@ -38,17 +29,34 @@ __all__ = [
     "ShapedArray",
 ]
 
+
+T = TypeVar("T")
+T_co = TypeVar("T_co", covariant=True)
+T_cont = TypeVar("T_cont", contravariant=True)
+
+
+
 """
-ArrayLike is any object that can be manipulated into a Numpy array.
+ArrayLike is any method that implements
+the `__array__` method. 
 
-ShapedArray provides the method "shape".
+ShapedArray is an ArrayLike that also implements
+the `shape` method.
+
+ImageType is an ArrayLike or a Image object.  
+  - This supports numpy and Image objects 
 """
-Tensor = TypeVar("Tensor", bound=TorchTensor)
-ArrayLike: TypeAlias = Union[Sequence, NumpyArrayLike, NDArray, Tensor]
 
 
+@runtime_checkable
+class ArrayLike(Protocol):
+    def __array__(self) -> Any:
+        ...
+
+
+@runtime_checkable
 class ShapedArray(Protocol):
-    def __array__(self) -> NDArray:
+    def __array__(self) -> Any:
         ...
 
     @property
@@ -56,37 +64,35 @@ class ShapedArray(Protocol):
         ...
 
 
-T = TypeVar("T")
-T_co = TypeVar("T_co", contravariant=True)
-S = TypeVar("S", bound=ArrayLike)
+ImageType: TypeAlias = Union[ArrayLike, Image]
 RandomStates: TypeAlias = Any
-ImageType: TypeAlias = Union[ArrayLike, Image, NDArray, Tensor]
-
+A = TypeVar("A", bound=ArrayLike)
 
 """
-`NestedCollection` is is a recursive structure of arbitrarily nested Python containers
+A `TypedCollection` is a homogeneous collection of Python objects that can be used
+to define a consistent type in an interface. For example, if the inputs and outputs
+of the interface are expected to be a NumPy `NDArray` or PyTorch `Tensor`, a
+`TypedCollection` type can be used to define this consistency.
 (e.g., tuple, list, dict, OrderedDict, NamedTuple, etc.).
 
-Nested collections support the very powerful "NestedCollection" functionalities currently
+Typed collections support the very powerful "PyTree" functionalities currently
 implemented here:
 
-- `PyTorch <https://github.com/pytorch/pytorch/blob/master/torch/utils/_NestedCollection.py>`_
-- `JAX NestedCollections <https://jax.readthedocs.io/en/latest/NestedCollections.html>`_
-- `Optimized NestedCollections <https://github.com/metaopt/optree>`_
-
-Examples
---------
->>> NestedCollection[int]
-typing.Union[int, typing.Sequence[int], typing.Mapping[typing.Any, int]]
+- `PyTorch <https://github.com/pytorch/pytorch/blob/master/torch/utils/_TypedCollection.py>`_
+- `JAX TypedCollections <https://jax.readthedocs.io/en/latest/TypedCollections.html>`_
+- `Optimized TypedCollections <https://github.com/metaopt/optree>`_
 """
-NestedCollection: TypeAlias = Union[T, Sequence[T], Mapping[Any, T]]
+TypedCollection: TypeAlias = Union[
+    T, Sequence[T], Mapping[Any, T], Mapping[Any, Sequence[T]]
+]
 
 
-@runtime_checkable
 class Augmentation(Protocol[T]):
     def __call__(
-        self, *inputs: NestedCollection[T], rng: Optional[RandomStates] = None
-    ) -> NestedCollection[T]:
+        self,
+        *inputs: TypedCollection[T],
+        rng: Optional[RandomStates],
+    ) -> Union[TypedCollection[T], Tuple[TypedCollection[T], ...]]:
         """
         Applies an agumentation to each item in the input and returns a corresponding container of augmented items.
 
@@ -94,7 +100,7 @@ class Augmentation(Protocol[T]):
 
         Parameters
         ----------
-        *inputs : NestedCollection[T]
+        *inputs : TypedCollection[T]
             Any arbitrary structure of nested Python containers, e.g., list of image arrays.
             All types comprising the tree must be the same.
 
@@ -103,7 +109,7 @@ class Augmentation(Protocol[T]):
 
         Returns
         -------
-        NestedCollection[T]
+        Union[TypedCollection[T], Tuple[TypedCollection[T], ...]]
             A corresponding collection of transformed objects.
 
         Notes
@@ -129,49 +135,50 @@ ModelOutput: TypeAlias = Union[
 
 
 @runtime_checkable
-class HasLogits(Protocol[S]):
-    logits: S
+class HasLogits(Protocol[A]):
+    logits: A
 
 
 @runtime_checkable
-class HasProbs(Protocol[S]):
-    probs: S
+class HasProbs(Protocol[A]):
+    probs: A
 
 
 # TODO: Determine best "required" attributes
 @runtime_checkable
-class HasObjectDetections(Protocol[S]):
-    scores: Sequence[Sequence[Dict[Any, S]]]
-    boxes: Sequence[S]
+class HasObjectDetections(Protocol[A]):
+    scores: Sequence[Sequence[Dict[Any, float]]]
+    boxes: A
 
 
-class Model(Protocol):
-    def __call__(self, *data: NestedCollection[T]) -> ModelOutput:
+class Model(Protocol[T_cont]):
+
+    def __call__(self, data: TypedCollection[T_cont]) -> ModelOutput:
         """
         A Model applies a function on the data and returns
         a mapping of the data to a given set of outputs.
 
         Parameters
         ----------
-        *data : NestedCollection[SupportsArray]
-            A nest of array types to process through a function.
+        data : TypedCollection[ArrayLike]
+            Data in the form of an array, sequence of arrays, or mapping of arrays..
 
         Returns
         -------
         ModelOutput
             The output of the Model defined as `dataclasses.dataclass` or
-            a dictionary.
+            a `NamedTuple`.
         """
         ...
 
 
-class Classifier(Protocol[T_co]):
-    def __call__(self, data: Iterable[T_co]) -> Union[HasLogits, HasProbs]:
+class Classifier(Protocol[T_cont]):
+    def __call__(self, data: TypedCollection[T_cont]) -> Union[HasLogits, HasProbs]:
         """Classifier protocol."""
         ...
 
 
-class ObjectDetector(Protocol[T_co]):
-    def __call__(self, data: Iterable[T_co]) -> HasObjectDetections:
+class ObjectDetector(Protocol[T_cont]):
+    def __call__(self, data: TypedCollection[T_cont]) -> HasObjectDetections:
         """Object detector protocol."""
         ...

@@ -379,7 +379,6 @@ def validate_docstring(
     # E.g., the class-level doc can be missing the Parameters section as long
     # as the __init__ is not also missing that section.
     if isinstance(doc_obj, ClassDoc):
-
         init_results = validate(get_doc_object(obj.__init__))
         if obj.__init__.__doc__ == AUTO_INIT_DOC:
             init_results["errors"].append(

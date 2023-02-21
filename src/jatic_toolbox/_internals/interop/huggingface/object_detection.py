@@ -4,12 +4,13 @@ from typing import Any, Dict, List, Literal, Sequence
 
 import numpy as np
 import torch as tr
+from numpy.typing import NDArray
 from PIL.Image import Image
 from transformers import AutoFeatureExtractor, AutoModelForObjectDetection
 from typing_extensions import TypeAlias
 
 from jatic_toolbox.errors import InvalidArgument
-from jatic_toolbox.protocols import ImageType, NDArray, ObjectDetector, ShapedArray
+from jatic_toolbox.protocols import ImageType, ObjectDetector, ShapedArray
 from jatic_toolbox.utils.validation import check_type
 
 __all__ = ["HuggingFaceObjectDetector"]

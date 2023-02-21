@@ -10,7 +10,6 @@ from hypothesis import given, settings
 from PIL import Image
 
 from jatic_toolbox.interop.augly import Augly
-from jatic_toolbox.protocols import Augmentation
 
 
 def to_numpy(x):
@@ -26,18 +25,14 @@ def to_pil(x):
     return Image.fromarray(x.astype("uint8")).convert("RGBA")
 
 
-def test_type():
-    assert isinstance(Augly, Augmentation)
-
-
 @given(image=image_strategy)
 def test_rng(image):
     xform = Augly(augly_image.RandomAspectRatio())
     with pytest.raises(ValueError):
-        xform(image, rng="1")
+        xform(image, rng="1")  # pyright: ignore [reportGeneralTypeIssues]
 
     with pytest.raises(ValueError):
-        xform(image, rng=1.1)
+        xform(image, rng=1.1)  # pyright: ignore [reportGeneralTypeIssues]
 
 
 @settings(max_examples=5, deadline=None)
@@ -89,11 +84,17 @@ def test_reproducible(image, transform, aug_kwargs):
     xform = Augly(transform, **aug_kwargs)
 
     out = xform(image, rng=1)
-    out2 = xform(image, rng=1)
-    out3 = xform(image, rng=22)
-    out4 = xform(image, rng=random.Random(1))
+    assert isinstance(out, np.ndarray)
 
-    assert isinstance(out, type(image))
+    out2 = xform(image, rng=1)
+    assert isinstance(out2, np.ndarray)
+
+    out3 = xform(image, rng=22)
+    assert isinstance(out3, np.ndarray)
+
+    out4 = xform(image, rng=random.Random(1))
+    assert isinstance(out4, np.ndarray)
+
     np.testing.assert_allclose(out, out2)
     np.testing.assert_raises(AssertionError, np.testing.assert_array_equal, out, out3)
     np.testing.assert_allclose(out, out4)

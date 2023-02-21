@@ -8,19 +8,15 @@ from jatic_toolbox._internals.protocols import (
     ImageType,
     Model,
     ModelOutput,
-    NDArray,
-    NestedCollection,
     ObjectDetector,
     ShapedArray,
-    Tensor,
+    TypedCollection,
 )
 
 __all__ = [
-    "NestedCollection",
+    "TypedCollection",
     "ImageType",
     "ArrayLike",
-    "NDArray",
-    "Tensor",
     "Augmentation",
     "ModelOutput",
     "HasProbs",
