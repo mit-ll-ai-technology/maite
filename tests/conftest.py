@@ -6,8 +6,8 @@ from importlib.util import find_spec
 from pathlib import Path
 
 import hypothesis.strategies as st
-import pkg_resources
 
+from jatic_toolbox._internals.interop import import_utils
 from jatic_toolbox.testing.pytest import cleandir  # noqa: F401
 from tests import all_dummy_subpkgs
 
@@ -37,7 +37,7 @@ for subpkg in all_dummy_subpkgs:
             ]
         )
 
-if "torch" in sys.modules:
+if import_utils.is_torch_available():
     from hypothesis import register_random
 
     class TorchRandomWrapper:
@@ -57,31 +57,14 @@ else:
     collect_ignore_glob.append("requires_torch/**")
 
 
-_installed = {pkg.key for pkg in pkg_resources.working_set}
-
-
-hydra_zen_installed = "hydra-zen" in _installed
-if not hydra_zen_installed:
+if not import_utils.is_hydra_zen_available():
     collect_ignore_glob.append("*hydra_zen*.py")
 
-
-huggingface_installed = True
-for _module_name in ("datasets", "transformers", "huggingface-hub"):
-    if _module_name not in _installed:
-        huggingface_installed = False
-        break
-if not huggingface_installed:
+if not import_utils.is_hf_available():
     collect_ignore_glob.append("*huggingface*.py")
 
-
-smqtk_installed = True
-for _module_name in ("smqtk-detection", "numba"):
-    if _module_name not in _installed:
-        smqtk_installed = False
-        break
-if not smqtk_installed or sys.version_info >= (3, 10):
+if not import_utils.is_smqtk_available() or sys.version_info >= (3, 10):
     collect_ignore_glob.append("*smqtk*.py")
 
-augly_installed = "augly" in _installed
-if not augly_installed:
+if not import_utils.is_augly_available():
     collect_ignore_glob.append("*augly*.py")

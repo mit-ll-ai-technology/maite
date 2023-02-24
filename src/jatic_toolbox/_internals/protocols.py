@@ -1,7 +1,6 @@
 from typing import (
     Any,
     Dict,
-    Iterable,
     Mapping,
     NamedTuple,
     Optional,
@@ -12,7 +11,7 @@ from typing import (
 )
 
 from PIL.Image import Image
-from typing_extensions import Protocol, TypeAlias, runtime_checkable, Self
+from typing_extensions import Protocol, Self, TypeAlias, runtime_checkable
 
 __all__ = [
     "TypedCollection",
@@ -33,7 +32,6 @@ __all__ = [
 T = TypeVar("T")
 T_co = TypeVar("T_co", covariant=True)
 T_cont = TypeVar("T_cont", contravariant=True)
-
 
 
 """
@@ -152,7 +150,6 @@ class HasObjectDetections(Protocol[A]):
 
 
 class Model(Protocol[T_cont]):
-
     def __call__(self, data: TypedCollection[T_cont]) -> ModelOutput:
         """
         A Model applies a function on the data and returns

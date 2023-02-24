@@ -45,12 +45,16 @@ def test_pyright_strict():
     assert results["summary"]["errorCount"] > 0
 
 
+@pytest.mark.usefixtures("cleandir")
 def test_python_version():
-    def f(x: list[int]):  # using builtin type as generic is new to 3.9
+    code = """def f(x: list[int]):  # using builtin type as generic is new to 3.9
         ...
+    """
+    with open("f.py", "w") as file:
+        file.writelines(code)
 
-    py38 = pyright_analyze(f, python_version="3.8")
-    py39 = pyright_analyze(f, python_version="3.9")
+    py38 = pyright_analyze("./", python_version="3.8")
+    py39 = pyright_analyze("./", python_version="3.9")
     assert py38["summary"]["errorCount"] == 1
     assert py39["summary"]["errorCount"] == 0
 
