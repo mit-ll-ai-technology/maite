@@ -1,5 +1,5 @@
-Thanks for your interest in contributing to LL's robustness-toolbox. Please read 
-through the following resources before you begin working on any contributions to this 
+Thanks for your interest in contributing to LL's robustness-toolbox. Please read
+through the following resources before you begin working on any contributions to this
 code base.
 
 
@@ -8,21 +8,21 @@ code base.
   - [Tooling configuration](#tooling-configuration)
   - [CI/CD Overview](#cicd-overview)
     - [Running tox](#running-tox)
-  
+
 ## Contributor Basics
 ### Installing jatic toolbox for development
 
 Install the toolbox along with its test dependencies; checkout the repo, navigate to its top level and run
 
 ```shell
-pip install -e .[tests]
+pip install -e .[test]
 ```
 
 the `-e` option ensures that any changes that you make to the project's source code will be reflected in your local install – you need not reinstall the package in order for your modifications to take effect.
 
 ### Pre-Commit Hooks (Required)
 
-We provide contributors with pre-commit hooks, which will apply auto-formatters and 
+We provide contributors with pre-commit hooks, which will apply auto-formatters and
 linters to your code before your commit takes effect. You must install these in order to contribute to the repo.
 
 First install pre-commit in your Python environment. Run:
@@ -185,9 +185,9 @@ Strive to leverage data structures with explicitly-named fields that describe yo
 >>> coord = (80, 42, 30)  # coordinate in DMS
 ```
 
-The shortcoming of this is that the meaning of these fields are not self-evident. This data requires an additional source of documentation for context or, worse, relies implicitly on a developer's recollection. 
+The shortcoming of this is that the meaning of these fields are not self-evident. This data requires an additional source of documentation for context or, worse, relies implicitly on a developer's recollection.
 
-One can instead define a [named-tuple](https://www.pythonlikeyoumeanit.com/Module2_EssentialsOfPython/DataStructures_III_Sets_and_More.html#Named-Tuple) that explicitly represents the data being handled. 
+One can instead define a [named-tuple](https://www.pythonlikeyoumeanit.com/Module2_EssentialsOfPython/DataStructures_III_Sets_and_More.html#Named-Tuple) that explicitly represents the data being handled.
 
 ```python
 # good: Using a namedtuple to store a degrees-minutes-seconds coordinate
@@ -217,7 +217,7 @@ minutes : int ∈ [0, 60]
 seconds : int ∈ [0, 60]
 """
 ```
-If you are using Python 3.7 or later, you can also use the new [dataclass](https://docs.python.org/3/library/dataclasses.html) to a similar effect. 
+If you are using Python 3.7 or later, you can also use the new [dataclass](https://docs.python.org/3/library/dataclasses.html) to a similar effect.
 
 For users performing larger-scale numerical experiments, numpy-arrays fall victim to the same ambiguity as tuples. The [`pandas`](https://pandas.pydata.org/) and [`xarray`](http://xarray.pydata.org/en/stable/) libraries should be used to store tabular and higher-dimensional arrays of data with explicitly-named fields and metadata.
 
@@ -249,7 +249,7 @@ Using explicit data structures when processing data is critical to ensuring that
 
 Our CI runs the `pyright` type-checker in basic mode against hydra-zen's entire code base and against specific test files; this ensures that our type-annotations are complete and accurate.
 
-If you use VSCode with Pylance, then make sure that `Type Checking Mode` is set to `basic` for your hydra-zen workspace. Your IDE will then mark any problematic code.Other IDEs can leverage the pyright language server to a similar effect. 
+If you use VSCode with Pylance, then make sure that `Type Checking Mode` is set to `basic` for your hydra-zen workspace. Your IDE will then mark any problematic code.Other IDEs can leverage the pyright language server to a similar effect.
 
 While this is helpful for getting immediate feedback about your code, it is no substitute for running `pyright` from the commandline. To do so, run the following tox job:
 
