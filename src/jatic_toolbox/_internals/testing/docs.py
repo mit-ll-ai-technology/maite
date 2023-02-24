@@ -431,7 +431,7 @@ def validate_docstring(
             )
 
     out = NumPyDocResults(
-        error_count=sum((len(x) for x in errors.values()), start=0),
+        error_count=sum((len(x) for x in errors.values())),
         errors=dict(errors),
         file=results["file"],
         file_line=results["file_line"],
