@@ -11,8 +11,6 @@ from typing import (
     Union,
 )
 
-from numpy.typing import NDArray
-from torch import Tensor
 from typing_extensions import Protocol, TypeAlias, runtime_checkable
 
 from .import_utils import is_numpy_available, is_torch_available
@@ -265,6 +263,8 @@ MetricCollection: TypeAlias = Metric[Dict[str, A]]
 
 
 if is_numpy_available():
+    from numpy.typing import NDArray
+
     NumPyDataset: TypeAlias = ClassifierDataset[NDArray[Any]]
     NumPyDataLoader: TypeAlias = ClassifierDataLoader[NDArray[Any]]
     NumPyClassifier: TypeAlias = Classifier[NDArray[Any]]
@@ -286,6 +286,8 @@ if is_numpy_available():
 
 
 if is_torch_available():
+    from torch import Tensor
+
     TorchDataset: TypeAlias = ClassifierDataset[Tensor]
     TorchDataLoader: TypeAlias = ClassifierDataLoader[Tensor]
     TorchClassifier: TypeAlias = Classifier[Tensor]
