@@ -1,4 +1,4 @@
-from jatic_toolbox._internals.interop.import_utils import is_hf_available
+from jatic_toolbox._internals.import_utils import is_hf_available
 
 if is_hf_available():
     from jatic_toolbox._internals.interop.huggingface.image_classifier import (

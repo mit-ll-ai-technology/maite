@@ -2,6 +2,10 @@ import importlib
 import importlib.util
 
 
+def is_numpy_available():
+    return importlib.util.find_spec("numpy") is not None
+
+
 def is_torch_available():
     return importlib.util.find_spec("torch") is not None
 

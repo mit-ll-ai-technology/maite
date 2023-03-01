@@ -1,6 +1,7 @@
 from typing import (
     Any,
     Dict,
+    Iterable,
     Mapping,
     NamedTuple,
     Optional,
@@ -10,22 +11,33 @@ from typing import (
     Union,
 )
 
-from PIL.Image import Image
-from typing_extensions import Protocol, Self, TypeAlias, runtime_checkable
+from numpy.typing import NDArray
+from torch import Tensor
+from typing_extensions import Protocol, TypeAlias, runtime_checkable
+
+from .import_utils import is_numpy_available, is_torch_available
 
 __all__ = [
-    "TypedCollection",
-    "ImageType",
     "ArrayLike",
     "Augmentation",
-    "ModelOutput",
-    "HasProbs",
+    "Classifier",
+    "ClassifierDataLoader",
+    "ClassifierDataset",
+    "ClassifierWithParameters",
+    "DataLoader",
+    "Dataset",
     "HasLogits",
     "HasObjectDetections",
+    "HasProbs",
+    "HasTarget",
+    "Metric",
+    "MetricCollection",
     "Model",
-    "Classifier",
+    "ModelOutput",
     "ObjectDetector",
     "ShapedArray",
+    "SupportsClassification",
+    "TypedCollection",
 ]
 
 
@@ -36,13 +48,10 @@ T_cont = TypeVar("T_cont", contravariant=True)
 
 """
 ArrayLike is any method that implements
-the `__array__` method. 
+the `__array__` method.
 
 ShapedArray is an ArrayLike that also implements
 the `shape` method.
-
-ImageType is an ArrayLike or a Image object.  
-  - This supports numpy and Image objects 
 """
 
 
@@ -62,9 +71,56 @@ class ShapedArray(Protocol):
         ...
 
 
-ImageType: TypeAlias = Union[ArrayLike, Image]
 RandomStates: TypeAlias = Any
 A = TypeVar("A", bound=ArrayLike)
+
+"""
+Dataset and Loaders
+"""
+
+
+@runtime_checkable
+class HasTarget(Protocol[A]):
+    target: A
+
+
+@runtime_checkable
+class SupportsClassification(Protocol[A]):
+    data: A
+    target: A
+
+
+class Dataset(Protocol[T_co]):
+    def __getitem__(self, index: Any) -> T_co:
+        ...
+
+
+ClassifierDataset: TypeAlias = Dataset[SupportsClassification[A]]
+
+"""
+Not sure if this is the general solution but
+it is required to support PyTorch DataLoaders.
+
+The reason I think it will generalize is that
+it allows an implementation to return custom
+iterators from the DataLoader.  We just require
+parametrizing the iterator so we can know the
+output.
+"""
+
+
+class _DataLoaderIterator(Protocol[T_co]):
+    def __next__(self) -> T_co:
+        ...
+
+
+class DataLoader(Protocol[T_co]):
+    def __iter__(self) -> _DataLoaderIterator[T_co]:
+        ...
+
+
+ClassifierDataLoader: TypeAlias = DataLoader[SupportsClassification[A]]
+
 
 """
 A `TypedCollection` is a homogeneous collection of Python objects that can be used
@@ -142,11 +198,11 @@ class HasProbs(Protocol[A]):
     probs: A
 
 
-# TODO: Determine best "required" attributes
 @runtime_checkable
 class HasObjectDetections(Protocol[A]):
-    scores: Sequence[Sequence[Dict[Any, float]]]
-    boxes: A
+    boxes: Sequence[A]
+    labels: Sequence[Any]
+    scores: Sequence[A]
 
 
 class Model(Protocol[T_cont]):
@@ -169,13 +225,82 @@ class Model(Protocol[T_cont]):
         ...
 
 
-class Classifier(Protocol[T_cont]):
-    def __call__(self, data: TypedCollection[T_cont]) -> Union[HasLogits, HasProbs]:
+class Classifier(Protocol[A]):
+    def __call__(self, data: TypedCollection[A]) -> Union[HasLogits[A], HasProbs[A]]:
         """Classifier protocol."""
         ...
 
 
-class ObjectDetector(Protocol[T_cont]):
-    def __call__(self, data: TypedCollection[T_cont]) -> HasObjectDetections:
+# classifier with parameters (whitebox)
+class ClassifierWithParameters(Classifier[A], Protocol[A]):
+    def parameters(self) -> Iterable[A]:
+        ...
+
+
+class ObjectDetector(Protocol[A]):
+    def __call__(self, data: TypedCollection[A]) -> HasObjectDetections[A]:
         """Object detector protocol."""
         ...
+
+
+"""
+Metric protocol is based off of:
+  - `torchmetrics`
+  - `torcheval`
+"""
+
+
+class Metric(Protocol[T_co]):
+    def reset(self) -> None:
+        ...
+
+    def update(self, *args: ArrayLike, **kwargs: ArrayLike) -> None:
+        ...
+
+    def compute(self) -> T_co:
+        ...
+
+
+MetricCollection: TypeAlias = Metric[Dict[str, A]]
+
+
+if is_numpy_available():
+    NumPyDataset: TypeAlias = ClassifierDataset[NDArray[Any]]
+    NumPyDataLoader: TypeAlias = ClassifierDataLoader[NDArray[Any]]
+    NumPyClassifier: TypeAlias = Classifier[NDArray[Any]]
+    NumPyClassifierWithParameters = ClassifierWithParameters[NDArray[Any]]
+    NumPyObjectDetector: TypeAlias = ObjectDetector[NDArray[Any]]
+    NumPyMetric: TypeAlias = Metric[NDArray[Any]]
+    NumPyMetricCollection: TypeAlias = MetricCollection[NDArray[Any]]
+
+    __all__.extend(
+        [
+            "NumPyClassifier",
+            "NumPyClassifierWithParameters",
+            "NumPyDataLoader",
+            "NumPyDataset",
+            "NumPyMetric",
+            "NumPyMetricCollection",
+        ]
+    )
+
+
+if is_torch_available():
+    TorchDataset: TypeAlias = ClassifierDataset[Tensor]
+    TorchDataLoader: TypeAlias = ClassifierDataLoader[Tensor]
+    TorchClassifier: TypeAlias = Classifier[Tensor]
+    TorchClassifierWithParameters = ClassifierWithParameters[Tensor]
+    TorchObjectDetector: TypeAlias = ObjectDetector[Tensor]
+    TorchMetric: TypeAlias = Metric[Tensor]
+    TorchMetricCollection: TypeAlias = MetricCollection[Tensor]
+
+    __all__.extend(
+        [
+            "TorchClassifier",
+            "TorchClassifierWithParameters",
+            "TorchDataLoader",
+            "TorchDataset",
+            "TorchMetric",
+            "TorchMetricCollection",
+        ]
+    )

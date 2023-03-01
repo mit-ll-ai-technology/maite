@@ -7,7 +7,7 @@ from pathlib import Path
 
 import hypothesis.strategies as st
 
-from jatic_toolbox._internals.interop import import_utils
+from jatic_toolbox._internals import import_utils
 from jatic_toolbox.testing.pytest import cleandir  # noqa: F401
 from tests import all_dummy_subpkgs
 
@@ -66,5 +66,5 @@ if not import_utils.is_hf_available():
 if not import_utils.is_smqtk_available() or sys.version_info >= (3, 10):
     collect_ignore_glob.append("*smqtk*.py")
 
-if not import_utils.is_augly_available():
+if not import_utils.is_augly_available() or sys.platform.startswith("win"):
     collect_ignore_glob.append("*augly*.py")

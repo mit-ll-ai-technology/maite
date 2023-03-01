@@ -1,6 +1,6 @@
 import warnings
 from dataclasses import dataclass
-from typing import Any, Dict, List, Sequence
+from typing import Any, Hashable, List, Sequence
 
 import numpy as np
 import pooch
@@ -10,7 +10,7 @@ from PIL.Image import Image
 from smqtk_detection.impls.detect_image_objects import centernet
 
 from jatic_toolbox.errors import InternalError, InvalidArgument
-from jatic_toolbox.protocols import ImageType, ObjectDetector
+from jatic_toolbox.protocols import ArrayLike, ObjectDetector
 from jatic_toolbox.utils.validation import check_type
 
 if not centernet.usable:  # pragma: no cover
@@ -41,11 +41,12 @@ _MODELS = {
 
 @dataclass
 class SMQTKObjectDetectionOutput:
-    boxes: List[NDArray]
-    scores: List[List[Dict[str, float]]]
+    boxes: List[NDArray[Any]]
+    scores: List[NDArray[Any]]
+    labels: List[List[Hashable]]
 
 
-class CenterNetVisdrone(ObjectDetector):
+class CenterNetVisdrone(ObjectDetector[NDArray[Any]]):
     """
     Wrapper for CenterNet model pretrained on the visdrone2019 dataset.
     """
@@ -95,13 +96,13 @@ class CenterNetVisdrone(ObjectDetector):
 
         return pooch.retrieve(**_MODELS[model])
 
-    def __call__(self, data: Sequence[ImageType]) -> SMQTKObjectDetectionOutput:
+    def __call__(self, data: Sequence[ArrayLike]) -> SMQTKObjectDetectionOutput:
         """
         Object Detector for CenterNet.
 
         Parameters
         ----------
-        data: Sequence[ImageType]
+        data: Sequence[ArrayLike]
             An array of images.  Inputs can be `PIL.Image`, `NDArray`, or `torch.Tensor`
             .
 
@@ -137,17 +138,25 @@ class CenterNetVisdrone(ObjectDetector):
 
         smqt_output = self._detector(arr_iter)
 
-        all_boxes: List[NDArray] = []
-        all_scores: List[List[Dict[str, float]]] = []
+        # extract output into JATIC format
+        output_labels: List[List[Hashable]] = []
+        output_scores: List[NDArray] = []
+        output_boxes: List[NDArray] = []
         for dets in smqt_output:
-            boxes = []
-            scores = []
+            boxes: List[NDArray] = []
+            scores: List[float] = []
+            labels: List[Hashable] = []
             for bbox, label_score in dets:
                 flatten_box = np.hstack([bbox.min_vertex, bbox.max_vertex])
-                boxes.append(flatten_box)
-                scores.append(label_score)
+                for k, v in label_score.items():
+                    boxes.append(flatten_box)
+                    scores.append(v)
+                    labels.append(k)
 
-            all_boxes.append(np.asarray(boxes))
-            all_scores.append(scores)
+            output_boxes.append(np.stack(boxes))
+            output_scores.append(np.asarray(scores))
+            output_labels.append(labels)
 
-        return SMQTKObjectDetectionOutput(boxes=all_boxes, scores=all_scores)
+        return SMQTKObjectDetectionOutput(
+            boxes=output_boxes, scores=output_scores, labels=output_labels
+        )

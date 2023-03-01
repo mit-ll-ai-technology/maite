@@ -1,27 +1,16 @@
-import warnings
-from typing import Any, List, Sequence, Union
+from typing import Any, Dict, Sequence
 
-import numpy as np
-import torch as tr
-from PIL.Image import Image
+from torch import Tensor
 from transformers import AutoFeatureExtractor, AutoModelForImageClassification
 
 from jatic_toolbox.errors import InvalidArgument
-from jatic_toolbox.protocols import (
-    ArrayLike,
-    Classifier,
-    HasLogits,
-    HasProbs,
-    ImageType,
-)
+from jatic_toolbox.protocols import Classifier, HasLogits
 from jatic_toolbox.utils.validation import check_type
-
-from ..utils import ClassificationOutput
 
 __all__ = ["HuggingFaceImageClassifier"]
 
 
-class HuggingFaceImageClassifier(Classifier):
+class HuggingFaceImageClassifier(Classifier[Tensor]):
     """
     Wrapper for HuggingFace image classifiation models.
 
@@ -63,7 +52,7 @@ class HuggingFaceImageClassifier(Classifier):
         except OSError as e:  # pragma: no cover
             raise InvalidArgument(e)
 
-    def __call__(self, data: Sequence[ImageType]) -> Union[HasLogits, HasProbs]:
+    def __call__(self, data: Sequence[Tensor]) -> HasLogits[Tensor]:
         """
         Extract object detection for HuggingFace Object Detection models.
 
@@ -95,20 +84,8 @@ class HuggingFaceImageClassifier(Classifier):
         >>> from jatic_toolbox.protocols import HasObjectDetections
         >>> assert isinstance(detections, HasObjectDetections)
         """
-        arr_iter: List[ArrayLike] = []
-        for img in data:
-            check_type("img", img, (Image, np.ndarray, tr.Tensor))
-            if isinstance(img, tr.Tensor):
-                warnings.warn(
-                    "HuggingFace feature extractors convert input data to NumPy arrays (input data type: `torch.Tensor`)"
-                )
-
-            np_img = np.asarray(img)
-            arr_iter.append(np_img)
-
-        with tr.no_grad():
-            inputs = self.feature_extractor(images=arr_iter, return_tensors="pt")
-            outputs = self.model(**inputs)
-            assert hasattr(outputs, "logits")
-
-        return ClassificationOutput(logits=outputs.logits)
+        inputs: Dict[str, Tensor] = self.feature_extractor(
+            images=data, return_tensors="pt"
+        )
+        outputs: HasLogits[Tensor] = self.model(**inputs)
+        return outputs
