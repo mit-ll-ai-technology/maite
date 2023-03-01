@@ -1,19 +1,23 @@
-import warnings
 from dataclasses import dataclass
-from typing import Any, Dict, List, Literal, Sequence
+from typing import Any, Dict, List, Literal, Sequence, TypeVar, Union
 
 import numpy as np
 import torch as tr
 from numpy.typing import NDArray
-from PIL.Image import Image
+from torch import Tensor
 from transformers import AutoFeatureExtractor, AutoModelForObjectDetection
 from typing_extensions import TypeAlias
 
 from jatic_toolbox.errors import InvalidArgument
-from jatic_toolbox.protocols import ImageType, ObjectDetector, ShapedArray
+from jatic_toolbox.protocols import ArrayLike, ObjectDetector
 from jatic_toolbox.utils.validation import check_type
 
 __all__ = ["HuggingFaceObjectDetector"]
+
+
+T = TypeVar("T", bound=ArrayLike)
+NumPyOrTensor: TypeAlias = Union[Tensor, NDArray]
+
 
 HFProcessedDetection: TypeAlias = List[
     Dict[Literal["scores", "labels", "boxes"], tr.Tensor]
@@ -22,11 +26,12 @@ HFProcessedDetection: TypeAlias = List[
 
 @dataclass
 class HuggingFaceObjectDetectionOutput:
-    boxes: List[NDArray]
-    scores: List[List[Dict[str, float]]]
+    boxes: List[Tensor]
+    labels: List[Tensor]
+    scores: List[Tensor]
 
 
-class HuggingFaceObjectDetector(ObjectDetector):
+class HuggingFaceObjectDetector(ObjectDetector[T]):
     """
     Wrapper for HuggingFace object detection models.
 
@@ -34,7 +39,7 @@ class HuggingFaceObjectDetector(ObjectDetector):
     to load the HuggingFace models.
     """
 
-    def __init__(self, model: str, **kwargs: Any) -> None:
+    def __init__(self, model: str, threshold: float = 0.5, **kwargs: Any) -> None:
         """
         Initialize HuggingFaceObjectDetector.
 
@@ -54,6 +59,7 @@ class HuggingFaceObjectDetector(ObjectDetector):
         check_type("model", model, str)
 
         self._model = model
+        self.threshold = threshold
 
         try:
             self.feature_extractor = AutoFeatureExtractor.from_pretrained(
@@ -63,13 +69,13 @@ class HuggingFaceObjectDetector(ObjectDetector):
         except OSError as e:  # pragma: no cover
             raise InvalidArgument(e)
 
-    def __call__(self, data: Sequence[ImageType]) -> HuggingFaceObjectDetectionOutput:
+    def __call__(self, data: Sequence[T]) -> HuggingFaceObjectDetectionOutput:
         """
         Extract object detection for HuggingFace Object Detection models.
 
         Parameters
         ----------
-        data : Sequence[ImageType]
+        data : Sequence[ArrayLike]
             An array of images.  Inputs can be `PIL.Image`, `NDArray`, or `torch.Tensor`
             but HuggingFace converts all types to NumPy for feature extraction.
 
@@ -96,15 +102,13 @@ class HuggingFaceObjectDetector(ObjectDetector):
         >>> from jatic_toolbox.protocols import HasObjectDetections
         >>> assert isinstance(detections, HasObjectDetections)
         """
-        arr_iter: List[ShapedArray] = []
+        arr_iter: List[tr.Tensor] = []
         for img in data:
-            check_type("img", img, (Image, np.ndarray, tr.Tensor))
+            check_type("img", img, (np.ndarray, tr.Tensor))
             if isinstance(img, tr.Tensor):
-                warnings.warn(
-                    "HuggingFace feature extractors convert input data to NumPy arrays (input data type: `torch.Tensor`)"
-                )
-
-            arr_iter.append(np.asarray(img))
+                arr_iter.append(img)
+            else:
+                arr_iter.append(tr.as_tensor(img))
 
         with tr.no_grad():
             inputs = self.feature_extractor(images=arr_iter, return_tensors="pt")
@@ -115,28 +119,18 @@ class HuggingFaceObjectDetector(ObjectDetector):
             )
             results: HFProcessedDetection = (
                 self.feature_extractor.post_process_object_detection(
-                    outputs, target_sizes=target_sizes
+                    outputs, threshold=self.threshold, target_sizes=target_sizes
                 )
             )
-            scores: tr.Tensor = tr.softmax(outputs.logits, dim=-1).numpy()
 
-        output_scores: List[List[Dict[str, float]]] = []
-        output_boxes: List[NDArray] = []
+        output_labels: List[Tensor] = []
+        output_scores: List[Tensor] = []
+        output_boxes: List[Tensor] = []
         for i in range(len(data)):  # pragma: no cover
-            output_boxes.append(results[i]["boxes"].numpy())
-            output_scores.append(self._process_scores(scores[i]))
+            output_boxes.append(results[i]["boxes"])
+            output_scores.append(results[i]["scores"])
+            output_labels.append(results[i]["labels"])
 
         return HuggingFaceObjectDetectionOutput(
-            boxes=output_boxes, scores=output_scores
+            boxes=output_boxes, labels=output_labels, scores=output_scores
         )
-
-    def _process_scores(self, scores) -> List[Dict[str, float]]:
-        """
-        Process scores.
-
-        Added to implement test.
-        """
-        scores_i = []
-        for j in range(len(scores)):
-            scores_i.append({k: scores[j][k].item() for k in range(len(scores[j]))})
-        return scores_i

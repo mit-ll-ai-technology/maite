@@ -13,7 +13,7 @@ from jatic_toolbox.protocols import TypedCollection
 
 __all__ = ["Augly"]
 
-Audio: TypeAlias = NDArray
+Audio: TypeAlias = NDArray[Any]
 Image: TypeAlias = PILImage
 URL: TypeAlias = Union[str, List[str]]
 T: TypeAlias = Union[Image, Audio, URL, Tensor]
