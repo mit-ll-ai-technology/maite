@@ -1,9 +1,7 @@
 from dataclasses import dataclass
 from typing import Any, Sequence
 
-import numpy as np
-
-from ..import_utils import is_torch_available
+from ..import_utils import is_numpy_available, is_torch_available
 from ..protocols import ArrayLike
 
 
@@ -24,7 +22,13 @@ def is_torch_tensor(x):
 
 def is_numpy_array(x):
     """Tests if `x` is a numpy array or not."""
-    return isinstance(x, np.ndarray)
+
+    def _is_numpy(x):
+        import numpy as np
+
+        return isinstance(x, np.ndarray)
+
+    return False if not is_numpy_available() else _is_numpy(x)
 
 
 @dataclass

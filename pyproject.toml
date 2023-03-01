@@ -174,14 +174,13 @@ description = Runs test suite parallelized in the specified python enviornment a
 passenv = *
 deps = pytest-xdist
 extras = test
-commands = pytest tests/ {posargs: -n auto --maxprocesses=4}
+commands = pytest tests/ 
 
 
 [testenv:min-deps]
 description = Runs test suite against minimum supported versions of dependencies.
 deps = 
     typing-extensions==4.1.0
-    numpy==1.17
     {[testenv]deps}
 extras = test
 basepython = python3.7
@@ -209,13 +208,13 @@ extras =
 usedevelop = true
 basepython = python3.9
 setenv = NUMBA_DISABLE_JIT=1
-commands = pytest tests/ --cov-report term-missing --cov-config=pyproject.toml --cov-fail-under=100 --cov=jatic_toolbox {posargs: -n auto --maxprocesses=4}
+commands = pytest tests/ --cov-report term-missing --cov-config=pyproject.toml --cov-fail-under=100 --cov=jatic_toolbox 
 
 [testenv:scan-docs]
 description = Validate that the jatic-toolbox's public API has docstrings that adhere
               to the numpydoc standard, and that their example sections "scan clean"
               under pyright.
-commands = pytest tests/test_docstrings.py -vv  {posargs: -n auto --maxprocesses=4}
+commands = pytest tests/test_docstrings.py -vv  
 
 [testenv:typecheck]
 description = Ensure that the jatic-toolbox's source code and test suite scan clean
