@@ -1,13 +1,13 @@
+from collections import UserDict
 from dataclasses import dataclass
 from typing import Any, Dict, List, Literal, Sequence, TypeVar, Union
 
 import numpy as np
 import torch as tr
-from numpy.typing import NDArray
 from torch import Tensor
-from transformers import AutoFeatureExtractor, AutoModelForObjectDetection
-from typing_extensions import TypeAlias
+from typing_extensions import Protocol, Self, TypeAlias
 
+from jatic_toolbox._internals.protocols import HasObjectDetections
 from jatic_toolbox.errors import InvalidArgument
 from jatic_toolbox.protocols import ArrayLike, ObjectDetector
 from jatic_toolbox.utils.validation import check_type
@@ -16,12 +16,34 @@ __all__ = ["HuggingFaceObjectDetector"]
 
 
 T = TypeVar("T", bound=ArrayLike)
-NumPyOrTensor: TypeAlias = Union[Tensor, NDArray]
-
 
 HFProcessedDetection: TypeAlias = List[
     Dict[Literal["scores", "labels", "boxes"], tr.Tensor]
 ]
+
+
+class BatchFeature(UserDict[str, T]):
+    ...
+
+
+class HuggingFaceProcessor(Protocol[T]):
+    def __call__(
+        self,
+        images: Sequence[T],
+        return_tensors: Union[bool, str] = "pt",
+        **kwargs: Any,
+    ) -> BatchFeature[T]:
+        ...
+
+    def post_process_object_detection(
+        self, outputs: HasObjectDetections[T], threshold: float, target_sizes: Any
+    ) -> HFProcessedDetection:
+        ...
+
+
+class HuggingFaceModel(Protocol[T]):
+    def __call__(self, pixel_values: T, **kwargs: Any) -> HasObjectDetections[T]:
+        ...
 
 
 @dataclass
@@ -31,7 +53,7 @@ class HuggingFaceObjectDetectionOutput:
     scores: List[Tensor]
 
 
-class HuggingFaceObjectDetector(ObjectDetector[T]):
+class HuggingFaceObjectDetector(ObjectDetector[Tensor]):
     """
     Wrapper for HuggingFace object detection models.
 
@@ -39,37 +61,73 @@ class HuggingFaceObjectDetector(ObjectDetector[T]):
     to load the HuggingFace models.
     """
 
-    def __init__(self, model: str, threshold: float = 0.5, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        processor: HuggingFaceProcessor[Tensor],
+        model: HuggingFaceModel[Tensor],
+        threshold: float = 0.5,
+    ) -> None:
         """
         Initialize HuggingFaceObjectDetector.
 
         Parameters
         ----------
+        processor : Callable[[Sequence[ArrayLike]], BatchFeature]
+            A HuggingFace feature extractor for a given model.
+
+        model : Callable[[Tensor, ...], HasObjectDetections]
+            A HuggingFace object detection model.
+
+        Examples
+        --------
+        >>> from transformers import AutoFeatureExtractor, AutoModelForObjectDetection
+        >>> processor = AutoFeatureExtractor.from_pretrained("facebook/detr-resnet-50")
+        >>> model = AutoModelForObjectDetection.from_pretrained("facebook/detr-resnet-50")
+        >>> hf_model = HuggingFaceObjectDetector(processor, model)
+        """
+        super().__init__()
+        self.processor = processor
+        self.model = model
+        self.threshold = threshold
+
+    @classmethod
+    def from_pretrained(cls, model: str, **kwargs: Any) -> Self:  # pragma: no cover
+        """
+        Load a HuggingFace model from pretrained weights.
+
+        Uses `AutoFeatureExtractor` and `AutoModelForObjectDetection`.
+
+        Parameters
+        ----------
         model : str
-            The `model id` of a pretrained object detector stored on HuggingFace.
+            The `model id` of a pretrained object detector from HuggingFace.
 
         **kwargs : Any
             Keyword arguments for HuggingFace AutoFeatureExtractor and AutoModelForObjectDetection.
 
+        Returns
+        -------
+        HuggingFaceObjectDetector
+            The JATIC Toolbox wrapper for a HuggingFace object detector.
+
         Examples
         --------
-        >>> hf_object_detector = HuggingFaceObjectDetector(model="facebook/detr-resnet-50")
+        >>> hf_image_classifier = HuggingFaceObjectDetector.from_pretrained(model="facebook/detr-resnet-50")
         """
-        super().__init__()
-        check_type("model", model, str)
+        from transformers import AutoFeatureExtractor, AutoModelForObjectDetection
 
-        self._model = model
-        self.threshold = threshold
+        processor: HuggingFaceProcessor[Tensor]
+        det_model: HuggingFaceModel[Tensor]
 
         try:
-            self.feature_extractor = AutoFeatureExtractor.from_pretrained(
-                model, **kwargs
-            )
-            self.model = AutoModelForObjectDetection.from_pretrained(model, **kwargs)
+            processor = AutoFeatureExtractor.from_pretrained(model, **kwargs)
+            det_model = AutoModelForObjectDetection.from_pretrained(model, **kwargs)
         except OSError as e:  # pragma: no cover
             raise InvalidArgument(e)
 
-    def __call__(self, data: Sequence[T]) -> HuggingFaceObjectDetectionOutput:
+        return cls(processor, det_model)
+
+    def __call__(self, data: Sequence[Tensor]) -> HuggingFaceObjectDetectionOutput:
         """
         Extract object detection for HuggingFace Object Detection models.
 
@@ -94,7 +152,7 @@ class HuggingFaceObjectDetector(ObjectDetector[T]):
         Load a HuggingFace object detection model and execute on
         the above image:
 
-        >>> hf_object_detector = HuggingFaceObjectDetector(model="facebook/detr-resnet-50")
+        >>> hf_object_detector = HuggingFaceObjectDetector.from_pretrained(model="facebook/detr-resnet-50")
         >>> detections = hf_object_detector([image])
 
         We can check to verify the output contains `boxes` and `scores` attributes:
@@ -111,14 +169,14 @@ class HuggingFaceObjectDetector(ObjectDetector[T]):
                 arr_iter.append(tr.as_tensor(img))
 
         with tr.no_grad():
-            inputs = self.feature_extractor(images=arr_iter, return_tensors="pt")
+            inputs = self.processor(images=arr_iter, return_tensors="pt")
             outputs = self.model(**inputs)
 
             target_sizes = tr.IntTensor(
                 [[img.shape[0], img.shape[1]] for img in arr_iter]
             )
             results: HFProcessedDetection = (
-                self.feature_extractor.post_process_object_detection(
+                self.processor.post_process_object_detection(
                     outputs, threshold=self.threshold, target_sizes=target_sizes
                 )
             )

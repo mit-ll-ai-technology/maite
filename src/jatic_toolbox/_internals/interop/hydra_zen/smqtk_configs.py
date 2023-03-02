@@ -32,7 +32,7 @@ def create_smqtk_model_config() -> ZenStore:
         if name not in [m[1] for m in jatic_store["model"]]:
             jatic_models(
                 builds(
-                    smqtk.CenterNetVisdrone,
+                    smqtk.CenterNetVisdrone.from_pretrained,
                     model=k,
                     populate_full_signature=True,
                 ),

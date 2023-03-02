@@ -19,7 +19,9 @@ image_strategy = hnp.arrays(float, shape=(30, 30, 3), elements=st.floats(0, 1))
 @given(image=image_strategy)
 @pytest.mark.parametrize("to_tensor", [True, False])
 def test_object_detector(image, to_tensor):
-    hf_object_detector = HuggingFaceObjectDetector(model="facebook/detr-resnet-50")
+    hf_object_detector = HuggingFaceObjectDetector.from_pretrained(
+        model="facebook/detr-resnet-50"
+    )
 
     if to_tensor:
         image = tr.tensor(image)
@@ -47,7 +49,9 @@ def test_object_detector(image, to_tensor):
 @given(image=image_strategy)
 @pytest.mark.parametrize("to_tensor", [True, False])
 def test_image_classifier(image, to_tensor):
-    hf_img_classifier = HuggingFaceImageClassifier(model="microsoft/resnet-50")
+    hf_img_classifier = HuggingFaceImageClassifier.from_pretrained(
+        model="microsoft/resnet-50"
+    )
 
     if to_tensor:
         image = tr.tensor(image)

@@ -19,7 +19,7 @@ image_strategy = hnp.arrays(
 @given(image=image_strategy)
 @pytest.mark.parametrize("to_tensor", [True, False])
 def test_smqtk(models, image, to_tensor):
-    object_detector = CenterNetVisdrone(models)
+    object_detector = CenterNetVisdrone.from_pretrained(models)
 
     if to_tensor:
         image = tr.tensor(image)

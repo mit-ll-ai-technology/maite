@@ -1,11 +1,10 @@
-from warnings import warn
+from jatic_toolbox._internals.import_utils import is_pytest_available
 
-try:
+if is_pytest_available():
     from jatic_toolbox._internals.testing.pytest import cleandir
-except ImportError as e:  # pragma: no cover
-    warn(
+else:
+    raise ImportError(
         "jatic_toolbox.testing.pytest requires that pytest be installed as a dependency."
-    )
-    raise e
+    )  # pragma: no cover
 
 __all__ = ["cleandir"]

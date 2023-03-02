@@ -56,7 +56,7 @@ vision=["Pillow >= 8.2.0"]
 
 hydra_zen = ["hydra-zen >= 0.9.0"]
 
-augly = ["augly[image] >= 1.0.0"]
+augly = ["python-magic == 0.4.15", "augly[image] >= 1.0.0"]
 
 huggingface = [
   "datasets >= 2.7.1",
@@ -214,6 +214,10 @@ commands = pytest tests/ --cov-report term-missing --cov-config=pyproject.toml -
 description = Validate that the jatic-toolbox's public API has docstrings that adhere
               to the numpydoc standard, and that their example sections "scan clean"
               under pyright.
+extras = 
+    test
+    huggingface
+    smqtk
 commands = pytest tests/test_docstrings.py -vv  
 
 [testenv:typecheck]
