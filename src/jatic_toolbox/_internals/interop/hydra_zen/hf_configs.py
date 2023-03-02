@@ -97,7 +97,7 @@ def create_huggingface_model_config(**list_models_kwargs: Any) -> ZenStore:
                 _found = 1
                 jatic_models(
                     builds(
-                        huggingface.HuggingFaceObjectDetector,
+                        huggingface.HuggingFaceObjectDetector.from_pretrained,
                         model=m.modelId,
                     ),
                     name=name,

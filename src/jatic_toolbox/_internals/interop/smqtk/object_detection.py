@@ -1,6 +1,6 @@
 import warnings
 from dataclasses import dataclass
-from typing import Any, Hashable, List, Sequence
+from typing import Any, Dict, Hashable, Iterable, List, Sequence, Tuple
 
 import numpy as np
 import pooch
@@ -8,6 +8,8 @@ import torch as tr
 from numpy.typing import NDArray
 from PIL.Image import Image
 from smqtk_detection.impls.detect_image_objects import centernet
+from smqtk_image_io.bbox import AxisAlignedBoundingBox
+from typing_extensions import Protocol, Self, TypeAlias
 
 from jatic_toolbox.errors import InternalError, InvalidArgument
 from jatic_toolbox.protocols import ArrayLike, ObjectDetector
@@ -46,12 +48,46 @@ class SMQTKObjectDetectionOutput:
     labels: List[List[Hashable]]
 
 
+SMQTKAxisAlignedBoxes: TypeAlias = Iterable[
+    Iterable[Tuple[AxisAlignedBoundingBox, Dict[Hashable, float]]]
+]
+
+
+class SMQTDetector(Protocol):
+    def __call__(self, img_iter: List[NDArray[Any]]) -> SMQTKAxisAlignedBoxes:
+        ...
+
+
+def _get_model_file(model: str) -> str:
+    """
+    Get model weights file.
+
+    Parameters
+    ----------
+    model : str
+        The named model architecture (see `jatic_toolbox.interop.smqtk.centernet._MODELS`).
+
+    Returns
+    -------
+    str
+        The location of the model weights file.
+    """
+
+    if model not in _MODELS:  # pragma: no cover
+        model_archs = ",".join(list(_MODELS.keys()))
+        raise InvalidArgument(
+            f"SMQTK-Detecton CenterNet architecture `{model}` not one of {model_archs}"
+        )
+
+    return pooch.retrieve(**_MODELS[model])
+
+
 class CenterNetVisdrone(ObjectDetector[NDArray[Any]]):
     """
     Wrapper for CenterNet model pretrained on the visdrone2019 dataset.
     """
 
-    def __init__(self, model: str = "resnet50", **kwargs: Any):
+    def __init__(self, detector: SMQTDetector):
         """
         Initialize CenterNetVisdrone.
 
@@ -65,36 +101,39 @@ class CenterNetVisdrone(ObjectDetector[NDArray[Any]]):
 
         Examples
         --------
-        >>> centernet = CenterNetVisdrone(model="resnet50")
+        >>> from smqtk_detection.impls.detect_image_objects import centernet
+        >>> detector = centernet.CenterNetVisdrone(arch="resnet50", model_file=centernet_model_file)
+        >>> centernet = CenterNetVisdrone(detector)
         """
-        check_type("model name", model, str)
-        centernet_model_file = self._get_model_file(model)
-        self._detector = centernet.CenterNetVisdrone(
-            arch=model, model_file=centernet_model_file, **kwargs
-        )
+        self._detector = detector
 
-    def _get_model_file(self, model: str) -> str:
+    @classmethod
+    def from_pretrained(cls, model: str = "resnet50", **kwargs: Any) -> Self:
         """
-        Get model weights file.
+        Load pretrained model for `smqtk_detection.impls.detect_image_objects.centernet.CenterNetVisdrone`.
 
         Parameters
         ----------
-        model : str
-            The named model architecture (see `jatic_toolbox.interop.smqtk.centernet._MODELS`).
+        model : str (default: "resnet50")
+            The `model id` of a pretrained detector for `CenterNetVisdrone`.
+
+        **kwargs : Any
+            Keyword arguments for `CenterNetVisdrone`.
 
         Returns
         -------
-        str
-            The location of the model weights file.
+        CenterNetVisdrone
+            The JATIC Toolbox wrapper for `CenterNetVisdrone`.
+
+        Examples
+        --------
+        >>> hf_image_classifier = CenterNetVisdrone.from_pretrained(model="resnet50")
         """
-
-        if model not in _MODELS:
-            model_archs = ",".join(list(_MODELS.keys()))
-            raise InvalidArgument(
-                f"SMQTK-Detecton CenterNet architecture `{model}` not one of {model_archs}"
-            )  # pragma: no cover
-
-        return pooch.retrieve(**_MODELS[model])
+        centernet_model_file = _get_model_file(model)
+        detector: SMQTDetector = centernet.CenterNetVisdrone(
+            arch=model, model_file=centernet_model_file, **kwargs
+        )
+        return cls(detector)
 
     def __call__(self, data: Sequence[ArrayLike]) -> SMQTKObjectDetectionOutput:
         """
@@ -102,7 +141,7 @@ class CenterNetVisdrone(ObjectDetector[NDArray[Any]]):
 
         Parameters
         ----------
-        data: Sequence[ArrayLike]
+        data : Sequence[ArrayLike]
             An array of images.  Inputs can be `PIL.Image`, `NDArray`, or `torch.Tensor`
             .
 
@@ -126,7 +165,7 @@ class CenterNetVisdrone(ObjectDetector[NDArray[Any]]):
         >>> from jatic_toolbox.protocols import HasObjectDetections
         >>> assert isinstance(detections, HasObjectDetections)
         """
-        arr_iter = []
+        arr_iter: List[np.ndarray] = []
         for img in data:
             check_type("img", img, (Image, np.ndarray, tr.Tensor))
             if isinstance(img, tr.Tensor):

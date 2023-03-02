@@ -32,3 +32,7 @@ def is_augly_available():
 
 def is_smqtk_available():
     return importlib.util.find_spec("smqtk_detection") is not None
+
+
+def is_pytest_available():
+    return importlib.util.find_spec("pytest") is not None

@@ -61,7 +61,7 @@ class CompletenessSection(TypedDict):
     missingClassDocStringCount: int
     missingDefaultParamCount: int
     completenessScore: float
-    modules: list
+    modules: List[Any]
     symbols: List[Symbol]
 
 
