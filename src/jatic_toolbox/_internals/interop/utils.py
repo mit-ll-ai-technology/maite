@@ -1,11 +1,37 @@
 from dataclasses import dataclass
-from typing import Any, Sequence
+from typing import TYPE_CHECKING, Any, Sequence, Union
+from xmlrpc.client import Boolean
+
+from jatic_toolbox.errors import InvalidArgument
 
 from ..import_utils import is_numpy_available, is_torch_available
 from ..protocols import ArrayLike
 
 
-def is_torch_tensor(x):
+def to_tensor_list(data: Union[ArrayLike, Sequence[ArrayLike]]) -> Sequence[ArrayLike]:
+    if isinstance(data, Sequence):
+        assert isinstance(data[0], ArrayLike)
+        return data
+
+    elif is_torch_tensor(data):
+        if TYPE_CHECKING:
+            from torch import Tensor
+
+            assert isinstance(data, Tensor)
+        return [x for x in data]
+
+    elif is_numpy_array(data):
+        import numpy as np
+
+        if TYPE_CHECKING:
+            assert isinstance(data, np.ndarray)
+        return [np.asarray(x) for x in data]
+
+    else:
+        raise InvalidArgument(f"Unsupported JATIC data type {type(data)}.")
+
+
+def is_torch_tensor(x) -> Boolean:
     """
     Tests if `x` is a torch tensor or not.
 
@@ -20,7 +46,7 @@ def is_torch_tensor(x):
     return False if not is_torch_available() else _is_torch(x)
 
 
-def is_numpy_array(x):
+def is_numpy_array(x) -> bool:
     """Tests if `x` is a numpy array or not."""
 
     def _is_numpy(x):

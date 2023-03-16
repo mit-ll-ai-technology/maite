@@ -1,30 +1,15 @@
-from collections import UserDict
-from typing import Any, Sequence, TypeVar
+from typing import Any, Iterable, Optional, Sequence, Union
 
 from torch import Tensor
-from typing_extensions import Protocol, Self
+from typing_extensions import Self
 
+from jatic_toolbox._internals.interop.utils import to_tensor_list
 from jatic_toolbox.errors import InvalidArgument
 from jatic_toolbox.protocols import ArrayLike, Classifier, HasLogits
 
+from .typing import HuggingFaceProcessor, HuggingFaceWithLogits
+
 __all__ = ["HuggingFaceImageClassifier"]
-
-
-T = TypeVar("T", bound=ArrayLike)
-
-
-class BatchFeature(UserDict[str, T]):
-    ...
-
-
-class HuggingFaceProcessor(Protocol[T]):
-    def __call__(self, images: Sequence[T], **kwargs: Any) -> BatchFeature[T]:
-        ...
-
-
-class HuggingFaceModel(Protocol[T]):
-    def __call__(self, pixel_values: T, **kwargs: Any) -> HasLogits[T]:
-        ...
 
 
 class HuggingFaceImageClassifier(Classifier[Tensor]):
@@ -36,17 +21,17 @@ class HuggingFaceImageClassifier(Classifier[Tensor]):
     """
 
     def __init__(
-        self, processor: HuggingFaceProcessor[Tensor], model: HuggingFaceModel[Tensor]
+        self, processor: HuggingFaceProcessor, model: HuggingFaceWithLogits
     ) -> None:
         """
         Initialize HuggingFaceImageClassifier.
 
         Parameters
         ----------
-        processor : HuggingFaceProcessor[Tensor]
+        processor : HuggingFaceProcessor
             A HuggingFace feature extractor for a given model.
 
-        model : HuggingFaceModel[Tensor]
+        model : HuggingFaceModel
             A HuggingFace image classification model.
 
         Examples
@@ -59,6 +44,18 @@ class HuggingFaceImageClassifier(Classifier[Tensor]):
         super().__init__()
         self.processor = processor
         self.model = model
+
+    @classmethod
+    def list_models(
+        cls, task: Optional[str] = "image-classification", **kwargs: Any
+    ) -> Iterable[Any]:  # pragma: no cover
+        from huggingface_hub.hf_api import HfApi
+        from huggingface_hub.utils.endpoint_helpers import ModelFilter
+
+        hf_api = HfApi()
+        filt = ModelFilter(task=task, **kwargs)
+        models = hf_api.list_models(filter=filt)
+        return [m.modelId for m in models]
 
     @classmethod
     def from_pretrained(cls, model: str, **kwargs: Any) -> Self:  # pragma: no cover
@@ -86,25 +83,26 @@ class HuggingFaceImageClassifier(Classifier[Tensor]):
         """
         from transformers import AutoFeatureExtractor, AutoModelForImageClassification
 
+        processor: HuggingFaceProcessor
+        clf_model: HuggingFaceWithLogits
+
         try:
-            processor: HuggingFaceProcessor[
-                Tensor
-            ] = AutoFeatureExtractor.from_pretrained(model, **kwargs)
-            clf_model: HuggingFaceModel[
-                Tensor
-            ] = AutoModelForImageClassification.from_pretrained(model, **kwargs)
+            processor = AutoFeatureExtractor.from_pretrained(model, **kwargs)
+            clf_model = AutoModelForImageClassification.from_pretrained(model, **kwargs)
         except OSError as e:
             raise InvalidArgument(e)
 
         return cls(processor, clf_model)
 
-    def __call__(self, data: Sequence[Tensor]) -> HasLogits[Tensor]:
+    def __call__(
+        self, data: Union[ArrayLike, Sequence[ArrayLike]]
+    ) -> HasLogits[Tensor]:
         """
         Extract object detection for HuggingFace Object Detection models.
 
         Parameters
         ----------
-        img_iter : Iterable[torch.Tensor]
+        data : ArrayLike
             An array of images.
 
         Returns
@@ -117,19 +115,20 @@ class HuggingFaceImageClassifier(Classifier[Tensor]):
         First create a random NumPy image array:
 
         >>> import numpy as np
-        >>> image = np.random.uniform(0, 255, size=(200, 200, 3))
+        >>> image = np.random.uniform(0, 255, size=(1, 200, 200, 3))
 
         Load a HuggingFace object detection model and execute on
         the above image:
 
         >>> hf_object_detector = HuggingFaceImageClassifier(model="facebook/detr-resnet-50")
-        >>> detections = hf_object_detector([image])
+        >>> detections = hf_object_detector(image)
 
         We can check to verify the output contains `boxes` and `scores` attributes:
 
         >>> from jatic_toolbox.protocols import HasObjectDetections
         >>> assert isinstance(detections, HasObjectDetections)
         """
-        inputs: BatchFeature[Tensor] = self.processor(images=data, return_tensors="pt")
-        outputs: HasLogits[Tensor] = self.model(**inputs)
+        data = to_tensor_list(data)
+        features = self.processor(images=data, return_tensors="pt")
+        outputs: HasLogits = self.model(**features)
         return outputs

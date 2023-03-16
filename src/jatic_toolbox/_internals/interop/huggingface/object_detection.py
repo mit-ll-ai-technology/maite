@@ -1,56 +1,26 @@
-from collections import UserDict
 from dataclasses import dataclass
-from typing import Any, Dict, List, Literal, Sequence, TypeVar, Union
+from typing import Any, Generic, Iterable, List, Optional, Sequence, TypeVar, Union
 
-import numpy as np
 import torch as tr
 from torch import Tensor
-from typing_extensions import Protocol, Self, TypeAlias
+from typing_extensions import Self
 
-from jatic_toolbox._internals.protocols import HasObjectDetections
+from jatic_toolbox._internals.interop.utils import to_tensor_list
 from jatic_toolbox.errors import InvalidArgument
 from jatic_toolbox.protocols import ArrayLike, ObjectDetector
-from jatic_toolbox.utils.validation import check_type
+
+from .typing import HuggingFaceProcessor, HuggingFaceWithDetection
 
 __all__ = ["HuggingFaceObjectDetector"]
 
-
 T = TypeVar("T", bound=ArrayLike)
-
-HFProcessedDetection: TypeAlias = List[
-    Dict[Literal["scores", "labels", "boxes"], tr.Tensor]
-]
-
-
-class BatchFeature(UserDict[str, T]):
-    ...
-
-
-class HuggingFaceProcessor(Protocol[T]):
-    def __call__(
-        self,
-        images: Sequence[T],
-        return_tensors: Union[bool, str] = "pt",
-        **kwargs: Any,
-    ) -> BatchFeature[T]:
-        ...
-
-    def post_process_object_detection(
-        self, outputs: HasObjectDetections[T], threshold: float, target_sizes: Any
-    ) -> HFProcessedDetection:
-        ...
-
-
-class HuggingFaceModel(Protocol[T]):
-    def __call__(self, pixel_values: T, **kwargs: Any) -> HasObjectDetections[T]:
-        ...
 
 
 @dataclass
-class HuggingFaceObjectDetectionOutput:
-    boxes: List[Tensor]
-    labels: List[Tensor]
-    scores: List[Tensor]
+class HuggingFaceObjectDetectionOutput(Generic[T]):
+    boxes: Sequence[T]
+    labels: Sequence[T]
+    scores: Sequence[T]
 
 
 class HuggingFaceObjectDetector(ObjectDetector[Tensor]):
@@ -63,8 +33,8 @@ class HuggingFaceObjectDetector(ObjectDetector[Tensor]):
 
     def __init__(
         self,
-        processor: HuggingFaceProcessor[Tensor],
-        model: HuggingFaceModel[Tensor],
+        processor: HuggingFaceProcessor,
+        model: HuggingFaceWithDetection,
         threshold: float = 0.5,
     ) -> None:
         """
@@ -89,6 +59,18 @@ class HuggingFaceObjectDetector(ObjectDetector[Tensor]):
         self.processor = processor
         self.model = model
         self.threshold = threshold
+
+    @classmethod
+    def list_models(
+        cls, task: Optional[str] = "object-detection", **kwargs: Any
+    ) -> Iterable[Any]:  # pragma: no cover
+        from huggingface_hub.hf_api import HfApi
+        from huggingface_hub.utils.endpoint_helpers import ModelFilter
+
+        hf_api = HfApi()
+        filt = ModelFilter(task=task, **kwargs)
+        models = hf_api.list_models(filter=filt)
+        return [m.modelId for m in models]
 
     @classmethod
     def from_pretrained(cls, model: str, **kwargs: Any) -> Self:  # pragma: no cover
@@ -116,8 +98,8 @@ class HuggingFaceObjectDetector(ObjectDetector[Tensor]):
         """
         from transformers import AutoFeatureExtractor, AutoModelForObjectDetection
 
-        processor: HuggingFaceProcessor[Tensor]
-        det_model: HuggingFaceModel[Tensor]
+        processor: HuggingFaceProcessor
+        det_model: HuggingFaceWithDetection
 
         try:
             processor = AutoFeatureExtractor.from_pretrained(model, **kwargs)
@@ -127,15 +109,16 @@ class HuggingFaceObjectDetector(ObjectDetector[Tensor]):
 
         return cls(processor, det_model)
 
-    def __call__(self, data: Sequence[Tensor]) -> HuggingFaceObjectDetectionOutput:
+    def __call__(
+        self, data: Union[ArrayLike, Sequence[ArrayLike]]
+    ) -> HuggingFaceObjectDetectionOutput[Tensor]:
         """
         Extract object detection for HuggingFace Object Detection models.
 
         Parameters
         ----------
-        data : Sequence[ArrayLike]
-            An array of images.  Inputs can be `PIL.Image`, `NDArray`, or `torch.Tensor`
-            but HuggingFace converts all types to NumPy for feature extraction.
+        data : ArrayLike
+            An array of images.  Inputs can be `NDArray` or `torch.Tensor`.
 
         Returns
         -------
@@ -160,34 +143,26 @@ class HuggingFaceObjectDetector(ObjectDetector[Tensor]):
         >>> from jatic_toolbox.protocols import HasObjectDetections
         >>> assert isinstance(detections, HasObjectDetections)
         """
-        arr_iter: List[tr.Tensor] = []
-        for img in data:
-            check_type("img", img, (np.ndarray, tr.Tensor))
-            if isinstance(img, tr.Tensor):
-                arr_iter.append(img)
-            else:
-                arr_iter.append(tr.as_tensor(img))
+        data = to_tensor_list(data)
+        features = self.processor(images=data, return_tensors="pt")
+        outputs = self.model(**features)
 
-        with tr.no_grad():
-            inputs = self.processor(images=arr_iter, return_tensors="pt")
-            outputs = self.model(**inputs)
-
-            target_sizes = tr.IntTensor(
-                [[img.shape[0], img.shape[1]] for img in arr_iter]
-            )
-            results: HFProcessedDetection = (
-                self.processor.post_process_object_detection(
-                    outputs, threshold=self.threshold, target_sizes=target_sizes
-                )
-            )
+        target_sizes = tr.IntTensor([tuple(img.shape[:2]) for img in data])
+        results = self.processor.post_process_object_detection(
+            outputs, threshold=self.threshold, target_sizes=target_sizes
+        )
 
         output_labels: List[Tensor] = []
         output_scores: List[Tensor] = []
         output_boxes: List[Tensor] = []
-        for i in range(len(data)):  # pragma: no cover
-            output_boxes.append(results[i]["boxes"])
-            output_scores.append(results[i]["scores"])
-            output_labels.append(results[i]["labels"])
+        for i in range(len(results)):
+            boxes = results[i]["boxes"]
+            scores = results[i]["scores"]
+            labels = results[i]["labels"]
+
+            output_boxes.append(boxes)
+            output_scores.append(scores)
+            output_labels.append(labels)
 
         return HuggingFaceObjectDetectionOutput(
             boxes=output_boxes, labels=output_labels, scores=output_scores

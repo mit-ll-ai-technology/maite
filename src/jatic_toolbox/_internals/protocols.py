@@ -11,7 +11,7 @@ from typing import (
     Union,
 )
 
-from typing_extensions import Protocol, TypeAlias, runtime_checkable
+from typing_extensions import ParamSpec, Protocol, Self, TypeAlias, runtime_checkable
 
 from .import_utils import is_numpy_available, is_torch_available
 
@@ -42,7 +42,7 @@ __all__ = [
 T = TypeVar("T")
 T_co = TypeVar("T_co", covariant=True)
 T_cont = TypeVar("T_cont", contravariant=True)
-
+P = ParamSpec("P")
 
 """
 ArrayLike is any method that implements
@@ -58,9 +58,14 @@ class ArrayLike(Protocol):
     def __array__(self) -> Any:
         ...
 
+    @property
+    def shape(self) -> Tuple[int, ...]:
+        ...
+
 
 @runtime_checkable
 class ShapedArray(Protocol):
+    # TODO: Deprecate
     def __array__(self) -> Any:
         ...
 
@@ -197,14 +202,32 @@ class HasProbs(Protocol[A]):
 
 
 @runtime_checkable
+class HasDetectionLogits(Protocol[A]):
+    pred_boxes: A
+    logits: A
+
+
+@runtime_checkable
+class HasDetectionProbs(Protocol[A]):
+    pred_boxes: A
+    probs: A
+
+
+@runtime_checkable
 class HasObjectDetections(Protocol[A]):
     boxes: Sequence[A]
     labels: Sequence[Any]
     scores: Sequence[A]
 
 
-class Model(Protocol[T_cont]):
-    def __call__(self, data: TypedCollection[T_cont]) -> ModelOutput:
+class Model(Protocol):
+    @classmethod
+    def from_pretrained(cls, *args: Any, **kwargs: Any) -> Self:
+        ...
+
+
+class Classifier(Model, Protocol[A]):
+    def __call__(self, data: TypedCollection[A]) -> Union[HasLogits[A], HasProbs[A]]:
         """
         A Model applies a function on the data and returns
         a mapping of the data to a given set of outputs.
@@ -216,16 +239,10 @@ class Model(Protocol[T_cont]):
 
         Returns
         -------
-        ModelOutput
+        HasLogits[ArrayLike] | HasProbs[ArrayLike]
             The output of the Model defined as `dataclasses.dataclass` or
-            a `NamedTuple`.
+            a `NamedTuple` with either a "logits" or "probs" attribute.
         """
-        ...
-
-
-class Classifier(Protocol[A]):
-    def __call__(self, data: TypedCollection[A]) -> Union[HasLogits[A], HasProbs[A]]:
-        """Classifier protocol."""
         ...
 
 
@@ -235,7 +252,7 @@ class ClassifierWithParameters(Classifier[A], Protocol[A]):
         ...
 
 
-class ObjectDetector(Protocol[A]):
+class ObjectDetector(Model, Protocol[A]):
     def __call__(self, data: TypedCollection[A]) -> HasObjectDetections[A]:
         """Object detector protocol."""
         ...

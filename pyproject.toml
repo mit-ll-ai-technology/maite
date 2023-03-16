@@ -86,7 +86,6 @@ all_interop = [
   "transformers >= 4.25.1",
   "numba >= 0.56.4",
   "timm >= 0.6.12",
-  "augly[image] >= 1.0.0"
 ]
 
 [project.urls]
@@ -174,6 +173,8 @@ description = Runs test suite parallelized in the specified python enviornment a
 passenv = *
 deps = pytest-xdist
 extras = test
+         numpy
+         torch
 commands = pytest tests/ 
 
 
@@ -183,6 +184,8 @@ deps =
     typing-extensions==4.1.0
     {[testenv]deps}
 extras = test
+         numpy
+         torch
 basepython = python3.7
 
 

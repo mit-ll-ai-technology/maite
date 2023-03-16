@@ -1,40 +1,50 @@
 import random
-from typing import Any, Callable, List, Optional, Tuple, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Generic,
+    List,
+    Optional,
+    Tuple,
+    TypeVar,
+    Union,
+    cast,
+)
 
 import numpy as np
-from augly.image import aug_np_wrapper
-from numpy.typing import NDArray
-from PIL.Image import Image as PILImage
-from torch import Tensor
+import torch as tr
 from torch.utils._pytree import tree_flatten, tree_unflatten
-from typing_extensions import TypeAlias
+from typing_extensions import Protocol
 
+from jatic_toolbox._internals.interop.utils import (
+    is_numpy_available,
+    is_torch_available,
+)
+from jatic_toolbox.errors import InvalidArgument
 from jatic_toolbox.protocols import TypedCollection
 
-__all__ = ["Augly"]
+__all__ = ["AugmentationWrapper"]
 
-Audio: TypeAlias = NDArray[Any]
-Image: TypeAlias = PILImage
-URL: TypeAlias = Union[str, List[str]]
-T: TypeAlias = Union[Image, Audio, URL, Tensor]
+T = TypeVar("T")
 
 
-class Augly:
-    def __init__(self, aug_fun: Callable[..., T], **kwargs: Any):
+class AugFun(Protocol[T]):
+    def __call__(self, data: T, **kwargs: Any) -> T:
+        ...
+
+
+class AugmentationWrapper(Generic[T]):
+    def __init__(self, aug_fun: AugFun[T], **kwargs: Any):
         """
-        Return a JATIC Augmentation for an AugLy [1]_ transform.
+        Return a JATIC Augmentation for transform.
 
         Parameters
         ----------
         aug_fun : Callable[..., T]
-            An AugLy callable to transform data.
+            An augmentation callable to transform data.
 
         **kwargs : Any
             Optional arguments for `aug_fun`.
-
-        References
-        ----------
-        [1] 'Augly data augmentation library <https://github.com/facebookresearch/AugLy>`_
 
         Examples
         --------
@@ -43,33 +53,32 @@ class Augly:
         >>> import numpy
         >>> img_np = numpy.random.rand(100,100,3) * 255
 
-        Now get the JATIC Augmentation for a given Augly
-        transformation:
+        Now get the JATIC Augmentation for a given an augmentation.
 
         >>> from augly.images import RandomAspectRatio
-        >>> xform = Augly(RandomAspectRatio)
+        >>> xform = AugmentationWrapper(RandomAspectRatio)
 
         Lastly, generate the augmentation:
 
         >> aug_img_np = xform(img_np)
         """
-        self.aug_fun = aug_fun
-        self.kwargs = kwargs
+        self._aug_fun = aug_fun
+        self._kwargs = kwargs
 
     def __call__(
         self,
         *inputs: TypedCollection[T],
-        rng: Optional[Union[int, random.Random]] = None,
+        rng: Optional[int] = None,
     ) -> Union[TypedCollection[T], Tuple[TypedCollection[T], ...]]:
         """
-        Pipeline for augmentating data with Augly [1]_.
+        Pipeline for augmentating data.
 
         Parameters
         -----------
         *inputs : TypedCollection[T]
             Inputs to augment.
 
-        rng : Optional[RandomState] = None
+        rng : Optional[int] = None
             For reproducibility.
 
         Returns
@@ -81,7 +90,7 @@ class Augly:
         Raises
         ------
         InvalidArgument
-            Raises if the `rng` keyword is not either `random.Random` or `int`.
+            Raises if the `rng` keyword is not `int`.
 
         Examples
         --------
@@ -96,7 +105,7 @@ class Augly:
         the augmentation for PIL and NumPy arrays.
 
         >>> from augly.images import RandomAspectRatio
-        >>> xform = Augly(RandomAspectRatio())
+        >>> xform = AugmentationWrapper(RandomAspectRatio())
 
         We can execute on a single image:
 
@@ -117,40 +126,35 @@ class Augly:
         >>> assert isinstance(out_np[1], dict)
         >>> assert isinstance(out_np[1]["np_image"], np.ndarray)
 
-        Lastly, we can support reproducible Augly transforms:
+        Lastly, we can support reproducible augmentations:
 
         >>> import random
         >>> out = xform(img_pil, rng=1)
         >>> out2 = xform(img_pil, rng=1)
         >>> out3 = xform(img_pil, rng=2)
-        >>> out4 = xform(img_pil, rng=random.Random(1))
         >>> assert np.all(out[0]==out2[0])
         >>> assert np.all(out[0]!=out3[0])
-        >>> assert np.all(out[0]==out4[0])
         """
+
         if rng is not None:
             if isinstance(rng, int):
-                random.seed(rng)
-            elif isinstance(rng, random.Random):
-                random.setstate(rng.getstate())
-            else:
-                raise ValueError(
-                    f"rng must be int or `random.Random` object not {type(rng)}"
-                )
+                if is_torch_available():
+                    tr.manual_seed(rng)
 
-        if isinstance(rng, int):
-            random.seed(rng)
-        elif isinstance(rng, random.Random):
-            random.setstate(rng.getstate())
+                if is_numpy_available():
+                    np.random.seed(rng)
+
+                random.seed(rng)
+            else:
+                raise InvalidArgument("Only `int` is supported for RNG right now.")
 
         data, tree_spec = tree_flatten(inputs)
+        if TYPE_CHECKING:
+            data = cast(List[T], data)
 
-        if isinstance(data[0], np.ndarray):
-            data_aug = [
-                aug_np_wrapper(image=d, aug_function=self.aug_fun, **self.kwargs) for d in data  # type: ignore
-            ]
-        else:
-            data_aug = [self.aug_fun(d, **self.kwargs) for d in data]
+        data_aug = [self._aug_fun(d, **self._kwargs) for d in data]
+        if TYPE_CHECKING:
+            data_aug = cast(List[T], data_aug)
 
         outputs = tree_unflatten(data_aug, tree_spec)
         if len(inputs) == 1:
