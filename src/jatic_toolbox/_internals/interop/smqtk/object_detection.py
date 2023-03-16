@@ -1,27 +1,28 @@
-import warnings
 from dataclasses import dataclass
-from typing import Any, Dict, Hashable, Iterable, List, Sequence, Tuple
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    Hashable,
+    Iterable,
+    List,
+    NamedTuple,
+    Sequence,
+    Tuple,
+    Union,
+)
 
 import numpy as np
-import pooch
-import torch as tr
 from numpy.typing import NDArray
-from PIL.Image import Image
-from smqtk_detection.impls.detect_image_objects import centernet
-from smqtk_image_io.bbox import AxisAlignedBoundingBox
 from typing_extensions import Protocol, Self, TypeAlias
 
+from jatic_toolbox._internals.interop.utils import is_numpy_array, is_torch_tensor
 from jatic_toolbox.errors import InternalError, InvalidArgument
 from jatic_toolbox.protocols import ArrayLike, ObjectDetector
-from jatic_toolbox.utils.validation import check_type
 
-if not centernet.usable:  # pragma: no cover
-    raise InternalError(
-        "The following packages must be installed for SMQTK-Detection CenterNet: `torch`, `cv2`, `numba`"
-    )
+__all__ = ["CenterNet"]
 
-__all__ = ["CenterNetVisdrone"]
-
+# TODO: Need to get rid of this from the toolbox.
 _MODELS = {
     "resnet50": dict(
         url="https://data.kitware.com/api/v1/item/623259f64acac99f426f21db/download",
@@ -43,22 +44,35 @@ _MODELS = {
 
 @dataclass
 class SMQTKObjectDetectionOutput:
+    """Implements output for JATIC Object Detections."""
+
     boxes: List[NDArray[Any]]
     scores: List[NDArray[Any]]
     labels: List[List[Hashable]]
 
 
+class _AxisAlignedBoundingBox(Protocol):
+    """Protocol for SMQTK Axis Aligned Bounding Box."""
+
+    __slots__ = "min_vertex", "max_vertex"
+
+
+class AxisAlignedBoundingBox(NamedTuple):
+    min_vertex: Sequence[Union[int, float]]
+    max_vertex: Sequence[Union[int, float]]
+
+
 SMQTKAxisAlignedBoxes: TypeAlias = Iterable[
-    Iterable[Tuple[AxisAlignedBoundingBox, Dict[Hashable, float]]]
+    Iterable[Tuple[_AxisAlignedBoundingBox, Dict[Hashable, float]]]
 ]
 
 
 class SMQTDetector(Protocol):
-    def __call__(self, img_iter: List[NDArray[Any]]) -> SMQTKAxisAlignedBoxes:
+    def __call__(self, img_iter: Iterable[NDArray[Any]]) -> SMQTKAxisAlignedBoxes:
         ...
 
 
-def _get_model_file(model: str) -> str:
+def _get_model_file(model: str) -> str:  # pragma: no cover
     """
     Get model weights file.
 
@@ -72,6 +86,7 @@ def _get_model_file(model: str) -> str:
     str
         The location of the model weights file.
     """
+    import pooch
 
     if model not in _MODELS:  # pragma: no cover
         model_archs = ",".join(list(_MODELS.keys()))
@@ -82,14 +97,14 @@ def _get_model_file(model: str) -> str:
     return pooch.retrieve(**_MODELS[model])
 
 
-class CenterNetVisdrone(ObjectDetector[NDArray[Any]]):
+class CenterNet(ObjectDetector[NDArray[Any]]):
     """
     Wrapper for CenterNet model pretrained on the visdrone2019 dataset.
     """
 
     def __init__(self, detector: SMQTDetector):
         """
-        Initialize CenterNetVisdrone.
+        Initialize CenterNet.
 
         Parameters
         ----------
@@ -97,52 +112,74 @@ class CenterNetVisdrone(ObjectDetector[NDArray[Any]]):
             The named model architecture (see `jatic_toolbox.interop.smqtk.centernet._MODELS`).
 
         **kwargs : Any
-            Keyword arguments for SMQTK-Detection CenterNetVisdrone class.
+            Keyword arguments for SMQTK-Detection CenterNet class.
 
         Examples
         --------
         >>> from smqtk_detection.impls.detect_image_objects import centernet
-        >>> detector = centernet.CenterNetVisdrone(arch="resnet50", model_file=centernet_model_file)
-        >>> centernet = CenterNetVisdrone(detector)
+        >>> detector = centernet.CenterNet(arch="resnet50", model_file=centernet_model_file)
+        >>> centernet = CenterNet(detector)
         """
         self._detector = detector
 
     @classmethod
-    def from_pretrained(cls, model: str = "resnet50", **kwargs: Any) -> Self:
+    def list_models(
+        cls, *args: Any, **kwargs: Any
+    ) -> Iterable[str]:  # pragma: no cover
+        # TODO: There are more models supported.
+        return [
+            "resnet18",
+            "resnet50",
+            "res2net50",
+        ]
+
+    @classmethod
+    def from_pretrained(
+        cls, model: str = "resnet50", **kwargs: Any
+    ) -> Self:  # pragma: no cover
         """
-        Load pretrained model for `smqtk_detection.impls.detect_image_objects.centernet.CenterNetVisdrone`.
+        Load pretrained model for `smqtk_detection.impls.detect_image_objects.centernet.CenterNet`.
 
         Parameters
         ----------
         model : str (default: "resnet50")
-            The `model id` of a pretrained detector for `CenterNetVisdrone`.
+            The `model id` of a pretrained detector for `CenterNet`.
 
         **kwargs : Any
-            Keyword arguments for `CenterNetVisdrone`.
+            Keyword arguments for `CenterNet`.
 
         Returns
         -------
-        CenterNetVisdrone
-            The JATIC Toolbox wrapper for `CenterNetVisdrone`.
+        CenterNet
+            The JATIC Toolbox wrapper for `CenterNet`.
 
         Examples
         --------
-        >>> hf_image_classifier = CenterNetVisdrone.from_pretrained(model="resnet50")
+        >>> hf_image_classifier = CenterNet.from_pretrained(model="resnet50")
         """
-        centernet_model_file = _get_model_file(model)
+        from smqtk_detection.impls.detect_image_objects import centernet
+
+        if not centernet.usable:  # pragma: no cover
+            raise InternalError(
+                "The following packages must be installed for SMQTK-Detection CenterNet: `torch`, `cv2`, `numba`"
+            )
+
+        model_file = _get_model_file(model)
         detector: SMQTDetector = centernet.CenterNetVisdrone(
-            arch=model, model_file=centernet_model_file, **kwargs
+            arch=model, model_file=model_file, **kwargs
         )
         return cls(detector)
 
-    def __call__(self, data: Sequence[ArrayLike]) -> SMQTKObjectDetectionOutput:
+    def __call__(
+        self, data: Union[ArrayLike, Sequence[ArrayLike]]
+    ) -> SMQTKObjectDetectionOutput:
         """
         Object Detector for CenterNet.
 
         Parameters
         ----------
         data : Sequence[ArrayLike]
-            An array of images.  Inputs can be `PIL.Image`, `NDArray`, or `torch.Tensor`
+            An array of images.  Inputs can be `PIL.Image`, `np.ndarray`, or `torch.Tensor`
             .
 
         Returns
@@ -157,7 +194,7 @@ class CenterNetVisdrone(ObjectDetector[NDArray[Any]]):
         >>> import numpy as np
         >>> image = np.random.uniform(0, 255, size=(200, 200, 3))
 
-        >> centernet = CenterNetVisdrone(model="resnet50")
+        >> centernet = CenterNet(model="resnet50")
         >>> detections = centernet([image])
 
         We can check to verify the output contains `boxes` and `scores` attributes:
@@ -165,24 +202,33 @@ class CenterNetVisdrone(ObjectDetector[NDArray[Any]]):
         >>> from jatic_toolbox.protocols import HasObjectDetections
         >>> assert isinstance(detections, HasObjectDetections)
         """
-        arr_iter: List[np.ndarray] = []
-        for img in data:
-            check_type("img", img, (Image, np.ndarray, tr.Tensor))
-            if isinstance(img, tr.Tensor):
-                warnings.warn(
-                    "SMQTK expects NumPy arrays (input data type: `torch.Tensor`)"
-                )
-                img = img.detach().cpu().numpy()
-            arr_iter.append(np.asarray(img))
+        img_data: Iterable[ArrayLike]
+        if isinstance(data, Sequence):
+            assert isinstance(data[0], ArrayLike)
+            img_data = [np.asarray(x) for x in data]
+        elif is_torch_tensor(data):
+            if TYPE_CHECKING:
+                from torch import Tensor
 
-        smqt_output = self._detector(arr_iter)
+                assert isinstance(data, Tensor)
+            img_data = [np.asarray(x.detach().cpu().numpy()) for x in data]
+
+        elif is_numpy_array(data):
+            if TYPE_CHECKING:
+                assert isinstance(data, np.ndarray)
+            img_data = [np.asarray(x) for x in data]
+
+        else:
+            raise InvalidArgument(f"Unsupported JATIC data type {type(data)}.")
+
+        smqt_output = self._detector(img_data)
 
         # extract output into JATIC format
         output_labels: List[List[Hashable]] = []
-        output_scores: List[NDArray] = []
-        output_boxes: List[NDArray] = []
+        output_scores: List[np.ndarray] = []
+        output_boxes: List[np.ndarray] = []
         for dets in smqt_output:
-            boxes: List[NDArray] = []
+            boxes: List[np.ndarray] = []
             scores: List[float] = []
             labels: List[Hashable] = []
             for bbox, label_score in dets:

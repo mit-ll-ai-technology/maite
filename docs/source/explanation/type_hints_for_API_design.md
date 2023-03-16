@@ -766,9 +766,9 @@ if __name__ == "__main__":
 
 We see that, once again, adopting this "parsing" mindset not only consolidates the code's validation logic, but it also incorporates static type information that conveys "proof" that the data we are passing to our functions has already been validated. This code is more efficient and less repetitive than before, plus it is easier for both the developer and the user to reason about. A user looking at our `compute_accuracy` function will see immediately that it does not accept any-ol' `Tensor`, but that we expect them to first parse their data using our `parse_tensor_as_batch` function.
 
-It must be noted that the interface we expose to the user, via `load_data`, is still simple to understand and to satisfy. Type narrowing mainly helps *us* to write clean, consistent, and non-repetitive internal code. That being said, if users want to use our internal code, they will need to buy into our belief system – parse, don't validate – and learn how to use our `is_batch_of_images` function to narrow their types before using our functions[^welp].
+It must be noted that the interface we expose to the user, via `load_data`, is still simple to understand and to satisfy. Type narrowing mainly helps *us* to write clean, consistent, and non-repetitive internal code. That being said, if users want to use our internal code, they will need to buy into our belief system – parse, don't validate – and learn how to use our `is_batch_of_images` function to narrow their types before using our functions[^whelp].
 
-[^welp]: Or.. they are just coding in a Jupyter notebook and have no clue what these annotation things even are. In which case they can pass whatever they want into our function. This is Python, man. Do what you want.
+[^whelp]: Or.. they are just coding in a Jupyter notebook and have no clue what these annotation things even are. In which case they can pass whatever they want into our function. This is Python, man. Do what you want.
 
 ### Preventing type checkers from being noisy or unreliable
 

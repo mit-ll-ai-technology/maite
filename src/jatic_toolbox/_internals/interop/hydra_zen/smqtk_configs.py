@@ -21,18 +21,18 @@ def create_smqtk_model_config() -> ZenStore:
     --------
     >> jatic_configs = create_smqtk_model_config()
     >> jatic_configs["model"]
-    {('model', 'smqtk__centernet-resnet50'): types.Builds_CenterNetVisdrone,
-     ('model', 'smqtk__centernet-resnet18'): types.Builds_CenterNetVisdrone,
-     ('model', 'smqtk__centernet-res2net50'): types.Builds_CenterNetVisdrone}
+    {('model', 'smqtk__centernet-resnet50'): types.Builds_CenterNet,
+     ('model', 'smqtk__centernet-resnet18'): types.Builds_CenterNet,
+     ('model', 'smqtk__centernet-res2net50'): types.Builds_CenterNet}
     """
 
-    for k in smqtk._MODELS.keys():
+    for k in smqtk.CenterNet.list_models():
         name = f"smqtk__centernet-{k}"
 
         if name not in [m[1] for m in jatic_store["model"]]:
             jatic_models(
                 builds(
-                    smqtk.CenterNetVisdrone.from_pretrained,
+                    smqtk.CenterNet.from_pretrained,
                     model=k,
                     populate_full_signature=True,
                 ),

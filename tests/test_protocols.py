@@ -6,7 +6,7 @@ from jatic_toolbox.testing.pyright import pyright_analyze
 
 def test_arraylike():
     def func():
-        from typing import List
+        from typing import List, Tuple
 
         from jatic_toolbox.protocols import ArrayLike
 
@@ -16,6 +16,10 @@ def test_arraylike():
         # pass
         class MyArray:
             def __array__(self) -> List[int]:
+                ...
+
+            @property
+            def shape(self) -> Tuple[int, ...]:
                 ...
 
         f(MyArray())
@@ -49,9 +53,14 @@ def test_arraylike():
             def not_array(self) -> List[int]:
                 ...
 
+            @property
+            def shape(self) -> Tuple[int, ...]:
+                ...
+
         f(MyBadArray())
 
     x = pyright_analyze(func)
+    print(x)
     assert x["summary"]["errorCount"] == 11
 
 
