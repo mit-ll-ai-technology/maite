@@ -10,6 +10,18 @@ def is_torch_available():
     return importlib.util.find_spec("torch") is not None
 
 
+def is_torchvision_available():
+    return importlib.util.find_spec("torchvision") is not None
+
+
+def is_timm_available():
+    return importlib.util.find_spec("timm") is not None
+
+
+def is_hf_hub_available():
+    return importlib.util.find_spec("huggingface_hub") is not None
+
+
 def is_hf_datasets_available():
     return importlib.util.find_spec("datasets") is not None
 
@@ -36,3 +48,7 @@ def is_smqtk_available():
 
 def is_pytest_available():
     return importlib.util.find_spec("pytest") is not None
+
+
+def is_torchmetrics_available():
+    return importlib.util.find_spec("torchmetrics") is not None

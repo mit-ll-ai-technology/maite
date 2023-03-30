@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Any, Generic, Iterable, List, Optional, Sequence, TypeVar, Union
 
 import torch as tr
-from torch import Tensor
+from torch import nn
 from typing_extensions import Self
 
 from jatic_toolbox._internals.interop.utils import to_tensor_list
@@ -23,7 +23,7 @@ class HuggingFaceObjectDetectionOutput(Generic[T]):
     scores: Sequence[T]
 
 
-class HuggingFaceObjectDetector(ObjectDetector[Tensor]):
+class HuggingFaceObjectDetector(nn.Module, ObjectDetector[ArrayLike]):
     """
     Wrapper for HuggingFace object detection models.
 
@@ -33,8 +33,8 @@ class HuggingFaceObjectDetector(ObjectDetector[Tensor]):
 
     def __init__(
         self,
-        processor: HuggingFaceProcessor,
         model: HuggingFaceWithDetection,
+        processor: Optional[HuggingFaceProcessor] = None,
         threshold: float = 0.5,
     ) -> None:
         """
@@ -98,32 +98,41 @@ class HuggingFaceObjectDetector(ObjectDetector[Tensor]):
         """
         from transformers import AutoFeatureExtractor, AutoModelForObjectDetection
 
-        processor: HuggingFaceProcessor
+        processor: Optional[HuggingFaceProcessor]
         det_model: HuggingFaceWithDetection
 
         try:
             processor = AutoFeatureExtractor.from_pretrained(model, **kwargs)
+        except OSError:  # pragma: no cover
+            processor = None
+
+        try:
             det_model = AutoModelForObjectDetection.from_pretrained(model, **kwargs)
         except OSError as e:  # pragma: no cover
             raise InvalidArgument(e)
 
-        return cls(processor, det_model)
+        return cls(det_model, processor)
 
     def __call__(
         self, data: Union[ArrayLike, Sequence[ArrayLike]]
-    ) -> HuggingFaceObjectDetectionOutput[Tensor]:
+    ) -> HuggingFaceObjectDetectionOutput[ArrayLike]:
         """
         Extract object detection for HuggingFace Object Detection models.
 
         Parameters
         ----------
-        data : ArrayLike
-            An array of images.  Inputs can be `NDArray` or `torch.Tensor`.
+        data : Union[ArrayLike, Sequence[ArrayLike]]
+            A single image or a sequence of images to extract object detection from.
 
         Returns
         -------
-        HuggingFaceObjectDetectionOutput
-            An object detection object containing bounding boxes with corresponding scores.
+        HuggingFaceObjectDetectionOutput[Tensor]
+            A dataclass containing the object detection results.
+
+        Raises
+        ------
+        NotImplementedError
+            If the model does not have a processor.
 
         Examples
         --------
@@ -143,18 +152,22 @@ class HuggingFaceObjectDetector(ObjectDetector[Tensor]):
         >>> from jatic_toolbox.protocols import HasObjectDetections
         >>> assert isinstance(detections, HasObjectDetections)
         """
+        if self.processor is None:
+            raise NotImplementedError("No processor found for this model.")
+
         data = to_tensor_list(data)
         features = self.processor(images=data, return_tensors="pt")
-        outputs = self.model(**features)
+        features.to(self.model.device)
 
+        outputs = self.model(**features)
         target_sizes = tr.IntTensor([tuple(img.shape[:2]) for img in data])
         results = self.processor.post_process_object_detection(
             outputs, threshold=self.threshold, target_sizes=target_sizes
         )
 
-        output_labels: List[Tensor] = []
-        output_scores: List[Tensor] = []
-        output_boxes: List[Tensor] = []
+        output_labels: List[ArrayLike] = []
+        output_scores: List[ArrayLike] = []
+        output_boxes: List[ArrayLike] = []
         for i in range(len(results)):
             boxes = results[i]["boxes"]
             scores = results[i]["scores"]

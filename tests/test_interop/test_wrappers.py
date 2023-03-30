@@ -7,6 +7,7 @@ import pytest
 import torch as tr
 from hypothesis import given
 from numpy.typing import NDArray
+from typing_extensions import Self
 
 from jatic_toolbox._internals.interop.huggingface.typing import (
     BatchFeature,
@@ -42,6 +43,13 @@ class Output:
 
 
 class Model:
+    def __init__(self) -> None:
+        super().__init__()
+        self.device: Union[int, str] = 0
+
+    def to(self, device: Union[str, int]) -> Self:
+        return self
+
     def __call__(
         self, pixel_values: Union[ArrayLike, Sequence[ArrayLike]], **kwargs: Any
     ) -> HasDetectionLogits:
@@ -95,8 +103,8 @@ class SMQTKTest:
 @pytest.mark.parametrize(
     "model, output_type",
     [
-        (HuggingFaceObjectDetector(Processor(), Model()), HasObjectDetections),
-        (HuggingFaceImageClassifier(Processor(), Model()), HasLogits),
+        (HuggingFaceObjectDetector(Model(), Processor()), HasObjectDetections),
+        (HuggingFaceImageClassifier(Model(), Processor()), HasLogits),
         (CenterNet(SMQTKTest()), HasObjectDetections),
     ],
 )
@@ -127,8 +135,8 @@ def everything_except(excluded_types):
 @pytest.mark.parametrize(
     "model",
     [
-        HuggingFaceObjectDetector(Processor(), Model()),
-        HuggingFaceImageClassifier(Processor(), Model()),
+        HuggingFaceObjectDetector(Model(), Processor()),
+        HuggingFaceImageClassifier(Model(), Processor()),
         CenterNet(SMQTKTest()),
     ],
 )

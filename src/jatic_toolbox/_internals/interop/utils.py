@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Sequence, Union
+from typing import TYPE_CHECKING, Any, List, Mapping, Sequence, Union
 from xmlrpc.client import Boolean
 
 from jatic_toolbox.errors import InvalidArgument
@@ -89,3 +89,13 @@ class ObjectDetectionOutput:
     boxes: Sequence[ArrayLike]
     scores: Sequence[ArrayLike]
     labels: Sequence[Any]
+
+
+def collate_as_lists(batch: List[Mapping[str, Any]]) -> Mapping[str, Any]:
+    keys = list(batch[0].keys())
+    values = []
+    for k in keys:
+        v = [b[k] for b in batch]
+        values.append(v)
+
+    return {k: v for k, v in zip(keys, values)}
