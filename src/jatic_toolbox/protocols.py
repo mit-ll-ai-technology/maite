@@ -8,6 +8,7 @@ from jatic_toolbox._internals.protocols import (
     ClassifierWithParameters,
     DataLoader,
     Dataset,
+    DatasetDict,
     HasDetectionLogits,
     HasDetectionProbs,
     HasLogits,
@@ -21,7 +22,9 @@ from jatic_toolbox._internals.protocols import (
     ObjectDetector,
     ShapedArray,
     SupportsClassification,
+    SupportsImageClassification,
     TypedCollection,
+    VisionDataset,
 )
 
 __all__ = [
@@ -33,6 +36,7 @@ __all__ = [
     "ClassifierWithParameters",
     "DataLoader",
     "Dataset",
+    "DatasetDict",
     "HasDetectionLogits",
     "HasDetectionProbs",
     "HasLogits",
@@ -47,6 +51,8 @@ __all__ = [
     "ShapedArray",
     "SupportsClassification",
     "TypedCollection",
+    "VisionDataset",
+    "SupportsImageClassification",
 ]
 
 if is_numpy_available():

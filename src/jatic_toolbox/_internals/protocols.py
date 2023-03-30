@@ -11,7 +11,14 @@ from typing import (
     Union,
 )
 
-from typing_extensions import ParamSpec, Protocol, Self, TypeAlias, runtime_checkable
+from typing_extensions import (
+    ParamSpec,
+    Protocol,
+    Self,
+    TypeAlias,
+    TypedDict,
+    runtime_checkable,
+)
 
 from .import_utils import is_numpy_available, is_torch_available
 
@@ -24,6 +31,7 @@ __all__ = [
     "ClassifierWithParameters",
     "DataLoader",
     "Dataset",
+    "DatasetDict",
     "HasLogits",
     "HasObjectDetections",
     "HasProbs",
@@ -93,12 +101,25 @@ class SupportsClassification(Protocol[A]):
     target: A
 
 
+class SupportsImageClassification(TypedDict, total=False):
+    image: ArrayLike
+    label: ArrayLike
+
+
 class Dataset(Protocol[T_co]):
+    features: Mapping[str, Any]
+
+    def __len__(self) -> int:
+        ...
+
     def __getitem__(self, index: Any) -> T_co:
         ...
 
 
+DatasetDict: TypeAlias = Dataset[Dict[str, Dataset[T_co]]]
 ClassifierDataset: TypeAlias = Dataset[SupportsClassification[A]]
+VisionDataset: TypeAlias = Dataset[SupportsImageClassification]
+
 
 """
 Not sure if this is the general solution but
@@ -148,7 +169,7 @@ class Augmentation(Protocol[T]):
     def __call__(
         self,
         *inputs: TypedCollection[T],
-        rng: Optional[RandomStates],
+        rng: Optional[RandomStates] = None,
     ) -> Union[TypedCollection[T], Tuple[TypedCollection[T], ...]]:
         """
         Applies an agumentation to each item in the input and returns a corresponding container of augmented items.
@@ -273,6 +294,9 @@ class Metric(Protocol[T_co]):
         ...
 
     def compute(self) -> T_co:
+        ...
+
+    def to(self, *args: Any, **kwargs: Any) -> Self:
         ...
 
 

@@ -1,6 +1,6 @@
 from typing import Any, Iterable, Optional, Sequence, Union
 
-from torch import Tensor
+from torch import nn
 from typing_extensions import Self
 
 from jatic_toolbox._internals.interop.utils import to_tensor_list
@@ -12,7 +12,7 @@ from .typing import HuggingFaceProcessor, HuggingFaceWithLogits
 __all__ = ["HuggingFaceImageClassifier"]
 
 
-class HuggingFaceImageClassifier(Classifier[Tensor]):
+class HuggingFaceImageClassifier(nn.Module, Classifier[ArrayLike]):
     """
     Wrapper for HuggingFace image classifiation models.
 
@@ -21,7 +21,9 @@ class HuggingFaceImageClassifier(Classifier[Tensor]):
     """
 
     def __init__(
-        self, processor: HuggingFaceProcessor, model: HuggingFaceWithLogits
+        self,
+        model: HuggingFaceWithLogits,
+        processor: Optional[HuggingFaceProcessor] = None,
     ) -> None:
         """
         Initialize HuggingFaceImageClassifier.
@@ -42,8 +44,8 @@ class HuggingFaceImageClassifier(Classifier[Tensor]):
         >>> hf_model = HuggingFaceImageClassifier(processor, model)
         """
         super().__init__()
-        self.processor = processor
         self.model = model
+        self.processor = processor
 
     @classmethod
     def list_models(
@@ -83,20 +85,24 @@ class HuggingFaceImageClassifier(Classifier[Tensor]):
         """
         from transformers import AutoFeatureExtractor, AutoModelForImageClassification
 
-        processor: HuggingFaceProcessor
+        processor: Optional[HuggingFaceProcessor]
         clf_model: HuggingFaceWithLogits
 
         try:
             processor = AutoFeatureExtractor.from_pretrained(model, **kwargs)
+        except OSError:  # pragma: no cover
+            processor = None
+
+        try:
             clf_model = AutoModelForImageClassification.from_pretrained(model, **kwargs)
-        except OSError as e:
+        except OSError as e:  # pragma: no cover
             raise InvalidArgument(e)
 
-        return cls(processor, clf_model)
+        return cls(clf_model, processor)
 
-    def __call__(
+    def forward(
         self, data: Union[ArrayLike, Sequence[ArrayLike]]
-    ) -> HasLogits[Tensor]:
+    ) -> HasLogits[ArrayLike]:
         """
         Extract object detection for HuggingFace Object Detection models.
 
@@ -128,7 +134,13 @@ class HuggingFaceImageClassifier(Classifier[Tensor]):
         >>> from jatic_toolbox.protocols import HasObjectDetections
         >>> assert isinstance(detections, HasObjectDetections)
         """
-        data = to_tensor_list(data)
-        features = self.processor(images=data, return_tensors="pt")
-        outputs: HasLogits = self.model(**features)
+        if self.processor is not None:
+            data = to_tensor_list(data)
+            features = self.processor(images=data, return_tensors="pt")
+            features.to(self.model.device)
+            outputs: HasLogits = self.model(**features)
+        else:
+            import torch as tr
+
+            outputs = self.model(tr.as_tensor(data))
         return outputs
