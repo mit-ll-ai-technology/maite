@@ -1,4 +1,4 @@
-from typing import Any, Dict, Sequence, Tuple, TypeVar
+from typing import Any, Callable, Dict, Sequence, Tuple, TypeVar
 
 from torch import Tensor
 from typing_extensions import Protocol, TypeAlias, TypedDict
@@ -10,11 +10,11 @@ T_co = TypeVar("T_co", covariant=True)
 HuggingFaceVisionOuput: TypeAlias = Dict[str, Any]
 
 
-class Image(TypedDict, total=False):
+class Image(TypedDict):
     ...
 
 
-class ClassLabel(TypedDict, total=False):
+class ClassLabel(TypedDict):
     names: Sequence[str]
     num_classes: int
 
@@ -59,6 +59,13 @@ class TorchVisionDataset(VisionDataset):
                 names=dataset.classes, num_classes=len(dataset.classes)
             ),
         }
+        self._transform = None
+
+    def set_transform(
+        self,
+        transform: Callable[[SupportsImageClassification], SupportsImageClassification],
+    ) -> None:
+        self._transform = transform
 
     def __len__(self):
         return len(self.dataset)
@@ -78,4 +85,9 @@ class TorchVisionDataset(VisionDataset):
             Dictionary of `image` and `label` for each dataset.
         """
         data = self.dataset[idx]
-        return {"image": data[0], "label": data[1]}
+
+        output = SupportsImageClassification(image=data[0], label=data[1])
+        if self._transform is not None:
+            output = self._transform(output)
+
+        return output

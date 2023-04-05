@@ -1,10 +1,23 @@
 import warnings
-from typing import Any, Callable, Iterable, List, Optional, Tuple, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Tuple,
+    Union,
+    overload,
+)
 
-from jatic_toolbox.protocols import ArrayLike, Classifier, ObjectDetector
+from typing_extensions import Literal
+
+from jatic_toolbox.protocols import ArrayLike, Classifier, Dataset, ObjectDetector
 
 from ...import_utils import is_hf_available, is_hf_hub_available
-from .datasets import HuggingFaceVisionDataset
+from .datasets import HuggingFaceObjectDetectionDataset, HuggingFaceVisionDataset
 
 __all__ = ["HuggingFaceAPI"]
 
@@ -96,10 +109,10 @@ class HuggingFaceAPI:
     def load_dataset(
         self,
         dataset_name: str,
+        task: Optional[Literal["image-classification", "object-detection"]] = None,
         split: Optional[str] = None,
-        task: Optional[str] = None,
         **kwargs,
-    ) -> HuggingFaceVisionDataset:
+    ) -> Union[Dataset[Any], Dict[str, Dataset[Any]]]:
         """
         Load a HuggingFace dataset.
 
@@ -107,20 +120,20 @@ class HuggingFaceAPI:
         ----------
         dataset_name : str
             The name of the HuggingFace dataset.
+        task : Literal["image-classification", "object-detection"] | None (default: None)
+            If `None` returns the raw HuggingFace dataset.
+            The task to prepare the dataset for during training and evaluation.
         split : str | None (default: None)
             Which split of the data to load.
-            If `None`, will return a `dict` with all splits (typically `datasets.Split.TRAIN` and `datasets.Split.TEST`).
+            If `None`, will return a `dict` with all splits.
             If given, will return a single Dataset.
-        task : str | None (default: None)
-            The task to prepare the dataset for during training and evaluation. Casts the dataset's [`Features`]
-            to standardized column names and types as detailed in `datasets.tasks`.
         **kwargs : Any
             Additional keyword arguments to pass to the HuggingFace dataset.
 
         Returns
         -------
-        HuggingFaceVisionDataset
-            A Jatic supported dataset.
+        Union[Dataset, Dict[str, Dataset]]
+            The HuggingFace dataset.
 
         Raises
         ------
@@ -136,11 +149,42 @@ class HuggingFaceAPI:
         if not is_hf_available():
             raise ImportError("HuggingFace Datasets is not installed.")
 
+        if task is not None and task not in self._SUPPORTED_TASKS:
+            raise ValueError(
+                f"Task {task} is not supported. Supported tasks are {self._SUPPORTED_TASKS}."
+            )
+
         from datasets import load_dataset
 
-        dataset = load_dataset(dataset_name, split=split, task=task, **kwargs)
+        # TODO: HuggingFace doesn't have a standard on datasets to provide "object-detection"
+        # task. We need to check if the dataset is compatible with the task and if not,
+        # we load the dataset without the task.
+        try:
+            dataset = load_dataset(dataset_name, split=split, task=task, **kwargs)
+        except ValueError as e:
+            if "Task object-detection is not compatible" in str(e):
+                dataset = load_dataset(dataset_name, split=split, **kwargs)
+            else:
+                raise e
 
-        return HuggingFaceVisionDataset(dataset)  # type: ignore
+        if task is None:
+            warnings.warn("Task is not specified. Returning raw HuggingFace dataset.")
+            if TYPE_CHECKING:
+                assert isinstance(dataset, Dataset)
+
+            return dataset
+
+        if split is None and isinstance(dataset, dict):
+            warnings.warn("Split is not specified. Returning raw HuggingFace dataset.")
+            return dataset
+
+        if TYPE_CHECKING:
+            assert isinstance(dataset, Dataset)
+
+        if task == "image-classification":
+            return HuggingFaceVisionDataset(dataset)
+        elif task == "object-detection":
+            return HuggingFaceObjectDetectionDataset(dataset)
 
     def list_models(
         self,
@@ -222,8 +266,23 @@ class HuggingFaceAPI:
 
         return hf_api.list_models(filter=filt)
 
+    @overload
     def get_model_builder(
-        self, task: Union[str, List[str]]
+        self,
+        task: Literal["image-classification"],
+    ) -> Callable[..., Classifier[ArrayLike]]:
+        ...
+
+    @overload
+    def get_model_builder(
+        self,
+        task: Literal["object-detection"],
+    ) -> Callable[..., ObjectDetector[ArrayLike]]:
+        ...
+
+    def get_model_builder(
+        self,
+        task: Literal["image-classification", "object-detection"],
     ) -> Callable[..., Union[Classifier[ArrayLike], ObjectDetector[ArrayLike]]]:
         """
         Get the model builder for a given task.
@@ -260,19 +319,19 @@ class HuggingFaceAPI:
             HuggingFaceObjectDetector,
         )
 
-        if isinstance(task, str):
-            task = [task]
-
-        if "image-classification" in task:
+        if task == "image-classification":
             return HuggingFaceImageClassifier.from_pretrained
 
-        if "object-detection" in task:
+        if task == "object-detection":
             return HuggingFaceObjectDetector.from_pretrained
 
         raise ValueError(f"Task {task} is not supported.")
 
     def load_model(
-        self, task: Union[str, List[str]], model_name: str, **kwargs: Any
+        self,
+        task: Optional[Literal["image-classification", "object-detection"]],
+        model_name: str,
+        **kwargs: Any,
     ) -> Union[Classifier[ArrayLike], ObjectDetector[ArrayLike]]:
         """
         Load a HuggingFace model.
@@ -313,10 +372,10 @@ class HuggingFaceAPI:
             HuggingFaceObjectDetector,
         )
 
-        if "image-classification" in task:
+        if task == "image-classification":
             return HuggingFaceImageClassifier.from_pretrained(model_name, **kwargs)
 
-        if "object-detection" in task:
+        if task == "object-detection":
             return HuggingFaceObjectDetector.from_pretrained(model_name, **kwargs)
 
         raise ValueError(f"Task {task} is not supported.")
