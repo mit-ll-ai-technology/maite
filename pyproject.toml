@@ -52,11 +52,7 @@ numpy = ["numpy >= 1.17"]
 
 torch=["torch>=1.7,!=1.12.0", "torchvision"]
 
-vision=["Pillow >= 8.2.0"]
-
 hydra_zen = ["hydra-zen >= 0.9.0"]
-
-augly = ["python-magic == 0.4.15", "augly[image] >= 1.0.0"]
 
 huggingface = [
   "datasets >= 2.7.1",
@@ -66,27 +62,16 @@ huggingface = [
 
 timm = ["timm >= 0.6.12"]
 
-smqtk = [
-  "smqtk-detection == 0.19.0",
-  "opencv-python-headless >= 4.6.0.66",
-  "numba >= 0.56.4",
-  "pooch >= 1.6.0",
-]
-
 all_interop = [
   "numpy >= 1.17",
   "torch>=1.7,!=1.12.0",
   "torchvision",
-  "opencv-python-headless >= 4.6.0.66",
   "datasets >= 2.7.1",
   "huggingface-hub >= 0.11.1",
   "hydra-zen >= 0.9.0",
-  "pooch >= 1.6.0",
-  "smqtk-detection >= 0.19.0",
   "transformers >= 4.25.1",
-  "numba >= 0.56.4",
   "timm >= 0.6.12",
-  "torchmetrics"
+  "torchmetrics >= 0.11",
 ]
 
 [project.urls]
@@ -118,7 +103,15 @@ combine_as_imports = true
 
 
 [tool.coverage.report]
-omit = ["src/jatic_toolbox/_version.py"]
+omit = [
+  "src/jatic_toolbox/_version.py",
+  "src/jatic_toolbox/_internals/interop/hydra_zen/__init__.py",
+  "src/jatic_toolbox/_internals/interop/hydra_zen/hf_configs.py",
+  "src/jatic_toolbox/_internals/interop/hydra_zen/smqtk_configs.py",
+  "src/jatic_toolbox/_internals/interop/hydra_zen/store.py",
+  "src/jatic_toolbox/_internals/interop/smqtk/__init__.py",
+  "src/jatic_toolbox/_internals/interop/smqtk/object_detection.py"
+]
 exclude_lines = [
   'pragma: no cover',
   'def __repr__',
@@ -130,6 +123,7 @@ exclude_lines = [
   'except ImportError',
   'except ModuleNotFoundError',
   'if (typing\.)?TYPE_CHECKING:',
+
 ]
 
 [tool.pytest.ini_options]
@@ -220,8 +214,7 @@ description = Validate that the jatic-toolbox's public API has docstrings that a
               under pyright.
 extras = 
     test
-    huggingface
-    smqtk
+    all_interop
 commands = pytest tests/test_docstrings.py -vv  
 
 [testenv:typecheck]

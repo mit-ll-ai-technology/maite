@@ -1,28 +1,22 @@
 from dataclasses import dataclass, is_dataclass
-from typing import Any, Iterable, Sequence, Union
+from typing import Any, Sequence, Union
 
 import hypothesis.extra.numpy as hnp
 import hypothesis.strategies as st
 import pytest
 import torch as tr
 from hypothesis import given
-from numpy.typing import NDArray
 from typing_extensions import Self
 
 from jatic_toolbox._internals.interop.huggingface.typing import (
     BatchFeature,
     HuggingFacePostProcessedDetections,
 )
-from jatic_toolbox._internals.interop.smqtk.object_detection import (
-    AxisAlignedBoundingBox,
-    SMQTKAxisAlignedBoxes,
-)
 from jatic_toolbox.errors import InvalidArgument
 from jatic_toolbox.interop.huggingface import (
     HuggingFaceImageClassifier,
     HuggingFaceObjectDetector,
 )
-from jatic_toolbox.interop.smqtk import CenterNet
 from jatic_toolbox.protocols import (
     ArrayLike,
     HasDetectionLogits,
@@ -95,20 +89,6 @@ class PostProcessor:
         return out
 
 
-#
-# SMQTK-Like Object Detectors
-#
-class SMQTKTest:
-    def __call__(self, img_iter: Iterable[NDArray[Any]]) -> SMQTKAxisAlignedBoxes:
-        out = []
-        for i in range(len(list(img_iter))):
-            out_i = []
-            for i in range(10):
-                out_i.append((AxisAlignedBoundingBox([0, 1], [0, 1]), {0: 0.1}))
-            out.append(out_i)
-        return out
-
-
 @pytest.mark.parametrize(
     "model, output_type",
     [
@@ -117,7 +97,6 @@ class SMQTKTest:
             HasObjectDetections,
         ),
         (HuggingFaceImageClassifier(Model(), Processor()), HasLogits),
-        (CenterNet(SMQTKTest()), HasObjectDetections),
     ],
 )
 @given(image=image_strategy, to_tensor=st.booleans(), as_list=st.booleans())
@@ -149,7 +128,6 @@ def everything_except(excluded_types):
     [
         HuggingFaceObjectDetector(Model(), Processor()),
         HuggingFaceImageClassifier(Model(), Processor()),
-        CenterNet(SMQTKTest()),
     ],
 )
 @pytest.mark.parametrize(
