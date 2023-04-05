@@ -1,12 +1,9 @@
 import warnings
 from typing import Any
 
-from datasets.load import load_dataset
-from huggingface_hub.hf_api import list_models
 from hydra_zen import ZenStore, builds
 
-from jatic_toolbox.interop import huggingface
-
+from ...import_utils import is_hf_datasets_available, is_hf_hub_available
 from .store import jatic_store
 
 jatic_datasets = jatic_store(group="dataset")
@@ -35,6 +32,11 @@ def create_huggingface_dataset_config(path: str, **dataset_kwargs: Any) -> ZenSt
     >> jatic_datasets = ccreate_huggingface_dataset_config("Bingsu/Cat_and_Dog")
     {'dataset': ['Bingsu__Cat_and_Dog', 'biglam__nls_chapbook_illustrations']}
     """
+    if not is_hf_datasets_available():
+        raise ImportError("HuggingFace Datasets is not installed.")
+
+    from datasets.load import load_dataset
+
     name = path.replace("/", "__")
     if name not in [m[1] for m in jatic_store["dataset"]]:
         jatic_datasets(
@@ -79,6 +81,13 @@ def create_huggingface_model_config(**list_models_kwargs: Any) -> ZenStore:
     >> jatic_configs
     {'model': [''facebook__detr-resnet-101-dc5', ...]}
     """
+    if not is_hf_hub_available():
+        raise ImportError("HuggingFace Hub is not installed.")
+
+    from huggingface_hub.hf_api import list_models
+
+    from ..huggingface.object_detection import HuggingFaceObjectDetector
+
     models = list_models(**list_models_kwargs)
     if len(models) == 0:
         warnings.warn("`huggingface_hub.list_models` returned an empty list of models")
@@ -97,7 +106,7 @@ def create_huggingface_model_config(**list_models_kwargs: Any) -> ZenStore:
                 _found = 1
                 jatic_models(
                     builds(
-                        huggingface.HuggingFaceObjectDetector.from_pretrained,
+                        HuggingFaceObjectDetector.from_pretrained,
                         model=m.modelId,
                     ),
                     name=name,

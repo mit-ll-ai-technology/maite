@@ -1,7 +1,6 @@
 from hydra_zen import ZenStore, builds
 
-from jatic_toolbox.interop import smqtk
-
+from ...import_utils import is_smqtk_available
 from .store import jatic_store
 
 jatic_datasets = jatic_store(group="dataset")
@@ -26,17 +25,22 @@ def create_smqtk_model_config() -> ZenStore:
      ('model', 'smqtk__centernet-res2net50'): types.Builds_CenterNet}
     """
 
-    for k in smqtk.CenterNet.list_models():
-        name = f"smqtk__centernet-{k}"
+    if is_smqtk_available():
+        from ..smqtk.object_detection import CenterNet
 
-        if name not in [m[1] for m in jatic_store["model"]]:
-            jatic_models(
-                builds(
-                    smqtk.CenterNet.from_pretrained,
-                    model=k,
-                    populate_full_signature=True,
-                ),
-                name=name,
-            )
+        for k in CenterNet.list_models():
+            name = f"smqtk__centernet-{k}"
 
-    return jatic_models
+            if name not in [m[1] for m in jatic_store["model"]]:
+                jatic_models(
+                    builds(
+                        CenterNet.from_pretrained,
+                        model=k,
+                        populate_full_signature=True,
+                    ),
+                    name=name,
+                )
+
+        return jatic_models
+
+    raise ImportError("SMQTK is not installed.")

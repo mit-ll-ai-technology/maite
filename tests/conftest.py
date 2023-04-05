@@ -62,9 +62,3 @@ if not import_utils.is_hydra_zen_available():
 
 if not import_utils.is_hf_available():
     collect_ignore_glob.append("*huggingface*.py")
-
-if not import_utils.is_smqtk_available() or sys.version_info >= (3, 10):
-    collect_ignore_glob.append("*smqtk*.py")
-
-if not import_utils.is_augly_available() or sys.platform.startswith("win"):
-    collect_ignore_glob.append("*augly*.py")
