@@ -1,4 +1,14 @@
-from typing import Any, Callable, Iterable, List, Optional, TypeVar, Union, overload
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    TypeVar,
+    Union,
+    overload,
+)
 
 from typing_extensions import Literal
 
@@ -56,8 +66,10 @@ def load_dataset(
     *,
     provider: str,
     dataset_name: str,
+    task: Optional[Literal["image-classification", "object-detection"]] = None,
+    split: Optional[str] = None,
     **kwargs: Any,
-) -> Dataset[Any]:
+) -> Union[Dataset[Any], Dict[str, Dataset[Any]]]:
     """
     Load dataset for a given provider.
 
@@ -67,6 +79,10 @@ def load_dataset(
         Where to search for datasets.
     dataset_name : str
         Name of dataset.
+    task : str | None (default: None)
+        A string of tasks datasets were designed for, such as: "image-classification", "object-detection".
+    split : str | None (default: None)
+        A string of split to load, such as: "train", "test", "validation".
     **kwargs : Any
         Any keyword supported by provider interface.
 
@@ -78,7 +94,7 @@ def load_dataset(
     Examples
     --------
     >>> from jatic_toolbox import load_dataset
-    >>> load_dataset(provider="huggingface", dataset_name="glue", task="sst2")
+    >>> load_dataset(provider="huggingface", dataset_name="cifar10", task="image-classification")
     """
     if provider == "huggingface":
         api = HuggingFaceAPI()
@@ -87,7 +103,7 @@ def load_dataset(
     else:
         raise NotImplementedError(f"Provider, {provider}, not supported.")
 
-    return api.load_dataset(dataset_name, **kwargs)
+    return api.load_dataset(dataset_name, task=task, split=split, **kwargs)
 
 
 def list_models(
@@ -154,7 +170,7 @@ def load_model_builder(
 
 
 def load_model_builder(
-    *, provider: str, task: str
+    *, provider: str, task: Literal["image-classification", "object-detection"]
 ) -> Callable[..., Union[Classifier[ArrayLike], ObjectDetector[ArrayLike]]]:
     """
     Return a `ModelBuilder` for a given provider, task, and model name.
@@ -175,7 +191,7 @@ def load_model_builder(
     Examples
     --------
     >>> from jatic_toolbox import load_model_builder
-    >>> load_model_builder(provider="huggingface", task="image-classification", model_name="microsoft/resnet-18")
+    >>> load_model_builder(provider="huggingface", task="image-classification")
     """
     if provider == "huggingface":
         return HuggingFaceAPI().get_model_builder(task)
@@ -275,7 +291,7 @@ def load_metric(
     provider: str,
     metric_name: str,
     **kwargs: Any,
-) -> Metric:
+) -> Metric[Any]:
     """
     Return a Metric object.
 

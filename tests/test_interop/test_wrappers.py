@@ -11,7 +11,7 @@ from typing_extensions import Self
 
 from jatic_toolbox._internals.interop.huggingface.typing import (
     BatchFeature,
-    HFProcessedDetection,
+    HuggingFacePostProcessedDetections,
 )
 from jatic_toolbox._internals.interop.smqtk.object_detection import (
     AxisAlignedBoundingBox,
@@ -75,11 +75,20 @@ class Processor:
             pix_vals = tr.as_tensor(images)
         return BatchFeature(pixel_values=pix_vals)
 
-    def post_process_object_detection(
-        self, outputs: HasDetectionLogits, threshold: float, target_sizes: Any
-    ) -> HFProcessedDetection:
+
+class PostProcessor:
+    def __call__(
+        self,
+        outputs: HasDetectionLogits[ArrayLike],
+        threshold: float,
+        target_sizes: Any,
+    ) -> Union[
+        HasObjectDetections[ArrayLike], Sequence[HuggingFacePostProcessedDetections]
+    ]:
         out = []
-        for logits, boxes in zip(outputs.logits, outputs.pred_boxes):
+        for logits, boxes in zip(
+            tr.as_tensor(outputs.logits), tr.as_tensor(outputs.pred_boxes)
+        ):
             probs = tr.softmax(logits, dim=1)
             pred_index = probs.argmax(-1)
             out.append(dict(scores=probs[pred_index], labels=pred_index, boxes=boxes))
@@ -103,7 +112,10 @@ class SMQTKTest:
 @pytest.mark.parametrize(
     "model, output_type",
     [
-        (HuggingFaceObjectDetector(Model(), Processor()), HasObjectDetections),
+        (
+            HuggingFaceObjectDetector(Model(), Processor(), PostProcessor()),
+            HasObjectDetections,
+        ),
         (HuggingFaceImageClassifier(Model(), Processor()), HasLogits),
         (CenterNet(SMQTKTest()), HasObjectDetections),
     ],

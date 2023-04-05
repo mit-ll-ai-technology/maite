@@ -1,5 +1,7 @@
 import warnings
-from typing import Any, Callable, Iterable, List, Optional, Tuple, Union
+from typing import Any, Callable, Iterable, List, Optional, Tuple, Union, overload
+
+from typing_extensions import Literal
 
 from jatic_toolbox.protocols import ArrayLike, Classifier, ObjectDetector
 
@@ -75,6 +77,8 @@ class TorchVisionAPI:
     def load_dataset(
         self,
         dataset_name: str,
+        task: Optional[Literal["image-classification", "object-detection"]] = None,
+        split: Optional[str] = None,
         **kwargs: Any,
     ) -> TorchVisionDataset:
         """
@@ -84,6 +88,8 @@ class TorchVisionAPI:
         ----------
         dataset_name : str
             The name of the dataset to load.
+        task : str
+            The task of the dataset.
         **kwargs : Any
             Any keyword supported by torchvision.
 
@@ -96,14 +102,32 @@ class TorchVisionAPI:
         --------
         >>> from jatic_toolbox._internals.interop.torchvision.api import TorchVisionAPI
         >>> api = TorchVisionAPI()
-        >>> api.load_dataset("MNIST")
+        >>> api.load_dataset("MNIST", root="data", download=True)
         <jatic_toolbox._internals.interop.torchvision.datasets.TorchVisionDataset object at 0x000001F2B1B5B4C0>
         """
         from torchvision import datasets
 
         fn = getattr(datasets, dataset_name)
-        dataset = fn(**kwargs)
-        return TorchVisionDataset(dataset)
+
+        try:
+            if split is not None:
+                dataset = fn(split=split, **kwargs)
+            else:
+                dataset = fn(**kwargs)
+        except TypeError:
+            train = False
+            if split == "train":
+                train = True
+
+            try:
+                dataset = fn(train=train, **kwargs)
+            except TypeError as e:
+                raise e
+
+        if task == "image-classification":
+            return TorchVisionDataset(dataset)
+
+        raise NotImplementedError("Only `image-classification` task is supported.")
 
     def list_models(
         self,
@@ -190,8 +214,20 @@ class TorchVisionAPI:
 
         return all_models
 
+    @overload
     def get_model_builder(
-        self, task: Union[str, List[str]]
+        self, task: Literal["image-classification"]
+    ) -> Callable[..., Classifier[ArrayLike]]:
+        ...
+
+    @overload
+    def get_model_builder(
+        self, task: Literal["object-detection"]
+    ) -> Callable[..., ObjectDetector[ArrayLike]]:
+        ...
+
+    def get_model_builder(
+        self, task: Literal["image-classification", "object-detection"]
     ) -> Callable[..., Union[Classifier[ArrayLike], ObjectDetector[ArrayLike]]]:
         """
         Get the model builder for a given task.
@@ -223,19 +259,16 @@ class TorchVisionAPI:
             TorchVisionObjectDetector,
         )
 
-        if isinstance(task, str):
-            task = [task]
-
-        if "image-classification" in task:
+        if task == "image-classification":
             return TorchVisionClassifier.from_pretrained
 
-        if "object-detection" in task:
+        if task == "object-detection":
             return TorchVisionObjectDetector.from_pretrained
 
         raise ValueError(f"Task {task} is not supported.")
 
     def load_model(
-        self, task: Union[str, List[str]], model_name: str, **kwargs: Any
+        self, task: str, model_name: str, **kwargs: Any
     ) -> Union[Classifier[ArrayLike], ObjectDetector[ArrayLike]]:
         """
         Load a TorchVision model.

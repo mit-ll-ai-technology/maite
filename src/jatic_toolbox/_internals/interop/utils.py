@@ -4,13 +4,18 @@ from xmlrpc.client import Boolean
 
 from jatic_toolbox.errors import InvalidArgument
 
-from ..import_utils import is_numpy_available, is_torch_available
+from ..import_utils import is_numpy_available, is_pil_available, is_torch_available
 from ..protocols import ArrayLike
 
 
 def to_tensor_list(data: Union[ArrayLike, Sequence[ArrayLike]]) -> Sequence[ArrayLike]:
     if isinstance(data, Sequence):
-        assert isinstance(data[0], ArrayLike)
+        if is_pil_available():
+            from PIL import Image
+
+            assert isinstance(data[0], Image.Image) or isinstance(data[0], ArrayLike)
+        else:
+            assert isinstance(data[0], ArrayLike)
         return data
 
     elif is_torch_tensor(data):

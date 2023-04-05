@@ -19,10 +19,13 @@ from jatic_toolbox._internals.protocols import (
     MetricCollection,
     Model,
     ModelOutput,
+    ObjectDetection,
+    ObjectDetectionDataset,
     ObjectDetector,
     ShapedArray,
     SupportsClassification,
     SupportsImageClassification,
+    SupportsObjectDetection,
     TypedCollection,
     VisionDataset,
 )
@@ -53,6 +56,9 @@ __all__ = [
     "TypedCollection",
     "VisionDataset",
     "SupportsImageClassification",
+    "ObjectDetectionDataset",
+    "SupportsObjectDetection",
+    "ObjectDetection",
 ]
 
 if is_numpy_available():

@@ -1,4 +1,4 @@
-from typing import Any, Iterable, Type
+from typing import Any, Callable, Iterable
 
 from jatic_toolbox.protocols import Metric
 
@@ -33,7 +33,7 @@ class TorchMetricsAPI:
             if m not in ("functional", "Metric", "MetricCollection")
         ]
 
-    def load_metric_builder(self, metrics_name, **kwargs: Any) -> Type[Metric]:
+    def load_metric_builder(self, metrics_name) -> Callable[..., Metric[Any]]:
         """
         Load a metric builder from TorchMetrics.
 
@@ -41,8 +41,6 @@ class TorchMetricsAPI:
         ----------
         metrics_name : str
             The name of the metric to load.
-        **kwargs : Any
-            The arguments to pass to the metric.
 
         Returns
         -------
@@ -54,15 +52,35 @@ class TorchMetricsAPI:
         >>> from jatic_toolbox._internals.interop.torchmetrics.api import TorchMetricsAPI
         >>> api = TorchMetricsAPI()
         >>> api.load_metric_builder("Accuracy")
-        <class 'torchmetrics.classification.accuracy.Accuracy'>
+        <function TorchMetricsAPI.load_metric.<locals>.MetricBuilder(self, **kwargs: Any) -> Metric>
         """
         if not is_torchmetrics_available():
             raise ImportError("TorchMetrics is not installed.")
 
         import torchmetrics
 
-        fn = getattr(torchmetrics, metrics_name)
-        return fn
+        if metrics_name == "MeanAveragePrecision":
+
+            def CustomMAPBuilder(**kwargs: Any) -> Metric:
+                from .detection import MeanAveragePrecision
+
+                # TODO: Fix Protocol
+                return MeanAveragePrecision(**kwargs)  # type: ignore
+
+            return CustomMAPBuilder
+        else:
+            assert (
+                metrics_name in torchmetrics.__all__
+            ), f"{metrics_name} not found in torchmetrics"
+
+            def MetricBuilder(**kwargs: Any) -> Metric:
+                import importlib
+
+                tm_clazz = importlib.import_module("torchmetrics")
+                clazz = getattr(tm_clazz, metrics_name)
+                return clazz(**kwargs)
+
+            return MetricBuilder
 
     def load_metric(self, metric_name: str, **kwargs: Any) -> Metric:
         """
@@ -90,8 +108,5 @@ class TorchMetricsAPI:
         if not is_torchmetrics_available():
             raise ImportError("TorchMetrics is not installed.")
 
-        import importlib
-
-        tm_clazz = importlib.import_module("torchmetrics")
-        clazz = getattr(tm_clazz, metric_name)
-        return clazz(**kwargs)
+        builder = self.load_metric_builder(metric_name)
+        return builder(**kwargs)

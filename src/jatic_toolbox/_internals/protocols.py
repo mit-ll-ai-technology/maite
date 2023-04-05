@@ -1,5 +1,6 @@
 from typing import (
     Any,
+    Callable,
     Dict,
     Iterable,
     Mapping,
@@ -101,24 +102,39 @@ class SupportsClassification(Protocol[A]):
     target: A
 
 
-class SupportsImageClassification(TypedDict, total=False):
+class SupportsImageClassification(TypedDict):
     image: ArrayLike
     label: ArrayLike
 
 
-class Dataset(Protocol[T_co]):
+class ObjectDetection(TypedDict):
+    bbox: ArrayLike
+    label: ArrayLike
+
+
+class SupportsObjectDetection(TypedDict):
+    image: Union[ArrayLike, Sequence[ArrayLike]]
+    objects: Sequence[ObjectDetection]
+
+
+@runtime_checkable
+class Dataset(Protocol[T]):
     features: Mapping[str, Any]
+
+    def set_transform(self, transform: Callable[[T], T]) -> None:
+        ...
 
     def __len__(self) -> int:
         ...
 
-    def __getitem__(self, index: Any) -> T_co:
+    def __getitem__(self, index: Any) -> T:
         ...
 
 
-DatasetDict: TypeAlias = Dataset[Dict[str, Dataset[T_co]]]
+DatasetDict: TypeAlias = Dataset[Dict[str, Dataset[T]]]
 ClassifierDataset: TypeAlias = Dataset[SupportsClassification[A]]
 VisionDataset: TypeAlias = Dataset[SupportsImageClassification]
+ObjectDetectionDataset: TypeAlias = Dataset[SupportsObjectDetection]
 
 
 """
@@ -236,9 +252,9 @@ class HasDetectionProbs(Protocol[A]):
 
 @runtime_checkable
 class HasObjectDetections(Protocol[A]):
-    boxes: Sequence[A]
-    labels: Sequence[Any]
-    scores: Sequence[A]
+    boxes: Union[A, Sequence[A]]
+    scores: Union[A, Sequence[A]]
+    labels: Optional[Union[A, Sequence[Any]]]
 
 
 class Model(Protocol):
@@ -290,7 +306,7 @@ class Metric(Protocol[T_co]):
     def reset(self) -> None:
         ...
 
-    def update(self, *args: ArrayLike, **kwargs: ArrayLike) -> None:
+    def update(self, *args: Any, **kwargs: Any) -> None:
         ...
 
     def compute(self) -> T_co:

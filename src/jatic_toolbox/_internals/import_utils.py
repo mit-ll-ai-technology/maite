@@ -52,3 +52,11 @@ def is_pytest_available():
 
 def is_torchmetrics_available():
     return importlib.util.find_spec("torchmetrics") is not None
+
+
+def is_tqdm_available():
+    return importlib.util.find_spec("tqdm") is not None
+
+
+def is_pil_available():
+    return importlib.util.find_spec("PIL") is not None
