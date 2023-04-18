@@ -5,6 +5,7 @@ code base.
 
 - [Maintaining the jatic-toolbox](#maintaining-the-jatic-toolbox)
   - [Project dependencies, metadata, and versioning](#project-dependencies-metadata-and-versioning)
+  - [Branching and Merging](#branching-and-merging)
   - [Tooling configuration](#tooling-configuration)
   - [CI/CD Overview](#cicd-overview)
     - [Running tox](#running-tox)
@@ -271,6 +272,9 @@ In the case that a new dependency is added, a minimum version must be specified.
 
 The project's version (e.g. `v0.3.0`) is managed by [setuptools_scm](https://github.com/pypa/setuptools_scm), meaning that the `jatic_toolbox.__version__` attribute is not set manually, rather it is derived from the project's latest git-commit tag of the form `vX.Y.Z`. See [Creating a new release and publishing to PyPI](#creating-a-new-release-and-publishing-to-pypi) for more details.
 
+## Branching and Merging
+
+We use the [github-flow](https://guides.github.com/introduction/flow/) branching model. This means that all changes are made on a branch that is branched off of the `main` branch. When working on a feature or bug fix, developers should create an issue in the project's issue tracker and reference it in the commit message or pull request. This helps to ensure that all work is tracked and that team members can easily see what issues have been worked on and what still needs to be done. Once the changes are ready to be merged, a pull request is opened against the `main` branch. The pull request must be approved by at least one other developer before it can be merged.  Every pull request will trigger a CI run that will run the test suite, check the codebase for formatting errors, and check the docs for spelling errors.  If any of these checks fail, the pull request cannot be merged. Lastly, a merge must be a fast-forward merge, meaning that the `main` branch must be up-to-date with the `main` branch of the upstream repo.  
 
 ## Tooling configuration
 
