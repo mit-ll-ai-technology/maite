@@ -73,3 +73,16 @@ typecheck:
   script:
     - echo "Test typechecking."
     - tox -e typecheck -vv
+
+pages:
+  image: python:3.9
+  script:
+    - pip install -r ./docs/requirements.txt
+    - (cd ./docs/ && make html)
+    - mv build/html/ ../public/
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
