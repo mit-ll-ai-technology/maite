@@ -75,7 +75,7 @@ pages:
     # - pip install -r ./docs/requirements.txt
     # - echo "Making docs..."
     # - (cd ./docs/ && make html)
-    - mv ./.tox/docs/build/html/ ../public/
+    - mv ./.tox/docs/build/html/ ./public
   artifacts:
     paths:
       - public
