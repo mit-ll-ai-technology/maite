@@ -15,6 +15,10 @@
   </p>
 </p>
 
+
+Check out our [documentation](https://jatic.pages.jatic.net/cdao/jatic-toolbox) for more information.
+
+
 ## Installation
 
 To install from source, clone this repository and, from the top-level directory (in the directory containing `src/`), run:
