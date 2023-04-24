@@ -55,7 +55,9 @@ class TorchVisionBase(nn.Module):
 
         model_weights = get_model_weights(name=weights)
 
-        assert issubclass(model_weights, WeightsEnum)
+        assert issubclass(
+            model_weights, WeightsEnum
+        ), f"{type(model_weights)} is not a valid model"
         keys = model_weights.__members__.keys()
         assert weights_value_name in keys, f"{weights_value_name} not in {keys}"
         the_model_weights = model_weights[weights_value_name]
@@ -109,7 +111,9 @@ class TorchVisionClassifier(TorchVisionBase, Classifier[ArrayLike]):
         return TorchVisionClassifierOutput(logits=logits)
 
     @classmethod
-    def list_models(cls, module: Optional[Any] = None) -> Iterable[Any]:
+    def list_models(
+        cls, module: Optional[Any] = None
+    ) -> Iterable[Any]:  # pragma: no cover
         from torchvision import models
         from torchvision.models import list_models
 
@@ -170,7 +174,9 @@ class TorchVisionObjectDetector(TorchVisionBase, ObjectDetector[ArrayLike]):
         )
 
     @classmethod
-    def list_models(cls, module: Optional[Any] = None) -> Iterable[Any]:
+    def list_models(
+        cls, module: Optional[Any] = None
+    ) -> Iterable[Any]:  # pragma: no cover
         from torchvision import models
         from torchvision.models import list_models
 

@@ -52,7 +52,7 @@ class TorchVisionDataset(VisionDataset):
         dataset: PyTorchVisionDataset,
     ):
         """Initialize the TorchVisionDataset."""
-        self.dataset = dataset
+        self._dataset = dataset
         self.features = {
             "image": Image(),
             "label": ClassLabel(
@@ -68,7 +68,7 @@ class TorchVisionDataset(VisionDataset):
         self._transform = transform
 
     def __len__(self):
-        return len(self.dataset)
+        return len(self._dataset)
 
     def __getitem__(self, idx) -> SupportsImageClassification:
         """
@@ -84,7 +84,7 @@ class TorchVisionDataset(VisionDataset):
         SupportsImageClassification
             Dictionary of `image` and `label` for each dataset.
         """
-        data = self.dataset[idx]
+        data = self._dataset[idx]
 
         output = SupportsImageClassification(image=data[0], label=data[1])
         if self._transform is not None:

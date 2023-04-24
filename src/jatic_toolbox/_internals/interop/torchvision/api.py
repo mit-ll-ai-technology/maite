@@ -1,14 +1,20 @@
 import warnings
-from typing import Any, Iterable, List, Optional, Tuple, Union
+from typing import Any, Callable, Iterable, List, Optional, Tuple, Union
 
 from typing_extensions import Literal
 
 from jatic_toolbox.protocols import ArrayLike, Classifier, ObjectDetector
 
 from ...import_utils import is_torchvision_available
-from .datasets import TorchVisionDataset
+from .datasets import PyTorchVisionDataset, TorchVisionDataset
 
 __all__ = ["TorchVisionAPI"]
+
+
+def _get_torchvision_dataset(dataset_name: str) -> Callable[..., PyTorchVisionDataset]:
+    from torchvision import datasets
+
+    return getattr(datasets, dataset_name)
 
 
 class TorchVisionAPI:
@@ -90,6 +96,8 @@ class TorchVisionAPI:
             The name of the dataset to load.
         task : str
             The task of the dataset.
+        split : str
+            The split of the dataset.
         **kwargs : Any
             Any keyword supported by torchvision.
 
@@ -105,24 +113,30 @@ class TorchVisionAPI:
         >>> api.load_dataset("MNIST", root="data", download=True)
         <jatic_toolbox._internals.interop.torchvision.datasets.TorchVisionDataset object at 0x000001F2B1B5B4C0>
         """
-        from torchvision import datasets
+        if task is not None and task not in ("image-classification",):
+            raise ValueError(
+                f"Task {task} is not supported. Supported tasks are ('image-classification', )."
+            )
 
-        fn = getattr(datasets, dataset_name)
+        fn = _get_torchvision_dataset(dataset_name)
 
-        try:
-            if split is not None:
-                dataset = fn(split=split, **kwargs)
-            else:
-                dataset = fn(**kwargs)
-        except TypeError:
-            train = False
-            if split == "train":
-                train = True
+        if split is None:
+            dataset = fn(**kwargs)
 
+        else:
             try:
-                dataset = fn(train=train, **kwargs)
-            except TypeError as e:
-                raise e
+                dataset = fn(split=split, **kwargs)
+            except TypeError:
+                train = False
+                if split == "train":
+                    train = True
+
+                try:
+                    dataset = fn(train=train, **kwargs)
+                except TypeError:
+                    raise TypeError(
+                        f"Split provided by torchvision dataset, {fn}, doesn't support splits. Tried both `split` and `train` arguments."
+                    )
 
         if task == "image-classification":
             return TorchVisionDataset(dataset)
@@ -249,7 +263,7 @@ class TorchVisionAPI:
         >>> api.load_model("image-classification", "resnet18")
         <jatic_toolbox._internals.interop.torchvision.models.TorchVisionClassifier object at 0x000001F2B1B5B4C0>
         """
-        if not is_torchvision_available():
+        if not is_torchvision_available():  # pragma: no cover
             raise ImportError("TorchVision is not installed.")
 
         from jatic_toolbox.interop.torchvision import (
