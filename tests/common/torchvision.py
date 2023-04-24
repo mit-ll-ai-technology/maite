@@ -1,6 +1,6 @@
 import torch as tr
 from torch.utils.data import Dataset
-from torchvision.models import WeightsEnum
+from torchvision.models._api import WeightsEnum
 
 from .utils import create_random_image
 

@@ -48,7 +48,7 @@ class TorchVisionBase(nn.Module):
         weights_value_name: str = "DEFAULT",
         **config: Any,
     ) -> Self:
-        from torchvision.models import WeightsEnum, get_model, get_model_weights
+        from torchvision.models._api import WeightsEnum, get_model, get_model_weights
 
         if weights is None:
             weights = name

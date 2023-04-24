@@ -25,7 +25,7 @@ if is_hydra_zen_available():
     from hydra_zen import instantiate  # type: ignore
     from hydra_zen.typing import Builds  # type: ignore
 
-else:
+else:  # pragma: no cover
     from dataclasses import dataclass
     from typing import Generic
 
@@ -330,6 +330,8 @@ class ImageClassificationEvaluator(EvaluationTask):
         """
         if use_progress_bar and is_tqdm_available():
             from tqdm.auto import tqdm
+        else:
+            tqdm = lambda x: x  # noqa: E731
 
         if device is None:
             device = self._infer_device()
@@ -479,6 +481,8 @@ class ObjectDetectionEvaluator(EvaluationTask):
         """
         if use_progress_bar and is_tqdm_available():
             from tqdm.auto import tqdm
+        else:
+            tqdm = lambda x: x  # noqa: E731
 
         if device is None:
             device = self._infer_device()

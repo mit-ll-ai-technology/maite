@@ -28,7 +28,7 @@ def test_tv_load_dataset_unsupported_task(task):
 
 
 @given(task=st.text(min_size=1))
-def test_hf_load_model_unsupported_task(task):
+def test_tv_load_model_unsupported_task(task):
     with pytest.raises(ValueError):
         jatic_toolbox.load_model(provider="torchvision", task=task, model_name="test")
 
@@ -82,12 +82,12 @@ def test_tv_load_image_classification_dataset(use_split, has_split, has_train):
 
 
 @given(with_processor=st.booleans())
-def test_hf_load_vision_model(with_processor):
+def test_tv_load_vision_model(with_processor):
     mock_model_weights, mock_model = get_test_vision_model()
 
     with mock.patch.object(
-        torchvision.models, "get_model_weights", return_value=mock_model_weights
-    ), mock.patch.object(torchvision.models, "get_model", return_value=mock_model):
+        torchvision.models._api, "get_model_weights", return_value=mock_model_weights
+    ), mock.patch.object(torchvision.models._api, "get_model", return_value=mock_model):
         model_out = jatic_toolbox.load_model(
             provider="torchvision",
             task="image-classification",
@@ -103,12 +103,12 @@ def test_hf_load_vision_model(with_processor):
 @given(
     with_processor=st.booleans(),
 )
-def test_hf_load_object_detection_model(with_processor):
+def test_tv_load_object_detection_model(with_processor):
     mock_model_weights, mock_model = get_test_object_detection_model()
 
     with mock.patch.object(
-        torchvision.models, "get_model_weights", return_value=mock_model_weights
-    ), mock.patch.object(torchvision.models, "get_model", return_value=mock_model):
+        torchvision.models._api, "get_model_weights", return_value=mock_model_weights
+    ), mock.patch.object(torchvision.models._api, "get_model", return_value=mock_model):
         model_out = jatic_toolbox.load_model(
             provider="torchvision",
             task="object-detection",
