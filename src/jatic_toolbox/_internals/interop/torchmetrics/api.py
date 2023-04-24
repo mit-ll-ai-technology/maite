@@ -1,3 +1,4 @@
+import importlib
 from typing import Any, Callable, Iterable
 
 from jatic_toolbox.protocols import Metric
@@ -22,7 +23,7 @@ class TorchMetricsAPI:
         >>> api.list_metrics()
         [...]
         """
-        if not is_torchmetrics_available():
+        if not is_torchmetrics_available():  # pragma: no cover
             raise ImportError("TorchMetrics is not installed.")
 
         import torchmetrics
@@ -30,7 +31,18 @@ class TorchMetricsAPI:
         return [
             m
             for m in torchmetrics.__all__
-            if m not in ("functional", "Metric", "MetricCollection")
+            if m
+            not in (
+                "functional",
+                "Metric",
+                "MetricCollection",
+                "BootStrapper",
+                "MetricTracker",
+                "ClasswiseWrapper",
+                "MinMaxMetric",
+                "MultioutputWrapper",
+                "PermutationInvariantTraining",
+            )
         ]
 
     def load_metric_builder(self, metrics_name) -> Callable[..., Metric[Any]]:
@@ -54,7 +66,7 @@ class TorchMetricsAPI:
         >>> api.load_metric_builder("Accuracy")
         <function TorchMetricsAPI.load_metric.<locals>.MetricBuilder(self, **kwargs: Any) -> Metric>
         """
-        if not is_torchmetrics_available():
+        if not is_torchmetrics_available():  # pragma: no cover
             raise ImportError("TorchMetrics is not installed.")
 
         import torchmetrics
@@ -74,8 +86,6 @@ class TorchMetricsAPI:
             ), f"{metrics_name} not found in torchmetrics"
 
             def MetricBuilder(**kwargs: Any) -> Metric:
-                import importlib
-
                 tm_clazz = importlib.import_module("torchmetrics")
                 clazz = getattr(tm_clazz, metrics_name)
                 return clazz(**kwargs)
@@ -105,7 +115,7 @@ class TorchMetricsAPI:
         >>> api.load_metric("Accuracy")
         Accuracy()
         """
-        if not is_torchmetrics_available():
+        if not is_torchmetrics_available():  # pragma: no cover
             raise ImportError("TorchMetrics is not installed.")
 
         builder = self.load_metric_builder(metric_name)
