@@ -62,3 +62,6 @@ if not import_utils.is_hydra_zen_available():
 
 if not import_utils.is_hf_available():
     collect_ignore_glob.append("*huggingface*.py")
+
+if not import_utils.is_torchvision_available():
+    collect_ignore_glob.append("*torchvision*.py")

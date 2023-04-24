@@ -1,12 +1,13 @@
 import torch as tr
 from torch.utils.data import Dataset
+from torchvision.models import WeightsEnum
 
 from .utils import create_random_image
 
 
 def get_test_vision_dataset(has_split, has_train):
     """
-    Creates a test dataset for testing vision datasets.
+    Creates a test dataset for testing torchvision datasets.
     """
 
     class TVDataset(Dataset):
@@ -32,7 +33,7 @@ def get_test_vision_dataset(has_split, has_train):
 
 
 def get_test_vision_model():
-    from torchvision.models import WeightsEnum
+    """Creates a test model for testing torchvision image classification models."""
 
     class Transform:
         def __call__(self, x):
@@ -60,7 +61,7 @@ def get_test_vision_model():
 
 
 def get_test_object_detection_model():
-    from torchvision.models import WeightsEnum
+    """Creates a test model for testing torchvision object detectionmodels."""
 
     class Transform:
         def __call__(self, x):
