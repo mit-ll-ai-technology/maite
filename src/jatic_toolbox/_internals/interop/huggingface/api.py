@@ -1,16 +1,5 @@
 import warnings
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Dict,
-    Iterable,
-    List,
-    Optional,
-    Tuple,
-    Union,
-    overload,
-)
+from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Tuple, Union
 
 from typing_extensions import Literal
 
@@ -146,7 +135,7 @@ class HuggingFaceAPI:
         >>> api = HuggingFaceAPI()
         >>> dataset = api.load_dataset("resnet")
         """
-        if not is_hf_available():
+        if not is_hf_available():  # pragma: no cover
             raise ImportError("HuggingFace Datasets is not installed.")
 
         if task is not None and task not in self._SUPPORTED_TASKS:
@@ -156,12 +145,18 @@ class HuggingFaceAPI:
 
         from datasets import load_dataset
 
+        wrapper_kwargs = {}
+        keys = list(kwargs.keys())
+        for key in keys:
+            if key.endswith("_key"):
+                wrapper_kwargs[key] = kwargs.pop(key)
+
         # TODO: HuggingFace doesn't have a standard on datasets to provide "object-detection"
         # task. We need to check if the dataset is compatible with the task and if not,
         # we load the dataset without the task.
         try:
             dataset = load_dataset(dataset_name, split=split, task=task, **kwargs)
-        except ValueError as e:
+        except ValueError as e:  # pragma: no cover
             if "Task object-detection is not compatible" in str(e):
                 dataset = load_dataset(dataset_name, split=split, **kwargs)
             else:
@@ -182,9 +177,9 @@ class HuggingFaceAPI:
             assert isinstance(dataset, Dataset)
 
         if task == "image-classification":
-            return HuggingFaceVisionDataset(dataset)
+            return HuggingFaceVisionDataset(dataset, **wrapper_kwargs)
         elif task == "object-detection":
-            return HuggingFaceObjectDetectionDataset(dataset)
+            return HuggingFaceObjectDetectionDataset(dataset, **wrapper_kwargs)
 
     def list_models(
         self,
@@ -266,67 +261,6 @@ class HuggingFaceAPI:
 
         return hf_api.list_models(filter=filt)
 
-    @overload
-    def get_model_builder(
-        self,
-        task: Literal["image-classification"],
-    ) -> Callable[..., Classifier[ArrayLike]]:
-        ...
-
-    @overload
-    def get_model_builder(
-        self,
-        task: Literal["object-detection"],
-    ) -> Callable[..., ObjectDetector[ArrayLike]]:
-        ...
-
-    def get_model_builder(
-        self,
-        task: Literal["image-classification", "object-detection"],
-    ) -> Callable[..., Union[Classifier[ArrayLike], ObjectDetector[ArrayLike]]]:
-        """
-        Get the model builder for a given task.
-
-        Parameters
-        ----------
-        task : Union[str, List[str]]
-            The task of the model.
-
-        Returns
-        -------
-        Callable[..., Union[Classifier[ArrayLike], ObjectDetector[ArrayLike]]]]
-            The model builder.
-
-        Raises
-        ------
-        ImportError
-            If HuggingFace Transformers is not installed.
-
-        ValueError
-            If the task is not supported.
-
-        Examples
-        --------
-        >>> from jatic_toolbox.interop.huggingface.api import HuggingFaceAPI
-        >>> api = HuggingFaceAPI()
-        >>> api.get_model_builder("image-classification")
-        """
-        if not is_hf_available():
-            raise ImportError("HuggingFace Transformers is not installed.")
-
-        from jatic_toolbox.interop.huggingface import (
-            HuggingFaceImageClassifier,
-            HuggingFaceObjectDetector,
-        )
-
-        if task == "image-classification":
-            return HuggingFaceImageClassifier.from_pretrained
-
-        if task == "object-detection":
-            return HuggingFaceObjectDetector.from_pretrained
-
-        raise ValueError(f"Task {task} is not supported.")
-
     def load_model(
         self,
         task: Optional[Literal["image-classification", "object-detection"]],
@@ -364,7 +298,7 @@ class HuggingFaceAPI:
         >>> api = HuggingFaceAPI()
         >>> api.load_model("image-classification", "google/vit-base-patch16-224-in21k")
         """
-        if not is_hf_available():
+        if not is_hf_available():  # pragma: no cover
             raise ImportError("HuggingFace Transformers is not installed.")
 
         from jatic_toolbox.interop.huggingface import (

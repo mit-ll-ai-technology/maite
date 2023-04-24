@@ -46,6 +46,7 @@ test = [
   "pyright >= 1.1.280",
   "pytest >= 7.0.0",
   "hypothesis >= 6.61.0",
+  "pytest-mock >= 3.10.0"
 ]
 
 numpy = ["numpy >= 1.17"]

@@ -1,5 +1,5 @@
 import warnings
-from typing import Any, Callable, Iterable, List, Optional, Tuple, Union, overload
+from typing import Any, Iterable, List, Optional, Tuple, Union
 
 from typing_extensions import Literal
 
@@ -213,59 +213,6 @@ class TorchVisionAPI:
                 all_models.extend(ms)
 
         return all_models
-
-    @overload
-    def get_model_builder(
-        self, task: Literal["image-classification"]
-    ) -> Callable[..., Classifier[ArrayLike]]:
-        ...
-
-    @overload
-    def get_model_builder(
-        self, task: Literal["object-detection"]
-    ) -> Callable[..., ObjectDetector[ArrayLike]]:
-        ...
-
-    def get_model_builder(
-        self, task: Literal["image-classification", "object-detection"]
-    ) -> Callable[..., Union[Classifier[ArrayLike], ObjectDetector[ArrayLike]]]:
-        """
-        Get the model builder for a given task.
-
-        Parameters
-        ----------
-        task : Union[str, List[str]]
-            The task of the model.
-
-        Returns
-        -------
-        Callable[..., Union[Classifier[ArrayLike], ObjectDetector[ArrayLike]]]
-            The model builder.
-
-        Raises
-        ------
-        ValueError
-            If the task is not supported.
-
-        Examples
-        --------
-        >>> from jatic_toolbox._internals.interop.torchvision.api import TorchVisionAPI
-        >>> api = TorchVisionAPI()
-        >>> api.get_model_builder("image-classification")
-        <function jatic_toolbox._internals.interop.torchvision.api.TorchVisionAPI.load_model.<locals>.<lambda>(task='image-classification', model_name='resnet18', **kwargs)>
-        """
-        from jatic_toolbox.interop.torchvision import (
-            TorchVisionClassifier,
-            TorchVisionObjectDetector,
-        )
-
-        if task == "image-classification":
-            return TorchVisionClassifier.from_pretrained
-
-        if task == "object-detection":
-            return TorchVisionObjectDetector.from_pretrained
-
-        raise ValueError(f"Task {task} is not supported.")
 
     def load_model(
         self, task: str, model_name: str, **kwargs: Any

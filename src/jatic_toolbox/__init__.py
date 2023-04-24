@@ -16,14 +16,12 @@ from jatic_toolbox._internals.interop.api import (
     load_dataset,
     load_metric,
     load_model,
-    load_model_builder,
 )
 from jatic_toolbox._internals.interop.evaluate import evaluate
 
 __all__ = [
     "list_models",
     "load_model",
-    "load_model_builder",
     "list_datasets",
     "load_dataset",
     "list_metrics",

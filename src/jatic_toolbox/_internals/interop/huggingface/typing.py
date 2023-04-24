@@ -39,7 +39,7 @@ class HFOutput(Protocol):
 
 
 class BatchFeature(Dict[str, T]):
-    def to(self, device: Union[str, int]) -> Self:
+    def to(self, device: Union[str, int]) -> Self:  # pragma: no cover
         ...
 
 

@@ -136,7 +136,9 @@ class HuggingFaceObjectDetector(nn.Module, ObjectDetector[ArrayLike]):
             elif not with_post_processor:
                 return cls(det_model, processor)
             else:
-                return cls(det_model, post_processor=processor.post_process)
+                return cls(
+                    det_model, post_processor=processor.post_process_object_detection
+                )
 
         return cls(det_model)
 

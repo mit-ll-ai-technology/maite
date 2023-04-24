@@ -60,7 +60,9 @@ class HuggingFaceImageClassifier(nn.Module, Classifier[ArrayLike]):
         return [m.modelId for m in models]
 
     @classmethod
-    def from_pretrained(cls, model: str, **kwargs: Any) -> Self:  # pragma: no cover
+    def from_pretrained(
+        cls, model: str, with_processor: bool = True, **kwargs: Any
+    ) -> Self:
         """
         Load a HuggingFace model from pretrained weights.
 
@@ -85,18 +87,19 @@ class HuggingFaceImageClassifier(nn.Module, Classifier[ArrayLike]):
         """
         from transformers import AutoFeatureExtractor, AutoModelForImageClassification
 
-        processor: Optional[HuggingFaceProcessor]
+        processor: Optional[HuggingFaceProcessor] = None
         clf_model: HuggingFaceWithLogits
-
-        try:
-            processor = AutoFeatureExtractor.from_pretrained(model, **kwargs)
-        except OSError:  # pragma: no cover
-            processor = None
 
         try:
             clf_model = AutoModelForImageClassification.from_pretrained(model, **kwargs)
         except OSError as e:  # pragma: no cover
             raise InvalidArgument(e)
+
+        if with_processor:
+            try:
+                processor = AutoFeatureExtractor.from_pretrained(model, **kwargs)
+            except OSError:  # pragma: no cover
+                processor = None
 
         return cls(clf_model, processor)
 

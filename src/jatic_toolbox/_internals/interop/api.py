@@ -1,14 +1,4 @@
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Iterable,
-    List,
-    Optional,
-    TypeVar,
-    Union,
-    overload,
-)
+from typing import Any, Dict, Iterable, List, Optional, TypeVar, Union, overload
 
 from typing_extensions import Literal
 
@@ -154,54 +144,6 @@ def list_models(
 
 
 @overload
-def load_model_builder(
-    *,
-    provider: str,
-    task: Literal["image-classification"],
-) -> Callable[..., Classifier[ArrayLike]]:
-    ...
-
-
-@overload
-def load_model_builder(
-    *, provider: str, task: Literal["object-detection"]
-) -> Callable[..., ObjectDetector[ArrayLike]]:
-    ...
-
-
-def load_model_builder(
-    *, provider: str, task: Literal["image-classification", "object-detection"]
-) -> Callable[..., Union[Classifier[ArrayLike], ObjectDetector[ArrayLike]]]:
-    """
-    Return a `ModelBuilder` for a given provider, task, and model name.
-
-    Parameters
-    ----------
-    provider : str
-        The provider of the model (e.g., "huggingface").
-
-    task : str
-        The task for the model (e.g., "image-classification").
-
-    Returns
-    -------
-    ModelBuilder
-        A `ModelBuilder` for a given provider, task, and model name.
-
-    Examples
-    --------
-    >>> from jatic_toolbox import load_model_builder
-    >>> load_model_builder(provider="huggingface", task="image-classification")
-    """
-    if provider == "huggingface":
-        return HuggingFaceAPI().get_model_builder(task)
-    elif provider == "torchvision":
-        return TorchVisionAPI().get_model_builder(task)
-
-    raise ValueError(f"Provider, {provider}, not supported.")
-
-
-@overload
 def load_model(
     *,
     provider: str,
@@ -250,8 +192,12 @@ def load_model(
     >>> from jatic_toolbox import load_model
     >>> load_model(provider="huggingface", task="image-classification", model_name="microsoft/resnet-18")
     """
-    builder = load_model_builder(provider=provider, task=task)
-    return builder(model_name, **kwargs)
+    if provider == "huggingface":
+        return HuggingFaceAPI().load_model(task=task, model_name=model_name, **kwargs)
+    elif provider == "torchvision":
+        return TorchVisionAPI().load_model(task=task, model_name=model_name, **kwargs)
+
+    raise ValueError(f"Provider, {provider}, not supported.")
 
 
 def list_metrics(

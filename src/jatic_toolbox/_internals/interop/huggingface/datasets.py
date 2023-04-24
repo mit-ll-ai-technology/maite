@@ -1,4 +1,4 @@
-from typing import Any, Callable, Mapping
+from typing import TYPE_CHECKING, Any, Callable, Mapping, Optional
 
 from jatic_toolbox._internals.protocols import ObjectDetection, SupportsObjectDetection
 from jatic_toolbox.protocols import Dataset, SupportsImageClassification, VisionDataset
@@ -33,6 +33,8 @@ class HuggingFaceVisionDataset(HuggingFaceWrapper, VisionDataset):
     def __init__(
         self,
         dataset: Dataset[Mapping[str, Any]],
+        label_key: Optional[str] = None,
+        image_key: Optional[str] = None,
     ):
         """
         Initialize the HuggingFaceVisionDataset.
@@ -49,35 +51,54 @@ class HuggingFaceVisionDataset(HuggingFaceWrapper, VisionDataset):
         """
         import datasets
 
-        if isinstance(dataset, datasets.DatasetDict):
+        if isinstance(dataset, datasets.DatasetDict):  # pragma: no cover
             raise NotImplementedError(
                 f"HuggingFaceVisionDataset does not support DatasetDicts.  Pass in one of the available datasets, {dataset.keys()}, instead."
             )
 
-        assert isinstance(
+        assert isinstance(  # pragma: no cover
             dataset, datasets.Dataset
         ), "dataset must be a HuggingFace Dataset"
 
         self._dataset = dataset
         self.features = dataset.features
 
-        self.image_key: str
-        self.label_key: str
-        for fname, f in dataset.features.items():
-            if isinstance(f, datasets.ClassLabel):
-                self.label_key = fname
+        self.image_key = None
+        self.label_key = None
+        if image_key is None or label_key is None:
+            for fname, f in dataset.features.items():
+                if isinstance(f, datasets.ClassLabel):
+                    self.label_key = fname
 
-            elif isinstance(f, datasets.Image):
-                self.image_key = fname
+                elif isinstance(f, datasets.Image):
+                    self.image_key = fname
 
-        assert self.image_key is not None, "No image key found in dataset"
-        assert self.label_key is not None, "No label key found in dataset"
+        if image_key is not None:
+            self.image_key = image_key
+
+        if label_key is not None:
+            self.label_key = label_key
+
+        assert (
+            self.image_key != self.label_key
+        ), f"Image key and label key are the same: {self.image_key}"
+        assert (
+            self.image_key in dataset.features
+        ), f"Image key, {self.image_key}, not found in dataset.  Available keys: {dataset.features.keys()}"
+        assert (
+            self.label_key in dataset.features
+        ), f"Label key, {self.label_key}, not found in dataset.  Available keys: {dataset.features.keys()}"
 
     def __len__(self):
         return len(self._dataset)
 
     def __getitem__(self, idx) -> SupportsImageClassification:
         data = self._dataset[idx]
+
+        if TYPE_CHECKING:
+            # type checker doesn't recognize we already checked this above
+            assert self.image_key is not None
+            assert self.label_key is not None
 
         data_dict = SupportsImageClassification(
             image=data[self.image_key],
@@ -126,6 +147,10 @@ class HuggingFaceObjectDetectionDataset(HuggingFaceWrapper, VisionDataset):
         >>> wrapped_dataset = HuggingFaceObjectDetectionDataset(dataset)
         """
 
+        assert (
+            len(set([image_key, objects_key, bbox_key, category_key])) == 4
+        ), "All keys must be unique"
+
         import datasets
 
         if isinstance(dataset, datasets.DatasetDict):
@@ -143,6 +168,28 @@ class HuggingFaceObjectDetectionDataset(HuggingFaceWrapper, VisionDataset):
         self.objects_key = objects_key
         self.bbox_key = bbox_key
         self.category_key = category_key
+
+        assert (
+            self.image_key in dataset.features
+        ), f"No image key, {self.image_key}, found in dataset.  Available keys: {dataset.features.keys()}"
+        assert (
+            self.objects_key in dataset.features
+        ), f"No objects key found in dataset: {self.objects_key}"
+
+        if isinstance(dataset.features[self.objects_key], datasets.Sequence):
+            assert (
+                self.bbox_key in dataset.features[self.objects_key].feature
+            ), "No bbox key found in dataset"
+            assert (
+                self.category_key in dataset.features[self.objects_key].feature
+            ), "No category key found in dataset"
+        elif isinstance(dataset.features[self.objects_key], (list, tuple)):
+            assert (
+                self.bbox_key in dataset.features[self.objects_key][0]
+            ), "No bbox key found in dataset"
+            assert (
+                self.category_key in dataset.features[self.objects_key][0]
+            ), "No category key found in dataset"
 
     def __len__(self):
         return len(self._dataset)
