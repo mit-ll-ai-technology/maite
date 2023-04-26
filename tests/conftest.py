@@ -68,3 +68,6 @@ if not import_utils.is_torchvision_available():
 
 if not import_utils.is_torchmetrics_available():
     collect_ignore_glob.append("*torchmetrics*.py")
+
+if not import_utils.is_torcheval_available():
+    collect_ignore_glob.append("*torcheval*.py")

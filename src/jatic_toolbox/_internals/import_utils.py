@@ -60,3 +60,7 @@ def is_tqdm_available():
 
 def is_pil_available():
     return importlib.util.find_spec("PIL") is not None
+
+
+def is_torcheval_available():
+    return importlib.util.find_spec("torcheval") is not None

@@ -3,6 +3,7 @@ from typing import Any, Dict, Iterable, List, Optional, TypeVar, Union, overload
 from typing_extensions import Literal
 
 from jatic_toolbox._internals.interop.huggingface.api import HuggingFaceAPI
+from jatic_toolbox._internals.interop.torcheval.api import TorchEvalAPI
 from jatic_toolbox._internals.interop.torchmetrics.api import TorchMetricsAPI
 from jatic_toolbox._internals.interop.torchvision.api import TorchVisionAPI
 from jatic_toolbox.protocols import (
@@ -226,7 +227,9 @@ def list_metrics(
     >>> list_metrics(provider="torchmetrics")
     """
 
-    if provider == "torchmetrics":
+    if provider == "torcheval":
+        return TorchEvalAPI().list_metrics()
+    elif provider == "torchmetrics":
         return TorchMetricsAPI().list_metrics()
 
     raise ValueError(f"Provider, {provider}, not supported.")
@@ -260,7 +263,9 @@ def load_metric(
     >>> from jatic_toolbox import load_metric
     >>> load_metric(provider="torchmetrics", metric_name="accuracy")
     """
-    if provider == "torchmetrics":
+    if provider == "torcheval":
+        return TorchEvalAPI().load_metric(metric_name=metric_name, **kwargs)
+    elif provider == "torchmetrics":
         return TorchMetricsAPI().load_metric(metric_name=metric_name, **kwargs)
 
     raise ValueError(f"Provider, {provider}, not supported.")
