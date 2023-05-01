@@ -7,18 +7,25 @@ from typing import (
     Dict,
     Mapping,
     Optional,
+    Sequence,
     TypeVar,
     Union,
     cast,
 )
 
+import numpy as np
 import torch as tr
 from torch.utils.data import DataLoader
 from typing_extensions import Literal, Protocol, Self, TypeAlias, runtime_checkable
 
 from jatic_toolbox import protocols as pr
 
-from ..import_utils import is_hydra_zen_available, is_torch_available, is_tqdm_available
+from ..import_utils import (
+    is_hydra_zen_available,
+    is_pil_available,
+    is_torch_available,
+    is_tqdm_available,
+)
 from ..utils import evaluating
 
 if is_hydra_zen_available():
@@ -78,20 +85,201 @@ def set_device(device: Optional[Union[str, int]]):
 
 @contextmanager
 def transfer_to_device(*modules, device):
-    # TODO: Maybe transfer back to cpu upon exit?
-    for m in modules:
-        if is_torch_available():
-            from torch import Tensor, nn
+    """
+    Transfers a list of modules to a device.
 
-            if isinstance(m, (nn.Module, Tensor, HasToDevice)):
-                m.to(device)
+    Parameters
+    ----------
+    *modules : HasToDevice | Dict[str, HasToDevice] | List[HasToDevice]
+        A list of modules to transfer to a device.
 
-            if isinstance(m, dict):
-                for k, v in m.items():
-                    if isinstance(v, (nn.Module, Tensor, HasToDevice)):
-                        m[k] = v.to(device)
+    device : Union[str, int]
+        The device to transfer the modules to.
 
-    yield
+    Yields
+    ------
+    Union[HasToDevice, Dict[str, HasToDevice], List[HasToDevice]]
+        The modules transferred to the device.
+
+    Examples
+    --------
+    >>> import torch as tr
+    >>> from jatic_toolbox._internals.interop.utils import transfer_to_device
+    >>> model_1 = tr.Linear(1, 1)
+    >>> model_2 = tr.Conv1d(1, 1, 1)
+    >>> tensor = [dict(val=tr.rand(1, 1))]
+    >>> with transfer_to_device(model_1, model_2, tensor, device="cuda:0") as (model_1, model_2, tensor):
+    ...     print(model_1.weight.device)
+    ...     print(model_2.weight.device)
+    ...     print(tensor[0]["val"].device)
+    cuda:0
+    cuda:0
+    cuda:0
+    >>> print(model_1.weight.device)
+    cpu
+    >>> print(model_2.weight.device)
+    cpu
+    >>> print(tensor[0]["val"].device)
+    cpu
+    """
+    if is_torch_available():
+        from torch import Tensor, nn
+        from torch.utils._pytree import tree_flatten, tree_unflatten
+
+        flatten_modules, tree = tree_flatten(modules)
+        device_modules = [
+            m.to(device) if isinstance(m, (nn.Module, Tensor, HasToDevice)) else m
+            for m in flatten_modules
+        ]
+
+        try:
+            unflattened_modules = tree_unflatten(device_modules, tree)
+            if len(modules) == 1:
+                yield unflattened_modules[0]
+            else:
+                yield unflattened_modules
+        finally:
+            # this should only matter for Modules since tensors make a copy
+            [m.to("cpu") for m in flatten_modules if isinstance(m, nn.Module)]
+
+    else:
+        yield
+
+
+def collate_and_pad(
+    preprocessor: Optional[Callable[[Any], Any]] = None, processor_key: str = "image"
+) -> Callable[[Sequence[Mapping[str, Any]]], Mapping[str, Any]]:
+    """
+    Collates and pads a batch of examples.
+
+    Parameters
+    ----------
+    preprocessor : Optional[Callable[[Any], Any]], optional
+        A callable that takes a batch of examples and returns a batch of examples, by default None
+
+    processor_key : str, optional
+        The key of the batch that will be passed to the preprocessor, by default "image"
+
+    """
+
+    def collator(batch: Sequence[Mapping[str, Any]]) -> Mapping[str, Any]:
+        """
+        Collates a batch of examples.
+
+        Parameters
+        ----------
+        batch : List[Dict[str, Any]]
+            A list of dictionaries, where each dictionary represents an example.
+
+        Returns
+        -------
+        collated_batch : Dict[str, Any]
+            A dictionary where each key corresponds to a feature or label and the value is a batch of data for that feature or label.
+        """
+
+        if len(batch) == 0 or batch is None:
+            return dict()
+
+        assert isinstance(batch[0], dict), "Batch must be a list of dictionaries."
+
+        keys = set(batch[0].keys())
+        for example in batch:
+            assert (
+                set(example.keys()) == keys
+            ), "All examples in the batch must have the same keys."
+
+        if preprocessor is not None:
+            # process data in the batch, e.g, PIL to numpy
+            batch = preprocessor(batch)
+
+        collated_batch = {}
+        for key in batch[0].keys():
+            batch_item = [example[key] for example in batch]
+
+            if is_pil_available():
+                from PIL.Image import Image
+
+                if isinstance(batch_item[0], Image):
+                    # handle PIL Image: taken from `torchvision.transforms.functional.to_tensor`
+                    def to_array(pic: Image):
+                        mode_to_nptype = {
+                            "I": np.int32,
+                            "I;16": np.int16,
+                            "F": np.float32,
+                        }
+                        img = tr.from_numpy(
+                            np.array(
+                                pic, mode_to_nptype.get(pic.mode, np.uint8), copy=True
+                            )
+                        )
+
+                        if pic.mode == "1":
+                            img = 255 * img
+
+                        channels = len(pic.getbands())
+                        img = img.view(pic.size[1], pic.size[0], channels)
+                        # put it from HWC to CHW format
+                        img = img.permute((2, 0, 1))
+
+                        if isinstance(img, tr.ByteTensor):
+                            return img.to(dtype=tr.get_default_dtype()).div(255)
+                        else:
+                            return img
+
+                    batch_item = [to_array(x) for x in batch_item]
+
+            if isinstance(batch_item[0], tr.Tensor):
+                shape_first = batch_item[0].shape
+                if all([shape_first == item.shape for item in batch_item]):
+                    collated_batch[key] = tr.stack(batch_item)
+                else:
+                    collated_batch[key] = batch_item
+
+            elif isinstance(batch_item[0], (int, float)):
+                collated_batch[key] = tr.as_tensor(batch_item)
+
+            elif isinstance(batch_item[0], str):
+                collated_batch[key] = batch_item
+
+            elif isinstance(batch_item[0], (tuple, list)):
+                if len(batch_item[0]) > 0:
+                    if isinstance(batch_item[0][0], tr.Tensor):
+                        collated_batch[key] = tr.stack(batch_item)
+
+                    elif isinstance(batch_item[0][0], (int, float)):
+                        collated_batch[key] = tr.as_tensor(batch_item)
+
+                    else:
+                        collated_batch[key] = batch_item
+                else:
+                    collated_batch[key] = batch_item
+
+            elif isinstance(batch_item[0], dict):
+                collated_batch[key] = []
+                for i, d in enumerate(batch_item):
+                    collated_batch[key].append({})
+                    for subkey in d.keys():
+                        if isinstance(
+                            batch_item[0][subkey], (tr.Tensor, list, tuple, int, float)
+                        ):
+                            collated_batch[key][i].update(
+                                {subkey: tr.as_tensor(d[subkey])}
+                            )
+                        else:
+                            collated_batch[key][i].update({subkey: d[subkey]})
+
+            elif batch_item[0] is None:
+                collated_batch[key] = None
+
+            else:
+                try:
+                    collated_batch[key] = tr.as_tensor(batch_item)
+                except TypeError:
+                    collated_batch[key] = batch_item
+
+        return collated_batch
+
+    return collator
 
 
 def get_dataloader(
@@ -100,6 +288,7 @@ def get_dataloader(
     split: Literal["train", "test"] = "test",
     shuffle: Optional[bool] = None,
     collate_fn: Optional[Callable[[Any], Any]] = None,
+    preprocessor: Optional[Callable[[Any], Any]] = None,
     **kwargs: Any,
 ) -> pr.DataLoader[Any]:
     """
@@ -130,7 +319,7 @@ def get_dataloader(
     return DataLoader(
         dataset,  # type: ignore
         batch_size=batch_size,
-        collate_fn=collate_fn,
+        collate_fn=collate_and_pad(preprocessor) if collate_fn is None else collate_fn,
         shuffle=shuffle,
         **kwargs,
     )
@@ -179,6 +368,8 @@ class EvaluationTask(ABC):
                 pr.Augmentation[ArrayLike],
             ]
         ] = None,
+        preprocessor: Optional[Callable[[Any], Any]] = None,
+        post_processor: Optional[Callable[[Any], Any]] = None,
         batch_size: int = 1,
         device: Optional[Union[str, int]] = None,
         collate_fn: Optional[Callable[[Any], Any]] = None,
@@ -245,6 +436,18 @@ class EvaluationTask(ABC):
         if isinstance(model, Builds):
             model = instantiate(model)
 
+        if isinstance(preprocessor, Builds):
+            preprocessor = instantiate(preprocessor)
+        elif preprocessor is None:
+            if hasattr(model, "preprocessor"):
+                preprocessor = model.preprocessor
+
+        if isinstance(post_processor, Builds):
+            post_processor = instantiate(post_processor)
+        elif post_processor is None:
+            if hasattr(model, "post_processor"):
+                post_processor = model.post_processor
+
         if isinstance(data, Builds):
             data = instantiate(data)
 
@@ -261,7 +464,11 @@ class EvaluationTask(ABC):
         assert isinstance(metric, Mapping)
 
         dl = get_dataloader(
-            data, batch_size=batch_size, collate_fn=collate_fn, **kwargs
+            data,
+            batch_size=batch_size,
+            collate_fn=collate_fn,
+            preprocessor=preprocessor,
+            **kwargs,
         )
 
         return self._evaluate_on_dataset(
@@ -269,6 +476,7 @@ class EvaluationTask(ABC):
             model=model,
             metric=metric,
             augmentation=augmentation,
+            post_processor=post_processor,
             device=device,
             use_progress_bar=use_progress_bar,
             input_key=input_key,
@@ -300,6 +508,7 @@ class ImageClassificationEvaluator(EvaluationTask):
         model: pr.Classifier[ArrayLike],
         metric: Mapping[str, pr.Metric[ArrayLike]],
         augmentation: Optional[pr.Augmentation[ArrayLike]] = None,
+        post_processor: Optional[Callable[[Any], pr.HasProbs]] = None,
         device: Optional[Union[str, int]] = None,
         use_progress_bar: bool = True,
         input_key: str = "image",
@@ -336,6 +545,9 @@ class ImageClassificationEvaluator(EvaluationTask):
         if device is None:
             device = self._infer_device()
 
+        # Reset metrics
+        [v.reset() for v in metric.values()]
+
         with set_device(device) as _device:
             with evaluating(model), transfer_to_device(model, metric, device=_device):
                 if use_progress_bar:
@@ -354,17 +566,21 @@ class ImageClassificationEvaluator(EvaluationTask):
                     if TYPE_CHECKING:
                         batch = cast(pr.SupportsImageClassification, batch)
 
-                    with tr.inference_mode(), transfer_to_device(batch, device=_device):
-                        output = model(batch[input_key])
+                    with tr.inference_mode(), transfer_to_device(
+                        batch, device=_device
+                    ) as batch_device:
+                        output = model(batch_device)
+                        if post_processor is not None:
+                            output = post_processor(output)
 
                     if isinstance(output, pr.HasLogits):
                         [
-                            v.update(output.logits, batch[label_key])
+                            v.update(output.logits, batch_device[label_key])
                             for k, v in metric.items()
                         ]
                     elif isinstance(output, pr.HasProbs):
                         [
-                            v.update(output.probs, batch[label_key])
+                            v.update(output.probs, batch_device[label_key])
                             for k, v in metric.items()
                         ]
                     else:
@@ -445,6 +661,7 @@ class ObjectDetectionEvaluator(EvaluationTask):
         model: pr.ObjectDetector[ArrayLike],
         metric: Mapping[str, pr.Metric[ArrayLike]],
         augmentation: Optional[pr.Augmentation[ArrayLike]] = None,
+        post_processor: Optional[Callable[[Any], pr.HasObjectDetections]] = None,
         device: Optional[Union[str, int]] = None,
         use_progress_bar: bool = True,
         input_key: str = "image",
@@ -487,6 +704,9 @@ class ObjectDetectionEvaluator(EvaluationTask):
         if device is None:
             device = self._infer_device()
 
+        # Reset metrics
+        [v.reset() for v in metric.values()]
+
         with set_device(device) as _device:
             with evaluating(model), transfer_to_device(model, metric, device=_device):
                 if use_progress_bar:
@@ -505,11 +725,18 @@ class ObjectDetectionEvaluator(EvaluationTask):
                     if TYPE_CHECKING:
                         batch = cast(pr.SupportsObjectDetection, batch)
 
-                    with tr.inference_mode(), transfer_to_device(batch, device=_device):
-                        output = model(batch[input_key])
+                    with tr.inference_mode(), transfer_to_device(
+                        batch, device=_device
+                    ) as batch_device:
+                        output = model(batch_device)
+                        if post_processor is not None:
+                            output = post_processor(output)
 
                     if isinstance(output, pr.HasObjectDetections):
-                        [v.update(output, batch[label_key]) for k, v in metric.items()]
+                        [
+                            v.update(output, batch_device[label_key])
+                            for k, v in metric.items()
+                        ]
                     else:
                         raise ValueError(
                             "Model output does not support the `jatic_toolbox.protocols.HasObjectDetection` protocol."

@@ -64,3 +64,7 @@ def is_pil_available():
 
 def is_torcheval_available():
     return importlib.util.find_spec("torcheval") is not None
+
+
+def is_hypothesis_available():
+    return importlib.util.find_spec("hypothesis") is not None

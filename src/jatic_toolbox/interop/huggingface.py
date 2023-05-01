@@ -1,6 +1,10 @@
 from jatic_toolbox._internals.import_utils import is_torch_available
 
 if is_torch_available():
+    from jatic_toolbox._internals.interop.huggingface.datasets import (
+        HuggingFaceObjectDetectionDataset,
+        HuggingFaceVisionDataset,
+    )
     from jatic_toolbox._internals.interop.huggingface.image_classifier import (
         HuggingFaceImageClassifier,
     )
@@ -8,4 +12,9 @@ if is_torch_available():
         HuggingFaceObjectDetector,
     )
 
-    __all__ = ["HuggingFaceObjectDetector", "HuggingFaceImageClassifier"]
+    __all__ = [
+        "HuggingFaceObjectDetector",
+        "HuggingFaceImageClassifier",
+        "HuggingFaceObjectDetectionDataset",
+        "HuggingFaceVisionDataset",
+    ]

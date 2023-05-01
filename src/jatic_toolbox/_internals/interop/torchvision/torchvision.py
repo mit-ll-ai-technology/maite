@@ -1,17 +1,21 @@
 from dataclasses import dataclass
-from typing import Any, Callable, Iterable, Optional, Sequence, Union
+from typing import Any, Callable, Mapping, Optional, Sequence, Union, overload
 
-import torch as tr
 from torch import Tensor, nn
-from typing_extensions import Self, TypeAlias
+from typing_extensions import Self, TypeAlias, TypedDict
 
 from jatic_toolbox._internals.interop.utils import to_tensor_list
+from jatic_toolbox.errors import InvalidArgument
 from jatic_toolbox.protocols import ArrayLike, Classifier, ObjectDetector
 
 __all__ = ["TorchVisionClassifier", "TorchVisionObjectDetector"]
 
 
 TorchVisionProcessor: TypeAlias = Callable[[ArrayLike], Tensor]
+
+
+class HasImagesDict(TypedDict):
+    image: ArrayLike
 
 
 @dataclass
@@ -23,21 +27,57 @@ class TorchVisionClassifierOutput:
 class TorchVisionObjectDetectorOutput:
     boxes: Sequence[Tensor]
     scores: Sequence[Tensor]
-    labels: Sequence[Tensor]
+    labels: Sequence[Union[Tensor, Sequence[str]]]
 
 
 class TorchVisionBase(nn.Module):
     def __init__(
-        self, model: nn.Module, processor: Optional[TorchVisionProcessor] = None
+        self,
+        model: nn.Module,
+        processor: Optional[TorchVisionProcessor] = None,
+        labels: Optional[Sequence[str]] = None,
     ) -> None:
         """Initialize a TorchVisionClassifier."""
         super().__init__()
         self._model = model
         self._processor = processor
+        self._labels = labels
 
-    @property
-    def device(self) -> tr.device:
-        return next(self.parameters()).device
+    @overload
+    def preprocessor(
+        self,
+        data: Sequence[ArrayLike],
+        image_key: str = "image",
+    ) -> HasImagesDict:
+        ...
+
+    @overload
+    def preprocessor(
+        self,
+        data: Sequence[HasImagesDict],
+        image_key: str = "image",
+    ) -> Sequence[HasImagesDict]:
+        ...
+
+    def preprocessor(
+        self,
+        data: Union[Sequence[ArrayLike], Sequence[HasImagesDict]],
+        image_key: str = "image",
+    ) -> Union[HasImagesDict, Sequence[HasImagesDict]]:
+        if self._processor is None:
+            raise InvalidArgument("No processor was provided.")
+
+        if isinstance(data[0], dict):
+            out = []
+            for d in data:
+                data_out = {"image": self._processor(d[image_key])}
+                data_out.update({k: v for k, v in d.items() if k != image_key})
+                out.append(data_out)
+
+            return out
+        else:
+            images = to_tensor_list(data)
+            return {"image": self._processor(images)}
 
     @classmethod
     def from_pretrained(
@@ -66,9 +106,10 @@ class TorchVisionBase(nn.Module):
         if with_processor:
             processor = the_model_weights.transforms()
 
+        labels = the_model_weights.meta["categories"]
         config["weights"] = the_model_weights
         model = get_model(name=name, **config)
-        return cls(model, processor)
+        return cls(model, processor, labels)
 
 
 class TorchVisionClassifier(TorchVisionBase, Classifier[ArrayLike]):
@@ -95,32 +136,31 @@ class TorchVisionClassifier(TorchVisionBase, Classifier[ArrayLike]):
     """
 
     def __init__(
-        self, model: nn.Module, processor: Optional[TorchVisionProcessor] = None
+        self,
+        model: nn.Module,
+        processor: Optional[TorchVisionProcessor] = None,
+        labels: Optional[Sequence[str]] = None,
     ) -> None:
         """Initialize a TorchVisionClassifier."""
-        super().__init__(model, processor)
+        super().__init__(model, processor, labels)
 
     def forward(
-        self, data: Union[Sequence[ArrayLike], Tensor]
+        self, data: Union[Mapping[str, ArrayLike], Sequence[ArrayLike], ArrayLike]
     ) -> TorchVisionClassifierOutput:
-        if self._processor is not None:
-            data = to_tensor_list(data)
-            data = [self._processor(d).to(self.device) for d in data]
+        if isinstance(data, dict):
+            if "image" in data:
+                pixel_values = data["image"]
+            elif "pixel_values" in data:
+                pixel_values = data["pixel_values"]
+            else:
+                raise InvalidArgument(
+                    f"Expected 'image' or 'pixel_values' in data, got {data.keys()}"
+                )
+        else:
+            pixel_values = data
 
-        logits = self._model(data)
+        logits = self._model(pixel_values)
         return TorchVisionClassifierOutput(logits=logits)
-
-    @classmethod
-    def list_models(
-        cls, module: Optional[Any] = None
-    ) -> Iterable[Any]:  # pragma: no cover
-        from torchvision import models
-        from torchvision.models import list_models
-
-        if module is None:
-            module = models
-
-        return list_models(module=module)
 
 
 class TorchVisionObjectDetector(TorchVisionBase, ObjectDetector[ArrayLike]):
@@ -147,18 +187,29 @@ class TorchVisionObjectDetector(TorchVisionBase, ObjectDetector[ArrayLike]):
     """
 
     def __init__(
-        self, model: nn.Module, processor: Optional[TorchVisionProcessor] = None
+        self,
+        model: nn.Module,
+        processor: Optional[TorchVisionProcessor] = None,
+        labels: Optional[Sequence[str]] = None,
     ) -> None:
-        super().__init__(model, processor)
+        super().__init__(model, processor, labels)
 
     def forward(
-        self, data: Union[Sequence[ArrayLike], Tensor]
+        self, data: Union[Mapping[str, ArrayLike], Sequence[ArrayLike], ArrayLike]
     ) -> TorchVisionObjectDetectorOutput:
-        if self._processor is not None:
-            data = to_tensor_list(data)
-            data = [self._processor(d).to(self.device) for d in data]
+        if isinstance(data, dict):
+            if "image" in data:
+                pixel_values = data["image"]
+            elif "pixel_values" in data:
+                pixel_values = data["pixel_values"]
+            else:
+                raise InvalidArgument(
+                    f"Expected 'image' or 'pixel_values' in data, got {data.keys()}"
+                )
+        else:
+            pixel_values = data
 
-        outputs = self._model(data)
+        outputs = self._model(pixel_values)
 
         all_boxes: Sequence[Tensor] = []
         all_scores: Sequence[Tensor] = []
@@ -172,15 +223,3 @@ class TorchVisionObjectDetector(TorchVisionBase, ObjectDetector[ArrayLike]):
         return TorchVisionObjectDetectorOutput(
             boxes=all_boxes, scores=all_scores, labels=all_labels
         )
-
-    @classmethod
-    def list_models(
-        cls, module: Optional[Any] = None
-    ) -> Iterable[Any]:  # pragma: no cover
-        from torchvision import models
-        from torchvision.models import list_models
-
-        if module is None:
-            module = models.detection
-
-        return list_models(module=module)

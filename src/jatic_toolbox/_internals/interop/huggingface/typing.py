@@ -16,6 +16,16 @@ from jatic_toolbox.protocols import ArrayLike, HasDetectionLogits, HasObjectDete
 T = TypeVar("T", bound=ArrayLike)
 
 
+class HasImagesDict(TypedDict):
+    image: ArrayLike
+
+
+@dataclass
+class HuggingFacePostProcessedImages:
+    probs: Union[ArrayLike, Sequence[ArrayLike]]
+    labels: Optional[Union[ArrayLike, Sequence[ArrayLike]]]
+
+
 class HuggingFacePostProcessedDetections(TypedDict):
     scores: ArrayLike
     labels: ArrayLike
@@ -67,6 +77,7 @@ class HuggingFaceObjectDetectionPostProcessor(Protocol):
 
 class HuggingFaceWithLogits(Protocol):
     device: Union[int, str]
+    config: Any
 
     def to(self, device: Union[str, int]) -> Self:
         ...
@@ -77,13 +88,12 @@ class HuggingFaceWithLogits(Protocol):
 
 class HuggingFaceWithDetection(Protocol):
     device: Union[int, str]
+    config: Any
 
     def to(self, device: Union[str, int]) -> Self:
         ...
 
     def __call__(
         self, pixel_values: ArrayLike, **kwargs: Any
-    ) -> Union[
-        HasDetectionLogits[ArrayLike], HuggingFaceObjectDetectionOutput[ArrayLike]
-    ]:
+    ) -> HasDetectionLogits[ArrayLike]:
         ...

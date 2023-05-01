@@ -6,17 +6,31 @@ import torchvision.models
 from hypothesis import given, strategies as st
 
 import jatic_toolbox
-from jatic_toolbox._internals.interop.torchvision.datasets import TorchVisionDataset
+from jatic_toolbox.errors import InvalidArgument
 from jatic_toolbox.interop.torchvision import (
     TorchVisionClassifier,
+    TorchVisionDataset,
     TorchVisionObjectDetector,
 )
 from jatic_toolbox.protocols import HasLogits, HasObjectDetections
+from jatic_toolbox.testing.hypothesis import image_data
 from tests.common.torchvision import (
     get_test_object_detection_model,
     get_test_vision_dataset,
     get_test_vision_model,
 )
+
+
+def test_tv_list_datasets():
+    datasets = jatic_toolbox.list_datasets(provider="torchvision")
+    assert issubclass(type(datasets), list)
+    assert len(datasets) == 70
+
+
+def test_tv_list_models():
+    models = jatic_toolbox.list_models(provider="torchvision", filter_str="resnet18")
+    assert issubclass(type(models), list)
+    assert len(models) == 1
 
 
 @given(task=st.text(min_size=1))
@@ -81,8 +95,37 @@ def test_tv_load_image_classification_dataset(use_split, has_split, has_train):
         assert "foo" in temp
 
 
-@given(with_processor=st.booleans())
-def test_tv_load_vision_model(with_processor):
+@pytest.mark.parametrize(
+    "task, loader",
+    [
+        (TorchVisionClassifier, get_test_vision_model),
+        (TorchVisionObjectDetector, get_test_object_detection_model),
+    ],
+)
+@given(data=st.composite(image_data)(), image_as_dict=st.booleans())
+def test_tv_vision_processors(task, loader, data, image_as_dict):
+    weights, model = loader()
+
+    with pytest.raises(InvalidArgument):
+        hf_model = task(model)
+        hf_model.preprocessor([dict(image=data)])
+
+    hf_model = task(model, weights["DEFAULT"].transforms())
+
+    if image_as_dict:
+        features = hf_model.preprocessor([dict(image=data)])
+    else:
+        features = [hf_model.preprocessor([data])]
+    assert len(features) == 1
+    assert isinstance(features[0], dict)
+    assert "image" in features[0]
+
+    output = hf_model({"image": [data] * 10})
+    assert isinstance(output, (HasLogits, HasObjectDetections))
+
+
+@pytest.mark.parametrize("image_as_dict", [None, "image", "pixel_values", "foo"])
+def test_tv_load_vision_model(image_as_dict):
     mock_model_weights, mock_model = get_test_vision_model()
 
     with mock.patch.object(
@@ -92,18 +135,24 @@ def test_tv_load_vision_model(with_processor):
             provider="torchvision",
             task="image-classification",
             model_name="test",
-            with_processor=with_processor,
         )
         assert isinstance(model_out, TorchVisionClassifier)
 
-        out = model_out(tr.randn(1, 3, 10, 10))
+        data = tr.randn(1, 3, 10, 10)
+        if image_as_dict is not None:
+            data = {image_as_dict: data}
+
+        if image_as_dict == "foo":
+            with pytest.raises(InvalidArgument):
+                out = model_out(data)
+            return
+
+        out = model_out(data)
         assert isinstance(out, HasLogits)
 
 
-@given(
-    with_processor=st.booleans(),
-)
-def test_tv_load_object_detection_model(with_processor):
+@pytest.mark.parametrize("image_as_dict", [None, "image", "pixel_values", "foo"])
+def test_tv_load_object_detection_model(image_as_dict):
     mock_model_weights, mock_model = get_test_object_detection_model()
 
     with mock.patch.object(
@@ -113,9 +162,19 @@ def test_tv_load_object_detection_model(with_processor):
             provider="torchvision",
             task="object-detection",
             model_name="test",
-            with_processor=with_processor,
         )
         assert isinstance(model_out, TorchVisionObjectDetector)
 
-        out = model_out(tr.randn(1, 3, 10, 10))
+        data = tr.randn(1, 3, 10, 10)
+
+        if image_as_dict is not None:
+            data = {image_as_dict: data}
+
+        if image_as_dict == "foo":
+            with pytest.raises(InvalidArgument):
+                out = model_out(data)
+            return
+
+        out = model_out(data)
+
         assert isinstance(out, HasObjectDetections)

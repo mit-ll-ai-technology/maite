@@ -1,10 +1,36 @@
+from collections import UserDict
 from dataclasses import dataclass
 
 import datasets
 import torch as tr
 from datasets import Dataset, Features
+from transformers.utils import ModelOutput
 
 from .utils import create_random_image
+
+
+class BatchFeatures(UserDict):
+    def to(self, device):
+        return self
+
+
+@dataclass
+class ObjectDetectionWithLogits(ModelOutput):
+    logits: tr.Tensor = None
+    pred_boxes: tr.Tensor = None
+
+
+@dataclass
+class ObjectDetectionOutput(ModelOutput):
+    boxes: tr.Tensor = None
+    scores: tr.Tensor = None
+    labels: tr.Tensor = None
+
+
+@dataclass
+class Meta:
+    id2label: dict
+    num_labels: int
 
 
 def get_test_vision_dataset(image_key, label_key):
@@ -98,18 +124,18 @@ def get_test_vision_model():
     class VisionOutput:
         logits: tr.Tensor
 
-    class Features(dict):
-        def to(self, device):
-            return self
-
     class Processor:
         def __call__(self, images, return_tensors):
-            return Features(pixel_values=tr.stack(images))
+            images = [tr.as_tensor(i) for i in images]
+            return BatchFeatures(pixel_values=tr.stack(images))
 
     class Model(tr.nn.Module):
         def __init__(self):
             super().__init__()
             self.device = "cpu"
+            self.config = Meta(
+                id2label={i: f"label_{i}" for i in range(10)}, num_labels=10
+            )
 
         def forward(self, *args, **kwargs):
             logits = tr.randn(1, 10)
@@ -118,25 +144,11 @@ def get_test_vision_model():
     return Processor(), Model()
 
 
-def get_test_object_detection_model(with_post_processor, output_as_list):
-    @dataclass
-    class ObjectDetectionWithLogits:
-        logits: tr.Tensor
-        pred_boxes: tr.Tensor
-
-    @dataclass
-    class ObjectDetectionOutput:
-        boxes: tr.Tensor
-        scores: tr.Tensor
-        labels: tr.Tensor
-
-    class Features(dict):
-        def to(self, device):
-            return self
-
+def get_test_object_detection_model(output_as_list=False):
     class Processor:
         def __call__(self, images, return_tensors):
-            return Features(pixel_values=tr.stack(images))
+            images = [tr.as_tensor(i) for i in images]
+            return BatchFeatures(pixel_values=tr.stack(images))
 
         def post_process_object_detection(self, outputs, threshold, target_sizes):
             boxes = tr.tensor([[0, 0, 1, 1], [0, 0, 1, 1]])
@@ -153,15 +165,13 @@ def get_test_object_detection_model(with_post_processor, output_as_list):
         def __init__(self):
             super().__init__()
             self.device = "cpu"
+            self.config = Meta(
+                id2label={i: f"label_{i}" for i in range(10)}, num_labels=10
+            )
 
         def forward(self, *args, **kwargs):
             boxes = tr.tensor([[0, 0, 1, 1], [0, 0, 1, 1]])
-            scores = tr.tensor([0.5, 0.5])
-            labels = tr.tensor([0, 1])
             logits = tr.randn(1, 10)
-
-            if with_post_processor:
-                return ObjectDetectionWithLogits(logits, boxes)
-            return ObjectDetectionOutput(boxes, scores, labels)
+            return ObjectDetectionWithLogits(logits, boxes)
 
     return Processor(), Model()

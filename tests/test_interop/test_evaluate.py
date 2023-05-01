@@ -25,9 +25,7 @@ class RandomDetectionDataset(Dataset):
     def __getitem__(self, index):
         return dict(
             image=self.data[index],
-            objects=dict(
-                bbox=[tr.tensor([0, 0, 1, 1])], label=[tr.tensor([0, 0, 0, 0])]
-            ),
+            objects=dict(bbox=[[0, 0, 1, 1]], label=[[0, 0, 0, 0]]),
         )
 
     def __len__(self):
@@ -52,6 +50,7 @@ class VisionModel(tr.nn.Module):
         self.linear = tr.nn.Linear(10, 1)
 
     def forward(self, x):
+        x = x["image"]
         if self.no_dataclass:
             return self.linear(x)
 

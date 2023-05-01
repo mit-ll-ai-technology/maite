@@ -1,0 +1,49 @@
+import hypothesis.strategies as st
+import numpy as np
+
+
+# Define a strategy for generating random image data
+def image_data(draw, channels=3, max_width=10, max_height=10):
+    """
+    Create a strategy for generating random image data.
+
+    Parameters
+    ----------
+    draw : Callable
+        The Hypothesis draw function.
+    channels : int, optional
+        The number of channels in the image, by default 3.
+    max_width : int, optional
+        The maximum width of the image, by default 10.
+    max_height : int, optional
+        The maximum height of the image, by default 10.
+
+    Returns
+    -------
+    np.ndarray
+        A random image array.
+
+    Examples
+    --------
+    >>> import hypothesis.strategies as st
+    >>> from jatic_toolbox.testing.hypothesis import image_data
+    >>> st.composite(image_data)().example()
+    array([[[  0,  10,  20]]])
+    """
+    # Generate a random width and height for the image
+    width = draw(st.integers(min_value=1, max_value=max_width))
+    height = draw(st.integers(min_value=1, max_value=max_height))
+
+    # Generate random pixel values for the image
+    pixels = draw(
+        st.lists(
+            elements=st.integers(min_value=0, max_value=255),
+            min_size=width * height * channels,
+            max_size=width * height * channels,
+        )
+    )
+
+    # Reshape the pixel values into an image array
+    image_array = np.array(pixels).reshape((height, width, channels))
+
+    return image_array

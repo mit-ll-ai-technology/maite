@@ -32,22 +32,26 @@ def get_test_vision_dataset(has_split, has_train):
     return TVDataset
 
 
+class Transform:
+    def __call__(self, x):
+        return x
+
+
+class Weights:
+    def __init__(self):
+        self.weights = tr.randn(1, 3, 10, 10)
+        self.meta = {"categories": ["a", "b", "c", "d"]}
+
+    def transforms(self):
+        return Transform()
+
+
+class TVWeights(WeightsEnum):
+    DEFAULT = Weights()
+
+
 def get_test_vision_model():
     """Creates a test model for testing torchvision image classification models."""
-
-    class Transform:
-        def __call__(self, x):
-            return x
-
-    class Weights:
-        def __init__(self):
-            self.weights = tr.randn(1, 3, 10, 10)
-
-        def transforms(self):
-            return Transform()
-
-    class TVWeights(WeightsEnum):
-        DEFAULT = Weights()
 
     class TVModel(tr.nn.Module):
         def __init__(self):
@@ -62,20 +66,6 @@ def get_test_vision_model():
 
 def get_test_object_detection_model():
     """Creates a test model for testing torchvision object detectionmodels."""
-
-    class Transform:
-        def __call__(self, x):
-            return x
-
-    class Weights:
-        def __init__(self):
-            self.weights = tr.randn(1, 3, 10, 10)
-
-        def transforms(self):
-            return Transform()
-
-    class TVWeights(WeightsEnum):
-        DEFAULT = Weights()
 
     class TVModel(tr.nn.Module):
         def __init__(self):

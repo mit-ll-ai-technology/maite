@@ -12,23 +12,38 @@ from transformers import (
 )
 
 import jatic_toolbox
-from jatic_toolbox._internals.interop.huggingface.datasets import (
+from jatic_toolbox.errors import InvalidArgument
+from jatic_toolbox.interop.huggingface import (
+    HuggingFaceImageClassifier,
     HuggingFaceObjectDetectionDataset,
+    HuggingFaceObjectDetector,
     HuggingFaceVisionDataset,
 )
-from jatic_toolbox._internals.interop.huggingface.image_classifier import (
-    HuggingFaceImageClassifier,
+from jatic_toolbox.protocols import (
+    HasDetectionLogits,
+    HasLogits,
+    HasObjectDetections,
+    HasProbs,
 )
-from jatic_toolbox._internals.interop.huggingface.object_detection import (
-    HuggingFaceObjectDetector,
-)
-from jatic_toolbox.protocols import HasLogits, HasObjectDetections
+from jatic_toolbox.testing.hypothesis import image_data
 from tests.common.huggingface import (
     get_test_detection_dataset,
     get_test_object_detection_model,
     get_test_vision_dataset,
     get_test_vision_model,
 )
+
+
+def test_hf_list_datasets():
+    datasets = jatic_toolbox.list_datasets(provider="huggingface", dataset_name="cifar")
+    assert issubclass(type(datasets), list)
+    assert len(datasets) == 2
+
+
+def test_hf_list_models():
+    models = jatic_toolbox.list_models(provider="huggingface", filter_str="resnet18")
+    assert issubclass(type(models), list)
+    assert len(models) == 3
 
 
 @given(task=st.text(min_size=1))
@@ -218,8 +233,47 @@ def test_hf_load_object_detection_dataset(
         assert "bbox" in temp["objects"]
 
 
-@given(with_processor=st.booleans())
-def test_hf_load_vision_model(with_processor):
+@pytest.mark.parametrize(
+    "task, loader",
+    [
+        (HuggingFaceImageClassifier, get_test_vision_model),
+        (HuggingFaceObjectDetector, get_test_object_detection_model),
+    ],
+)
+@given(data=st.composite(image_data)(), image_as_dict=st.booleans())
+def test_hf_vision_processors(task, loader, data, image_as_dict):
+    processor, model = loader()
+
+    hf_model = task(model, processor)
+
+    if image_as_dict:
+        pre_data = [{"image": data}]
+    else:
+        pre_data = [data]
+
+    features = hf_model.preprocessor(pre_data)
+
+    if image_as_dict:
+        assert len(features) == 1
+        assert isinstance(features[0], dict)
+        assert "image" in features[0]
+    else:
+        assert isinstance(features, dict)
+        assert "image" in features
+
+    output = hf_model({"image": [data] * 10})
+    assert isinstance(output, HasLogits)
+
+    output = hf_model.post_processor(output)
+    assert isinstance(output, (HasProbs, HasObjectDetections))
+
+
+@pytest.mark.parametrize("image_as_dict", [None, "image", "pixel_values", "foo"])
+@pytest.mark.parametrize("top_k", [None, 2, 100])
+def test_hf_load_vision_model(top_k, image_as_dict):
+    if top_k == 0:
+        top_k = None
+
     processor, model = get_test_vision_model()
 
     with mock.patch.object(
@@ -231,25 +285,32 @@ def test_hf_load_vision_model(with_processor):
             provider="huggingface",
             task="image-classification",
             model_name="test",
-            with_processor=with_processor,
+            top_k=top_k,
         )
         assert isinstance(model_out, HuggingFaceImageClassifier)
 
-        out = model_out(tr.randn(1, 3, 10, 10))
+        data = tr.randn(1, 3, 10, 10)
+        if image_as_dict is not None:
+            data = {image_as_dict: data}
+
+        if image_as_dict == "foo":
+            with pytest.raises(InvalidArgument):
+                out = model_out(data)
+            return
+        out = model_out(data)
         assert isinstance(out, HasLogits)
+
+        out = model_out.post_processor(out)
+        assert isinstance(out, HasProbs)
 
 
 @given(
-    with_processor=st.booleans(),
-    with_post_processor=st.booleans(),
     output_as_list=st.booleans(),
+    threshold=st.floats(min_value=0, max_value=1),
 )
-def test_hf_load_object_detection_model(
-    with_processor, with_post_processor, output_as_list
-):
-    processor, model = get_test_object_detection_model(
-        with_post_processor, output_as_list
-    )
+@pytest.mark.parametrize("image_as_dict", [None, "image", "pixel_values", "foo"])
+def test_hf_load_object_detection_model(output_as_list, threshold, image_as_dict):
+    processor, model = get_test_object_detection_model(output_as_list)
 
     with mock.patch.object(
         AutoImageProcessor, "from_pretrained", return_value=processor
@@ -260,10 +321,21 @@ def test_hf_load_object_detection_model(
             provider="huggingface",
             task="object-detection",
             model_name="test",
-            with_processor=with_processor,
-            with_post_processor=with_post_processor,
+            threshold=threshold,
         )
         assert isinstance(model_out, HuggingFaceObjectDetector)
 
-        out = model_out(tr.randn(1, 3, 10, 10))
+        data = tr.randn(1, 3, 10, 10)
+        if image_as_dict is not None:
+            data = {image_as_dict: data}
+
+        if image_as_dict == "foo":
+            with pytest.raises(InvalidArgument):
+                out = model_out(data)
+            return
+
+        out = model_out(data)
+        assert isinstance(out, HasDetectionLogits)
+
+        out = model_out.post_processor(out)
         assert isinstance(out, HasObjectDetections)

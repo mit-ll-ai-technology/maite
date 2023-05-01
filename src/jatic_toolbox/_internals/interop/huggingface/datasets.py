@@ -21,13 +21,6 @@ class HuggingFaceVisionDataset(HuggingFaceWrapper, VisionDataset):
 
     Assumes the dataset has features for an image and a label defined
     by the `datasets.Image` and `datasets.ClassLabel` classes.
-
-    Examples
-    --------
-    >>> from jatic_toolbox.interop.huggingface.datasets import HuggingFaceVisionDataset
-    >>> from datasets import load_dataset
-    >>> dataset = load_dataset("mnist", split="train")
-    >>> wrapped_dataset = HuggingFaceVisionDataset(dataset)
     """
 
     def __init__(
@@ -48,6 +41,13 @@ class HuggingFaceVisionDataset(HuggingFaceWrapper, VisionDataset):
         ------
         AssertionError
             If the dataset does not have an image key or a label key.
+
+        Examples
+        --------
+        >>> from jatic_toolbox.interop.huggingface import HuggingFaceVisionDataset
+        >>> from datasets import load_dataset
+        >>> dataset = load_dataset("mnist", split="train")
+        >>> wrapped_dataset = HuggingFaceVisionDataset(dataset)
         """
         import datasets
 
