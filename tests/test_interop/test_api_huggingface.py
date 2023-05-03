@@ -21,8 +21,8 @@ from jatic_toolbox.interop.huggingface import (
 )
 from jatic_toolbox.protocols import (
     HasDetectionLogits,
+    HasDetectionScorePredictions,
     HasLogits,
-    HasObjectDetections,
     HasProbs,
 )
 from jatic_toolbox.testing.hypothesis import image_data
@@ -244,7 +244,10 @@ def test_hf_load_object_detection_dataset(
 def test_hf_vision_processors(task, loader, data, image_as_dict):
     processor, model = loader()
 
-    hf_model = task(model, processor)
+    if hasattr(processor, "post_process_object_detection"):
+        hf_model = task(model, processor, processor.post_process_object_detection)
+    else:
+        hf_model = task(model, processor)
 
     if image_as_dict:
         pre_data = [{"image": data}]
@@ -265,7 +268,7 @@ def test_hf_vision_processors(task, loader, data, image_as_dict):
     assert isinstance(output, HasLogits)
 
     output = hf_model.post_processor(output)
-    assert isinstance(output, (HasProbs, HasObjectDetections))
+    assert isinstance(output, (HasProbs, HasDetectionScorePredictions))
 
 
 @pytest.mark.parametrize("image_as_dict", [None, "image", "pixel_values", "foo"])
@@ -338,4 +341,4 @@ def test_hf_load_object_detection_model(output_as_list, threshold, image_as_dict
         assert isinstance(out, HasDetectionLogits)
 
         out = model_out.post_processor(out)
-        assert isinstance(out, HasObjectDetections)
+        assert isinstance(out, HasDetectionScorePredictions)

@@ -1,15 +1,5 @@
 import random
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Generic,
-    List,
-    Optional,
-    Tuple,
-    TypeVar,
-    Union,
-    cast,
-)
+from typing import TYPE_CHECKING, Any, Generic, List, Optional, TypeVar, cast
 
 import numpy as np
 import torch as tr
@@ -21,7 +11,6 @@ from jatic_toolbox._internals.interop.utils import (
     is_torch_available,
 )
 from jatic_toolbox.errors import InvalidArgument
-from jatic_toolbox.protocols import TypedCollection
 
 __all__ = ["AugmentationWrapper"]
 
@@ -67,15 +56,15 @@ class AugmentationWrapper(Generic[T]):
 
     def __call__(
         self,
-        *inputs: TypedCollection[T],
+        inputs: T,
         rng: Optional[int] = None,
-    ) -> Union[TypedCollection[T], Tuple[TypedCollection[T], ...]]:
+    ) -> T:
         """
         Pipeline for augmentating data.
 
         Parameters
         -----------
-        *inputs : TypedCollection[T]
+        inputs : T
             Inputs to augment.
 
         rng : Optional[int] = None
@@ -83,7 +72,7 @@ class AugmentationWrapper(Generic[T]):
 
         Returns
         -------
-        TypedCollection[T]
+        T
             All augmented inputs in the same format is
             the inputs.
 
@@ -153,10 +142,5 @@ class AugmentationWrapper(Generic[T]):
             data = cast(List[T], data)
 
         data_aug = [self._aug_fun(d, **self._kwargs) for d in data]
-        if TYPE_CHECKING:
-            data_aug = cast(List[T], data_aug)
 
-        outputs = tree_unflatten(data_aug, tree_spec)
-        if len(inputs) == 1:
-            return outputs[0]
-        return outputs
+        return tree_unflatten(data_aug, tree_spec)

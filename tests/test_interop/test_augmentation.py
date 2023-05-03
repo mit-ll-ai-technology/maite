@@ -174,7 +174,8 @@ def test_nested_inputs(image, collection, transform):
         else:
             raise ValueError(f"Unknown type {t}")
 
-    out = xform(*inputs)
-    assert isinstance(out, tuple)
+    out = xform(inputs)
+    assert isinstance(out, list)
+    assert len(out) == len(inputs)
     for o, i in zip(out, inputs):
         assert type(o) == type(i)

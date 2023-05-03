@@ -51,7 +51,7 @@ test = [
 
 numpy = ["numpy >= 1.17"]
 
-torch=["torch>=1.7,!=1.12.0", "torchvision"]
+torch=["torch>=1.7,!=1.12.0", "torchvision >= 0.14.1"]
 
 hydra_zen = ["hydra-zen >= 0.9.0"]
 
@@ -66,7 +66,7 @@ timm = ["timm >= 0.6.12"]
 all_interop = [
   "numpy >= 1.17",
   "torch>=1.7,!=1.12.0",
-  "torchvision",
+  "torchvision >= 0.14.1",
   "datasets >= 2.7.1",
   "huggingface-hub >= 0.11.1",
   "hydra-zen >= 0.9.0",

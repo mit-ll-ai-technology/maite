@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Tuple, Un
 
 from typing_extensions import Literal
 
-from jatic_toolbox.protocols import ArrayLike, Classifier, Dataset, ObjectDetector
+from jatic_toolbox.protocols import Dataset, ImageClassifier, ObjectDetector
 
 from ...import_utils import is_hf_available, is_hf_hub_available
 from .datasets import HuggingFaceObjectDetectionDataset, HuggingFaceVisionDataset
@@ -266,7 +266,7 @@ class HuggingFaceAPI:
         task: Optional[Literal["image-classification", "object-detection"]],
         model_name: str,
         **kwargs: Any,
-    ) -> Union[Classifier[ArrayLike], ObjectDetector[ArrayLike]]:
+    ) -> Union[ImageClassifier, ObjectDetector]:
         """
         Load a HuggingFace model.
 

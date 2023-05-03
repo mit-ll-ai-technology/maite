@@ -1,6 +1,18 @@
+from collections import UserDict
 from dataclasses import dataclass
-from typing import Any, Dict, Generic, List, Optional, Sequence, TypeVar, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    Mapping,
+    Optional,
+    Sequence,
+    TypeVar,
+    Union,
+)
 
+import torch
 from typing_extensions import (
     Literal,
     Protocol,
@@ -10,10 +22,16 @@ from typing_extensions import (
     runtime_checkable,
 )
 
-from jatic_toolbox._internals.protocols import HasLogits
-from jatic_toolbox.protocols import ArrayLike, HasDetectionLogits, HasObjectDetections
+from jatic_toolbox.protocols import ArrayLike, Dataset, HasDetectionLogits, HasLogits
 
 T = TypeVar("T", bound=ArrayLike)
+
+
+class HuggingFaceDataset(Dataset[Mapping[str, Any]], Protocol):
+    def set_transform(
+        self, transform: Callable[[Mapping[str, Any]], Mapping[str, Any]]
+    ):
+        ...
 
 
 class HasImagesDict(TypedDict):
@@ -23,20 +41,27 @@ class HasImagesDict(TypedDict):
 @dataclass
 class HuggingFacePostProcessedImages:
     probs: Union[ArrayLike, Sequence[ArrayLike]]
-    labels: Optional[Union[ArrayLike, Sequence[ArrayLike]]]
+    labels: Optional[Union[ArrayLike, Sequence[Sequence[str]]]] = None
 
 
 class HuggingFacePostProcessedDetections(TypedDict):
     scores: ArrayLike
-    labels: ArrayLike
     boxes: ArrayLike
+    labels: ArrayLike
 
 
 @dataclass
-class HuggingFaceObjectDetectionOutput(Generic[T]):
-    boxes: Union[T, Sequence[T]]
-    scores: Union[T, Sequence[T]]
-    labels: Optional[Union[T, Sequence[T]]]
+class BatchedHuggingFaceObjectDetectionOutput:
+    boxes: Sequence[ArrayLike]
+    scores: Sequence[ArrayLike]
+    labels: Sequence[ArrayLike]
+
+
+@dataclass
+class HuggingFaceObjectDetectionOutput(Dict[str, ArrayLike]):
+    boxes: ArrayLike
+    scores: ArrayLike
+    labels: ArrayLike
 
 
 HFProcessedDetection: TypeAlias = List[Dict[Literal["scores", "labels", "boxes"], T]]
@@ -45,10 +70,10 @@ HFProcessedDetection: TypeAlias = List[Dict[Literal["scores", "labels", "boxes"]
 @runtime_checkable
 class HFOutput(Protocol):
     logits: ArrayLike
-    pred_boxes: ArrayLike
+    boxes: ArrayLike
 
 
-class BatchFeature(Dict[str, T]):
+class BatchFeature(UserDict):
     def to(self, device: Union[str, int]) -> Self:  # pragma: no cover
         ...
 
@@ -59,41 +84,35 @@ class HuggingFaceProcessor(Protocol):
         images: Sequence[ArrayLike],
         return_tensors: Union[bool, str] = False,
         **kwargs: Any,
-    ) -> BatchFeature[ArrayLike]:
+    ) -> BatchFeature:
         ...
 
 
 class HuggingFaceObjectDetectionPostProcessor(Protocol):
     def __call__(
         self,
-        outputs: HasDetectionLogits[ArrayLike],
+        outputs: HasDetectionLogits,
         threshold: float,
         target_sizes: Any,
     ) -> Union[
-        HasObjectDetections[ArrayLike], Sequence[HuggingFacePostProcessedDetections]
+        BatchedHuggingFaceObjectDetectionOutput,
+        Sequence[HuggingFaceObjectDetectionOutput],
     ]:
         ...
 
 
-class HuggingFaceWithLogits(Protocol):
-    device: Union[int, str]
+class HuggingFaceModule(Protocol):
     config: Any
 
-    def to(self, device: Union[str, int]) -> Self:
-        ...
-
-    def __call__(self, pixel_values: ArrayLike, **kwargs: Any) -> HasLogits[ArrayLike]:
+    def to(self, device: Optional[Union[int, torch.device]]) -> Self:
         ...
 
 
-class HuggingFaceWithDetection(Protocol):
-    device: Union[int, str]
-    config: Any
-
-    def to(self, device: Union[str, int]) -> Self:
+class HuggingFaceWithLogits(HuggingFaceModule, Protocol):
+    def __call__(self, pixel_values: ArrayLike, **kwargs: Any) -> HasLogits:
         ...
 
-    def __call__(
-        self, pixel_values: ArrayLike, **kwargs: Any
-    ) -> HasDetectionLogits[ArrayLike]:
+
+class HuggingFaceWithDetection(HuggingFaceModule, Protocol):
+    def __call__(self, pixel_values: ArrayLike, **kwargs: Any) -> HasDetectionLogits:
         ...

@@ -3,7 +3,7 @@ from typing import Any, Callable, Iterable, List, Optional, Tuple, Union
 
 from typing_extensions import Literal
 
-from jatic_toolbox.protocols import ArrayLike, Classifier, ObjectDetector
+from jatic_toolbox.protocols import ImageClassifier, ObjectDetector
 
 from ...import_utils import is_torchvision_available
 from .datasets import PyTorchVisionDataset, TorchVisionDataset
@@ -230,7 +230,7 @@ class TorchVisionAPI:
 
     def load_model(
         self, task: str, model_name: str, **kwargs: Any
-    ) -> Union[Classifier[ArrayLike], ObjectDetector[ArrayLike]]:
+    ) -> Union[ImageClassifier, ObjectDetector]:
         """
         Load a TorchVision model.
 

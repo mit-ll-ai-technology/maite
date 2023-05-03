@@ -29,7 +29,7 @@ class TorchEvalAPI:
 
         return [m for m in metrics.__all__ if m not in ("functional", "Metric")]
 
-    def load_metric_builder(self, metrics_name: str) -> Callable[..., Metric[Any]]:
+    def load_metric_builder(self, metrics_name: str) -> Callable[..., Metric]:
         """
         Load a metric builder from TorchEval.
 

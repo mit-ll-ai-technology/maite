@@ -3,9 +3,9 @@ from typing import TYPE_CHECKING, Any, List, Mapping, Sequence, Union
 from xmlrpc.client import Boolean
 
 from jatic_toolbox.errors import InvalidArgument
+from jatic_toolbox.protocols import ArrayLike
 
 from ..import_utils import is_numpy_available, is_pil_available, is_torch_available
-from ..protocols import ArrayLike
 
 
 def to_tensor_list(data: Union[ArrayLike, Sequence[ArrayLike]]) -> Sequence[ArrayLike]:

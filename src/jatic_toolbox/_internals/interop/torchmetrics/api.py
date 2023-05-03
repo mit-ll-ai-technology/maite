@@ -45,7 +45,7 @@ class TorchMetricsAPI:
             )
         ]
 
-    def load_metric_builder(self, metrics_name) -> Callable[..., Metric[Any]]:
+    def load_metric_builder(self, metrics_name) -> Callable[..., Metric]:
         """
         Load a metric builder from TorchMetrics.
 

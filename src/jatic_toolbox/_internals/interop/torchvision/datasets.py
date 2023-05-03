@@ -1,4 +1,4 @@
-from typing import Any, Callable, Dict, Sequence, Tuple, TypeVar
+from typing import Any, Callable, Dict, List, Sequence, Tuple, TypeVar
 
 from torch import Tensor
 from typing_extensions import Protocol, TypeAlias, TypedDict
@@ -20,8 +20,7 @@ class ClassLabel(TypedDict):
 
 
 class PyTorchVisionDataset(Protocol):
-    classes: Sequence[str]
-    class_to_idx: Dict[str, int]
+    classes: List[str]
 
     def __len__(self) -> int:
         ...

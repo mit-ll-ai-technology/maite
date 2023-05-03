@@ -12,7 +12,7 @@ from jatic_toolbox.interop.torchvision import (
     TorchVisionDataset,
     TorchVisionObjectDetector,
 )
-from jatic_toolbox.protocols import HasLogits, HasObjectDetections
+from jatic_toolbox.protocols import HasDetectionScorePredictions, HasLogits
 from jatic_toolbox.testing.hypothesis import image_data
 from tests.common.torchvision import (
     get_test_object_detection_model,
@@ -121,7 +121,7 @@ def test_tv_vision_processors(task, loader, data, image_as_dict):
     assert "image" in features[0]
 
     output = hf_model({"image": [data] * 10})
-    assert isinstance(output, (HasLogits, HasObjectDetections))
+    assert isinstance(output, (HasLogits, HasDetectionScorePredictions))
 
 
 @pytest.mark.parametrize("image_as_dict", [None, "image", "pixel_values", "foo"])
@@ -177,4 +177,4 @@ def test_tv_load_object_detection_model(image_as_dict):
 
         out = model_out(data)
 
-        assert isinstance(out, HasObjectDetections)
+        assert isinstance(out, HasDetectionScorePredictions)

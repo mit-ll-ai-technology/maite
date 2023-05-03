@@ -1,13 +1,19 @@
 from typing import TYPE_CHECKING, Any, Callable, Mapping, Optional
 
-from jatic_toolbox._internals.protocols import ObjectDetection, SupportsObjectDetection
-from jatic_toolbox.protocols import Dataset, SupportsImageClassification, VisionDataset
+from jatic_toolbox.protocols import (
+    Dataset,
+    SupportsImageClassification,
+    SupportsObjectDetection,
+    VisionDataset,
+)
+
+from .typing import HuggingFaceDataset
 
 __all__ = ["HuggingFaceVisionDataset"]
 
 
 class HuggingFaceWrapper:
-    _dataset: Dataset[Mapping[str, Any]]
+    _dataset: HuggingFaceDataset
 
     def set_transform(
         self, transform: Callable[[Mapping[str, Any]], Mapping[str, Any]]
@@ -214,16 +220,16 @@ class HuggingFaceObjectDetectionDataset(HuggingFaceWrapper, VisionDataset):
             for o in obj:
                 bbox = o[self.bbox_key]
                 category = o[self.category_key]
-                det = ObjectDetection(bbox=bbox, label=category)
+                det = {"bbox": bbox, "label": category}
                 for k, v in o.items():
                     if k not in (self.bbox_key, self.category_key):
                         det[k] = v
                 obj_out.append(det)
 
-        data_dict = SupportsObjectDetection(
-            image=image[0] if single_example else image,
-            objects=obj_out[0] if single_example else obj_out,
-        )
+        data_dict: SupportsObjectDetection = {
+            "image": image[0] if single_example else image,
+            "objects": obj_out[0] if single_example else obj_out,
+        }
 
         for k, v in data.items():
             if k not in (self.image_key, self.objects_key):

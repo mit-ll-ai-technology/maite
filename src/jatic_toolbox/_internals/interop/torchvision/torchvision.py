@@ -1,17 +1,32 @@
 from dataclasses import dataclass
-from typing import Any, Callable, Mapping, Optional, Sequence, Union, overload
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Mapping,
+    Optional,
+    Sequence,
+    Union,
+    cast,
+    overload,
+)
 
 from torch import Tensor, nn
 from typing_extensions import Self, TypeAlias, TypedDict
 
 from jatic_toolbox._internals.interop.utils import to_tensor_list
 from jatic_toolbox.errors import InvalidArgument
-from jatic_toolbox.protocols import ArrayLike, Classifier, ObjectDetector
+from jatic_toolbox.protocols import (
+    ArrayLike,
+    ImageClassifier,
+    ObjectDetector,
+    is_list_dict,
+)
 
 __all__ = ["TorchVisionClassifier", "TorchVisionObjectDetector"]
 
 
-TorchVisionProcessor: TypeAlias = Callable[[ArrayLike], Tensor]
+TorchVisionProcessor: TypeAlias = Callable[[Sequence[ArrayLike]], Tensor]
 
 
 class HasImagesDict(TypedDict):
@@ -43,6 +58,12 @@ class TorchVisionBase(nn.Module):
         self._processor = processor
         self._labels = labels
 
+    def get_labels(self) -> Sequence[str]:
+        """Get labels."""
+        if self._labels is None:
+            raise InvalidArgument("No labels were provided.")
+        return self._labels
+
     @overload
     def preprocessor(
         self,
@@ -67,7 +88,7 @@ class TorchVisionBase(nn.Module):
         if self._processor is None:
             raise InvalidArgument("No processor was provided.")
 
-        if isinstance(data[0], dict):
+        if is_list_dict(data):
             out = []
             for d in data:
                 data_out = {"image": self._processor(d[image_key])}
@@ -76,6 +97,9 @@ class TorchVisionBase(nn.Module):
 
             return out
         else:
+            if TYPE_CHECKING:
+                data = cast(Sequence[ArrayLike], data)
+
             images = to_tensor_list(data)
             return {"image": self._processor(images)}
 
@@ -112,7 +136,7 @@ class TorchVisionBase(nn.Module):
         return cls(model, processor, labels)
 
 
-class TorchVisionClassifier(TorchVisionBase, Classifier[ArrayLike]):
+class TorchVisionClassifier(TorchVisionBase, ImageClassifier):
     """
     Wrapper for torchvision image classification models.
 
@@ -163,7 +187,7 @@ class TorchVisionClassifier(TorchVisionBase, Classifier[ArrayLike]):
         return TorchVisionClassifierOutput(logits=logits)
 
 
-class TorchVisionObjectDetector(TorchVisionBase, ObjectDetector[ArrayLike]):
+class TorchVisionObjectDetector(TorchVisionBase, ObjectDetector):
     """
     Wrapper for torchvision object detection models.
 

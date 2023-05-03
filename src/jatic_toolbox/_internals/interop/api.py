@@ -8,8 +8,8 @@ from jatic_toolbox._internals.interop.torchmetrics.api import TorchMetricsAPI
 from jatic_toolbox._internals.interop.torchvision.api import TorchVisionAPI
 from jatic_toolbox.protocols import (
     ArrayLike,
-    Classifier,
     Dataset,
+    ImageClassifier,
     Metric,
     ObjectDetector,
 )
@@ -151,14 +151,14 @@ def load_model(
     task: Literal["image-classification"],
     model_name: str,
     **kwargs: Any,
-) -> Classifier[ArrayLike]:
+) -> ImageClassifier:
     ...
 
 
 @overload
 def load_model(
     *, provider: str, task: Literal["object-detection"], model_name: str, **kwargs: Any
-) -> ObjectDetector[ArrayLike]:
+) -> ObjectDetector:
     ...
 
 
@@ -168,7 +168,7 @@ def load_model(
     task: Literal["image-classification", "object-detection"],
     model_name: str,
     **kwargs: Any,
-) -> Union[Classifier[ArrayLike], ObjectDetector[ArrayLike]]:
+) -> Union[ImageClassifier, ObjectDetector]:
     """
     Return a supported model.
 
@@ -240,7 +240,7 @@ def load_metric(
     provider: str,
     metric_name: str,
     **kwargs: Any,
-) -> Metric[Any]:
+) -> Metric:
     """
     Return a Metric object.
 

@@ -5,9 +5,11 @@ from typing import (
     Any,
     Callable,
     Dict,
+    Iterator,
     Mapping,
     Optional,
     Sequence,
+    Tuple,
     TypeVar,
     Union,
     cast,
@@ -18,7 +20,7 @@ import torch as tr
 from torch.utils.data import DataLoader
 from typing_extensions import Literal, Protocol, Self, TypeAlias, runtime_checkable
 
-from jatic_toolbox import protocols as pr
+import jatic_toolbox.protocols as pr
 
 from ..import_utils import (
     is_hydra_zen_available,
@@ -51,13 +53,16 @@ else:  # pragma: no cover
 __all__ = ["ImageClassificationEvaluator", "evaluate"]
 
 ArrayLike = pr.ArrayLike
+T = TypeVar("T")
 T_co = TypeVar("T_co", covariant=True)
+C: TypeAlias = Union[T, Dict[str, T]]
 Model: TypeAlias = Union[
-    pr.Classifier[ArrayLike],
-    pr.ObjectDetector[ArrayLike],
+    pr.ImageClassifier,
+    pr.ObjectDetector,
 ]
 
-Metric: TypeAlias = Mapping[str, pr.Metric[ArrayLike]]
+
+Metric: TypeAlias = Mapping[str, pr.Metric]
 
 
 @runtime_checkable
@@ -84,7 +89,7 @@ def set_device(device: Optional[Union[str, int]]):
 
 
 @contextmanager
-def transfer_to_device(*modules, device):
+def transfer_to_device(*modules: T, device) -> Iterator[Tuple[T]]:
     """
     Transfers a list of modules to a device.
 
@@ -134,27 +139,24 @@ def transfer_to_device(*modules, device):
 
         try:
             unflattened_modules = tree_unflatten(device_modules, tree)
-            if len(modules) == 1:
-                yield unflattened_modules[0]
-            else:
-                yield unflattened_modules
+            yield unflattened_modules
         finally:
             # this should only matter for Modules since tensors make a copy
             [m.to("cpu") for m in flatten_modules if isinstance(m, nn.Module)]
 
     else:
-        yield
+        yield modules
 
 
 def collate_and_pad(
-    preprocessor: Optional[Callable[[Any], Any]] = None, processor_key: str = "image"
+    preprocessor: Optional[pr.Preprocessor] = None, processor_key: str = "image"
 ) -> Callable[[Sequence[Mapping[str, Any]]], Mapping[str, Any]]:
     """
     Collates and pads a batch of examples.
 
     Parameters
     ----------
-    preprocessor : Optional[Callable[[Any], Any]], optional
+    preprocessor : Optional[Preprocessor], optional
         A callable that takes a batch of examples and returns a batch of examples, by default None
 
     processor_key : str, optional
@@ -257,6 +259,9 @@ def collate_and_pad(
             elif isinstance(batch_item[0], dict):
                 collated_batch[key] = []
                 for i, d in enumerate(batch_item):
+                    if TYPE_CHECKING:
+                        assert isinstance(d, dict)
+
                     collated_batch[key].append({})
                     for subkey in d.keys():
                         if isinstance(
@@ -359,17 +364,19 @@ class EvaluationTask(ABC):
         model: Union[Builds[Callable[..., Model]], Model],
         data: Union[Builds[Callable[..., pr.Dataset[Any]]], pr.Dataset[Any]],
         metric: Union[
-            Builds[Callable[..., Mapping[str, pr.Metric[ArrayLike]]]],
-            Mapping[str, pr.Metric[ArrayLike]],
+            Builds[Callable[..., Mapping[str, pr.Metric]]],
+            Mapping[str, pr.Metric],
         ],
         augmentation: Optional[
             Union[
-                Builds[Callable[..., pr.Augmentation[ArrayLike]]],
-                pr.Augmentation[ArrayLike],
+                Builds[Callable[..., pr.Augmentation]],
+                pr.Augmentation,
             ]
         ] = None,
-        preprocessor: Optional[Callable[[Any], Any]] = None,
-        post_processor: Optional[Callable[[Any], Any]] = None,
+        preprocessor: Optional[pr.Preprocessor] = None,
+        post_processor: Optional[
+            Union[pr.ClassifierPostProcessor, pr.DetectorPostProcessor]
+        ] = None,
         batch_size: int = 1,
         device: Optional[Union[str, int]] = None,
         collate_fn: Optional[Callable[[Any], Any]] = None,
@@ -439,13 +446,13 @@ class EvaluationTask(ABC):
         if isinstance(preprocessor, Builds):
             preprocessor = instantiate(preprocessor)
         elif preprocessor is None:
-            if hasattr(model, "preprocessor"):
+            if pr.has_preprocessor(model):
                 preprocessor = model.preprocessor
 
         if isinstance(post_processor, Builds):
             post_processor = instantiate(post_processor)
         elif post_processor is None:
-            if hasattr(model, "post_processor"):
+            if pr.has_post_processor(model):
                 post_processor = model.post_processor
 
         if isinstance(data, Builds):
@@ -453,10 +460,6 @@ class EvaluationTask(ABC):
 
         if isinstance(augmentation, Builds):
             augmentation = instantiate(augmentation)
-
-        if TYPE_CHECKING:
-            if augmentation is not None:
-                assert isinstance(augmentation, pr.Augmentation)
 
         if isinstance(metric, Builds):
             metric = instantiate(metric)
@@ -504,11 +507,11 @@ class ImageClassificationEvaluator(EvaluationTask):
 
     def _evaluate_on_dataset(
         self,
-        data: pr.DataLoader[pr.SupportsImageClassification],
-        model: pr.Classifier[ArrayLike],
-        metric: Mapping[str, pr.Metric[ArrayLike]],
-        augmentation: Optional[pr.Augmentation[ArrayLike]] = None,
-        post_processor: Optional[Callable[[Any], pr.HasProbs]] = None,
+        data: pr.VisionDataLoader,
+        model: pr.ImageClassifier,
+        metric: Mapping[str, pr.Metric],
+        augmentation: Optional[pr.Augmentation[pr.SupportsImageClassification]] = None,
+        post_processor: Optional[pr.ClassifierPostProcessor] = None,
         device: Optional[Union[str, int]] = None,
         use_progress_bar: bool = True,
         input_key: str = "image",
@@ -537,25 +540,28 @@ class ImageClassificationEvaluator(EvaluationTask):
         Dict[str, Any]
             The evaluation results.
         """
-        if use_progress_bar and is_tqdm_available():
-            from tqdm.auto import tqdm
-        else:
-            tqdm = lambda x: x  # noqa: E731
-
         if device is None:
             device = self._infer_device()
 
         # Reset metrics
         [v.reset() for v in metric.values()]
 
+        def get_iterator(data) -> Iterator[pr.SupportsImageClassification]:
+            if use_progress_bar and is_tqdm_available():
+                from tqdm.auto import tqdm
+
+                iterator = tqdm(data)
+
+                if TYPE_CHECKING:
+                    iterator = cast(Iterator[pr.SupportsImageClassification], iterator)
+
+                return iterator
+            else:
+                return data
+
         with set_device(device) as _device:
             with evaluating(model), transfer_to_device(model, metric, device=_device):
-                if use_progress_bar:
-                    iterator: pr.DataLoader[pr.SupportsImageClassification] = tqdm(data)  # type: ignore
-                else:
-                    iterator = data
-
-                for batch in iterator:
+                for batch in get_iterator(data):
                     assert isinstance(batch, dict), "Batch is not a dictionary."
                     assert input_key in batch, f"Batch does not contain an {input_key}."
                     assert label_key in batch, f"Batch does not contain a {label_key}."
@@ -563,14 +569,13 @@ class ImageClassificationEvaluator(EvaluationTask):
                     if augmentation is not None:
                         batch = augmentation(batch)
 
-                    if TYPE_CHECKING:
-                        batch = cast(pr.SupportsImageClassification, batch)
-
                     with tr.inference_mode(), transfer_to_device(
                         batch, device=_device
-                    ) as batch_device:
+                    ) as (batch_device,):
                         output = model(batch_device)
-                        if post_processor is not None:
+                        if post_processor is not None and not isinstance(
+                            output, pr.HasScorePredictions
+                        ):
                             output = post_processor(output)
 
                     if isinstance(output, pr.HasLogits):
@@ -588,7 +593,8 @@ class ImageClassificationEvaluator(EvaluationTask):
                             "Model output does not contain `logits` or `probs` attribute."
                         )
 
-        return {k: v.compute() for k, v in metric.items()}
+        computed_metrics = {k: v.compute() for k, v in metric.items()}
+        return computed_metrics
 
 
 class ObjectDetectionEvaluator(EvaluationTask):
@@ -658,10 +664,10 @@ class ObjectDetectionEvaluator(EvaluationTask):
     def _evaluate_on_dataset(
         self,
         data: pr.DataLoader[pr.SupportsObjectDetection],
-        model: pr.ObjectDetector[ArrayLike],
-        metric: Mapping[str, pr.Metric[ArrayLike]],
-        augmentation: Optional[pr.Augmentation[ArrayLike]] = None,
-        post_processor: Optional[Callable[[Any], pr.HasObjectDetections]] = None,
+        model: pr.ObjectDetector,
+        metric: Mapping[str, pr.Metric],
+        augmentation: Optional[pr.Augmentation[pr.SupportsObjectDetection]] = None,
+        post_processor: Optional[pr.DetectorPostProcessor] = None,
         device: Optional[Union[str, int]] = None,
         use_progress_bar: bool = True,
         input_key: str = "image",
@@ -696,25 +702,28 @@ class ObjectDetectionEvaluator(EvaluationTask):
         >>> evaluator = evaluate("object-detection")
         >>> evaluator._evaluate_on_dataset(...)
         """
-        if use_progress_bar and is_tqdm_available():
-            from tqdm.auto import tqdm
-        else:
-            tqdm = lambda x: x  # noqa: E731
-
         if device is None:
             device = self._infer_device()
 
         # Reset metrics
         [v.reset() for v in metric.values()]
 
+        def get_iterator(data) -> Iterator[pr.SupportsObjectDetection]:
+            if use_progress_bar and is_tqdm_available():
+                from tqdm.auto import tqdm
+
+                iterator = tqdm(data)
+
+                if TYPE_CHECKING:
+                    iterator = cast(Iterator[pr.SupportsObjectDetection], iterator)
+
+                return iterator
+            else:
+                return data
+
         with set_device(device) as _device:
             with evaluating(model), transfer_to_device(model, metric, device=_device):
-                if use_progress_bar:
-                    iterator: pr.DataLoader[pr.SupportsObjectDetection] = tqdm(data)  # type: ignore
-                else:
-                    iterator = data
-
-                for batch in iterator:
+                for batch in get_iterator(data):
                     assert isinstance(batch, dict), "Batch is not a dictionary."
                     assert input_key in batch, f"Batch does not contain an {input_key}."
                     assert label_key in batch, f"Batch does not contain a {label_key}."
@@ -722,17 +731,16 @@ class ObjectDetectionEvaluator(EvaluationTask):
                     if augmentation is not None:
                         batch = augmentation(batch)
 
-                    if TYPE_CHECKING:
-                        batch = cast(pr.SupportsObjectDetection, batch)
-
                     with tr.inference_mode(), transfer_to_device(
                         batch, device=_device
-                    ) as batch_device:
+                    ) as (batch_device,):
                         output = model(batch_device)
-                        if post_processor is not None:
+                        if post_processor is not None and not isinstance(
+                            output, pr.HasDetectionScorePredictions
+                        ):
                             output = post_processor(output)
 
-                    if isinstance(output, pr.HasObjectDetections):
+                    if isinstance(output, pr.HasDetectionScorePredictions):
                         [
                             v.update(output, batch_device[label_key])
                             for k, v in metric.items()
@@ -742,7 +750,8 @@ class ObjectDetectionEvaluator(EvaluationTask):
                             "Model output does not support the `jatic_toolbox.protocols.HasObjectDetection` protocol."
                         )
 
-        return {k: v.compute() for k, v in metric.items()}
+        computed_metrics = {k: v.compute() for k, v in metric.items()}
+        return computed_metrics
 
 
 def evaluate(task: str) -> EvaluationTask:
