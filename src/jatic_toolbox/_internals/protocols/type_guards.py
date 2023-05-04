@@ -1,8 +1,8 @@
-from typing import Dict, List, Type, TypeVar
+from typing import List, Type, TypeVar
 
 from typing_extensions import TypedDict, TypeGuard
 
-from .typing import ArrayLike, PostProcessor, Preprocessor
+from .typing import PostProcessor, Preprocessor
 
 K = TypeVar("K")
 T = TypeVar("T")
@@ -61,9 +61,7 @@ def has_post_processor(obj) -> TypeGuard[PostProcessor]:
     return hasattr(obj, "post_processor")
 
 
-def is_list_dict(
-    d, key: Type[K] = str, val: Type[T] = ArrayLike
-) -> TypeGuard[List[Dict[K, T]]]:
+def is_list_dict(d, guard: Type[T] = dict) -> TypeGuard[List[T]]:
     """
     Check if object is a list of dictionaries.
 
@@ -71,14 +69,12 @@ def is_list_dict(
     ----------
     d : Any
         The object to check.
-    key : Type[K], optional
-        The type of the dictionary keys, by default str.
-    val : Type[T], optional
-        The type of the dictionary values, by default ArrayLike.
+    guard : Type[T]
+        The type guard of the dictionaries. Defaults to dict.
 
     Returns
     -------
-    TypeGuard[List[Dict[K, T]]]
+    TypeGuard[List[T]]
         True if object is a list of dictionaries.
 
     Examples

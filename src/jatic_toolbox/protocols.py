@@ -9,6 +9,7 @@ from jatic_toolbox._internals.protocols.typing import (
     Augmentation,
     BatchedImages,
     ClassifierPostProcessor,
+    DataHasImage,
     DataLoader,
     Dataset,
     DetectorPostProcessor,
@@ -25,6 +26,7 @@ from jatic_toolbox._internals.protocols.typing import (
     ObjectDetectionDataLoader,
     ObjectDetectionDataset,
     ObjectDetector,
+    PostProcessor,
     Preprocessor,
     SupportsImageClassification,
     SupportsObjectDetection,
@@ -62,4 +64,6 @@ __all__ = [
     "ImageClassifierData",
     "ObjectDetectionData",
     "is_typed_dict",
+    "PostProcessor",
+    "DataHasImage",
 ]

@@ -63,7 +63,7 @@ class AugmentationWrapper(Generic[T]):
         Pipeline for augmentating data.
 
         Parameters
-        -----------
+        ----------
         inputs : T
             Inputs to augment.
 

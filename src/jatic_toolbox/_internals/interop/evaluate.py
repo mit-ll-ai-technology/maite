@@ -22,33 +22,8 @@ from typing_extensions import Literal, Protocol, Self, TypeAlias, runtime_checka
 
 import jatic_toolbox.protocols as pr
 
-from ..import_utils import (
-    is_hydra_zen_available,
-    is_pil_available,
-    is_torch_available,
-    is_tqdm_available,
-)
+from ..import_utils import is_pil_available, is_torch_available, is_tqdm_available
 from ..utils import evaluating
-
-if is_hydra_zen_available():
-    from hydra_zen import instantiate  # type: ignore
-    from hydra_zen.typing import Builds  # type: ignore
-
-else:  # pragma: no cover
-    from dataclasses import dataclass
-    from typing import Generic
-
-    T = TypeVar("T")
-
-    @dataclass
-    class Builds(Generic[T]):
-        __target__: str
-
-    def instantiate(obj: Builds[Callable[..., T]], *args, **kwargs) -> T:
-        raise RuntimeError(
-            "hydra_zen is not installed. Please install it using `pip install hydra-zen`."
-        )
-
 
 __all__ = ["ImageClassificationEvaluator", "evaluate"]
 
@@ -288,14 +263,14 @@ def collate_and_pad(
 
 
 def get_dataloader(
-    dataset: pr.Dataset[Dict[str, Any]],
+    dataset: Union[pr.VisionDataset, pr.ObjectDetectionDataset],
     batch_size: int = 32,
     split: Literal["train", "test"] = "test",
     shuffle: Optional[bool] = None,
     collate_fn: Optional[Callable[[Any], Any]] = None,
-    preprocessor: Optional[Callable[[Any], Any]] = None,
+    preprocessor: Optional[pr.Preprocessor] = None,
     **kwargs: Any,
-) -> pr.DataLoader[Any]:
+) -> pr.DataLoader:
     """
     Returns a data loader for a JATIC dataset.
 
@@ -361,25 +336,15 @@ class EvaluationTask(ABC):
 
     def __call__(
         self,
-        model: Union[Builds[Callable[..., Model]], Model],
-        data: Union[Builds[Callable[..., pr.Dataset[Any]]], pr.Dataset[Any]],
-        metric: Union[
-            Builds[Callable[..., Mapping[str, pr.Metric]]],
-            Mapping[str, pr.Metric],
-        ],
-        augmentation: Optional[
-            Union[
-                Builds[Callable[..., pr.Augmentation]],
-                pr.Augmentation,
-            ]
-        ] = None,
+        model: Model,
+        data: Union[pr.VisionDataset, pr.ObjectDetectionDataset],
+        metric: Mapping[str, pr.Metric],
+        augmentation: Optional[pr.Augmentation] = None,
         preprocessor: Optional[pr.Preprocessor] = None,
-        post_processor: Optional[
-            Union[pr.ClassifierPostProcessor, pr.DetectorPostProcessor]
-        ] = None,
+        post_processor: Optional[pr.PostProcessor] = None,
         batch_size: int = 1,
         device: Optional[Union[str, int]] = None,
-        collate_fn: Optional[Callable[[Any], Any]] = None,
+        collate_fn: Optional[Callable] = None,
         use_progress_bar: bool = True,
         input_key: str = "image",
         label_key: str = "label",
@@ -392,17 +357,17 @@ class EvaluationTask(ABC):
         ----------
         task : str
             The task to evaluate on.
-        model : Classifier[ArrayLike] | ObjectDetector[ArrayLike]
+        model : Model
             The model to evaluate.
-        data : Dataset
+        data : Union[Dataset, ObjectDetectionDataset]
             The dataset to evaluate on.
         metric : Mapping[str, Metric]]
             The metric to evaluate the model on.
-        augmentation : Optional[Augmentation]
+        augmentation : Augmentation | None (default: None)
             The augmentation to apply to the dataset.
         batch_size : int
             The batch size to use for evaluation.
-        device : Optional[Union[str, int]]
+        device : Union[str, int] | None (default: None)
             The device to use for evaluation. If None, the device is automatically selected.
         collate_fn : Callable | None (default: None)
             The collate function to use for the data loader.
@@ -440,29 +405,13 @@ class EvaluationTask(ABC):
         >>> evaluator(model, data, metric=dict(accuracy=acc_metric), batch_size=32, device=0)
         {'accuracy': tensor(0.9788, device='cuda:0')}
         """
-        if isinstance(model, Builds):
-            model = instantiate(model)
-
-        if isinstance(preprocessor, Builds):
-            preprocessor = instantiate(preprocessor)
-        elif preprocessor is None:
+        if preprocessor is None:
             if pr.has_preprocessor(model):
                 preprocessor = model.preprocessor
 
-        if isinstance(post_processor, Builds):
-            post_processor = instantiate(post_processor)
-        elif post_processor is None:
+        if post_processor is None:
             if pr.has_post_processor(model):
                 post_processor = model.post_processor
-
-        if isinstance(data, Builds):
-            data = instantiate(data)
-
-        if isinstance(augmentation, Builds):
-            augmentation = instantiate(augmentation)
-
-        if isinstance(metric, Builds):
-            metric = instantiate(metric)
 
         assert isinstance(metric, Mapping)
 
@@ -562,10 +511,6 @@ class ImageClassificationEvaluator(EvaluationTask):
         with set_device(device) as _device:
             with evaluating(model), transfer_to_device(model, metric, device=_device):
                 for batch in get_iterator(data):
-                    assert isinstance(batch, dict), "Batch is not a dictionary."
-                    assert input_key in batch, f"Batch does not contain an {input_key}."
-                    assert label_key in batch, f"Batch does not contain a {label_key}."
-
                     if augmentation is not None:
                         batch = augmentation(batch)
 
@@ -573,6 +518,7 @@ class ImageClassificationEvaluator(EvaluationTask):
                         batch, device=_device
                     ) as (batch_device,):
                         output = model(batch_device)
+
                         if post_processor is not None and not isinstance(
                             output, pr.HasScorePredictions
                         ):
@@ -724,16 +670,14 @@ class ObjectDetectionEvaluator(EvaluationTask):
         with set_device(device) as _device:
             with evaluating(model), transfer_to_device(model, metric, device=_device):
                 for batch in get_iterator(data):
-                    assert isinstance(batch, dict), "Batch is not a dictionary."
-                    assert input_key in batch, f"Batch does not contain an {input_key}."
-                    assert label_key in batch, f"Batch does not contain a {label_key}."
-
                     if augmentation is not None:
                         batch = augmentation(batch)
 
                     with tr.inference_mode(), transfer_to_device(
                         batch, device=_device
                     ) as (batch_device,):
+                        output = model(batch_device)
+
                         output = model(batch_device)
                         if post_processor is not None and not isinstance(
                             output, pr.HasDetectionScorePredictions

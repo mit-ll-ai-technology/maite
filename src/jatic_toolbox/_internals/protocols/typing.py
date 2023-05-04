@@ -31,7 +31,7 @@ These protocols are TypedDicts.
 """
 
 
-class DataHasImages(TypedDict):
+class DataHasImage(TypedDict):
     image: ArrayLike
 
 
@@ -39,7 +39,7 @@ class DataHasLabel(TypedDict):
     label: int
 
 
-class ImageClassifierData(DataHasImages, DataHasLabel):
+class ImageClassifierData(DataHasImage, DataHasLabel):
     ...
 
 
@@ -48,8 +48,8 @@ class ObjectData(TypedDict):
     labels: Sequence[int]
 
 
-class ObjectDetectionData(DataHasImages):
-    object: ObjectData
+class ObjectDetectionData(DataHasImage):
+    objects: ObjectData
 
 
 @runtime_checkable
