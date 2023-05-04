@@ -231,7 +231,7 @@ extras =
     test
     all_interop
 commands = 
-    pyright --lib src/ tests/
+    pyright src/ tests/
     pyright --ignoreexternal --verifytypes jatic_toolbox
 
 [testenv:enforce-format]

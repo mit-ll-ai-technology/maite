@@ -24,11 +24,10 @@ class ArrayLike(Protocol):
 A = TypeVar("A", bound=ArrayLike)
 
 
-"""
-Data Structures
-
-These protocols are TypedDicts.
-"""
+#
+# Data Structures
+#
+# These protocols are TypedDicts.
 
 
 class DataHasImage(TypedDict):
@@ -108,21 +107,23 @@ BatchedData = TypeVar(
 
 
 Preprocessor: TypeAlias = Callable[[Sequence[T]], Sequence[T]]
-"""PreProcessor Protocol.
+"""
+PreProcessor Protocol.
 
 Preprocessors are functions that take in a single input and return a single output.
 
 Parameters
 ----------
-input: T
+input: Sequence[T]
 
 Returns
 -------
-output: T
+output: Sequence[T]
 """
 
 Augmentation: TypeAlias = Callable[[T], T]
-"""Augmentation Protocol
+"""
+Augmentation Protocol.
 
 Supports simple augmentations and adversarial attacks.
 
@@ -217,6 +218,25 @@ class HasDetectionScorePredictions(Protocol):
 
 
 """
+Post-Processing
+"""
+
+LP = Union[HasLogits, HasProbs]
+LDP = Union[HasDetectionLogits, HasDetectionProbs]
+
+ClassifierPostProcessor: TypeAlias = Callable[
+    [Union[HasLogits, HasProbs]], Union[HasProbs, HasScorePredictions]
+]
+
+DetectorPostProcessor: TypeAlias = Callable[
+    [LDP],
+    Union[HasProbs, HasDetectionScorePredictions],
+]
+
+PostProcessor: TypeAlias = Union[ClassifierPostProcessor, DetectorPostProcessor]
+
+
+"""
 Models
 """
 
@@ -224,6 +244,20 @@ Models
 class Model(Protocol):
     def get_labels(self) -> Sequence[str]:
         ...
+
+
+class ModelWithPostProcessor(Protocol):
+    def get_labels(self) -> Sequence[str]:
+        ...
+
+    post_processor: PostProcessor
+
+
+class ModelWithPreProcessor(Protocol):
+    def get_labels(self) -> Sequence[str]:
+        ...
+
+    preprocessor: Preprocessor[Union[ImageClassifierData, ObjectDetectionData]]
 
 
 class ImageClassifier(Model, Protocol):
@@ -239,24 +273,6 @@ class ObjectDetector(Model, Protocol):
     ) -> Union[HasDetectionLogits, HasDetectionProbs, HasDetectionScorePredictions]:
         ...
 
-
-"""
-Post-Processing
-"""
-
-LP = TypeVar("LP", HasLogits, HasProbs)
-LDP = TypeVar("LDP", HasDetectionLogits, HasDetectionProbs)
-
-ClassifierPostProcessor: TypeAlias = Callable[
-    [LP], Union[HasProbs, HasScorePredictions]
-]
-
-DetectorPostProcessor = Callable[
-    [LDP],
-    Union[HasProbs, HasDetectionScorePredictions],
-]
-
-PostProcessor: TypeAlias = Union[ClassifierPostProcessor, DetectorPostProcessor]
 
 """
 Metric protocol is based off of:

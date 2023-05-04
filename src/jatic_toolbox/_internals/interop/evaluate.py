@@ -13,6 +13,7 @@ from typing import (
     TypeVar,
     Union,
     cast,
+    overload,
 )
 
 import numpy as np
@@ -24,8 +25,6 @@ import jatic_toolbox.protocols as pr
 
 from ..import_utils import is_pil_available, is_torch_available, is_tqdm_available
 from ..utils import evaluating
-
-__all__ = ["ImageClassificationEvaluator", "evaluate"]
 
 ArrayLike = pr.ArrayLike
 T = TypeVar("T")
@@ -315,7 +314,7 @@ class EvaluationTask(ABC):
         The task to evaluate on.
     """
 
-    task: Literal["image-classification", "object-detection"]
+    task: str
 
     def _infer_device(self):
         if is_torch_available():
@@ -339,8 +338,14 @@ class EvaluationTask(ABC):
         model: Model,
         data: Union[pr.VisionDataset, pr.ObjectDetectionDataset],
         metric: Mapping[str, pr.Metric],
-        augmentation: Optional[pr.Augmentation] = None,
-        preprocessor: Optional[pr.Preprocessor] = None,
+        augmentation: Optional[
+            pr.Augmentation[
+                Union[pr.SupportsImageClassification, pr.SupportsObjectDetection]
+            ]
+        ] = None,
+        preprocessor: Optional[
+            pr.Preprocessor[Union[pr.ImageClassifierData, pr.ObjectDetectionData]]
+        ] = None,
         post_processor: Optional[pr.PostProcessor] = None,
         batch_size: int = 1,
         device: Optional[Union[str, int]] = None,
@@ -698,7 +703,19 @@ class ObjectDetectionEvaluator(EvaluationTask):
         return computed_metrics
 
 
-def evaluate(task: str) -> EvaluationTask:
+@overload
+def evaluate(task: Literal["image-classification"]) -> ImageClassificationEvaluator:
+    ...
+
+
+@overload
+def evaluate(task: Literal["object-detection"]) -> ObjectDetectionEvaluator:
+    ...
+
+
+def evaluate(
+    task: Literal["image-classification", "object-detection"]
+) -> Union[ImageClassificationEvaluator, ObjectDetectionEvaluator]:
     """
     Provide an evaluator for a given task and provider.
 

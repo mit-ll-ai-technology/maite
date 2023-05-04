@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Any, Callable, Mapping, Optional
 
+from jatic_toolbox._internals.protocols.typing import ObjectDetectionDataset
 from jatic_toolbox.protocols import (
-    Dataset,
     SupportsImageClassification,
     SupportsObjectDetection,
     VisionDataset,
@@ -11,13 +11,15 @@ from .typing import HuggingFaceDataset
 
 __all__ = ["HuggingFaceVisionDataset"]
 
+from typing_extensions import Protocol
 
-class HuggingFaceWrapper:
+
+class HuggingFaceWrapper(Protocol):
     _dataset: HuggingFaceDataset
 
     def set_transform(
         self, transform: Callable[[Mapping[str, Any]], Mapping[str, Any]]
-    ):
+    ) -> None:
         self._dataset.set_transform(transform)
 
 
@@ -31,7 +33,7 @@ class HuggingFaceVisionDataset(HuggingFaceWrapper, VisionDataset):
 
     def __init__(
         self,
-        dataset: Dataset[Mapping[str, Any]],
+        dataset: HuggingFaceDataset,
         label_key: Optional[str] = None,
         image_key: Optional[str] = None,
     ):
@@ -62,15 +64,10 @@ class HuggingFaceVisionDataset(HuggingFaceWrapper, VisionDataset):
                 f"HuggingFaceVisionDataset does not support DatasetDicts.  Pass in one of the available datasets, {dataset.keys()}, instead."
             )
 
-        assert isinstance(  # pragma: no cover
-            dataset, datasets.Dataset
-        ), "dataset must be a HuggingFace Dataset"
-
         self._dataset = dataset
-        self.features = dataset.features
 
-        self.image_key = None
-        self.label_key = None
+        self.image_key: Optional[str] = None
+        self.label_key: Optional[str] = None
         if image_key is None or label_key is None:
             for fname, f in dataset.features.items():
                 if isinstance(f, datasets.ClassLabel):
@@ -95,10 +92,10 @@ class HuggingFaceVisionDataset(HuggingFaceWrapper, VisionDataset):
             self.label_key in dataset.features
         ), f"Label key, {self.label_key}, not found in dataset.  Available keys: {dataset.features.keys()}"
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._dataset)
 
-    def __getitem__(self, idx) -> SupportsImageClassification:
+    def __getitem__(self, idx: int) -> SupportsImageClassification:
         data = self._dataset[idx]
 
         if TYPE_CHECKING:
@@ -118,12 +115,12 @@ class HuggingFaceVisionDataset(HuggingFaceWrapper, VisionDataset):
         return data_dict
 
 
-class HuggingFaceObjectDetectionDataset(HuggingFaceWrapper, VisionDataset):
+class HuggingFaceObjectDetectionDataset(HuggingFaceWrapper, ObjectDetectionDataset):
     """Wrapper for HuggingFace Dataset object detection datasets."""
 
     def __init__(
         self,
-        dataset: Dataset[Mapping[str, Any]],
+        dataset: HuggingFaceDataset,
         image_key: str = "image",
         objects_key: str = "objects",
         bbox_key: str = "bbox",
@@ -161,15 +158,10 @@ class HuggingFaceObjectDetectionDataset(HuggingFaceWrapper, VisionDataset):
 
         if isinstance(dataset, datasets.DatasetDict):
             raise NotImplementedError(
-                f"HuggingFaceVisionDataset does not support DatasetDicts.  Pass in one of the available datasets, {dataset.keys()}, instead."
+                f"HuggingFaceObjectDetectionDataset does not support DatasetDicts.  Pass in one of the available datasets, {dataset.keys()}, instead."
             )
 
-        assert isinstance(
-            dataset, datasets.Dataset
-        ), "dataset must be a HuggingFace Dataset"
-
         self._dataset = dataset
-        self.features = dataset.features
         self.image_key = image_key
         self.objects_key = objects_key
         self.bbox_key = bbox_key
@@ -197,10 +189,10 @@ class HuggingFaceObjectDetectionDataset(HuggingFaceWrapper, VisionDataset):
                 self.category_key in dataset.features[self.objects_key][0]
             ), "No category key found in dataset"
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._dataset)
 
-    def __getitem__(self, idx) -> SupportsObjectDetection:
+    def __getitem__(self, idx: int) -> SupportsObjectDetection:
         data = self._dataset[idx]
 
         image = data[self.image_key]

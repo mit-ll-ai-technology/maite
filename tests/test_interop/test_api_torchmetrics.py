@@ -2,7 +2,7 @@ import pytest
 
 import jatic_toolbox
 
-METRICS = jatic_toolbox.list_metrics(provider="torchmetrics")
+METRICS = list(jatic_toolbox.list_metrics(provider="torchmetrics"))
 
 
 @pytest.mark.parametrize("metric", METRICS + ["MeanAveragePrecision"])

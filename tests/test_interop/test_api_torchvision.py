@@ -14,7 +14,8 @@ from jatic_toolbox.interop.torchvision import (
 )
 from jatic_toolbox.protocols import HasDetectionScorePredictions, HasLogits
 from jatic_toolbox.testing.hypothesis import image_data
-from tests.common.torchvision import (
+
+from ..common.torchvision import (
     get_test_object_detection_model,
     get_test_vision_dataset,
     get_test_vision_model,
@@ -24,13 +25,13 @@ from tests.common.torchvision import (
 def test_tv_list_datasets():
     datasets = jatic_toolbox.list_datasets(provider="torchvision")
     assert issubclass(type(datasets), list)
-    assert len(datasets) == 70
+    assert len(list(datasets)) == 70
 
 
 def test_tv_list_models():
     models = jatic_toolbox.list_models(provider="torchvision", filter_str="resnet18")
     assert issubclass(type(models), list)
-    assert len(models) == 1
+    assert len(list(models)) == 1
 
 
 @given(task=st.text(min_size=1))
@@ -49,12 +50,14 @@ def test_tv_load_model_unsupported_task(task):
 
 @given(use_split=st.booleans(), has_split=st.booleans(), has_train=st.booleans())
 def test_tv_load_image_classification_dataset(use_split, has_split, has_train):
+    from jatic_toolbox._internals.interop.torchvision import api
+
     # Create a mock dataset object
     mock_dataset = get_test_vision_dataset(has_split, has_train)
 
     # Patch the load_dataset function to return the mock dataset object
     with mock.patch.object(
-        jatic_toolbox._internals.interop.torchvision.api,
+        api,
         "_get_torchvision_dataset",
         return_value=mock_dataset,
     ):

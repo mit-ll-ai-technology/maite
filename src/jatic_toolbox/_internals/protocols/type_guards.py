@@ -1,15 +1,15 @@
-from typing import List, Type, TypeVar
+from typing import Any, Dict, List, Type, TypeVar
 
 from typing_extensions import TypedDict, TypeGuard
 
-from .typing import PostProcessor, Preprocessor
+from .typing import ModelWithPostProcessor, ModelWithPreProcessor
 
 K = TypeVar("K")
 T = TypeVar("T")
 Td = TypeVar("Td", bound=TypedDict)
 
 
-def has_preprocessor(obj) -> TypeGuard[Preprocessor]:
+def has_preprocessor(obj: Any) -> TypeGuard[ModelWithPreProcessor]:
     """
     Check if object has preprocessor attribute.
 
@@ -25,9 +25,9 @@ def has_preprocessor(obj) -> TypeGuard[Preprocessor]:
 
     Examples
     --------
-    >>> from jatic_toolbox._internals.protocols.typing import Preprocessor
+    >>> from jatic_toolbox.protocols import Preprocessor, ImageClassifierData
     >>> class Foo:
-    ...     def preprocessor(self) -> Preprocessor:
+    ...     def preprocessor(self) -> Preprocessor[ImageClassifierData]:
     ...         ...
     >>> has_preprocessor(Foo())
     True
@@ -35,7 +35,7 @@ def has_preprocessor(obj) -> TypeGuard[Preprocessor]:
     return hasattr(obj, "preprocessor")
 
 
-def has_post_processor(obj) -> TypeGuard[PostProcessor]:
+def has_post_processor(obj: Any) -> TypeGuard[ModelWithPostProcessor]:
     """
     Check if object has post_processor attribute.
 
@@ -61,7 +61,7 @@ def has_post_processor(obj) -> TypeGuard[PostProcessor]:
     return hasattr(obj, "post_processor")
 
 
-def is_list_dict(d, guard: Type[T] = dict) -> TypeGuard[List[T]]:
+def is_list_dict(d: Any, guard: Type[T] = Dict[Any, Any]) -> TypeGuard[List[T]]:
     """
     Check if object is a list of dictionaries.
 
@@ -85,7 +85,7 @@ def is_list_dict(d, guard: Type[T] = dict) -> TypeGuard[List[T]]:
     return isinstance(d, (list, tuple)) and isinstance(d[0], dict)
 
 
-def is_typed_dict(object, target: Type[Td]) -> TypeGuard[Td]:
+def is_typed_dict(object: Any, target: Type[Td]) -> TypeGuard[Td]:
     """
     Check if object is a typed dictionary.
 

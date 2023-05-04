@@ -52,7 +52,7 @@ class TorchVisionDataset(VisionDataset):
     ):
         """Initialize the TorchVisionDataset."""
         self._dataset = dataset
-        self.features = {
+        self.features: Dict[str, Any] = {
             "image": Image(),
             "label": ClassLabel(
                 names=dataset.classes, num_classes=len(dataset.classes)
@@ -66,10 +66,10 @@ class TorchVisionDataset(VisionDataset):
     ) -> None:
         self._transform = transform
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._dataset)
 
-    def __getitem__(self, idx) -> SupportsImageClassification:
+    def __getitem__(self, idx: int) -> SupportsImageClassification:
         """
         Get an item from the dataset.
 

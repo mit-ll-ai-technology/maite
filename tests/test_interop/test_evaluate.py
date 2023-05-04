@@ -1,18 +1,21 @@
+import typing as tp
 from dataclasses import dataclass
 
 import pytest
 import torch as tr
+import typing_extensions as tpe
 from torch.utils.data import Dataset
 
 import jatic_toolbox
+from jatic_toolbox import protocols as pr
 
 
 class RandomDataset(Dataset):
     def __init__(self, size: int, length: int):
         self.data = tr.randn(length, size)
 
-    def __getitem__(self, index):
-        return dict(image=self.data[index], label=0)
+    def __getitem__(self, index) -> pr.ImageClassifierData:
+        return pr.ImageClassifierData(image=self.data[index], label=0)
 
     def __len__(self):
         return len(self.data)
@@ -49,6 +52,9 @@ class VisionModel(tr.nn.Module):
         self.no_dataclass = no_dataclass
         self.linear = tr.nn.Linear(10, 1)
 
+    def get_labels(self):
+        return [f"label_{i}" for i in range(10)]
+
     def forward(self, x):
         x = x["image"]
         if self.no_dataclass:
@@ -73,6 +79,9 @@ class DetectionModel(tr.nn.Module):
         self.no_dataclass = no_dataclass
         self.linear = tr.nn.Linear(10, 1)
 
+    def get_labels(self):
+        return [f"label_{i}" for i in range(10)]
+
     def forward(self, x) -> DetectorOutput:
         if self.no_dataclass:
             return x
@@ -84,14 +93,17 @@ class DetectionModel(tr.nn.Module):
 
 
 class Metric:
-    def compute(self):
+    def to(self, *args: tp.Any, **kwargs: tp.Any) -> tpe.Self:
+        ...
+
+    def compute(self) -> tp.Any:
         return 0.5
 
     def reset(self):
-        pass
+        ...
 
-    def update(self, x, y):
-        pass
+    def update(self, *args, **kwargs):
+        ...
 
 
 @pytest.mark.parametrize("use_progress_bar", [True, False])

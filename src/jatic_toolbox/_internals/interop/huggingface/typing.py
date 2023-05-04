@@ -1,4 +1,5 @@
-from collections import UserDict
+from __future__ import annotations
+
 from dataclasses import dataclass
 from typing import (
     Any,
@@ -28,9 +29,11 @@ T = TypeVar("T", bound=ArrayLike)
 
 
 class HuggingFaceDataset(Dataset[Mapping[str, Any]], Protocol):
+    features: Mapping[str, Any]
+
     def set_transform(
         self, transform: Callable[[Mapping[str, Any]], Mapping[str, Any]]
-    ):
+    ) -> None:
         ...
 
 
@@ -73,7 +76,7 @@ class HFOutput(Protocol):
     boxes: ArrayLike
 
 
-class BatchFeature(UserDict):
+class BatchFeature(Dict[str, ArrayLike]):
     def to(self, device: Union[str, int]) -> Self:  # pragma: no cover
         ...
 

@@ -55,7 +55,7 @@ def test_check_multiple_types(arg: Union[str, int, None]):
 
 def test_no_bounds():
     with pytest.raises(AssertionError):
-        check_domain("arg", 1)  # type: ignore
+        check_domain("arg", 1)  # pyright: ignore
 
 
 @pytest.mark.parametrize(
@@ -223,7 +223,7 @@ def test_check_one_of_catches_bad_inputs(arg, collection, vals, requires_identit
 
 
 @given(...)
-def test_check_one_of_supports_enum(arg: Union[FooEnum, FlagEnum]):  # type: ignore
+def test_check_one_of_supports_enum(arg: Union[FooEnum, FlagEnum]):
     assert check_one_of("foo", arg, type(arg)) is arg
 
 

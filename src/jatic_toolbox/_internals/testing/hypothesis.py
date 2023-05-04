@@ -1,9 +1,15 @@
+from typing import Any
+
 import hypothesis.strategies as st
 import numpy as np
+from hypothesis.strategies import DrawFn
+from numpy.typing import NDArray
 
 
 # Define a strategy for generating random image data
-def image_data(draw, channels=3, max_width=10, max_height=10):
+def image_data(
+    draw: DrawFn, channels: int = 3, max_width: int = 10, max_height: int = 10
+) -> NDArray[Any]:
     """
     Create a strategy for generating random image data.
 

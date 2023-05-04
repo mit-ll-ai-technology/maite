@@ -1,5 +1,6 @@
 from collections import UserDict
 from dataclasses import dataclass
+from typing import Any, Dict
 
 import datasets
 import torch as tr
@@ -16,15 +17,15 @@ class BatchFeatures(UserDict):
 
 @dataclass
 class ObjectDetectionWithLogits(ModelOutput):
-    logits: tr.Tensor = None
-    pred_boxes: tr.Tensor = None
+    logits: tr.Tensor = None  # type: ignore[assignment]
+    pred_boxes: tr.Tensor = None  # type: ignore[assignment]
 
 
 @dataclass
 class ObjectDetectionOutput(ModelOutput):
-    boxes: tr.Tensor = None
-    scores: tr.Tensor = None
-    labels: tr.Tensor = None
+    boxes: tr.Tensor = None  # type: ignore[assignment]
+    scores: tr.Tensor = None  # type: ignore[assignment]
+    labels: tr.Tensor = None  # type: ignore[assignment]
 
 
 @dataclass
@@ -93,7 +94,7 @@ def get_test_detection_dataset(
     if object_key and (category_key or bbox_key):
         data[object_key] = [{"obj_col": ["1", "2", "3", "4"]}]
 
-        obj_feature = {"obj_col": datasets.Value("string")}
+        obj_feature: Dict[str, Any] = {"obj_col": datasets.Value("string")}
         if category_key is not None:
             data[object_key][0][category_key] = [3, 2, 1, 0]
             obj_feature[category_key] = datasets.ClassLabel(names=["w", "x", "y", "z"])

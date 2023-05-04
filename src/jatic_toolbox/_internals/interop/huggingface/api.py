@@ -1,5 +1,15 @@
 import warnings
-from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Tuple, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Tuple,
+    Union,
+    cast,
+)
 
 from typing_extensions import Literal
 
@@ -7,6 +17,7 @@ from jatic_toolbox.protocols import Dataset, ImageClassifier, ObjectDetector
 
 from ...import_utils import is_hf_available, is_hf_hub_available
 from .datasets import HuggingFaceObjectDetectionDataset, HuggingFaceVisionDataset
+from .typing import HuggingFaceDataset
 
 __all__ = ["HuggingFaceAPI"]
 
@@ -175,6 +186,7 @@ class HuggingFaceAPI:
 
         if TYPE_CHECKING:
             assert isinstance(dataset, Dataset)
+            dataset = cast(HuggingFaceDataset, dataset)
 
         if task == "image-classification":
             return HuggingFaceVisionDataset(dataset, **wrapper_kwargs)

@@ -26,7 +26,8 @@ from jatic_toolbox.protocols import (
     HasProbs,
 )
 from jatic_toolbox.testing.hypothesis import image_data
-from tests.common.huggingface import (
+
+from ..common.huggingface import (
     get_test_detection_dataset,
     get_test_object_detection_model,
     get_test_vision_dataset,
@@ -37,13 +38,13 @@ from tests.common.huggingface import (
 def test_hf_list_datasets():
     datasets = jatic_toolbox.list_datasets(provider="huggingface", dataset_name="cifar")
     assert issubclass(type(datasets), list)
-    assert len(datasets) == 2
+    assert len(list(datasets)) == 2
 
 
 def test_hf_list_models():
     models = jatic_toolbox.list_models(provider="huggingface", filter_str="resnet18")
     assert issubclass(type(models), list)
-    assert len(models) == 3
+    assert len(list(models)) == 3
 
 
 @given(task=st.text(min_size=1))
