@@ -32,65 +32,60 @@ before_script:
   - python -m pip install --upgrade pip
   - pip install 'tox < 4'
 
-# tests:
-#   stage: test
-#   image: python:$PYTHON_VERSIONS
-#   parallel:
-#     matrix:
-#       - PYTHON_VERSIONS: ["3.7", "3.8", "3.9", "3.10"]
-#   script:
-#     - echo "Testing against minimum dependencies."
-#     - tox -e py
+tests:
+  stage: test
+  image: python:$PYTHON_VERSIONS
+  parallel:
+    matrix:
+      - PYTHON_VERSIONS: ["3.7", "3.8", "3.9", "3.10"]
+  script:
+    - echo "Testing against minimum dependencies."
+    - tox -e py
 
-# coverage:
-#   stage: test
-#   image: python:3.9
-#   script:
-#   - echo "Coverage Testing"
-#   - tox -e coverage
+coverage:
+  stage: test
+  image: python:3.9
+  script:
+  - echo "Coverage Testing"
+  - tox -e coverage
 
-# min-deps:
-#   stage: test
-#   image: python:3.7
-#   script:
-#     - echo "Testing against minimum dependencies."
-#     - tox -e min-deps
+min-deps:
+  stage: test
+  image: python:3.7
+  script:
+    - echo "Testing against minimum dependencies."
+    - tox -e min-deps
 
-# enforce-format:
-#   stage: test
-#   image: python:3.9
-#   script:
-#     - echo "Test code formatting issues."
-#     - tox -e enforce-format
+enforce-format:
+  stage: test
+  image: python:3.9
+  script:
+    - echo "Test code formatting issues."
+    - tox -e enforce-format
 
-# typecheck:
-#   stage: test
-#   image: python:3.9
-#   script:
-#     - echo "Test typechecking."
-#     - tox -e typecheck -vv
+typecheck:
+  stage: test
+  image: python:3.9
+  script:
+    - echo "Test typechecking."
+    - tox -e typecheck -vv
 
-# pages:
-#   stage: docs
-#   image: python:3.9
-#   script:
-#     - tox -e docs
-#     # - echo "Installing docs requirements."
-#     # - pip install -r ./docs/requirements.txt
-#     # - echo "Making docs..."
-#     # - (cd ./docs/ && make html)
-#     - mv ./.tox/docs/build/html/ ./public
-#   artifacts:
-#     paths:
-#       - public
-#   rules:
-#     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+pages:
+  stage: docs
+  image: python:3.9
+  script:
+    - tox -e docs
+    - mv ./.tox/docs/build/html/ ./public
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
 deploy:
   stage: deploy
   rules:
     - if: $CI_COMMIT_TAG
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   script:
     - pip install build twine --upgrade
     - twine --version
