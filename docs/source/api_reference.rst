@@ -12,6 +12,19 @@ Encyclopedia JATICanica.
 All reference documentation includes detailed Examples sections. Please scroll to the 
 bottom of any given reference page to see the examples.
 
+.. currentmodule:: jatic_toolbox
+
+.. autosummary::
+   :toctree: generated/
+
+   list_datasets
+   load_dataset
+   list_models
+   load_model
+   list_metrics
+   load_metric
+   evaluate
+
 
 .. currentmodule:: jatic_toolbox.utils.validation
 
