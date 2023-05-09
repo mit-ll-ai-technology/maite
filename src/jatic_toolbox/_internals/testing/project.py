@@ -125,6 +125,14 @@ class ModuleScan:
     scan results for a module multiple times. Each `ModuleScan` instance has an
     independent cache.
 
+    Methods
+    -------
+    __call__(module_name, *, path_to_pyright=PYRIGHT_PATH, cached=True)
+        Perform a scan on the specified module or submodule.
+
+    cache_info()
+        Return a CacheInfo object with statistics about the cache of this instance.
+
     Examples
     --------
     >>> from jatic_toolbox.testing.project import ModuleScan
@@ -179,7 +187,7 @@ class ModuleScan:
             installed in the current Python environment.
 
         path_to_pyright : Path, optional, keyword-only
-            Path to the pyright executable (see installation instructions: [4]_).
+            Path to the pyright executable (see installation instructions).
             Defaults to `shutil.where('pyright')` if the executable can be found.
 
         cached : bool, optional (default=True)

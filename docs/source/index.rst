@@ -8,8 +8,6 @@
 Welcome to jatic-toolbox's documentation!
 =========================================
 
-Hello World.
-
 
 Installation
 ============
@@ -27,6 +25,18 @@ the latest pre-release of jatic-toolbox with:
 .. code:: console
 
    $ pip install --pre jatic-toolbox
+
+The toolbox also contains APIs and helper utilities to provide interoperability with
+various other open-source libraries such as
+`HuggingFace <https://huggingface.co/datasets>`_,
+`TorchVision <https://pytorch.org/vision/stable/datasets.html>`_, and
+`TorchMetrics <https://github.com/Lightning-AI/torchmetrics>`_.
+To leverage these capabilities, run the following command to install jatic-toolbox
+along with these other dependencies:
+
+.. code:: console
+
+   $ pip install jatic-toolbox[all_interop]
 
 
 Learning About jatic-toolbox

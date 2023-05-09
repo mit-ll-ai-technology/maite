@@ -13,11 +13,11 @@ jatic-toolbox. They require no prior experience with these tools.
    :maxdepth: 1
    :caption: Contents:
 
-   tutorials/placeholder
+   tutorials/basic_evaluation
 
 
 
 These tutorials are meant to only focus on practical steps towards concrete outcomes, 
-and thus they do not explain jatic-toolbox work. To gain a deeper 
+and thus they do not explain how jatic-toolbox works. To gain a deeper 
 understanding of the technical details here, please refer to the 
 :ref:`jatic-toolbox-reference`.

@@ -1,4 +1,0 @@
-Placeholder
------------
-
-Hello world.
