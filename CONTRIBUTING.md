@@ -1,5 +1,4 @@
-Thanks for your interest in contributing to LL's robustness-toolbox. Please read
-through the following resources before you begin working on any contributions to this
+Please read through the following resources before you begin working on any contributions to this
 code base.
 
 
