@@ -14,7 +14,8 @@ description = "Utilities for developing test suites for JATIC-related projects."
 readme = "README.md"
 requires-python = ">=3.7"
 dependencies = [
-  "typing-extensions >= 4.1.0",
+  "typing-extensions == 4.5.0",
+  "typing-inspect==0.8.0",
 ]
 
 license = { file = "LICENSE.txt" }
