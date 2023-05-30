@@ -1,7 +1,7 @@
 from typing import Any, Callable, Dict, List, Sequence, Tuple, TypeVar
 
 from torch import Tensor
-from typing_extensions import Protocol, TypeAlias, TypedDict
+from typing_extensions import Protocol, TypeAlias, TypedDict, runtime_checkable
 
 from jatic_toolbox.protocols import SupportsImageClassification, VisionDataset
 
@@ -19,6 +19,7 @@ class ClassLabel(TypedDict):
     num_classes: int
 
 
+@runtime_checkable
 class PyTorchVisionDataset(Protocol):
     classes: List[str]
 

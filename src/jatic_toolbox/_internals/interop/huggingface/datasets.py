@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Callable, Mapping, Optional
+from typing import TYPE_CHECKING, Optional
 
 from jatic_toolbox._internals.protocols.typing import ObjectDetectionDataset
 from jatic_toolbox.protocols import (
@@ -7,20 +7,9 @@ from jatic_toolbox.protocols import (
     VisionDataset,
 )
 
-from .typing import HuggingFaceDataset
+from .typing import HuggingFaceDataset, HuggingFaceWrapper
 
 __all__ = ["HuggingFaceVisionDataset"]
-
-from typing_extensions import Protocol
-
-
-class HuggingFaceWrapper(Protocol):
-    _dataset: HuggingFaceDataset
-
-    def set_transform(
-        self, transform: Callable[[Mapping[str, Any]], Mapping[str, Any]]
-    ) -> None:
-        self._dataset.set_transform(transform)
 
 
 class HuggingFaceVisionDataset(HuggingFaceWrapper, VisionDataset):

@@ -15,7 +15,7 @@ from typing import (
     overload,
 )
 
-from typing_extensions import Protocol
+from typing_extensions import Protocol, runtime_checkable
 
 from jatic_toolbox.errors import InvalidArgument
 
@@ -33,6 +33,7 @@ def _safe_name(x: Any, ticked: bool = True) -> str:
     return _tick(out) if ticked else out
 
 
+@runtime_checkable
 class Comparable(Protocol):
     def __eq__(self, __x: Any) -> bool:
         ...

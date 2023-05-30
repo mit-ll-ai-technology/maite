@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Any, List, Optional, Sequence, Union, cast, ov
 
 import torch as tr
 from torch import nn
-from typing_extensions import Protocol, Self
+from typing_extensions import Protocol, Self, runtime_checkable
 
 from jatic_toolbox._internals.interop.utils import to_tensor_list
 from jatic_toolbox.errors import InvalidArgument
@@ -26,6 +26,7 @@ from .typing import (
 __all__ = ["HuggingFaceImageClassifier"]
 
 
+@runtime_checkable
 class BaseHF(ImageClassifier, Protocol):
     preprocessor: Preprocessor[BatchedImages]
     post_processor: ClassifierPostProcessor

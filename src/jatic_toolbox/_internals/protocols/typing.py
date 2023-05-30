@@ -1,6 +1,18 @@
-from typing import Any, Callable, Sequence, TypeVar, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    Mapping,
+    Optional,
+    Sequence,
+    Type,
+    TypeVar,
+    Union,
+)
 
 from typing_extensions import (
+    ClassVar,
     ParamSpec,
     Protocol,
     Self,
@@ -12,6 +24,7 @@ from typing_extensions import (
 T = TypeVar("T")
 T_co = TypeVar("T_co", covariant=True)
 T_cont = TypeVar("T_cont", contravariant=True)
+T2 = TypeVar("T2")
 P = ParamSpec("P")
 
 
@@ -22,6 +35,41 @@ class ArrayLike(Protocol):
 
 
 A = TypeVar("A", bound=ArrayLike)
+
+
+if TYPE_CHECKING:
+    from dataclasses import Field  # provided by typestub but not generic at runtime
+else:
+
+    @runtime_checkable
+    class Field(Protocol[T2]):
+        name: str
+        type: Type[T2]
+        default: T2
+        default_factory: Callable[[], T2]
+        repr: bool
+        hash: Optional[bool]
+        init: bool
+        compare: bool
+        metadata: Mapping[str, Any]
+
+
+@runtime_checkable
+class DataClass_(Protocol):
+    # doesn't provide __init__, __getattribute__, etc.
+    __dataclass_fields__: ClassVar[Dict[str, Field[Any]]]
+
+
+@runtime_checkable
+class DataClass(DataClass_, Protocol):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        ...
+
+    def __getattribute__(self, __name: str) -> Any:
+        ...
+
+    def __setattr__(self, __name: str, __value: Any) -> None:
+        ...
 
 
 #
@@ -89,11 +137,13 @@ class SupportsObjectDetection(BatchedImages, BatchedObjects):
     ...
 
 
+@runtime_checkable
 class _DataLoaderIterator(Protocol[T_co]):
     def __next__(self) -> T_co:
         ...
 
 
+@runtime_checkable
 class DataLoader(Protocol[T_co]):
     def __iter__(self) -> _DataLoaderIterator[T_co]:
         ...
@@ -177,14 +227,17 @@ class HasScores(Protocol):
     scores: ArrayLike
 
 
+@runtime_checkable
 class HasDetectionLogits(HasLogits, HasPredBoxes, Protocol):
     ...
 
 
+@runtime_checkable
 class HasDetectionProbs(HasProbs, HasPredBoxes, Protocol):
     ...
 
 
+@runtime_checkable
 class HasLabelPredictions(Protocol):
     labels: ArrayLike
 
@@ -241,11 +294,13 @@ Models
 """
 
 
+@runtime_checkable
 class Model(Protocol):
     def get_labels(self) -> Sequence[str]:
         ...
 
 
+@runtime_checkable
 class ModelWithPostProcessor(Protocol):
     def get_labels(self) -> Sequence[str]:
         ...
@@ -253,6 +308,7 @@ class ModelWithPostProcessor(Protocol):
     post_processor: PostProcessor
 
 
+@runtime_checkable
 class ModelWithPreProcessor(Protocol):
     def get_labels(self) -> Sequence[str]:
         ...
@@ -260,6 +316,7 @@ class ModelWithPreProcessor(Protocol):
     preprocessor: Preprocessor[Union[ImageClassifierData, ObjectDetectionData]]
 
 
+@runtime_checkable
 class ImageClassifier(Model, Protocol):
     def __call__(
         self, data: SupportsImageClassification
@@ -267,6 +324,7 @@ class ImageClassifier(Model, Protocol):
         ...
 
 
+@runtime_checkable
 class ObjectDetector(Model, Protocol):
     def __call__(
         self, data: SupportsObjectDetection

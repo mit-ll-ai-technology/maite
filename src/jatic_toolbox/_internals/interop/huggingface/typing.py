@@ -28,6 +28,7 @@ from jatic_toolbox.protocols import ArrayLike, Dataset, HasDetectionLogits, HasL
 T = TypeVar("T", bound=ArrayLike)
 
 
+@runtime_checkable
 class HuggingFaceDataset(Dataset[Mapping[str, Any]], Protocol):
     features: Mapping[str, Any]
 
@@ -81,6 +82,7 @@ class BatchFeature(Dict[str, ArrayLike]):
         ...
 
 
+@runtime_checkable
 class HuggingFaceProcessor(Protocol):
     def __call__(
         self,
@@ -91,6 +93,7 @@ class HuggingFaceProcessor(Protocol):
         ...
 
 
+@runtime_checkable
 class HuggingFaceObjectDetectionPostProcessor(Protocol):
     def __call__(
         self,
@@ -104,6 +107,7 @@ class HuggingFaceObjectDetectionPostProcessor(Protocol):
         ...
 
 
+@runtime_checkable
 class HuggingFaceModule(Protocol):
     config: Any
 
@@ -111,11 +115,23 @@ class HuggingFaceModule(Protocol):
         ...
 
 
+@runtime_checkable
 class HuggingFaceWithLogits(HuggingFaceModule, Protocol):
     def __call__(self, pixel_values: ArrayLike, **kwargs: Any) -> HasLogits:
         ...
 
 
+@runtime_checkable
 class HuggingFaceWithDetection(HuggingFaceModule, Protocol):
     def __call__(self, pixel_values: ArrayLike, **kwargs: Any) -> HasDetectionLogits:
         ...
+
+
+@runtime_checkable
+class HuggingFaceWrapper(Protocol):
+    _dataset: HuggingFaceDataset
+
+    def set_transform(
+        self, transform: Callable[[Mapping[str, Any]], Mapping[str, Any]]
+    ) -> None:
+        self._dataset.set_transform(transform)

@@ -62,41 +62,41 @@ def test_no_bounds():
     "kwargs",
     [
         pytest.param(
-            dict(arg=1, lower=1, upper=1, incl_low=False, incl_up=False),
+            {"arg": 1, "lower": 1, "upper": 1, "incl_low": False, "incl_up": False},
             marks=pytest.mark.xfail(raises=AssertionError, strict=True),
             id="1 < ... < 1",
         ),
         pytest.param(
-            dict(arg=1, lower=1, upper=1, incl_low=True, incl_up=False),
+            {"arg": 1, "lower": 1, "upper": 1, "incl_low": True, "incl_up": False},
             marks=pytest.mark.xfail(raises=AssertionError, strict=True),
             id="1 <= ... < 1",
         ),
         pytest.param(
-            dict(arg=1, lower=1, upper=1, incl_low=True, incl_up=True),
+            {"arg": 1, "lower": 1, "upper": 1, "incl_low": True, "incl_up": True},
             id="1 <= ... <= 1",
         ),
         pytest.param(
-            dict(arg=1, lower=1, upper=1, incl_low=False, incl_up=True),
+            {"arg": 1, "lower": 1, "upper": 1, "incl_low": False, "incl_up": True},
             marks=pytest.mark.xfail(raises=AssertionError, strict=True),
             id="1 < ... <= 1",
         ),
         pytest.param(
-            dict(arg=1, lower=2, upper=1, incl_low=False, incl_up=False),
+            {"arg": 1, "lower": 2, "upper": 1, "incl_low": False, "incl_up": False},
             marks=pytest.mark.xfail(raises=AssertionError, strict=True),
             id="2 < ... < 1",
         ),
         pytest.param(
-            dict(arg=1, lower=2, upper=1, incl_low=True, incl_up=False),
+            {"arg": 1, "lower": 2, "upper": 1, "incl_low": True, "incl_up": False},
             marks=pytest.mark.xfail(raises=AssertionError, strict=True),
             id="2 <= ... < 1",
         ),
         pytest.param(
-            dict(arg=1, lower=2, upper=1, incl_low=False, incl_up=True),
+            {"arg": 1, "lower": 2, "upper": 1, "incl_low": False, "incl_up": True},
             marks=pytest.mark.xfail(raises=AssertionError, strict=True),
             id="2 < ... <= 1",
         ),
         pytest.param(
-            dict(arg=1, lower=2, upper=1, incl_low=True, incl_up=True),
+            {"arg": 1, "lower": 2, "upper": 1, "incl_low": True, "incl_up": True},
             marks=pytest.mark.xfail(raises=AssertionError, strict=True),
             id="2 <= ... <= 1",
         ),
@@ -110,19 +110,19 @@ def test_min_max_ordering(kwargs):
     "kwargs",
     [
         pytest.param(
-            dict(arg=1, lower=1, incl_low=False),
+            {"arg": 1, "lower": 1, "incl_low": False},
             marks=pytest.mark.xfail(raises=InvalidArgument, strict=True),
             id="lower:1 < arg:1",
         ),
-        pytest.param(dict(arg=1, lower=1, incl_low=True), id="lower:1 <= arg:1"),
+        pytest.param({"arg": 1, "lower": 1, "incl_low": True}, id="lower:1 <= arg:1"),
         pytest.param(
-            dict(arg=1, upper=1, incl_up=False),
+            {"arg": 1, "upper": 1, "incl_up": False},
             marks=pytest.mark.xfail(raises=InvalidArgument, strict=True),
             id="arg:1 < upper:1",
         ),
-        pytest.param(dict(arg=1, upper=1, incl_up=True), id="arg:1 <= upper:1"),
+        pytest.param({"arg": 1, "upper": 1, "incl_up": True}, id="arg:1 <= upper:1"),
         pytest.param(
-            dict(arg=1, lower=1, upper=1, incl_low=True, incl_up=True),
+            {"arg": 1, "lower": 1, "upper": 1, "incl_low": True, "incl_up": True},
             id="lower:1 <= arg:1 <= upper:1",
         ),
     ],
