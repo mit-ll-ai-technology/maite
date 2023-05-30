@@ -107,15 +107,6 @@ combine_as_imports = true
 
 
 [tool.coverage.report]
-omit = [
-  "src/jatic_toolbox/_version.py",
-  "src/jatic_toolbox/_internals/interop/hydra_zen/__init__.py",
-  "src/jatic_toolbox/_internals/interop/hydra_zen/hf_configs.py",
-  "src/jatic_toolbox/_internals/interop/hydra_zen/smqtk_configs.py",
-  "src/jatic_toolbox/_internals/interop/hydra_zen/store.py",
-  "src/jatic_toolbox/_internals/interop/smqtk/__init__.py",
-  "src/jatic_toolbox/_internals/interop/smqtk/object_detection.py"
-]
 exclude_lines = [
   'pragma: no cover',
   'def __repr__',
