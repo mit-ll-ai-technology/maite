@@ -270,8 +270,8 @@ class HuggingFaceAPI:
                 trained_dataset=trained_dataset,
                 tags=tags,
             )
-
-        return hf_api.list_models(filter=filt)
+        models = hf_api.list_models(filter=filt)
+        return list(iter(models))
 
     def load_model(
         self,
