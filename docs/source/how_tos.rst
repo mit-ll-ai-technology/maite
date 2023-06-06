@@ -14,4 +14,4 @@ objectives.
    :maxdepth: 1
    :caption: Contents:
 
-   how_to/placeholder
+   how_to/metrics
