@@ -9,6 +9,7 @@ from jatic_toolbox._internals.protocols.typing import (
     Augmentation,
     BatchedImages,
     ClassifierPostProcessor,
+    DataClass,
     DataHasImage,
     DataLoader,
     Dataset,
@@ -68,4 +69,5 @@ __all__ = [
     "PostProcessor",
     "DataHasImage",
     "HasDetectionProbs",
+    "DataClass",
 ]

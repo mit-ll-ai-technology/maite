@@ -79,9 +79,15 @@ class HuggingFaceObjectDetector(nn.Module, ObjectDetector):
         super().__init__()
         self.model = model
         self._processor = processor
-        self._post_processor = post_processor
         self._threshold = threshold
         self._labels = list(model.config.id2label.values())
+
+        if post_processor is None and hasattr(
+            processor, "post_process_object_detection"
+        ):
+            post_processor = processor.post_process_object_detection  # type: ignore
+
+        self._post_processor = post_processor
 
     def get_labels(self) -> Sequence[str]:
         """
