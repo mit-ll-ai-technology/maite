@@ -62,6 +62,17 @@ def is_numpy_array(x) -> bool:
     return False if not is_numpy_available() else _is_numpy(x)
 
 
+def is_pil_image(x) -> bool:
+    """Tests if `x` is a Image array or not."""
+
+    def _is_pil(x):
+        from PIL.Image import Image
+
+        return isinstance(x, Image)
+
+    return False if not is_pil_available() else _is_pil(x)
+
+
 @dataclass
 class ClassificationOutput:
     # doc-ignore: EX01
