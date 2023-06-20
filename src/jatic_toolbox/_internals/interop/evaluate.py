@@ -315,7 +315,9 @@ class EvaluationTask(ABC):
             ]
         ] = None,
         preprocessor: Optional[
-            pr.Preprocessor[Union[pr.ImageClassifierData, pr.ObjectDetectionData]]
+            pr.Preprocessor[
+                Union[pr.SupportsImageClassification, pr.SupportsObjectDetection]
+            ]
         ] = None,
         post_processor: Optional[pr.PostProcessor] = None,
         batch_size: int = 1,

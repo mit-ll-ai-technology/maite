@@ -9,8 +9,8 @@ from jatic_toolbox._internals.interop.utils import to_tensor_list
 from jatic_toolbox.errors import InvalidArgument
 from jatic_toolbox.protocols import (
     ArrayLike,
-    BatchedImages,
     ClassifierPostProcessor,
+    HasDataImage,
     HasLogits,
     ImageClassifier,
     Preprocessor,
@@ -28,7 +28,7 @@ __all__ = ["HuggingFaceImageClassifier"]
 
 @runtime_checkable
 class BaseHF(ImageClassifier, Protocol):
-    preprocessor: Preprocessor[BatchedImages]
+    preprocessor: Preprocessor[HasDataImage]
     post_processor: ClassifierPostProcessor
 
 

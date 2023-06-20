@@ -26,8 +26,8 @@ class RandomDataset(Dataset):
                 for _ in range(length)
             ]
 
-    def __getitem__(self, index) -> pr.ImageClassifierData:
-        return pr.ImageClassifierData(image=self.data[index], label=0)
+    def __getitem__(self, index) -> pr.SupportsImageClassification:
+        return pr.SupportsImageClassification(image=self.data[index], label=0)
 
     def __len__(self):
         return len(self.data)
