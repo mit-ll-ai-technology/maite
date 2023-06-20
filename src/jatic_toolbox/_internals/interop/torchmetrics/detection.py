@@ -33,8 +33,8 @@ class MeanAveragePrecision(_MeanAveragePrecision):
 
             _target = [
                 dict(
-                    boxes=tr.as_tensor(target[i]["bbox"], device=self.device),
-                    labels=tr.as_tensor(target[i]["label"], device=self.device),
+                    boxes=tr.as_tensor(target[i]["boxes"], device=self.device),
+                    labels=tr.as_tensor(target[i]["labels"], device=self.device),
                 )
                 for i in range(len(target))
             ]

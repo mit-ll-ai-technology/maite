@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, Optional
 
 from jatic_toolbox._internals.protocols.typing import ObjectDetectionDataset
 from jatic_toolbox.protocols import (
+    ObjectData,
     SupportsImageClassification,
     SupportsObjectDetection,
     VisionDataset,
@@ -201,7 +202,7 @@ class HuggingFaceObjectDetectionDataset(HuggingFaceWrapper, ObjectDetectionDatas
             for o in obj:
                 bbox = o[self.bbox_key]
                 category = o[self.category_key]
-                det = {"bbox": bbox, "label": category}
+                det = ObjectData(boxes=bbox, labels=category)
                 for k, v in o.items():
                     if k not in (self.bbox_key, self.category_key):
                         det[k] = v

@@ -41,7 +41,6 @@ if TYPE_CHECKING:
     from dataclasses import Field  # provided by typestub but not generic at runtime
 else:
 
-    @runtime_checkable
     class Field(Protocol[T2]):
         name: str
         type: Type[T2]
@@ -54,7 +53,6 @@ else:
         metadata: Mapping[str, Any]
 
 
-@runtime_checkable
 class DataClass_(Protocol):
     # doesn't provide __init__, __getattribute__, etc.
     __dataclass_fields__: ClassVar[Dict[str, Field[Any]]]
@@ -78,25 +76,29 @@ class DataClass(DataClass_, Protocol):
 # These protocols are TypedDicts.
 
 
-class DataHasImage(TypedDict):
-    image: ArrayLike
+class HasDataImage(TypedDict):
+    image: Union[ArrayLike, Sequence[ArrayLike]]
 
 
-class DataHasLabel(TypedDict):
-    label: int
+class HasDataLabel(TypedDict):
+    label: Union[int, ArrayLike, Sequence[ArrayLike], Sequence[int]]
 
 
-class ImageClassifierData(DataHasImage, DataHasLabel):
+class HasDataBoxes(TypedDict):
+    boxes: Union[ArrayLike, Sequence[ArrayLike]]
+
+
+class ObjectData(HasDataBoxes):
+    # TODO: Should this be "label" or "labels"?
+    labels: Union[Sequence[int], ArrayLike, Sequence[ArrayLike]]
+
+
+class SupportsImageClassification(HasDataImage, HasDataLabel):
     ...
 
 
-class ObjectData(TypedDict):
-    boxes: Sequence[ArrayLike]
-    labels: Sequence[int]
-
-
-class ObjectDetectionData(DataHasImage):
-    objects: ObjectData
+class SupportsObjectDetection(HasDataImage):
+    objects: Union[ObjectData, Sequence[ObjectData]]
 
 
 @runtime_checkable
@@ -108,8 +110,8 @@ class Dataset(Protocol[T_co]):
         ...
 
 
-VisionDataset: TypeAlias = Dataset[ImageClassifierData]
-ObjectDetectionDataset: TypeAlias = Dataset[ObjectDetectionData]
+VisionDataset: TypeAlias = Dataset[SupportsImageClassification]
+ObjectDetectionDataset: TypeAlias = Dataset[SupportsObjectDetection]
 
 
 """
@@ -117,27 +119,6 @@ DataLoading
 """
 
 
-class BatchedImages(TypedDict):
-    image: Union[ArrayLike, Sequence[ArrayLike]]
-
-
-class BatchedLabels(TypedDict):
-    label: Union[ArrayLike, Sequence[ArrayLike], Sequence[int]]
-
-
-class BatchedObjects(TypedDict):
-    objects: Sequence[ObjectData]
-
-
-class SupportsImageClassification(BatchedImages, BatchedLabels):
-    ...
-
-
-class SupportsObjectDetection(BatchedImages, BatchedObjects):
-    ...
-
-
-@runtime_checkable
 class _DataLoaderIterator(Protocol[T_co]):
     def __next__(self) -> T_co:
         ...
@@ -151,12 +132,9 @@ class DataLoader(Protocol[T_co]):
 
 VisionDataLoader: TypeAlias = DataLoader[SupportsImageClassification]
 ObjectDetectionDataLoader: TypeAlias = DataLoader[SupportsObjectDetection]
-BatchedData = TypeVar(
-    "BatchedData", SupportsImageClassification, SupportsObjectDetection
-)
 
 
-Preprocessor: TypeAlias = Callable[[Sequence[T]], Sequence[T]]
+Preprocessor: TypeAlias = Callable[[T], T]
 """
 PreProcessor Protocol.
 
@@ -170,6 +148,7 @@ Returns
 -------
 output: Sequence[T]
 """
+
 
 Augmentation: TypeAlias = Callable[[T], T]
 """
@@ -187,9 +166,9 @@ output: T
 """
 
 
-"""
-Output Data Structures
-"""
+#
+# Output Data Structures
+#
 
 
 @runtime_checkable
@@ -301,25 +280,21 @@ class Model(Protocol):
 
 
 @runtime_checkable
-class ModelWithPostProcessor(Protocol):
-    def get_labels(self) -> Sequence[str]:
-        ...
-
+class ModelWithPostProcessor(Model, Protocol):
     post_processor: PostProcessor
 
 
 @runtime_checkable
-class ModelWithPreProcessor(Protocol):
-    def get_labels(self) -> Sequence[str]:
-        ...
-
-    preprocessor: Preprocessor[Union[ImageClassifierData, ObjectDetectionData]]
+class ModelWithPreProcessor(Model, Protocol):
+    preprocessor: Preprocessor[
+        Union[SupportsImageClassification, SupportsObjectDetection]
+    ]
 
 
 @runtime_checkable
 class ImageClassifier(Model, Protocol):
     def __call__(
-        self, data: SupportsImageClassification
+        self, data: HasDataImage
     ) -> Union[HasLogits, HasProbs, HasScorePredictions]:
         ...
 
@@ -327,7 +302,7 @@ class ImageClassifier(Model, Protocol):
 @runtime_checkable
 class ObjectDetector(Model, Protocol):
     def __call__(
-        self, data: SupportsObjectDetection
+        self, data: HasDataImage
     ) -> Union[HasDetectionLogits, HasDetectionProbs, HasDetectionScorePredictions]:
         ...
 
