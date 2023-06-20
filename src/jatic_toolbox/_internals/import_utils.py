@@ -30,10 +30,6 @@ def is_hf_transformers_available():
     return importlib.util.find_spec("transformers") is not None
 
 
-def is_hf_available():
-    return is_hf_transformers_available() and is_hf_datasets_available()
-
-
 def is_hydra_zen_available():
     return importlib.util.find_spec("hydra_zen") is not None
 

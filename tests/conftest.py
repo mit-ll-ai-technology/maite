@@ -60,7 +60,11 @@ else:
 if not import_utils.is_hydra_zen_available():
     collect_ignore_glob.append("*hydra_zen*.py")
 
-if not import_utils.is_hf_available():
+if not (
+    import_utils.is_hf_transformers_available()
+    and import_utils.is_hf_datasets_available()
+    and import_utils.is_hf_hub_available()
+):
     collect_ignore_glob.append("*huggingface*.py")
 
 if not import_utils.is_torchvision_available():

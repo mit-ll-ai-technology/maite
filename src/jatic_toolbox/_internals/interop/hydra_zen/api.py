@@ -28,7 +28,8 @@ from jatic_toolbox.protocols import (
 )
 
 from ...import_utils import (
-    is_hf_available,
+    is_hf_datasets_available,
+    is_hf_transformers_available,
     is_torcheval_available,
     is_torchmetrics_available,
     is_torchvision_available,
@@ -83,7 +84,7 @@ def _get_hf_dataset_builder(
     --------
     datasets.load_dataset : The function that this function wraps.
     """
-    if not is_hf_available():  # pragma: no cover
+    if not is_hf_datasets_available():  # pragma: no cover
         raise ImportError("HuggingFace Datasets is not installed.")
 
     if split is None:
@@ -245,7 +246,7 @@ def _get_hf_model_builder(
     transformers.AutoModelForImageClassification : The function that this function wraps.
     transformers.AutoFeatureExtractor : The function that this function wraps.
     """
-    if not is_hf_available():  # pragma: no cover
+    if not is_hf_transformers_available():  # pragma: no cover
         raise ImportError("HuggingFace Transformers is not installed.")
 
     if task == "image-classification":

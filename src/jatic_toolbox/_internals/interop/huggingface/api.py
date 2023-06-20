@@ -15,7 +15,11 @@ from typing_extensions import Literal
 
 from jatic_toolbox.protocols import Dataset, ImageClassifier, ObjectDetector
 
-from ...import_utils import is_hf_available, is_hf_hub_available
+from ...import_utils import (
+    is_hf_datasets_available,
+    is_hf_hub_available,
+    is_hf_transformers_available,
+)
 from .datasets import HuggingFaceObjectDetectionDataset, HuggingFaceVisionDataset
 from .typing import HuggingFaceDataset
 
@@ -146,7 +150,7 @@ class HuggingFaceAPI:
         >>> api = HuggingFaceAPI()
         >>> dataset = api.load_dataset("resnet")
         """
-        if not is_hf_available():  # pragma: no cover
+        if not is_hf_datasets_available():  # pragma: no cover
             raise ImportError("HuggingFace Datasets is not installed.")
 
         if task is not None and task not in self._SUPPORTED_TASKS:
@@ -310,7 +314,7 @@ class HuggingFaceAPI:
         >>> api = HuggingFaceAPI()
         >>> api.load_model("image-classification", "google/vit-base-patch16-224-in21k")
         """
-        if not is_hf_available():  # pragma: no cover
+        if not is_hf_transformers_available():  # pragma: no cover
             raise ImportError("HuggingFace Transformers is not installed.")
 
         from jatic_toolbox.interop.huggingface import (

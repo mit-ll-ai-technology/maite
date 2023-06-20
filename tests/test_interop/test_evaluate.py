@@ -1,9 +1,11 @@
 import typing as tp
 from dataclasses import dataclass
 
+import numpy as np
 import pytest
 import torch as tr
 import typing_extensions as tpe
+from PIL import Image
 from torch.utils.data import Dataset
 
 import jatic_toolbox
@@ -11,8 +13,18 @@ from jatic_toolbox import protocols as pr
 
 
 class RandomDataset(Dataset):
-    def __init__(self, size: int, length: int):
-        self.data = tr.randn(length, size)
+    def __init__(self, data_type: str, size: int, length: int):
+        if data_type == "numpy":
+            self.data = tr.randn(length, size).numpy()
+        elif data_type == "tensor":
+            self.data = tr.randn(length, size)
+        elif data_type == "pillow":
+            self.data = [
+                Image.fromarray(
+                    np.random.randint(0, 255, (size, size, 3), dtype=np.uint8)
+                )
+                for _ in range(length)
+            ]
 
     def __getitem__(self, index) -> pr.ImageClassifierData:
         return pr.ImageClassifierData(image=self.data[index], label=0)
@@ -22,8 +34,20 @@ class RandomDataset(Dataset):
 
 
 class RandomDetectionDataset(Dataset):
-    def __init__(self, size: int, length: int):
-        self.data = tr.randn(length, size)
+    def __init__(self, data_type: str, size: int, length: int):
+        if data_type == "numpy":
+            self.data = tr.randn(length, size).numpy()
+        elif data_type == "tensor":
+            self.data = tr.randn(length, size)
+        elif data_type == "pillow":
+            self.data = [
+                Image.fromarray(
+                    np.random.randint(0, 255, (size, size, 3), dtype=np.uint8)
+                )
+                for _ in range(length)
+            ]
+
+        # self.data = tr.randn(length, size)
 
     def __getitem__(self, index):
         return dict(
@@ -109,9 +133,9 @@ class Metric:
 @pytest.mark.parametrize("use_progress_bar", [True, False])
 @pytest.mark.parametrize("with_logits", [True, False])
 @pytest.mark.parametrize("no_dataclass", [True, False])
-def test_evaluate(use_progress_bar, with_logits, no_dataclass):
-    # TODO: use torchvision coco instead of huggingface?
-    data = RandomDataset(10, 10)
+@pytest.mark.parametrize("data_type", ["numpy", "tensor", "pillow"])
+def test_evaluate(use_progress_bar, with_logits, no_dataclass, data_type):
+    data = RandomDataset(data_type, 10, 10)
     model = VisionModel(with_logits=with_logits, no_dataclass=no_dataclass)
     metric = Metric()
 
@@ -141,9 +165,10 @@ def test_evaluate(use_progress_bar, with_logits, no_dataclass):
 
 @pytest.mark.parametrize("use_progress_bar", [True, False])
 @pytest.mark.parametrize("no_dataclass", [True, False])
-def test_evaluate_object_detection(use_progress_bar, no_dataclass):
+@pytest.mark.parametrize("data_type", ["numpy", "tensor", "pillow"])
+def test_evaluate_object_detection(use_progress_bar, no_dataclass, data_type):
     # TODO: use torchvision coco instead of huggingface?
-    data = RandomDetectionDataset(10, 10)
+    data = RandomDetectionDataset(data_type, 10, 10)
     model = DetectionModel(no_dataclass)
     metric = Metric()
 
