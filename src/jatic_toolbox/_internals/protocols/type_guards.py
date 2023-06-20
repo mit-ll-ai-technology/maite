@@ -25,9 +25,9 @@ def has_preprocessor(obj: Any) -> TypeGuard[ModelWithPreProcessor]:
 
     Examples
     --------
-    >>> from jatic_toolbox.protocols import Preprocessor, ImageClassifierData
+    >>> from jatic_toolbox.protocols import Preprocessor, SupportsImageClassification
     >>> class Foo:
-    ...     def preprocessor(self) -> Preprocessor[ImageClassifierData]:
+    ...     def preprocessor(self) -> Preprocessor[SupportsImageClassification]:
     ...         ...
     >>> has_preprocessor(Foo())
     True

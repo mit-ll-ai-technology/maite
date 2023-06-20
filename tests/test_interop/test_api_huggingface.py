@@ -230,8 +230,8 @@ def test_hf_load_object_detection_dataset(
         assert type(temp) == dict
         assert "image" in temp
         assert "objects" in temp
-        assert "label" in temp["objects"]
-        assert "bbox" in temp["objects"]
+        assert "labels" in temp["objects"]
+        assert "boxes" in temp["objects"]
 
 
 @pytest.mark.parametrize(
