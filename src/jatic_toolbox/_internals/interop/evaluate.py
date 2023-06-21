@@ -123,7 +123,7 @@ def transfer_to_device(*modules: T, device) -> Iterator[Tuple[T]]:
 
 
 def collate_and_pad(
-    preprocessor: Optional[pr.Preprocessor] = None, processor_key: str = "image"
+    preprocessor: Optional[pr.Preprocessor] = None,
 ) -> Callable[[Sequence[Mapping[str, Any]]], Mapping[str, Any]]:
     """
     Collates and pads a batch of examples.
@@ -132,10 +132,6 @@ def collate_and_pad(
     ----------
     preprocessor : Optional[Preprocessor], optional
         A callable that takes a batch of examples and returns a batch of examples, by default None
-
-    processor_key : str, optional
-        The key of the batch that will be passed to the preprocessor, by default "image"
-
     """
 
     def collator(batch: Sequence[Mapping[str, Any]]) -> Mapping[str, Any]:
