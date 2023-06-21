@@ -21,10 +21,14 @@ A = TypeVar("A", bound=ArrayLike)
 T = TypeVar("T")
 SUPPORTED_TASKS: TypeAlias = Literal["image-classification", "object-detection"]
 
+DATASET_PROVIDERS: TypeAlias = Literal["huggingface", "torchvision"]
+MODEL_PROVIDERS: TypeAlias = Literal["huggingface", "torchvision"]
+METRIC_PROVIDERS: TypeAlias = Literal["torchmetrics", "torcheval"]
+
 
 def list_datasets(
     *,
-    provider: str,
+    provider: DATASET_PROVIDERS,
     **kwargs: Any,
 ) -> Iterable[Any]:
     """
@@ -33,7 +37,7 @@ def list_datasets(
     Parameters
     ----------
     provider : str
-        Where to search for datasets.
+        Where to search for datasets. Currently supported: "huggingface", "torchvision".
     **kwargs : Any
         Any keyword supported by provider interface.
 
@@ -59,7 +63,7 @@ def list_datasets(
 
 def load_dataset(
     *,
-    provider: str,
+    provider: DATASET_PROVIDERS,
     dataset_name: str,
     task: Optional[Literal["image-classification", "object-detection"]] = None,
     split: Optional[str] = None,
@@ -71,7 +75,7 @@ def load_dataset(
     Parameters
     ----------
     provider : str
-        Where to search for datasets.
+        Where to search for datasets. Currently supported: "huggingface", "torchvision".
     dataset_name : str
         Name of dataset.
     task : str | None (default: None)
@@ -103,7 +107,7 @@ def load_dataset(
 
 def list_models(
     *,
-    provider: str,
+    provider: MODEL_PROVIDERS,
     filter_str: Optional[Union[str, List[str]]] = None,
     model_name: Optional[str] = None,
     task: Optional[Union[str, List[str]]] = None,
@@ -115,7 +119,7 @@ def list_models(
     Parameters
     ----------
     provider : str
-        Where to search for models.
+        Where to search for models. Currently supported: "huggingface", "torchvision".
     filter_str : str | List[str] | None (default: None)
         A string or list of strings that contain complete or partial names for models.
     model_name : str | None (default: None)
@@ -151,7 +155,7 @@ def list_models(
 @overload
 def load_model(
     *,
-    provider: str,
+    provider: MODEL_PROVIDERS,
     task: Literal["image-classification"],
     model_name: str,
     **kwargs: Any,
@@ -161,14 +165,18 @@ def load_model(
 
 @overload
 def load_model(
-    *, provider: str, task: Literal["object-detection"], model_name: str, **kwargs: Any
+    *,
+    provider: MODEL_PROVIDERS,
+    task: Literal["object-detection"],
+    model_name: str,
+    **kwargs: Any,
 ) -> ObjectDetector:
     ...
 
 
 def load_model(
     *,
-    provider: str,
+    provider: MODEL_PROVIDERS,
     task: Literal["image-classification", "object-detection"],
     model_name: str,
     **kwargs: Any,
@@ -179,7 +187,7 @@ def load_model(
     Parameters
     ----------
     provider : str
-        The provider of the model (e.g., "huggingface").
+        The provider of the model (e.g., "huggingface"). Currently supported: "huggingface", "torchvision".
     task : str
         The task for the model (e.g., "image-classification").
     model_name : str
@@ -207,7 +215,7 @@ def load_model(
 
 def list_metrics(
     *,
-    provider: str,
+    provider: METRIC_PROVIDERS,
     **kwargs: Any,
 ) -> Iterable[Any]:
     """
@@ -241,7 +249,7 @@ def list_metrics(
 
 def load_metric(
     *,
-    provider: str,
+    provider: METRIC_PROVIDERS,
     metric_name: str,
     **kwargs: Any,
 ) -> Metric:
@@ -251,7 +259,7 @@ def load_metric(
     Parameters
     ----------
     provider : str
-        The provider of the metric (e.g., "torchmetrics").
+        The provider of the metric (e.g., "torchmetrics"). Currently supported: "torcheval", "torchmetrics".
     metric_name : str
         The `metric_name` for the metric (e.g., "accuracy").
     **kwargs : Any

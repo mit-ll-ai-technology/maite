@@ -113,6 +113,9 @@ class TorchVisionAPI:
         >>> api.load_dataset("MNIST", root="data", download=True)
         <jatic_toolbox._internals.interop.torchvision.datasets.TorchVisionDataset object at 0x000001F2B1B5B4C0>
         """
+        if not is_torchvision_available():  # pragma: no cover
+            raise ImportError("TorchVision is not installed.")
+
         if task is not None and task not in ("image-classification",):
             raise ValueError(
                 f"Task {task} is not supported. Supported tasks are ('image-classification', )."
