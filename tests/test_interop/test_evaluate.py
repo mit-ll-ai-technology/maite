@@ -15,9 +15,9 @@ from jatic_toolbox import protocols as pr
 class RandomDataset(Dataset):
     def __init__(self, data_type: str, size: int, length: int):
         if data_type == "numpy":
-            self.data = tr.randn(length, size).numpy()
+            self.data = tr.randn(length, 3, size, size).numpy()
         elif data_type == "tensor":
-            self.data = tr.randn(length, size)
+            self.data = tr.randn(length, 3, size, size)
         elif data_type == "pillow":
             self.data = [
                 Image.fromarray(
@@ -36,9 +36,9 @@ class RandomDataset(Dataset):
 class RandomDetectionDataset(Dataset):
     def __init__(self, data_type: str, size: int, length: int):
         if data_type == "numpy":
-            self.data = tr.randn(length, size).numpy()
+            self.data = tr.randn(length, 3, size, size).numpy()
         elif data_type == "tensor":
-            self.data = tr.randn(length, size)
+            self.data = tr.randn(length, 3, size, size)
         elif data_type == "pillow":
             self.data = [
                 Image.fromarray(
@@ -74,6 +74,8 @@ class VisionModel(tr.nn.Module):
         super().__init__()
         self.with_logits = with_logits
         self.no_dataclass = no_dataclass
+        self.conv2d = tr.nn.Conv2d(3, 10, 1)
+        self.avgpool = tr.nn.AdaptiveAvgPool2d((1, 1))
         self.linear = tr.nn.Linear(10, 1)
 
     def get_labels(self):
@@ -81,13 +83,23 @@ class VisionModel(tr.nn.Module):
 
     def forward(self, x):
         x = x["image"]
+        if isinstance(x, list):
+            from torchvision.transforms.functional import to_tensor
+
+            x = tr.stack([to_tensor(i) for i in x], dim=0)
+
+        x = self.conv2d(x)
+        x = self.avgpool(x)
+        x = tr.flatten(x, 1)
+        x = self.linear(x)
+
         if self.no_dataclass:
-            return self.linear(x)
+            return x
 
         if self.with_logits:
-            return VisionOutput(logits=self.linear(x))
+            return VisionOutput(logits=x)
         else:
-            return VisionOutputProbs(probs=self.linear(x).softmax(-1))
+            return VisionOutputProbs(probs=x.softmax(-1))
 
 
 @dataclass

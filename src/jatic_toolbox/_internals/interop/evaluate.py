@@ -16,15 +16,15 @@ from typing import (
     overload,
 )
 
-import numpy as np
 import torch as tr
 from torch.utils.data import DataLoader
 from typing_extensions import Literal, Protocol, Self, TypeAlias, runtime_checkable
 
 import jatic_toolbox.protocols as pr
 
-from ..import_utils import is_pil_available, is_torch_available, is_tqdm_available
+from ..import_utils import is_torch_available, is_tqdm_available
 from ..utils import evaluating
+from .utils import is_pil_image
 
 ArrayLike = pr.ArrayLike
 T = TypeVar("T")
@@ -172,39 +172,10 @@ def collate_and_pad(
         for key in batch[0].keys():
             batch_item = [example[key] for example in batch]
 
-            if is_pil_available():
-                from PIL.Image import Image
+            if is_pil_image(batch_item[0]):
+                collated_batch[key] = batch_item
 
-                if isinstance(batch_item[0], Image):
-                    # handle PIL Image: taken from `torchvision.transforms.functional.to_tensor`
-                    def to_array(pic: Image):
-                        mode_to_nptype = {
-                            "I": np.int32,
-                            "I;16": np.int16,
-                            "F": np.float32,
-                        }
-                        img = tr.from_numpy(
-                            np.array(
-                                pic, mode_to_nptype.get(pic.mode, np.uint8), copy=True
-                            )
-                        )
-
-                        if pic.mode == "1":
-                            img = 255 * img
-
-                        channels = len(pic.getbands())
-                        img = img.view(pic.size[1], pic.size[0], channels)
-                        # put it from HWC to CHW format
-                        img = img.permute((2, 0, 1))
-
-                        if isinstance(img, tr.ByteTensor):
-                            return img.to(dtype=tr.get_default_dtype()).div(255)
-                        else:
-                            return img
-
-                    batch_item = [to_array(x) for x in batch_item]
-
-            if isinstance(batch_item[0], tr.Tensor):
+            elif isinstance(batch_item[0], tr.Tensor):
                 shape_first = batch_item[0].shape
                 if all([shape_first == item.shape for item in batch_item]):
                     collated_batch[key] = tr.stack(batch_item)
