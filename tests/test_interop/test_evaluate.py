@@ -1,9 +1,11 @@
 import typing as tp
 from dataclasses import dataclass
 
+import numpy as np
 import pytest
 import torch as tr
 import typing_extensions as tpe
+from PIL import Image
 from torch.utils.data import Dataset
 
 import jatic_toolbox
@@ -11,8 +13,18 @@ from jatic_toolbox import protocols as pr
 
 
 class RandomDataset(Dataset):
-    def __init__(self, size: int, length: int):
-        self.data = tr.randn(length, size)
+    def __init__(self, data_type: str, size: int, length: int):
+        if data_type == "numpy":
+            self.data = tr.randn(length, 3, size, size).numpy()
+        elif data_type == "tensor":
+            self.data = tr.randn(length, 3, size, size)
+        elif data_type == "pillow":
+            self.data = [
+                Image.fromarray(
+                    np.random.randint(0, 255, (size, size, 3), dtype=np.uint8)
+                )
+                for _ in range(length)
+            ]
 
     def __getitem__(self, index) -> pr.SupportsImageClassification:
         return pr.SupportsImageClassification(image=self.data[index], label=0)
@@ -22,8 +34,20 @@ class RandomDataset(Dataset):
 
 
 class RandomDetectionDataset(Dataset):
-    def __init__(self, size: int, length: int):
-        self.data = tr.randn(length, size)
+    def __init__(self, data_type: str, size: int, length: int):
+        if data_type == "numpy":
+            self.data = tr.randn(length, 3, size, size).numpy()
+        elif data_type == "tensor":
+            self.data = tr.randn(length, 3, size, size)
+        elif data_type == "pillow":
+            self.data = [
+                Image.fromarray(
+                    np.random.randint(0, 255, (size, size, 3), dtype=np.uint8)
+                )
+                for _ in range(length)
+            ]
+
+        # self.data = tr.randn(length, size)
 
     def __getitem__(self, index):
         return dict(
@@ -50,6 +74,8 @@ class VisionModel(tr.nn.Module):
         super().__init__()
         self.with_logits = with_logits
         self.no_dataclass = no_dataclass
+        self.conv2d = tr.nn.Conv2d(3, 10, 1)
+        self.avgpool = tr.nn.AdaptiveAvgPool2d((1, 1))
         self.linear = tr.nn.Linear(10, 1)
 
     def get_labels(self):
@@ -57,13 +83,23 @@ class VisionModel(tr.nn.Module):
 
     def forward(self, x):
         x = x["image"]
+        if isinstance(x, list):
+            from torchvision.transforms.functional import to_tensor
+
+            x = tr.stack([to_tensor(i) for i in x], dim=0)
+
+        x = self.conv2d(x)
+        x = self.avgpool(x)
+        x = tr.flatten(x, 1)
+        x = self.linear(x)
+
         if self.no_dataclass:
-            return self.linear(x)
+            return x
 
         if self.with_logits:
-            return VisionOutput(logits=self.linear(x))
+            return VisionOutput(logits=x)
         else:
-            return VisionOutputProbs(probs=self.linear(x).softmax(-1))
+            return VisionOutputProbs(probs=x.softmax(-1))
 
 
 @dataclass
@@ -109,9 +145,9 @@ class Metric:
 @pytest.mark.parametrize("use_progress_bar", [True, False])
 @pytest.mark.parametrize("with_logits", [True, False])
 @pytest.mark.parametrize("no_dataclass", [True, False])
-def test_evaluate(use_progress_bar, with_logits, no_dataclass):
-    # TODO: use torchvision coco instead of huggingface?
-    data = RandomDataset(10, 10)
+@pytest.mark.parametrize("data_type", ["numpy", "tensor", "pillow"])
+def test_evaluate(use_progress_bar, with_logits, no_dataclass, data_type):
+    data = RandomDataset(data_type, 10, 10)
     model = VisionModel(with_logits=with_logits, no_dataclass=no_dataclass)
     metric = Metric()
 
@@ -141,9 +177,10 @@ def test_evaluate(use_progress_bar, with_logits, no_dataclass):
 
 @pytest.mark.parametrize("use_progress_bar", [True, False])
 @pytest.mark.parametrize("no_dataclass", [True, False])
-def test_evaluate_object_detection(use_progress_bar, no_dataclass):
+@pytest.mark.parametrize("data_type", ["numpy", "tensor", "pillow"])
+def test_evaluate_object_detection(use_progress_bar, no_dataclass, data_type):
     # TODO: use torchvision coco instead of huggingface?
-    data = RandomDetectionDataset(10, 10)
+    data = RandomDetectionDataset(data_type, 10, 10)
     model = DetectionModel(no_dataclass)
     metric = Metric()
 
