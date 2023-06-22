@@ -2,63 +2,9 @@ from typing import Any, Dict, List, Type, TypeVar
 
 from typing_extensions import TypedDict, TypeGuard
 
-from .typing import ModelWithPostProcessor, ModelWithPreProcessor
-
 K = TypeVar("K")
 T = TypeVar("T")
 Td = TypeVar("Td", bound=TypedDict)
-
-
-def has_preprocessor(obj: Any) -> TypeGuard[ModelWithPreProcessor]:
-    """
-    Check if object has preprocessor attribute.
-
-    Parameters
-    ----------
-    obj : Any
-        The object to check.
-
-    Returns
-    -------
-    TypeGuard[Preprocessor]
-        True if object has preprocessor attribute.
-
-    Examples
-    --------
-    >>> from jatic_toolbox.protocols import Preprocessor, SupportsImageClassification
-    >>> class Foo:
-    ...     def preprocessor(self) -> Preprocessor[SupportsImageClassification]:
-    ...         ...
-    >>> has_preprocessor(Foo())
-    True
-    """
-    return hasattr(obj, "preprocessor")
-
-
-def has_post_processor(obj: Any) -> TypeGuard[ModelWithPostProcessor]:
-    """
-    Check if object has post_processor attribute.
-
-    Parameters
-    ----------
-    obj : Any
-        The object to check.
-
-    Returns
-    -------
-    TypeGuard[PostProcessor]
-        True if object has post_processor attribute.
-
-    Examples
-    --------
-    >>> from jatic_toolbox._internals.protocols.typing import PostProcessor
-    >>> class Foo:
-    ...     def post_processor(self) -> PostProcessor:
-    ...         ...
-    >>> has_post_processor(Foo())
-    True
-    """
-    return hasattr(obj, "post_processor")
 
 
 def is_list_dict(d: Any, guard: Type[T] = Dict[Any, Any]) -> TypeGuard[List[T]]:

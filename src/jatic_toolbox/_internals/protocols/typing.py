@@ -134,22 +134,6 @@ VisionDataLoader: TypeAlias = DataLoader[SupportsImageClassification]
 ObjectDetectionDataLoader: TypeAlias = DataLoader[SupportsObjectDetection]
 
 
-Preprocessor: TypeAlias = Callable[[T], T]
-"""
-PreProcessor Protocol.
-
-Preprocessors are functions that take in a single input and return a single output.
-
-Parameters
-----------
-input: Sequence[T]
-
-Returns
--------
-output: Sequence[T]
-"""
-
-
 Augmentation: TypeAlias = Callable[[T], T]
 """
 Augmentation Protocol.
@@ -172,8 +156,8 @@ output: T
 
 
 @runtime_checkable
-class HasLabel(Protocol):
-    label: Union[ArrayLike, Sequence[ArrayLike]]
+class HasLabel(Protocol[T]):
+    label: T
 
 
 @runtime_checkable
@@ -182,57 +166,42 @@ class HasObject(Protocol):
 
 
 @runtime_checkable
-class HasBoxes(Protocol):
-    boxes: Union[ArrayLike, Sequence[ArrayLike]]
+class HasBoxes(Protocol[T]):
+    boxes: T
 
 
 @runtime_checkable
-class HasLogits(Protocol):
-    logits: Union[ArrayLike, Sequence[ArrayLike]]
+class HasLogits(Protocol[T]):
+    logits: T
 
 
 @runtime_checkable
-class HasProbs(Protocol):
-    probs: Union[ArrayLike, Sequence[ArrayLike]]
+class HasProbs(Protocol[T]):
+    probs: T
 
 
 @runtime_checkable
-class HasScores(Protocol):
-    scores: Union[ArrayLike, Sequence[ArrayLike]]
-    label: Union[ArrayLike, Sequence[ArrayLike]]
+class HasScores(Protocol[T]):
+    scores: T
+    label: T
 
 
 @runtime_checkable
-class HasDetectionLogits(HasLogits, HasBoxes, Protocol):
+class HasDetectionLogits(Protocol[T]):
+    logits: T
+    boxes: T
+
+
+@runtime_checkable
+class HasDetectionProbs(HasProbs[T], HasBoxes[T], Protocol[T]):
     ...
 
 
 @runtime_checkable
-class HasDetectionProbs(HasProbs, HasBoxes, Protocol):
-    ...
-
-
-@runtime_checkable
-class HasDetectionPredictions(Protocol):
-    scores: Union[ArrayLike, Sequence[ArrayLike]]
-    boxes: Union[ArrayLike, Sequence[ArrayLike]]
-    labels: Union[ArrayLike, Sequence[ArrayLike]]
-
-
-"""
-Post-Processing
-"""
-
-ClassifierPostProcessor: TypeAlias = Callable[
-    [Union[HasLogits, HasProbs]], Union[HasProbs, HasScores]
-]
-
-DetectorPostProcessor: TypeAlias = Callable[
-    [Union[HasDetectionLogits, HasDetectionProbs]],
-    Union[HasProbs, HasDetectionPredictions],
-]
-
-PostProcessor: TypeAlias = Union[ClassifierPostProcessor, DetectorPostProcessor]
+class HasDetectionPredictions(Protocol[T]):
+    scores: T
+    boxes: T
+    labels: T
 
 
 """
@@ -247,28 +216,18 @@ class Model(Protocol):
 
 
 @runtime_checkable
-class ModelWithPostProcessor(Model, Protocol):
-    post_processor: PostProcessor
-
-
-@runtime_checkable
-class ModelWithPreProcessor(Model, Protocol):
-    preprocessor: Preprocessor[
-        Union[SupportsImageClassification, SupportsObjectDetection]
-    ]
-
-
-@runtime_checkable
-class ImageClassifier(Model, Protocol):
-    def __call__(self, data: HasDataImage) -> Union[HasLogits, HasProbs, HasScores]:
+class ImageClassifier(Model, Protocol[T]):
+    def __call__(
+        self, data: HasDataImage
+    ) -> Union[HasLogits[T], HasProbs[T], HasScores[T]]:
         ...
 
 
 @runtime_checkable
-class ObjectDetector(Model, Protocol):
+class ObjectDetector(Model, Protocol[T]):
     def __call__(
         self, data: HasDataImage
-    ) -> Union[HasDetectionLogits, HasDetectionProbs, HasDetectionPredictions]:
+    ) -> Union[HasDetectionLogits[T], HasDetectionProbs[T], HasDetectionPredictions[T]]:
         ...
 
 

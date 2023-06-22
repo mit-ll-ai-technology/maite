@@ -3,19 +3,11 @@ from typing import TYPE_CHECKING, Any, List, Optional, Sequence, Union, cast, ov
 
 import torch as tr
 from torch import nn
-from typing_extensions import Protocol, Self, runtime_checkable
+from typing_extensions import Self
 
 from jatic_toolbox._internals.interop.utils import to_tensor_list
 from jatic_toolbox.errors import InvalidArgument
-from jatic_toolbox.protocols import (
-    ArrayLike,
-    ClassifierPostProcessor,
-    HasDataImage,
-    HasLogits,
-    ImageClassifier,
-    Preprocessor,
-    is_typed_dict,
-)
+from jatic_toolbox.protocols import ArrayLike, HasDataImage, HasLogits, is_typed_dict
 
 from .typing import (
     HuggingFacePostProcessedImages,
@@ -26,13 +18,7 @@ from .typing import (
 __all__ = ["HuggingFaceImageClassifier"]
 
 
-@runtime_checkable
-class BaseHF(ImageClassifier, Protocol):
-    preprocessor: Preprocessor[HasDataImage]
-    post_processor: ClassifierPostProcessor
-
-
-class HuggingFaceImageClassifier(nn.Module, BaseHF):
+class HuggingFaceImageClassifier(nn.Module):
     """
     Wrapper for HuggingFace image classifiation models.
 
@@ -150,7 +136,9 @@ class HuggingFaceImageClassifier(nn.Module, BaseHF):
             assert isinstance(image_features, tr.Tensor)
             return {"image": image_features}
 
-    def post_processor(self, outputs: HasLogits) -> HuggingFacePostProcessedImages:
+    def post_processor(
+        self, outputs: HasLogits[tr.Tensor]
+    ) -> HuggingFacePostProcessedImages:
         """
         Postprocess the outputs of a HuggingFace image classifier.
 
@@ -230,7 +218,7 @@ class HuggingFaceImageClassifier(nn.Module, BaseHF):
 
         return cls(clf_model, processor, top_k=top_k)
 
-    def forward(self, data: Union[HasDataImage, ArrayLike]) -> HasLogits:
+    def forward(self, data: Union[HasDataImage, ArrayLike]) -> HasLogits[tr.Tensor]:
         """
         Extract object detection for HuggingFace Object Detection models.
 
@@ -265,7 +253,7 @@ class HuggingFaceImageClassifier(nn.Module, BaseHF):
         if is_typed_dict(data, HasDataImage):
             pixel_values = data["image"]
         elif isinstance(data, (dict, UserDict)):
-            raise InvalidArgument("Missing key in data.")
+            raise InvalidArgument("Missing `image` key in data.")
         else:
             pixel_values = tr.as_tensor(data)
 

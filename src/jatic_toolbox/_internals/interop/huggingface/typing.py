@@ -3,7 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, Mapping, Optional, Sequence, TypeVar, Union
 
-import torch
+import torch as tr
+from torch import Tensor
 from typing_extensions import Protocol, Self, runtime_checkable
 
 from jatic_toolbox.protocols import ArrayLike, Dataset, HasLogits
@@ -23,33 +24,33 @@ class HuggingFaceDataset(Dataset[Mapping[str, Any]], Protocol):
 
 @dataclass
 class HuggingFacePostProcessedImages:
-    probs: Union[ArrayLike, Sequence[ArrayLike]]
-    labels: Optional[Union[ArrayLike, Sequence[Sequence[str]]]] = None
+    probs: Union[Tensor, Sequence[Tensor]]
+    labels: Optional[Union[Tensor, Sequence[Sequence[str]]]] = None
 
 
 @dataclass
 class HuggingFaceDetectorOutput(Dict[str, Any]):
-    logits: Union[ArrayLike, Sequence[ArrayLike]]
-    boxes: Union[ArrayLike, Sequence[ArrayLike]]
+    logits: Tensor
+    boxes: Tensor
 
 
 @dataclass
 class HuggingFaceObjectDetectionPostProcessedOutput(Dict[str, Any]):
-    boxes: Union[ArrayLike, Sequence[ArrayLike]]
-    scores: Union[ArrayLike, Sequence[ArrayLike]]
-    labels: Union[ArrayLike, Sequence[ArrayLike]]
+    boxes: Union[Tensor, Sequence[Tensor]]
+    scores: Union[Tensor, Sequence[Tensor]]
+    labels: Union[Tensor, Sequence[Tensor]]
 
 
 @dataclass
-class HuggingFacePostProcessorInput(Dict[str, ArrayLike]):
-    logits: Union[ArrayLike, Sequence[ArrayLike]]
-    pred_boxes: Union[ArrayLike, Sequence[ArrayLike]]
+class HuggingFacePostProcessorInput(Dict[str, Any]):
+    logits: Tensor
+    pred_boxes: Tensor
 
 
 @runtime_checkable
 class HFOutput(Protocol):
-    logits: Union[ArrayLike, Sequence[ArrayLike]]
-    pred_boxes: Union[ArrayLike, Sequence[ArrayLike]]
+    logits: Tensor
+    pred_boxes: Tensor
 
 
 class BatchFeature(Dict[str, ArrayLike]):
@@ -86,7 +87,7 @@ class HuggingFaceObjectDetectionPostProcessor(Protocol):
 class HuggingFaceModule(Protocol):
     config: Any
 
-    def to(self, device: Optional[Union[int, torch.device]]) -> Self:
+    def to(self, device: Optional[Union[int, tr.device]]) -> Self:
         ...
 
 
@@ -94,7 +95,7 @@ class HuggingFaceModule(Protocol):
 class HuggingFaceWithLogits(HuggingFaceModule, Protocol):
     def __call__(
         self, pixel_values: Union[ArrayLike, Sequence[ArrayLike]], **kwargs: Any
-    ) -> HasLogits:
+    ) -> HasLogits[Tensor]:
         ...
 
 

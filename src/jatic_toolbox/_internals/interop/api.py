@@ -159,7 +159,7 @@ def load_model(
     task: Literal["image-classification"],
     model_name: str,
     **kwargs: Any,
-) -> ImageClassifier:
+) -> ImageClassifier[Any]:
     ...
 
 
@@ -170,7 +170,7 @@ def load_model(
     task: Literal["object-detection"],
     model_name: str,
     **kwargs: Any,
-) -> ObjectDetector:
+) -> ObjectDetector[Any]:
     ...
 
 
@@ -180,7 +180,7 @@ def load_model(
     task: Literal["image-classification", "object-detection"],
     model_name: str,
     **kwargs: Any,
-) -> Union[ImageClassifier, ObjectDetector]:
+) -> Union[ImageClassifier[Any], ObjectDetector[Any]]:
     """
     Return a supported model.
 

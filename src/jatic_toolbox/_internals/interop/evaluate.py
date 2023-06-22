@@ -123,7 +123,9 @@ def transfer_to_device(*modules: T, device) -> Iterator[Tuple[T]]:
 
 
 def collate_and_pad(
-    preprocessor: Optional[pr.Preprocessor] = None,
+    preprocessor: Optional[
+        Callable[[Sequence[Mapping[str, Any]]], Sequence[Mapping[str, Any]]]
+    ] = None,
 ) -> Callable[[Sequence[Mapping[str, Any]]], Mapping[str, Any]]:
     """
     Collates and pads a batch of examples.
@@ -234,7 +236,9 @@ def get_dataloader(
     split: Literal["train", "test"] = "test",
     shuffle: Optional[bool] = None,
     collate_fn: Optional[Callable[[Any], Any]] = None,
-    preprocessor: Optional[pr.Preprocessor] = None,
+    preprocessor: Optional[
+        Callable[[Sequence[Mapping[str, Any]]], Sequence[Mapping[str, Any]]]
+    ] = None,
     **kwargs: Any,
 ) -> pr.DataLoader:
     """
@@ -302,7 +306,7 @@ class EvaluationTask(ABC):
 
     def __call__(
         self,
-        model: Model,
+        model: Union[pr.ImageClassifier[ArrayLike], pr.ObjectDetector[ArrayLike]],
         data: Union[pr.VisionDataset, pr.ObjectDetectionDataset],
         metric: Mapping[str, pr.Metric],
         augmentation: Optional[
@@ -310,18 +314,10 @@ class EvaluationTask(ABC):
                 Union[pr.SupportsImageClassification, pr.SupportsObjectDetection]
             ]
         ] = None,
-        preprocessor: Optional[
-            pr.Preprocessor[
-                Union[pr.SupportsImageClassification, pr.SupportsObjectDetection]
-            ]
-        ] = None,
-        post_processor: Optional[pr.PostProcessor] = None,
         batch_size: int = 1,
         device: Optional[Union[str, int]] = None,
         collate_fn: Optional[Callable] = None,
         use_progress_bar: bool = True,
-        input_key: str = "image",
-        label_key: str = "label",
         **kwargs: Any,
     ) -> Dict[str, Any]:
         """
@@ -347,10 +343,6 @@ class EvaluationTask(ABC):
             The collate function to use for the data loader.
         use_progress_bar : bool (default: True)
             Whether to use a progress bar.
-        input_key : str (default: "image")
-            The key to use for the input data.
-        label_key : str (default: "label")
-            The key to use for the labels.
         **kwargs : Any
             Keyword arguments for `torch.utils.data.DataLoader`.
 
@@ -379,13 +371,9 @@ class EvaluationTask(ABC):
         >>> evaluator(model, data, metric=dict(accuracy=acc_metric), batch_size=32, device=0)
         {'accuracy': tensor(0.9788, device='cuda:0')}
         """
-        if preprocessor is None:
-            if pr.has_preprocessor(model):
-                preprocessor = model.preprocessor
-
-        if post_processor is None:
-            if pr.has_post_processor(model):
-                post_processor = model.post_processor
+        preprocessor = None
+        if hasattr(model, "preprocessor"):
+            preprocessor = getattr(model, "preprocessor")
 
         assert isinstance(metric, Mapping)
 
@@ -402,11 +390,8 @@ class EvaluationTask(ABC):
             model=model,
             metric=metric,
             augmentation=augmentation,
-            post_processor=post_processor,
             device=device,
             use_progress_bar=use_progress_bar,
-            input_key=input_key,
-            label_key=label_key,
         )
 
 
@@ -431,14 +416,11 @@ class ImageClassificationEvaluator(EvaluationTask):
     def _evaluate_on_dataset(
         self,
         data: pr.VisionDataLoader,
-        model: pr.ImageClassifier,
+        model: pr.ImageClassifier[pr.ArrayLike],
         metric: Mapping[str, pr.Metric],
         augmentation: Optional[pr.Augmentation[pr.SupportsImageClassification]] = None,
-        post_processor: Optional[pr.ClassifierPostProcessor] = None,
         device: Optional[Union[str, int]] = None,
         use_progress_bar: bool = True,
-        input_key: str = "image",
-        label_key: str = "label",
     ) -> Dict[str, Any]:
         """
         Evaluate a model on a dataset.
@@ -465,6 +447,21 @@ class ImageClassificationEvaluator(EvaluationTask):
         """
         if device is None:
             device = self._infer_device()
+
+        post_processor: Optional[
+            Callable[
+                [
+                    Union[
+                        pr.HasLogits[ArrayLike],
+                        pr.HasProbs[ArrayLike],
+                        pr.HasScores[ArrayLike],
+                    ]
+                ],
+                pr.HasScores[ArrayLike],
+            ]
+        ] = None
+        if hasattr(model, "post_processor"):
+            post_processor = getattr(model, "post_processor")
 
         # Reset metrics
         [v.reset() for v in metric.values()]
@@ -493,19 +490,17 @@ class ImageClassificationEvaluator(EvaluationTask):
                     ) as (batch_device,):
                         output = model(batch_device)
 
-                        if post_processor is not None and not isinstance(
-                            output, pr.HasScores
-                        ):
+                        if post_processor is not None:
                             output = post_processor(output)
 
                     if isinstance(output, pr.HasLogits):
                         [
-                            v.update(output.logits, batch_device[label_key])
+                            v.update(output.logits, batch_device["label"])
                             for k, v in metric.items()
                         ]
                     elif isinstance(output, pr.HasProbs):
                         [
-                            v.update(output.probs, batch_device[label_key])
+                            v.update(output.probs, batch_device["label"])
                             for k, v in metric.items()
                         ]
                     else:
@@ -535,63 +530,14 @@ class ObjectDetectionEvaluator(EvaluationTask):
         super().__init__()
         self.task = task
 
-    def __call__(
-        self,
-        *args: Any,
-        input_key: str = "image",
-        label_key: str = "objects",
-        **kwargs: Any,
-    ) -> Dict[str, Any]:
-        """
-        Evaluate a model on a dataset.
-
-        Parameters
-        ----------
-        task : str
-            The task to evaluate on.
-        model : Classifier[ArrayLike] | ObjectDetector[ArrayLike]
-            The model to evaluate.
-        data : Iterable
-            The dataset to evaluate on.
-        metric : Mapping[str, Metric]]
-            The metric to evaluate the model on.
-        augmentation : Optional[Augmentation]
-            The augmentation to apply to the dataset.
-        batch_size : int
-            The batch size to use for evaluation.
-        device : Optional[Union[str, int]]
-            The device to use for evaluation. If None, the device is automatically selected.
-        collate_fn : Callable | None (default: None)
-            The collate function to use for the data loader.
-        use_progress_bar : bool (default: True)
-            Whether to use a progress bar.
-        input_key : str (default: "image")
-            The key to use for the input data.
-        label_key : str (default: "objects")
-            The key to use for the labels.
-        **kwargs : Any
-            Keyword arguments for `torch.utils.data.DataLoader`.
-
-        Returns
-        -------
-        Dict[str, Any]
-            The evaluation results.
-        """
-        return super().__call__(
-            *args, input_key=input_key, label_key=label_key, **kwargs
-        )
-
     def _evaluate_on_dataset(
         self,
         data: pr.DataLoader[pr.SupportsObjectDetection],
-        model: pr.ObjectDetector,
+        model: pr.ObjectDetector[ArrayLike],
         metric: Mapping[str, pr.Metric],
         augmentation: Optional[pr.Augmentation[pr.SupportsObjectDetection]] = None,
-        post_processor: Optional[pr.DetectorPostProcessor] = None,
         device: Optional[Union[str, int]] = None,
         use_progress_bar: bool = True,
-        input_key: str = "image",
-        label_key: str = "objects",
     ) -> Dict[str, Any]:
         """
         Evaluate a model on a dataset.
@@ -625,6 +571,21 @@ class ObjectDetectionEvaluator(EvaluationTask):
         if device is None:
             device = self._infer_device()
 
+        post_processor: Optional[
+            Callable[
+                [
+                    Union[
+                        pr.HasDetectionLogits[ArrayLike],
+                        pr.HasDetectionProbs[ArrayLike],
+                        pr.HasDetectionPredictions[ArrayLike],
+                    ]
+                ],
+                pr.HasDetectionPredictions[ArrayLike],
+            ]
+        ] = None
+        if hasattr(model, "post_processor"):
+            post_processor = getattr(model, "post_processor")
+
         # Reset metrics
         [v.reset() for v in metric.values()]
 
@@ -653,14 +614,12 @@ class ObjectDetectionEvaluator(EvaluationTask):
                         output = model(batch_device)
 
                         output = model(batch_device)
-                        if post_processor is not None and not isinstance(
-                            output, pr.HasDetectionPredictions
-                        ):
+                        if post_processor is not None:
                             output = post_processor(output)
 
                     if isinstance(output, pr.HasDetectionPredictions):
                         [
-                            v.update(output, batch_device[label_key])
+                            v.update(output, batch_device["objects"])
                             for k, v in metric.items()
                         ]
                     else:

@@ -150,7 +150,7 @@ class HuggingFaceObjectDetector(nn.Module):
             return lout
 
         elif isinstance(data, (list, tuple)):
-            images = to_tensor_list(data)
+            images = to_tensor_list(data)  # type: ignore
             target_sizes = [tuple(np.asarray(img).shape[:2]) for img in images]
             image_features = self._processor(images=images, return_tensors="pt")[
                 "pixel_values"
@@ -163,8 +163,8 @@ class HuggingFaceObjectDetector(nn.Module):
             raise InvalidArgument(f"Invalid data type {type(data)}.")
 
     def post_processor(
-        self, model_outputs: HasDetectionLogits, **kwargs: Any
-    ) -> HasDetectionPredictions:
+        self, model_outputs: HasDetectionLogits[tr.Tensor], **kwargs: Any
+    ) -> HasDetectionPredictions[Union[tr.Tensor, Sequence[tr.Tensor]]]:
         """
         Post process the outputs of a HuggingFace object detector.
 
@@ -196,9 +196,9 @@ class HuggingFaceObjectDetector(nn.Module):
         )
 
         if isinstance(results, list):
-            output_labels: List[ArrayLike] = []
-            output_scores: List[ArrayLike] = []
-            output_boxes: List[ArrayLike] = []
+            output_labels: List[tr.Tensor] = []
+            output_scores: List[tr.Tensor] = []
+            output_boxes: List[tr.Tensor] = []
             for result in results:
                 boxes = result["boxes"]
                 scores = result["scores"]
@@ -272,7 +272,7 @@ class HuggingFaceObjectDetector(nn.Module):
     def forward(
         self,
         data: Union[HasDataImage, ArrayLike],
-    ) -> HasDetectionLogits:
+    ) -> HasDetectionLogits[tr.Tensor]:
         """
         Extract object detection for HuggingFace Object Detection models.
 
@@ -325,5 +325,5 @@ class HuggingFaceObjectDetector(nn.Module):
 
         # HuggingFace models return a dataclass that subclasses OrderedDict
         assert isinstance(results, dict)
-        results["target_size"] = target_size  # type: ignore
+        results["target_size"] = target_size
         return results

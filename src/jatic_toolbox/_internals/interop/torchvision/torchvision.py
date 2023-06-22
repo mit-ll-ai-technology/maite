@@ -16,13 +16,7 @@ from typing_extensions import Self, TypeAlias
 
 from jatic_toolbox._internals.interop.utils import to_tensor_list
 from jatic_toolbox.errors import InvalidArgument
-from jatic_toolbox.protocols import (
-    ArrayLike,
-    HasDataImage,
-    ImageClassifier,
-    ObjectDetector,
-    is_list_dict,
-)
+from jatic_toolbox.protocols import ArrayLike, HasDataImage, is_list_dict
 
 __all__ = ["TorchVisionClassifier", "TorchVisionObjectDetector"]
 
@@ -133,7 +127,7 @@ class TorchVisionBase(nn.Module):
         return cls(model, processor, labels)
 
 
-class TorchVisionClassifier(TorchVisionBase, ImageClassifier):
+class TorchVisionClassifier(TorchVisionBase):
     """
     Wrapper for torchvision image classification models.
 
@@ -184,7 +178,7 @@ class TorchVisionClassifier(TorchVisionBase, ImageClassifier):
         return TorchVisionClassifierOutput(logits=logits)
 
 
-class TorchVisionObjectDetector(TorchVisionBase, ObjectDetector):
+class TorchVisionObjectDetector(TorchVisionBase):
     """
     Wrapper for torchvision object detection models.
 

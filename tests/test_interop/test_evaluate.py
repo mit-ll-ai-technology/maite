@@ -49,10 +49,12 @@ class RandomDetectionDataset(Dataset):
 
         # self.data = tr.randn(length, size)
 
-    def __getitem__(self, index):
-        return dict(
+    def __getitem__(self, index) -> pr.SupportsObjectDetection:
+        return pr.SupportsObjectDetection(
             image=self.data[index],
-            objects={"bbox": [[0, 0, 1, 1]], "label": [[0, 0, 0, 0]]},
+            objects=pr.ObjectData(
+                boxes=np.asarray([[0, 0, 1, 1]]), labels=np.asarray([[0, 0, 0, 0]])
+            ),
         )
 
     def __len__(self):
