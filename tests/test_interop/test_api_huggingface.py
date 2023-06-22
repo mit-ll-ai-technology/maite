@@ -24,6 +24,7 @@ from jatic_toolbox.protocols import (
     HasDetectionPredictions,
     HasLogits,
     HasProbs,
+    HasScores,
 )
 from jatic_toolbox.testing.hypothesis import image_data
 
@@ -306,7 +307,10 @@ def test_hf_load_vision_model(top_k, image_as_dict):
         assert isinstance(out, HasLogits)
 
         out = model_out.post_processor(out)
-        assert isinstance(out, HasProbs)
+        if top_k is None:
+            assert isinstance(out, HasProbs)
+        else:
+            assert isinstance(out, HasScores)
 
 
 @given(

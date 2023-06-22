@@ -202,7 +202,7 @@ class HasProbs(Protocol[T]):
 @runtime_checkable
 class HasScores(Protocol[T]):
     scores: T
-    label: T
+    labels: T
 
 
 @runtime_checkable
