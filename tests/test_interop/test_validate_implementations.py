@@ -24,7 +24,7 @@ def test_huggingface_image_classifier():
         def get_test_vision_model():
             @dataclass
             class VisionOutput:
-                logits: pr.ArrayLike
+                logits: tp.Union[pr.ArrayLike, tp.Sequence[pr.ArrayLike]]
 
             class Processor:
                 def __call__(

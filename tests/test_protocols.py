@@ -107,7 +107,7 @@ def test_classifier_workflow():
         from jatic_toolbox.protocols import (
             ClassifierPostProcessor,
             DataLoader,
-            HasScorePredictions,
+            HasScores,
             ImageClassifier,
             Metric,
             Preprocessor,
@@ -125,7 +125,7 @@ def test_classifier_workflow():
             metric.reset()
             for batch in dataloader:
                 output = model(batch)
-                if not isinstance(output, HasScorePredictions):
+                if not isinstance(output, HasScores):
                     output = post(output)
                 metric.update(output, batch)
             metric.compute()
@@ -156,7 +156,7 @@ def test_object_detector_workflow():
         from jatic_toolbox.protocols import (
             DataLoader,
             DetectorPostProcessor,
-            HasDetectionScorePredictions,
+            HasDetectionPredictions,
             Metric,
             ObjectDetectionDataLoader,
             ObjectDetector,
@@ -174,7 +174,7 @@ def test_object_detector_workflow():
             metric.reset()
             for batch in dataloader:
                 output = model(batch)
-                if not isinstance(output, HasDetectionScorePredictions):
+                if not isinstance(output, HasDetectionPredictions):
                     output = post(output)
                 metric.update(output, batch)
             metric.compute()

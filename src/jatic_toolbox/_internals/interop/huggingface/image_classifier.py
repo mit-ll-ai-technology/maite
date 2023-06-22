@@ -14,10 +14,10 @@ from jatic_toolbox.protocols import (
     HasLogits,
     ImageClassifier,
     Preprocessor,
+    is_typed_dict,
 )
 
 from .typing import (
-    HasImagesDict,
     HuggingFacePostProcessedImages,
     HuggingFaceProcessor,
     HuggingFaceWithLogits,
@@ -86,22 +86,22 @@ class HuggingFaceImageClassifier(nn.Module, BaseHF):
         self,
         data: Sequence[ArrayLike],
         image_key: str = "image",
-    ) -> HasImagesDict:
+    ) -> HasDataImage:
         ...
 
     @overload
     def preprocessor(
         self,
-        data: Sequence[HasImagesDict],
+        data: Sequence[HasDataImage],
         image_key: str = "image",
-    ) -> Sequence[HasImagesDict]:
+    ) -> Sequence[HasDataImage]:
         ...
 
     def preprocessor(
         self,
-        data: Union[Sequence[ArrayLike], Sequence[HasImagesDict]],
+        data: Union[Sequence[ArrayLike], Sequence[HasDataImage]],
         image_key: str = "image",
-    ) -> Union[HasImagesDict, Sequence[HasImagesDict]]:
+    ) -> Union[HasDataImage, Sequence[HasDataImage]]:
         """
         Preprocess images for a HuggingFace object detector.
 
@@ -123,7 +123,7 @@ class HuggingFaceImageClassifier(nn.Module, BaseHF):
 
         if isinstance(data[0], dict):
             if TYPE_CHECKING:
-                data = cast(Sequence[HasImagesDict], data)
+                data = cast(Sequence[HasDataImage], data)
 
             images = to_tensor_list([d[image_key] for d in data])
             image_features = self._processor(images=images, return_tensors="pt")[
@@ -188,9 +188,7 @@ class HuggingFaceImageClassifier(nn.Module, BaseHF):
         return HuggingFacePostProcessedImages(probs=scores, labels=labels)
 
     @classmethod
-    def from_pretrained(
-        cls, model: str, with_processor: bool = True, **kwargs: Any
-    ) -> Self:
+    def from_pretrained(cls, model: str, **kwargs: Any) -> Self:
         """
         Load a HuggingFace model from pretrained weights.
 
@@ -225,21 +223,20 @@ class HuggingFaceImageClassifier(nn.Module, BaseHF):
         except OSError as e:  # pragma: no cover
             raise InvalidArgument(e)
 
-        if with_processor:
-            try:
-                processor = AutoFeatureExtractor.from_pretrained(model, **kwargs)
-            except OSError:  # pragma: no cover
-                processor = None
+        try:
+            processor = AutoFeatureExtractor.from_pretrained(model, **kwargs)
+        except OSError:  # pragma: no cover
+            processor = None
 
         return cls(clf_model, processor, top_k=top_k)
 
-    def forward(self, data: Union[HasImagesDict, ArrayLike]) -> HasLogits:
+    def forward(self, data: Union[HasDataImage, ArrayLike]) -> HasLogits:
         """
         Extract object detection for HuggingFace Object Detection models.
 
         Parameters
         ----------
-        data : Union[HasImagesDict, ArrayLike, Sequence[ArrayLike]]
+        data : Union[HasDataImage, ArrayLike, Sequence[ArrayLike]]
             The data to extract object detection from.
 
         Returns
@@ -265,15 +262,10 @@ class HuggingFaceImageClassifier(nn.Module, BaseHF):
         >>> from jatic_toolbox.protocols import HasLogits
         >>> assert isinstance(detections, HasLogits)
         """
-        if isinstance(data, (dict, UserDict)):
-            if "image" in data:
-                pixel_values = data["image"]
-            elif "pixel_values" in data:
-                pixel_values = data["pixel_values"]
-            else:
-                raise InvalidArgument(
-                    f"Expected 'image' or 'pixel_values' in data, got {data.keys()}"
-                )
+        if is_typed_dict(data, HasDataImage):
+            pixel_values = data["image"]
+        elif isinstance(data, (dict, UserDict)):
+            raise InvalidArgument("Missing key in data.")
         else:
             pixel_values = tr.as_tensor(data)
 

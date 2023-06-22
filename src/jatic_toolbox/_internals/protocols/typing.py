@@ -173,7 +173,7 @@ output: T
 
 @runtime_checkable
 class HasLabel(Protocol):
-    label: ArrayLike
+    label: Union[ArrayLike, Sequence[ArrayLike]]
 
 
 @runtime_checkable
@@ -182,87 +182,54 @@ class HasObject(Protocol):
 
 
 @runtime_checkable
-class HasPredBoxes(Protocol):
-    pred_boxes: ArrayLike
-
-
-@runtime_checkable
 class HasBoxes(Protocol):
-    boxes: ArrayLike
+    boxes: Union[ArrayLike, Sequence[ArrayLike]]
 
 
 @runtime_checkable
 class HasLogits(Protocol):
-    logits: ArrayLike
+    logits: Union[ArrayLike, Sequence[ArrayLike]]
 
 
 @runtime_checkable
 class HasProbs(Protocol):
-    probs: ArrayLike
+    probs: Union[ArrayLike, Sequence[ArrayLike]]
 
 
 @runtime_checkable
 class HasScores(Protocol):
-    scores: ArrayLike
+    scores: Union[ArrayLike, Sequence[ArrayLike]]
+    label: Union[ArrayLike, Sequence[ArrayLike]]
 
 
 @runtime_checkable
-class HasDetectionLogits(HasLogits, HasPredBoxes, Protocol):
+class HasDetectionLogits(HasLogits, HasBoxes, Protocol):
     ...
 
 
 @runtime_checkable
-class HasDetectionProbs(HasProbs, HasPredBoxes, Protocol):
+class HasDetectionProbs(HasProbs, HasBoxes, Protocol):
     ...
 
 
 @runtime_checkable
-class HasLabelPredictions(Protocol):
-    labels: ArrayLike
-
-
-@runtime_checkable
-class HasLogitsPredictions(HasLogits, HasLabelPredictions, Protocol):
-    ...
-
-
-@runtime_checkable
-class HasProbPredictions(HasProbs, HasLabelPredictions, Protocol):
-    ...
-
-
-@runtime_checkable
-class HasScorePredictions(HasScores, HasLabelPredictions, Protocol):
-    ...
-
-
-@runtime_checkable
-class HasDetectionProbPredictions(Protocol):
-    probs: Sequence[ArrayLike]
-    boxes: Sequence[ArrayLike]
-
-
-@runtime_checkable
-class HasDetectionScorePredictions(Protocol):
-    scores: Sequence[ArrayLike]
-    boxes: Sequence[ArrayLike]
-    labels: Sequence[ArrayLike]
+class HasDetectionPredictions(Protocol):
+    scores: Union[ArrayLike, Sequence[ArrayLike]]
+    boxes: Union[ArrayLike, Sequence[ArrayLike]]
+    labels: Union[ArrayLike, Sequence[ArrayLike]]
 
 
 """
 Post-Processing
 """
 
-LP = Union[HasLogits, HasProbs]
-LDP = Union[HasDetectionLogits, HasDetectionProbs]
-
 ClassifierPostProcessor: TypeAlias = Callable[
-    [Union[HasLogits, HasProbs]], Union[HasProbs, HasScorePredictions]
+    [Union[HasLogits, HasProbs]], Union[HasProbs, HasScores]
 ]
 
 DetectorPostProcessor: TypeAlias = Callable[
-    [LDP],
-    Union[HasProbs, HasDetectionScorePredictions],
+    [Union[HasDetectionLogits, HasDetectionProbs]],
+    Union[HasProbs, HasDetectionPredictions],
 ]
 
 PostProcessor: TypeAlias = Union[ClassifierPostProcessor, DetectorPostProcessor]
@@ -293,9 +260,7 @@ class ModelWithPreProcessor(Model, Protocol):
 
 @runtime_checkable
 class ImageClassifier(Model, Protocol):
-    def __call__(
-        self, data: HasDataImage
-    ) -> Union[HasLogits, HasProbs, HasScorePredictions]:
+    def __call__(self, data: HasDataImage) -> Union[HasLogits, HasProbs, HasScores]:
         ...
 
 
@@ -303,7 +268,7 @@ class ImageClassifier(Model, Protocol):
 class ObjectDetector(Model, Protocol):
     def __call__(
         self, data: HasDataImage
-    ) -> Union[HasDetectionLogits, HasDetectionProbs, HasDetectionScorePredictions]:
+    ) -> Union[HasDetectionLogits, HasDetectionProbs, HasDetectionPredictions]:
         ...
 
 

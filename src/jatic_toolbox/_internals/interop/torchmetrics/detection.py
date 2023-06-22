@@ -4,18 +4,18 @@ import torch as tr
 from torch import Tensor
 from torchmetrics.detection.mean_ap import MeanAveragePrecision as _MeanAveragePrecision
 
-from jatic_toolbox.protocols import HasDetectionScorePredictions
+from jatic_toolbox.protocols import HasDetectionPredictions
 
 
 class MeanAveragePrecision(_MeanAveragePrecision):
     def update(
         self,
-        preds: Union[List[Dict[str, Tensor]], HasDetectionScorePredictions],
+        preds: Union[List[Dict[str, Tensor]], HasDetectionPredictions],
         target: List[Dict[str, Tensor]],
     ) -> None:
         """Compute the mean average precision for object detection task."""
 
-        if isinstance(preds, HasDetectionScorePredictions):
+        if isinstance(preds, HasDetectionPredictions):
             if TYPE_CHECKING:
                 assert preds.labels is not None
                 assert isinstance(preds.labels, List)

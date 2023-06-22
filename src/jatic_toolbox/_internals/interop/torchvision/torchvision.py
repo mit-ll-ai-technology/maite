@@ -12,12 +12,13 @@ from typing import (
 )
 
 from torch import Tensor, nn
-from typing_extensions import Self, TypeAlias, TypedDict
+from typing_extensions import Self, TypeAlias
 
 from jatic_toolbox._internals.interop.utils import to_tensor_list
 from jatic_toolbox.errors import InvalidArgument
 from jatic_toolbox.protocols import (
     ArrayLike,
+    HasDataImage,
     ImageClassifier,
     ObjectDetector,
     is_list_dict,
@@ -27,10 +28,6 @@ __all__ = ["TorchVisionClassifier", "TorchVisionObjectDetector"]
 
 
 TorchVisionProcessor: TypeAlias = Callable[[Sequence[ArrayLike]], Tensor]
-
-
-class HasImagesDict(TypedDict):
-    image: ArrayLike
 
 
 @dataclass
@@ -69,22 +66,22 @@ class TorchVisionBase(nn.Module):
         self,
         data: Sequence[ArrayLike],
         image_key: str = "image",
-    ) -> HasImagesDict:
+    ) -> HasDataImage:
         ...
 
     @overload
     def preprocessor(
         self,
-        data: Sequence[HasImagesDict],
+        data: Sequence[HasDataImage],
         image_key: str = "image",
-    ) -> Sequence[HasImagesDict]:
+    ) -> Sequence[HasDataImage]:
         ...
 
     def preprocessor(
         self,
-        data: Union[Sequence[ArrayLike], Sequence[HasImagesDict]],
+        data: Union[Sequence[ArrayLike], Sequence[HasDataImage]],
         image_key: str = "image",
-    ) -> Union[HasImagesDict, Sequence[HasImagesDict]]:
+    ) -> Union[HasDataImage, Sequence[HasDataImage]]:
         if self._processor is None:
             raise InvalidArgument("No processor was provided.")
 

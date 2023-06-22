@@ -21,7 +21,7 @@ from jatic_toolbox.interop.huggingface import (
 )
 from jatic_toolbox.protocols import (
     HasDetectionLogits,
-    HasDetectionScorePredictions,
+    HasDetectionPredictions,
     HasLogits,
     HasProbs,
 )
@@ -269,7 +269,7 @@ def test_hf_vision_processors(task, loader, data, image_as_dict):
     assert isinstance(output, HasLogits)
 
     output = hf_model.post_processor(output)
-    assert isinstance(output, (HasProbs, HasDetectionScorePredictions))
+    assert isinstance(output, (HasProbs, HasDetectionPredictions))
 
 
 @pytest.mark.parametrize("image_as_dict", [None, "image", "pixel_values", "foo"])
@@ -297,10 +297,11 @@ def test_hf_load_vision_model(top_k, image_as_dict):
         if image_as_dict is not None:
             data = {image_as_dict: data}
 
-        if image_as_dict == "foo":
+        if image_as_dict is not None and image_as_dict not in ["image"]:
             with pytest.raises(InvalidArgument):
                 out = model_out(data)
             return
+
         out = model_out(data)
         assert isinstance(out, HasLogits)
 
@@ -333,7 +334,7 @@ def test_hf_load_object_detection_model(output_as_list, threshold, image_as_dict
         if image_as_dict is not None:
             data = {image_as_dict: data}
 
-        if image_as_dict == "foo":
+        if image_as_dict is not None and image_as_dict not in ["image"]:
             with pytest.raises(InvalidArgument):
                 out = model_out(data)
             return
@@ -342,4 +343,4 @@ def test_hf_load_object_detection_model(output_as_list, threshold, image_as_dict
         assert isinstance(out, HasDetectionLogits)
 
         out = model_out.post_processor(out)
-        assert isinstance(out, HasDetectionScorePredictions)
+        assert isinstance(out, HasDetectionPredictions)

@@ -494,7 +494,7 @@ class ImageClassificationEvaluator(EvaluationTask):
                         output = model(batch_device)
 
                         if post_processor is not None and not isinstance(
-                            output, pr.HasScorePredictions
+                            output, pr.HasScores
                         ):
                             output = post_processor(output)
 
@@ -654,11 +654,11 @@ class ObjectDetectionEvaluator(EvaluationTask):
 
                         output = model(batch_device)
                         if post_processor is not None and not isinstance(
-                            output, pr.HasDetectionScorePredictions
+                            output, pr.HasDetectionPredictions
                         ):
                             output = post_processor(output)
 
-                    if isinstance(output, pr.HasDetectionScorePredictions):
+                    if isinstance(output, pr.HasDetectionPredictions):
                         [
                             v.update(output, batch_device[label_key])
                             for k, v in metric.items()
