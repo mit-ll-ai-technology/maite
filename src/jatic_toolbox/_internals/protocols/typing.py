@@ -104,7 +104,7 @@ class HasDataBoxes(TypedDict):
     boxes: SupportsArray
 
 
-class ObjectData(HasDataBoxes):
+class ObjectDetectionData(HasDataBoxes):
     # TODO: Should this be "label" or "labels"?
     labels: Union[Sequence[int], SupportsArray]
 
@@ -114,7 +114,7 @@ class SupportsImageClassification(HasDataImage, HasDataLabel):
 
 
 class SupportsObjectDetection(HasDataImage):
-    objects: Union[ObjectData, Sequence[ObjectData]]
+    objects: Union[ObjectDetectionData, Sequence[ObjectDetectionData]]
 
 
 @runtime_checkable
@@ -181,7 +181,7 @@ class HasLabel(Protocol):
 
 @runtime_checkable
 class HasObject(Protocol):
-    object: Sequence[ObjectData]
+    object: Sequence[ObjectDetectionData]
 
 
 @runtime_checkable

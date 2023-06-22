@@ -52,7 +52,7 @@ class RandomDetectionDataset(Dataset):
     def __getitem__(self, index) -> pr.SupportsObjectDetection:
         return pr.SupportsObjectDetection(
             image=self.data[index],
-            objects=pr.ObjectData(
+            objects=pr.ObjectDetectionData(
                 boxes=np.asarray([[0, 0, 1, 1]]), labels=np.asarray([[0, 0, 0, 0]])
             ),
         )

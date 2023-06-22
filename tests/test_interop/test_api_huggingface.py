@@ -343,7 +343,7 @@ def test_hf_load_object_detection_model(output_as_list, threshold, image_as_dict
 
         if image_as_dict is not None and image_as_dict not in ["image"]:
             with pytest.raises(InvalidArgument):
-                out = model_out(data)  # type: ignore
+                out = model_out(data)
             return
 
         assert is_typed_dict(data, HasDataImage) or isinstance(data, ArrayLike)
