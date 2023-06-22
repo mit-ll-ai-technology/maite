@@ -105,47 +105,34 @@ def test_numpy_arraylike():
 def test_classifier_workflow():
     def func():
         from jatic_toolbox.protocols import (
-            ClassifierPostProcessor,
             DataLoader,
-            HasScores,
             ImageClassifier,
             Metric,
-            Preprocessor,
             SupportsImageClassification,
             VisionDataLoader,
         )
 
         def f(
             dataloader: DataLoader[SupportsImageClassification],
-            pre: Preprocessor[SupportsImageClassification],
             model: ImageClassifier,
-            post: ClassifierPostProcessor,
             metric: Metric,
         ):
             metric.reset()
             for batch in dataloader:
                 output = model(batch)
-                if not isinstance(output, HasScores):
-                    output = post(output)
                 metric.update(output, batch)
             metric.compute()
 
         def dl() -> VisionDataLoader:
             ...
 
-        def pre() -> Preprocessor:
-            ...
-
         def model() -> ImageClassifier:
-            ...
-
-        def post() -> ClassifierPostProcessor:
             ...
 
         def metric() -> Metric:
             ...
 
-        f(dl(), pre(), model(), post(), metric())
+        f(dl(), model(), metric())
 
     x = pyright_analyze(func)
     assert x["summary"]["errorCount"] == 0
@@ -155,46 +142,33 @@ def test_object_detector_workflow():
     def func():
         from jatic_toolbox.protocols import (
             DataLoader,
-            DetectorPostProcessor,
-            HasDetectionPredictions,
             Metric,
             ObjectDetectionDataLoader,
             ObjectDetector,
-            Preprocessor,
             SupportsObjectDetection,
         )
 
         def f(
             dataloader: DataLoader[SupportsObjectDetection],
-            pre: Preprocessor,
             model: ObjectDetector,
-            post: DetectorPostProcessor,
             metric: Metric,
         ):
             metric.reset()
             for batch in dataloader:
                 output = model(batch)
-                if not isinstance(output, HasDetectionPredictions):
-                    output = post(output)
                 metric.update(output, batch)
             metric.compute()
 
         def dl() -> ObjectDetectionDataLoader:
             ...
 
-        def pre() -> Preprocessor:
-            ...
-
         def model() -> ObjectDetector:
-            ...
-
-        def post() -> DetectorPostProcessor:
             ...
 
         def metric() -> Metric:
             ...
 
-        f(dl(), pre(), model(), post(), metric())
+        f(dl(), model(), metric())
 
     x = pyright_analyze(func)
     assert x["summary"]["errorCount"] == 0
