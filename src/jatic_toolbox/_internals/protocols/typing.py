@@ -21,6 +21,8 @@ from typing_extensions import (
     runtime_checkable,
 )
 
+from ..import_utils import is_pil_available
+
 T = TypeVar("T")
 T_co = TypeVar("T_co", covariant=True)
 T_cont = TypeVar("T_cont", contravariant=True)
@@ -32,6 +34,20 @@ P = ParamSpec("P")
 class ArrayLike(Protocol):
     def __array__(self) -> Any:
         ...
+
+
+if is_pil_available():
+    from PIL.Image import Image
+
+else:
+
+    class Image(Protocol):
+        format = None
+        format_description = None
+
+        @property
+        def __array_interface__(self):
+            ...
 
 
 A = TypeVar("A", bound=ArrayLike)
@@ -108,6 +124,9 @@ class Dataset(Protocol[T_co]):
 
     def __getitem__(self, index: Any) -> T_co:
         ...
+
+    # def set_transform(self, transform: Callable[[T], T]) -> None:
+    #     ...
 
 
 VisionDataset: TypeAlias = Dataset[SupportsImageClassification]

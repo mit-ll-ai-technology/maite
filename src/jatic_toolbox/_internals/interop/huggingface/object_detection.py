@@ -19,7 +19,7 @@ from jatic_toolbox.protocols import (
 
 from .typing import (
     HuggingFaceDetectorOutput,
-    HuggingFaceObjectDetectionPostProcessedOutput,
+    HuggingFaceDetectorPredictions,
     HuggingFaceObjectDetectionPostProcessor,
     HuggingFacePostProcessorInput,
     HuggingFaceProcessor,
@@ -186,7 +186,7 @@ class HuggingFaceObjectDetector(nn.Module):
         target_sizes = None
         if isinstance(model_outputs, dict):
             target_sizes = model_outputs.get("target_size", None)
-            model_outputs = cast(HasDetectionLogits, model_outputs)
+            model_outputs = cast(HasDetectionLogits[tr.Tensor], model_outputs)
 
         pp_input = HuggingFacePostProcessorInput(
             logits=model_outputs.logits, pred_boxes=model_outputs.boxes
@@ -208,7 +208,7 @@ class HuggingFaceObjectDetector(nn.Module):
                 output_scores.append(scores)
                 output_labels.append(labels)
 
-            return HuggingFaceObjectDetectionPostProcessedOutput(
+            return HuggingFaceDetectorPredictions(
                 boxes=output_boxes, labels=output_labels, scores=output_scores
             )
         else:

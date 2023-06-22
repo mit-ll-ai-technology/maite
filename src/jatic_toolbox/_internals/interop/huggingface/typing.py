@@ -3,7 +3,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, Mapping, Optional, Sequence, TypeVar, Union
 
-import torch as tr
 from torch import Tensor
 from typing_extensions import Protocol, Self, runtime_checkable
 
@@ -23,8 +22,14 @@ class HuggingFaceDataset(Dataset[Mapping[str, Any]], Protocol):
 
 
 @dataclass
-class HuggingFacePostProcessedImages:
+class HuggingFaceProbs:
     probs: Union[Tensor, Sequence[Tensor]]
+    labels: Optional[Union[Tensor, Sequence[Sequence[str]]]] = None
+
+
+@dataclass
+class HuggingFacePredictions:
+    scores: Union[Tensor, Sequence[Tensor]]
     labels: Optional[Union[Tensor, Sequence[Sequence[str]]]] = None
 
 
@@ -35,9 +40,9 @@ class HuggingFaceDetectorOutput(Dict[str, Any]):
 
 
 @dataclass
-class HuggingFaceObjectDetectionPostProcessedOutput(Dict[str, Any]):
-    boxes: Union[Tensor, Sequence[Tensor]]
+class HuggingFaceDetectorPredictions(Dict[str, Any]):
     scores: Union[Tensor, Sequence[Tensor]]
+    boxes: Union[Tensor, Sequence[Tensor]]
     labels: Union[Tensor, Sequence[Tensor]]
 
 
@@ -77,8 +82,8 @@ class HuggingFaceObjectDetectionPostProcessor(Protocol):
         threshold: float,
         target_sizes: Any,
     ) -> Union[
-        HuggingFaceObjectDetectionPostProcessedOutput,
-        Sequence[HuggingFaceObjectDetectionPostProcessedOutput],
+        HuggingFaceDetectorPredictions,
+        Sequence[HuggingFaceDetectorPredictions],
     ]:
         ...
 
@@ -86,9 +91,6 @@ class HuggingFaceObjectDetectionPostProcessor(Protocol):
 @runtime_checkable
 class HuggingFaceModule(Protocol):
     config: Any
-
-    def to(self, device: Optional[Union[int, tr.device]]) -> Self:
-        ...
 
 
 @runtime_checkable

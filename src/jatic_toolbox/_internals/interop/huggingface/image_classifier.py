@@ -10,7 +10,8 @@ from jatic_toolbox.errors import InvalidArgument
 from jatic_toolbox.protocols import ArrayLike, HasDataImage, HasLogits, is_typed_dict
 
 from .typing import (
-    HuggingFacePostProcessedImages,
+    HuggingFacePredictions,
+    HuggingFaceProbs,
     HuggingFaceProcessor,
     HuggingFaceWithLogits,
 )
@@ -138,7 +139,7 @@ class HuggingFaceImageClassifier(nn.Module):
 
     def post_processor(
         self, outputs: HasLogits[tr.Tensor]
-    ) -> HuggingFacePostProcessedImages:
+    ) -> Union[HuggingFacePredictions, HuggingFaceProbs]:
         """
         Postprocess the outputs of a HuggingFace image classifier.
 
@@ -149,7 +150,7 @@ class HuggingFaceImageClassifier(nn.Module):
 
         Returns
         -------
-        HuggingFacePostProcessedImages
+        HuggingFaceProbs | HuggingFacePredictions
             The postprocessed outputs of a HuggingFace image classifier.
 
         Examples
@@ -159,7 +160,7 @@ class HuggingFaceImageClassifier(nn.Module):
 
         if self._top_k is None:
             labels = list(self.get_labels()) * probs.shape[0]
-            return HuggingFacePostProcessedImages(probs=probs, labels=labels)
+            return HuggingFaceProbs(probs=probs, labels=labels)
 
         top_k = self._top_k
         if top_k > self.model.config.num_labels:
@@ -173,7 +174,7 @@ class HuggingFaceImageClassifier(nn.Module):
 
         model_labels = list(self.get_labels())
         labels = [[model_labels[_id] for _id in _ids] for _ids in ids]
-        return HuggingFacePostProcessedImages(probs=scores, labels=labels)
+        return HuggingFacePredictions(scores=scores, labels=labels)
 
     @classmethod
     def from_pretrained(cls, model: str, **kwargs: Any) -> Self:
