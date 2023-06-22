@@ -138,7 +138,7 @@ class HuggingFaceImageClassifier(nn.Module):
             return {"image": image_features}
 
     def post_processor(
-        self, outputs: HasLogits[tr.Tensor]
+        self, outputs: HasLogits
     ) -> Union[HuggingFacePredictions, HuggingFaceProbs]:
         """
         Postprocess the outputs of a HuggingFace image classifier.
@@ -219,7 +219,7 @@ class HuggingFaceImageClassifier(nn.Module):
 
         return cls(clf_model, processor, top_k=top_k)
 
-    def forward(self, data: Union[HasDataImage, ArrayLike]) -> HasLogits[tr.Tensor]:
+    def forward(self, data: Union[HasDataImage, ArrayLike]) -> HasLogits:
         """
         Extract object detection for HuggingFace Object Detection models.
 

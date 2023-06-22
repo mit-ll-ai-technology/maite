@@ -306,7 +306,7 @@ class EvaluationTask(ABC):
 
     def __call__(
         self,
-        model: Union[pr.ImageClassifier[ArrayLike], pr.ObjectDetector[ArrayLike]],
+        model: Union[pr.ImageClassifier, pr.ObjectDetector],
         data: Union[pr.VisionDataset, pr.ObjectDetectionDataset],
         metric: Mapping[str, pr.Metric],
         augmentation: Optional[
@@ -416,7 +416,7 @@ class ImageClassificationEvaluator(EvaluationTask):
     def _evaluate_on_dataset(
         self,
         data: pr.VisionDataLoader,
-        model: pr.ImageClassifier[pr.ArrayLike],
+        model: pr.ImageClassifier,
         metric: Mapping[str, pr.Metric],
         augmentation: Optional[pr.Augmentation[pr.SupportsImageClassification]] = None,
         device: Optional[Union[str, int]] = None,
@@ -452,12 +452,12 @@ class ImageClassificationEvaluator(EvaluationTask):
             Callable[
                 [
                     Union[
-                        pr.HasLogits[ArrayLike],
-                        pr.HasProbs[ArrayLike],
-                        pr.HasScores[ArrayLike],
+                        pr.HasLogits,
+                        pr.HasProbs,
+                        pr.HasScores,
                     ]
                 ],
-                pr.HasScores[ArrayLike],
+                pr.HasScores,
             ]
         ] = None
         if hasattr(model, "post_processor"):
@@ -533,7 +533,7 @@ class ObjectDetectionEvaluator(EvaluationTask):
     def _evaluate_on_dataset(
         self,
         data: pr.DataLoader[pr.SupportsObjectDetection],
-        model: pr.ObjectDetector[ArrayLike],
+        model: pr.ObjectDetector,
         metric: Mapping[str, pr.Metric],
         augmentation: Optional[pr.Augmentation[pr.SupportsObjectDetection]] = None,
         device: Optional[Union[str, int]] = None,
@@ -575,12 +575,12 @@ class ObjectDetectionEvaluator(EvaluationTask):
             Callable[
                 [
                     Union[
-                        pr.HasDetectionLogits[ArrayLike],
-                        pr.HasDetectionProbs[ArrayLike],
-                        pr.HasDetectionPredictions[ArrayLike],
+                        pr.HasDetectionLogits,
+                        pr.HasDetectionProbs,
+                        pr.HasDetectionPredictions,
                     ]
                 ],
-                pr.HasDetectionPredictions[ArrayLike],
+                pr.HasDetectionPredictions,
             ]
         ] = None
         if hasattr(model, "post_processor"):

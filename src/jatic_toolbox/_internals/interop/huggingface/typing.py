@@ -23,13 +23,13 @@ class HuggingFaceDataset(Dataset[Mapping[str, Any]], Protocol):
 
 @dataclass
 class HuggingFaceProbs:
-    probs: Union[Tensor, Sequence[Tensor]]
+    probs: Tensor
     labels: Optional[Union[Tensor, Sequence[Sequence[str]]]] = None
 
 
 @dataclass
 class HuggingFacePredictions:
-    scores: Union[Tensor, Sequence[Tensor]]
+    scores: Tensor
     labels: Optional[Union[Tensor, Sequence[Sequence[str]]]] = None
 
 
@@ -41,9 +41,9 @@ class HuggingFaceDetectorOutput(Dict[str, Any]):
 
 @dataclass
 class HuggingFaceDetectorPredictions(Dict[str, Any]):
-    scores: Union[Tensor, Sequence[Tensor]]
-    boxes: Union[Tensor, Sequence[Tensor]]
-    labels: Union[Tensor, Sequence[Tensor]]
+    scores: Sequence[Tensor]
+    boxes: Sequence[Tensor]
+    labels: Sequence[Tensor]
 
 
 @dataclass
@@ -97,7 +97,7 @@ class HuggingFaceModule(Protocol):
 class HuggingFaceWithLogits(HuggingFaceModule, Protocol):
     def __call__(
         self, pixel_values: Union[ArrayLike, Sequence[ArrayLike]], **kwargs: Any
-    ) -> HasLogits[Tensor]:
+    ) -> HasLogits:
         ...
 
 

@@ -40,7 +40,7 @@ if is_pil_available():
     from PIL.Image import Image
 
 else:
-
+    # minimum protocol for pillow-like Image?
     class Image(Protocol):
         format = None
         format_description = None
@@ -50,7 +50,7 @@ else:
             ...
 
 
-A = TypeVar("A", bound=ArrayLike)
+SupportsArray: TypeAlias = Union[ArrayLike, Sequence[ArrayLike]]
 
 
 if TYPE_CHECKING:
@@ -93,20 +93,20 @@ class DataClass(DataClass_, Protocol):
 
 
 class HasDataImage(TypedDict):
-    image: Union[ArrayLike, Sequence[ArrayLike]]
+    image: SupportsArray
 
 
 class HasDataLabel(TypedDict):
-    label: Union[int, ArrayLike, Sequence[ArrayLike], Sequence[int]]
+    label: Union[int, SupportsArray, Sequence[int]]
 
 
 class HasDataBoxes(TypedDict):
-    boxes: Union[ArrayLike, Sequence[ArrayLike]]
+    boxes: SupportsArray
 
 
 class ObjectData(HasDataBoxes):
     # TODO: Should this be "label" or "labels"?
-    labels: Union[Sequence[int], ArrayLike, Sequence[ArrayLike]]
+    labels: Union[Sequence[int], SupportsArray]
 
 
 class SupportsImageClassification(HasDataImage, HasDataLabel):
@@ -175,8 +175,8 @@ output: T
 
 
 @runtime_checkable
-class HasLabel(Protocol[T]):
-    label: T
+class HasLabel(Protocol):
+    label: SupportsArray
 
 
 @runtime_checkable
@@ -185,42 +185,42 @@ class HasObject(Protocol):
 
 
 @runtime_checkable
-class HasBoxes(Protocol[T]):
-    boxes: T
+class HasBoxes(Protocol):
+    boxes: SupportsArray
 
 
 @runtime_checkable
-class HasLogits(Protocol[T]):
-    logits: T
+class HasLogits(Protocol):
+    logits: SupportsArray
 
 
 @runtime_checkable
-class HasProbs(Protocol[T]):
-    probs: T
+class HasProbs(Protocol):
+    probs: SupportsArray
 
 
 @runtime_checkable
-class HasScores(Protocol[T]):
-    scores: T
-    labels: T
+class HasScores(Protocol):
+    scores: SupportsArray
+    labels: SupportsArray
 
 
 @runtime_checkable
-class HasDetectionLogits(Protocol[T]):
-    logits: T
-    boxes: T
+class HasDetectionLogits(Protocol):
+    logits: SupportsArray
+    boxes: SupportsArray
 
 
 @runtime_checkable
-class HasDetectionProbs(HasProbs[T], HasBoxes[T], Protocol[T]):
+class HasDetectionProbs(HasProbs, HasBoxes, Protocol):
     ...
 
 
 @runtime_checkable
-class HasDetectionPredictions(Protocol[T]):
-    scores: T
-    boxes: T
-    labels: T
+class HasDetectionPredictions(Protocol):
+    scores: SupportsArray
+    boxes: SupportsArray
+    labels: SupportsArray
 
 
 """
@@ -235,18 +235,16 @@ class Model(Protocol):
 
 
 @runtime_checkable
-class ImageClassifier(Model, Protocol[T]):
-    def __call__(
-        self, data: HasDataImage
-    ) -> Union[HasLogits[T], HasProbs[T], HasScores[T]]:
+class ImageClassifier(Model, Protocol):
+    def __call__(self, data: HasDataImage) -> Union[HasLogits, HasProbs, HasScores]:
         ...
 
 
 @runtime_checkable
-class ObjectDetector(Model, Protocol[T]):
+class ObjectDetector(Model, Protocol):
     def __call__(
         self, data: HasDataImage
-    ) -> Union[HasDetectionLogits[T], HasDetectionProbs[T], HasDetectionPredictions[T]]:
+    ) -> Union[HasDetectionLogits, HasDetectionProbs, HasDetectionPredictions]:
         ...
 
 

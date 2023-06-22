@@ -1,14 +1,13 @@
-from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, List, Mapping, Sequence, Union
-from xmlrpc.client import Boolean
+from typing import TYPE_CHECKING, Any, List, Mapping, Sequence
 
 from jatic_toolbox.errors import InvalidArgument
 from jatic_toolbox.protocols import ArrayLike
 
 from ..import_utils import is_numpy_available, is_pil_available, is_torch_available
+from ..protocols.typing import SupportsArray
 
 
-def to_tensor_list(data: Union[ArrayLike, Sequence[ArrayLike]]) -> Sequence[ArrayLike]:
+def to_tensor_list(data: SupportsArray) -> Sequence[ArrayLike]:
     if isinstance(data, Sequence):
         if is_pil_available():
             from PIL import Image
@@ -36,7 +35,7 @@ def to_tensor_list(data: Union[ArrayLike, Sequence[ArrayLike]]) -> Sequence[Arra
         raise InvalidArgument(f"Unsupported JATIC data type {type(data)}.")
 
 
-def is_torch_tensor(x) -> Boolean:
+def is_torch_tensor(x) -> bool:
     """
     Tests if `x` is a torch tensor or not.
 
@@ -71,40 +70,6 @@ def is_pil_image(x) -> bool:
         return isinstance(x, Image)
 
     return False if not is_pil_available() else _is_pil(x)
-
-
-@dataclass
-class ClassificationOutput:
-    # doc-ignore: EX01
-    """
-    Object detection output.
-
-    Parameters
-    ----------
-    logits : ArrayLike
-        An array of logits for each image.
-    """
-    logits: ArrayLike
-
-
-@dataclass
-class ObjectDetectionOutput:
-    # doc-ignore: EX01
-    """
-    Object detection output.
-
-    Parameters
-    ----------
-    boxes : Sequence[ArrayLike]
-        Detection boxes for each data point.  The number of detections
-        can vary for each image.
-
-    scores : Sequence[Sequence[Dict[str, float]]]
-        The label (key) and score (value) for each detection bounding box.
-    """
-    boxes: Sequence[ArrayLike]
-    scores: Sequence[ArrayLike]
-    labels: Sequence[Any]
 
 
 def collate_as_lists(batch: List[Mapping[str, Any]]) -> Mapping[str, Any]:

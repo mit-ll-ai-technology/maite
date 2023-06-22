@@ -1,3 +1,4 @@
+from typing import Dict, Union
 from unittest import mock
 
 import datasets
@@ -20,11 +21,13 @@ from jatic_toolbox.interop.huggingface import (
     HuggingFaceVisionDataset,
 )
 from jatic_toolbox.protocols import (
-    HasDetectionLogits,
+    ArrayLike,
+    HasDataImage,
     HasDetectionPredictions,
     HasLogits,
     HasProbs,
     HasScores,
+    is_typed_dict,
 )
 from jatic_toolbox.testing.hypothesis import image_data
 
@@ -334,17 +337,16 @@ def test_hf_load_object_detection_model(output_as_list, threshold, image_as_dict
         )
         assert isinstance(model_out, HuggingFaceObjectDetector)
 
-        data = tr.randn(1, 3, 10, 10)
+        data: Union[Dict[str, tr.Tensor], tr.Tensor] = tr.randn(1, 3, 10, 10)
         if image_as_dict is not None:
             data = {image_as_dict: data}
 
         if image_as_dict is not None and image_as_dict not in ["image"]:
             with pytest.raises(InvalidArgument):
-                out = model_out(data)
+                out = model_out(data)  # type: ignore
             return
 
+        assert is_typed_dict(data, HasDataImage) or isinstance(data, ArrayLike)
         out = model_out(data)
-        assert isinstance(out, HasDetectionLogits)
-
         out = model_out.post_processor(out)
         assert isinstance(out, HasDetectionPredictions)

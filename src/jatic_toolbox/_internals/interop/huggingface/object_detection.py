@@ -1,5 +1,5 @@
 from collections import UserDict
-from typing import Any, List, Optional, Sequence, TypeVar, Union, cast, overload
+from typing import Any, List, Optional, Sequence, TypeVar, Union, overload
 
 import numpy as np
 import torch as tr
@@ -8,14 +8,7 @@ from typing_extensions import Self
 
 from jatic_toolbox._internals.interop.utils import to_tensor_list
 from jatic_toolbox.errors import InvalidArgument
-from jatic_toolbox.protocols import (
-    ArrayLike,
-    HasDataImage,
-    HasDetectionLogits,
-    HasDetectionPredictions,
-    is_list_dict,
-    is_typed_dict,
-)
+from jatic_toolbox.protocols import ArrayLike, HasDataImage, is_list_dict, is_typed_dict
 
 from .typing import (
     HuggingFaceDetectorOutput,
@@ -163,8 +156,8 @@ class HuggingFaceObjectDetector(nn.Module):
             raise InvalidArgument(f"Invalid data type {type(data)}.")
 
     def post_processor(
-        self, model_outputs: HasDetectionLogits[tr.Tensor], **kwargs: Any
-    ) -> HasDetectionPredictions[Union[tr.Tensor, Sequence[tr.Tensor]]]:
+        self, model_outputs: HuggingFaceDetectorOutput, **kwargs: Any
+    ) -> HuggingFaceDetectorPredictions:
         """
         Post process the outputs of a HuggingFace object detector.
 
@@ -186,7 +179,6 @@ class HuggingFaceObjectDetector(nn.Module):
         target_sizes = None
         if isinstance(model_outputs, dict):
             target_sizes = model_outputs.get("target_size", None)
-            model_outputs = cast(HasDetectionLogits[tr.Tensor], model_outputs)
 
         pp_input = HuggingFacePostProcessorInput(
             logits=model_outputs.logits, pred_boxes=model_outputs.boxes
@@ -212,7 +204,7 @@ class HuggingFaceObjectDetector(nn.Module):
                 boxes=output_boxes, labels=output_labels, scores=output_scores
             )
         else:
-            assert isinstance(results, HasDetectionPredictions)
+            assert not isinstance(results, Sequence)
             return results
 
     @classmethod
@@ -272,7 +264,7 @@ class HuggingFaceObjectDetector(nn.Module):
     def forward(
         self,
         data: Union[HasDataImage, ArrayLike],
-    ) -> HasDetectionLogits[tr.Tensor]:
+    ) -> HuggingFaceDetectorOutput:
         """
         Extract object detection for HuggingFace Object Detection models.
 
