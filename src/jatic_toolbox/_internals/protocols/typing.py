@@ -89,7 +89,6 @@ class DataClass(DataClass_, Protocol):
 #
 # Data Structures
 #
-# These protocols are TypedDicts.
 
 
 class HasDataImage(TypedDict):
@@ -105,7 +104,6 @@ class HasDataBoxes(TypedDict):
 
 
 class ObjectDetectionData(HasDataBoxes):
-    # TODO: Should this be "label" or "labels"?
     labels: Union[Sequence[int], SupportsArray]
 
 
@@ -125,17 +123,14 @@ class Dataset(Protocol[T_co]):
     def __getitem__(self, index: Any) -> T_co:
         ...
 
-    # def set_transform(self, transform: Callable[[T], T]) -> None:
-    #     ...
-
 
 VisionDataset: TypeAlias = Dataset[SupportsImageClassification]
 ObjectDetectionDataset: TypeAlias = Dataset[SupportsObjectDetection]
 
 
-"""
-DataLoading
-"""
+#
+# DataLoading
+#
 
 
 class _DataLoaderIterator(Protocol[T_co]):
@@ -180,11 +175,6 @@ class HasLabel(Protocol):
 
 
 @runtime_checkable
-class HasObject(Protocol):
-    object: Sequence[ObjectDetectionData]
-
-
-@runtime_checkable
 class HasBoxes(Protocol):
     boxes: SupportsArray
 
@@ -201,14 +191,35 @@ class HasProbs(Protocol):
 
 @runtime_checkable
 class HasScores(Protocol):
+    """
+    Scores are predictions for either an image or detection box.
+
+    ```python
+    >>> import torch as tr
+    >>> logits = tr.rand(3, 10) # batch size 3, 10 classes
+    >>> probs = logits.softmax(dim=1)  # sums to 1 along dim=1
+    >>> labels = probs.argmax(dim=1)  # predicted label for each score
+    >>> scores = probs[:, labels]  # probability of the predicted label
+    ```
+
+    Attributes
+    ----------
+    scores : SupportsArray
+        Scores are predictions for a single class. For example, in binary classification,
+        scores are the probability of the positive class.
+
+    labels : SupportsArray
+        Labels are predicted label for each score. For example, in binary classification,
+        labels are either 0 or 1.
+    """
+
     scores: SupportsArray
     labels: SupportsArray
 
 
 @runtime_checkable
-class HasDetectionLogits(Protocol):
-    logits: SupportsArray
-    boxes: SupportsArray
+class HasDetectionLogits(HasBoxes, HasLogits, Protocol):
+    ...
 
 
 @runtime_checkable
@@ -217,10 +228,8 @@ class HasDetectionProbs(HasProbs, HasBoxes, Protocol):
 
 
 @runtime_checkable
-class HasDetectionPredictions(Protocol):
-    scores: SupportsArray
-    boxes: SupportsArray
-    labels: SupportsArray
+class HasDetectionPredictions(HasBoxes, HasScores, Protocol):
+    ...
 
 
 """
@@ -253,6 +262,8 @@ Metric protocol is based off of:
   - `torchmetrics`
   - `torcheval`
 """
+
+# TODO: Add updates to support our protocols
 
 
 @runtime_checkable
