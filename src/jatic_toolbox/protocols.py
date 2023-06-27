@@ -11,6 +11,7 @@ from jatic_toolbox._internals.protocols.typing import (
     ClassifierPostProcessor,
     DataClass,
     DataHasImage,
+    DataHasLabel,
     DataLoader,
     Dataset,
     DetectorPostProcessor,
@@ -68,6 +69,7 @@ __all__ = [
     "is_typed_dict",
     "PostProcessor",
     "DataHasImage",
+    "DataHasLabel",
     "HasDetectionProbs",
     "DataClass",
 ]
