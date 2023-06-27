@@ -33,6 +33,8 @@ before_script:
   - pip install 'tox < 4'
 
 tests:
+  tags:
+    - CDAO
   stage: test
   image: python:$PYTHON_VERSIONS
   parallel:
@@ -43,6 +45,8 @@ tests:
     - tox -e py
 
 coverage:
+  tags:
+    - CDAO
   stage: test
   image: python:3.9
   script:
@@ -50,6 +54,8 @@ coverage:
   - tox -e coverage
 
 min-deps:
+  tags:
+    - CDAO
   stage: test
   image: python:3.7
   script:
@@ -57,6 +63,8 @@ min-deps:
     - tox -e min-deps
 
 enforce-format:
+  tags:
+    - CDAO
   stage: test
   image: python:3.9
   script:
@@ -64,6 +72,8 @@ enforce-format:
     - tox -e enforce-format
 
 typecheck:
+  tags:
+    - CDAO
   stage: test
   image: python:3.9
   script:
@@ -71,6 +81,8 @@ typecheck:
     - tox -e typecheck -vv
 
 pages:
+  tags:
+    - CDAO
   stage: docs
   image: python:3.9
   script:
@@ -83,6 +95,8 @@ pages:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
 deploy:
+  tags:
+    - CDAO
   stage: deploy
   image: python:3.9
   rules:
