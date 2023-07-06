@@ -1,9 +1,9 @@
 from itertools import chain
-from typing import Optional
+from typing import Optional, Protocol
 
 import pytest
 from pytest import param
-from typing_extensions import Protocol, TypedDict
+from typing_extensions import TypedDict
 
 from jatic_toolbox._internals.testing.docs import _get_numpy_tags
 from jatic_toolbox.errors import InvalidArgument

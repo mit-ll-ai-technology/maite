@@ -35,9 +35,7 @@ es type annotations worthwhile! In effect, type annotations are the only languag
 Before we move on, let's look at a few example code snippets to familiarize ourselves a bit more with Python's type annotation syntax and what they can express.
 
 ```python
-from typing import Callable, List, Mapping, Optional, TypeVar, Union
-
-from typing_extensions import Literal, Protocol
+from typing import Callable, List, Mapping, Optional, TypeVar, Union, Protocol, Literal
 
 # The following are type annotations that could be included, e.g., in a
 # function' signature
@@ -460,10 +458,10 @@ There is a powerful technique that we can use to ameliorate *all* of these issue
 Let's use our current example to understand what structural subtyping is all about. The following is a redesign of our simple object detection API, which leverages protocols
 
 ```python
-from typing import Any, Dict, Sequence, Tuple
+from typing import Any, Dict, Sequence, Tuple, Protocol, runtime_checkable
 
 from torch import Tensor
-from typing_extensions import Protocol, TypeAlias, runtime_checkable
+from typing_extensions import TypeAlias, runtime_checkable
 
 ClassScores: TypeAlias = Dict[Any, float]
 

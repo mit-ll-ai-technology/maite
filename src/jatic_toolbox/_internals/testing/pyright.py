@@ -8,9 +8,9 @@ import tempfile
 import textwrap
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Literal, Optional, Union
 
-from typing_extensions import Literal, NotRequired, TypedDict
+from typing_extensions import NotRequired, TypedDict
 
 
 def notebook_to_py_text(path_to_nb: Path) -> str:

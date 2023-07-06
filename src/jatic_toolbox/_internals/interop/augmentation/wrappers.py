@@ -1,10 +1,9 @@
 import random
-from typing import TYPE_CHECKING, Any, Generic, List, Optional, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Generic, List, Optional, Protocol, TypeVar, cast
 
 import numpy as np
 import torch as tr
 from torch.utils._pytree import tree_flatten, tree_unflatten
-from typing_extensions import Protocol
 
 from jatic_toolbox._internals.interop.utils import (
     is_numpy_available,

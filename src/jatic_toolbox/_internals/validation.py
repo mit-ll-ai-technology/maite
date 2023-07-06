@@ -7,15 +7,15 @@ from typing import (
     Callable,
     Collection,
     Optional,
+    Protocol,
     Tuple,
     Type,
     TypeVar,
     Union,
     cast,
     overload,
+    runtime_checkable,
 )
-
-from typing_extensions import Protocol, runtime_checkable
 
 from jatic_toolbox.errors import InvalidArgument
 

@@ -32,6 +32,10 @@ before_script:
   - python -m pip install --upgrade pip
   - pip install 'tox < 4'
 
+default:
+  tags:
+    - CDAO
+
 tests:
   tags:
     - CDAO
@@ -39,7 +43,7 @@ tests:
   image: python:$PYTHON_VERSIONS
   parallel:
     matrix:
-      - PYTHON_VERSIONS: ["3.7", "3.8", "3.9", "3.10"]
+      - PYTHON_VERSIONS: ["3.8", "3.9", "3.10"]
   script:
     - echo "Testing against minimum dependencies."
     - tox -e py
@@ -57,7 +61,7 @@ min-deps:
   tags:
     - CDAO
   stage: test
-  image: python:3.7
+  image: python:3.8
   script:
     - echo "Testing against minimum dependencies."
     - tox -e min-deps

@@ -1,7 +1,17 @@
-from typing import Any, Callable, Dict, List, Sequence, Tuple, TypeVar
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    Protocol,
+    Sequence,
+    Tuple,
+    TypeVar,
+    runtime_checkable,
+)
 
 from torch import Tensor
-from typing_extensions import Protocol, TypeAlias, TypedDict, runtime_checkable
+from typing_extensions import TypeAlias, TypedDict
 
 from jatic_toolbox.protocols import SupportsImageClassification, VisionDataset
 

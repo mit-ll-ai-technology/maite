@@ -1,6 +1,17 @@
-from typing import Any, Dict, Iterable, List, Optional, Type, TypeVar, Union, overload
+from typing import (
+    Any,
+    Dict,
+    Iterable,
+    List,
+    Literal,
+    Optional,
+    Type,
+    TypeVar,
+    Union,
+    overload,
+)
 
-from typing_extensions import Literal, TypeAlias
+from typing_extensions import TypeAlias
 
 from jatic_toolbox._internals.interop.huggingface.api import HuggingFaceAPI
 from jatic_toolbox._internals.interop.torcheval.api import TorchEvalAPI

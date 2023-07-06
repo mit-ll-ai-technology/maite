@@ -1,7 +1,5 @@
 import warnings
-from typing import Any, Callable, Iterable, List, Optional, Tuple, Union
-
-from typing_extensions import Literal
+from typing import Any, Callable, Iterable, List, Literal, Optional, Tuple, Union
 
 from jatic_toolbox.protocols import ImageClassifier, ObjectDetector
 

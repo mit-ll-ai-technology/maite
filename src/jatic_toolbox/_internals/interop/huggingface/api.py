@@ -5,13 +5,12 @@ from typing import (
     Dict,
     Iterable,
     List,
+    Literal,
     Optional,
     Tuple,
     Union,
     cast,
 )
-
-from typing_extensions import Literal
 
 from jatic_toolbox.protocols import Dataset, ImageClassifier, ObjectDetector
 

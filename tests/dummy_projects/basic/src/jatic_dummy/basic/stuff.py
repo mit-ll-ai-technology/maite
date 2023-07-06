@@ -1,6 +1,7 @@
 from dataclasses import dataclass
+from typing import Final, Literal, Protocol
 
-from typing_extensions import Final, Literal, Protocol, TypeAlias, TypedDict
+from typing_extensions import TypeAlias, TypedDict
 
 __all__ = [
     "CONSTANT",

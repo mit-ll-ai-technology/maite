@@ -6,19 +6,22 @@ from typing import (
     Callable,
     Dict,
     Iterator,
+    Literal,
     Mapping,
     Optional,
+    Protocol,
     Sequence,
     Tuple,
     TypeVar,
     Union,
     cast,
     overload,
+    runtime_checkable,
 )
 
 import torch as tr
 from torch.utils.data import DataLoader
-from typing_extensions import Literal, Protocol, Self, TypeAlias, runtime_checkable
+from typing_extensions import Self, TypeAlias
 
 import jatic_toolbox.protocols as pr
 

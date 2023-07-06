@@ -9,7 +9,9 @@ from typing import (
     Collection,
     Dict,
     List,
+    Literal,
     Optional,
+    Protocol,
     Set,
     Tuple,
     Union,
@@ -17,7 +19,7 @@ from typing import (
     overload,
 )
 
-from typing_extensions import Literal, NotRequired, Protocol, TypeAlias, TypedDict
+from typing_extensions import NotRequired, TypeAlias, TypedDict
 
 from jatic_toolbox._internals.validation import check_type
 from jatic_toolbox.errors import InvalidArgument

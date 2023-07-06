@@ -2,24 +2,19 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    ClassVar,
     Dict,
     Mapping,
     Optional,
+    Protocol,
     Sequence,
     Type,
     TypeVar,
     Union,
-)
-
-from typing_extensions import (
-    ClassVar,
-    ParamSpec,
-    Protocol,
-    Self,
-    TypeAlias,
-    TypedDict,
     runtime_checkable,
 )
+
+from typing_extensions import ParamSpec, Self, TypeAlias, TypedDict
 
 from ..import_utils import is_pil_available
 

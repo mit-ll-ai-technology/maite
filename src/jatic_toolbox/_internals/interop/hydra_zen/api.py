@@ -1,10 +1,10 @@
 import importlib
 import warnings
-from typing import Any, Optional, Type, Union
+from typing import Any, Literal, Optional, Type, Union
 
 import hydra_zen
 from hydra_zen.typing import Builds
-from typing_extensions import Literal, TypeAlias
+from typing_extensions import TypeAlias
 
 from jatic_toolbox.errors import InvalidArgument
 from jatic_toolbox.interop.huggingface import (

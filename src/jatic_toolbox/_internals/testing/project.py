@@ -4,9 +4,9 @@ from copy import deepcopy
 from functools import _CacheInfo as CacheInfo, lru_cache
 from importlib import import_module
 from pathlib import Path
-from typing import Any, Collection, FrozenSet, Generator, List, Mapping, Union
+from typing import Any, Collection, FrozenSet, Generator, List, Literal, Mapping, Union
 
-from typing_extensions import Literal, NotRequired, TypedDict
+from typing_extensions import NotRequired, TypedDict
 
 from jatic_toolbox._internals.testing.pyright import (
     PYRIGHT_PATH,
