@@ -72,7 +72,7 @@ all_interop = [
   "hydra-zen >= 0.9.0",
   "transformers >= 4.25.1",
   "timm >= 0.6.12",
-  "torchmetrics >= 0.11",
+  "torchmetrics >= 0.11, < 1.0",
   "torcheval >= 0.0.6",
   "tqdm>=4.62.1"
 ]
