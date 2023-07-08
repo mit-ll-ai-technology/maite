@@ -10,6 +10,7 @@ from torch.utils.data import Dataset
 
 import jatic_toolbox
 from jatic_toolbox import protocols as pr
+from jatic_toolbox._internals.interop.utils import is_pil_image
 
 
 class RandomDataset(Dataset):
@@ -84,7 +85,13 @@ class VisionModel(tr.nn.Module):
         return [f"label_{i}" for i in range(10)]
 
     def forward(self, x):
-        x = x["image"]
+        if isinstance(x, (list, tuple)) and is_pil_image(x[0]):
+            from torchvision.transforms.functional import to_tensor
+
+            x = tr.stack([to_tensor(i) for i in x])
+            device = next(self.parameters()).device
+            x = x.to(device)
+
         if isinstance(x, list):
             from torchvision.transforms.functional import to_tensor
 

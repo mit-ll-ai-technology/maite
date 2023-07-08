@@ -1,27 +1,18 @@
 from dataclasses import dataclass
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Mapping,
-    Optional,
-    Sequence,
-    Union,
-    cast,
-    overload,
-)
+from typing import Any, Callable, Optional, Sequence, Union
 
 from torch import Tensor, nn
 from typing_extensions import Self, TypeAlias
 
-from jatic_toolbox._internals.interop.utils import to_tensor_list
 from jatic_toolbox.errors import InvalidArgument
-from jatic_toolbox.protocols import ArrayLike, HasDataImage, is_list_dict
+from jatic_toolbox.protocols import HasDataImage, SupportsArray
+
+from ..base_model import BaseModel
 
 __all__ = ["TorchVisionClassifier", "TorchVisionObjectDetector"]
 
 
-TorchVisionProcessor: TypeAlias = Callable[[Sequence[ArrayLike]], Tensor]
+TorchVisionProcessor: TypeAlias = Callable[[SupportsArray], Tensor]
 
 
 @dataclass
@@ -36,7 +27,7 @@ class TorchVisionObjectDetectorOutput:
     labels: Sequence[Union[Tensor, Sequence[str]]]
 
 
-class TorchVisionBase(nn.Module):
+class TorchVisionBase(nn.Module, BaseModel):
     def __init__(
         self,
         model: nn.Module,
@@ -55,44 +46,17 @@ class TorchVisionBase(nn.Module):
             raise InvalidArgument("No labels were provided.")
         return self._labels
 
-    @overload
     def preprocessor(
         self,
-        data: Sequence[ArrayLike],
-        image_key: str = "image",
+        data: SupportsArray,
     ) -> HasDataImage:
-        ...
-
-    @overload
-    def preprocessor(
-        self,
-        data: Sequence[HasDataImage],
-        image_key: str = "image",
-    ) -> Sequence[HasDataImage]:
-        ...
-
-    def preprocessor(
-        self,
-        data: Union[Sequence[ArrayLike], Sequence[HasDataImage]],
-        image_key: str = "image",
-    ) -> Union[HasDataImage, Sequence[HasDataImage]]:
         if self._processor is None:
             raise InvalidArgument("No processor was provided.")
 
-        if is_list_dict(data):
-            out = []
-            for d in data:
-                data_out = {"image": self._processor(d[image_key])}
-                data_out.update({k: v for k, v in d.items() if k != image_key})
-                out.append(data_out)
+        if isinstance(data, Sequence):
+            return {"image": [self._processor(i) for i in data]}
 
-            return out
-        else:
-            if TYPE_CHECKING:
-                data = cast(Sequence[ArrayLike], data)
-
-            images = to_tensor_list(data)
-            return {"image": self._processor(images)}
+        return {"image": self._processor(data)}
 
     @classmethod
     def from_pretrained(
@@ -160,21 +124,10 @@ class TorchVisionClassifier(TorchVisionBase):
         super().__init__(model, processor, labels)
 
     def forward(
-        self, data: Union[Mapping[str, ArrayLike], Sequence[ArrayLike], ArrayLike]
+        self, data: Union[HasDataImage, SupportsArray]
     ) -> TorchVisionClassifierOutput:
-        if isinstance(data, dict):
-            if "image" in data:
-                pixel_values = data["image"]
-            elif "pixel_values" in data:
-                pixel_values = data["pixel_values"]
-            else:
-                raise InvalidArgument(
-                    f"Expected 'image' or 'pixel_values' in data, got {data.keys()}"
-                )
-        else:
-            pixel_values = data
-
-        logits = self._model(pixel_values)
+        images, _ = self._process_inputs(data)
+        logits = self._model(images)
         return TorchVisionClassifierOutput(logits=logits)
 
 
@@ -210,21 +163,11 @@ class TorchVisionObjectDetector(TorchVisionBase):
         super().__init__(model, processor, labels)
 
     def forward(
-        self, data: Union[Mapping[str, ArrayLike], Sequence[ArrayLike], ArrayLike]
+        self, data: Union[HasDataImage, SupportsArray]
     ) -> TorchVisionObjectDetectorOutput:
-        if isinstance(data, dict):
-            if "image" in data:
-                pixel_values = data["image"]
-            elif "pixel_values" in data:
-                pixel_values = data["pixel_values"]
-            else:
-                raise InvalidArgument(
-                    f"Expected 'image' or 'pixel_values' in data, got {data.keys()}"
-                )
-        else:
-            pixel_values = data
+        images, _ = self._process_inputs(data)
 
-        outputs = self._model(pixel_values)
+        outputs = self._model(images)
 
         all_boxes: Sequence[Tensor] = []
         all_scores: Sequence[Tensor] = []

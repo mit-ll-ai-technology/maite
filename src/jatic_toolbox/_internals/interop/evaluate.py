@@ -374,17 +374,12 @@ class EvaluationTask(ABC):
         >>> evaluator(model, data, metric=dict(accuracy=acc_metric), batch_size=32, device=0)
         {'accuracy': tensor(0.9788, device='cuda:0')}
         """
-        preprocessor = None
-        if hasattr(model, "preprocessor"):
-            preprocessor = getattr(model, "preprocessor")
-
         assert isinstance(metric, Mapping)
 
         dl = get_dataloader(
             data,
             batch_size=batch_size,
             collate_fn=collate_fn,
-            preprocessor=preprocessor,
             **kwargs,
         )
 
@@ -451,21 +446,6 @@ class ImageClassificationEvaluator(EvaluationTask):
         if device is None:
             device = self._infer_device()
 
-        post_processor: Optional[
-            Callable[
-                [
-                    Union[
-                        pr.HasLogits,
-                        pr.HasProbs,
-                        pr.HasScores,
-                    ]
-                ],
-                pr.HasScores,
-            ]
-        ] = None
-        if hasattr(model, "post_processor"):
-            post_processor = getattr(model, "post_processor")
-
         # Reset metrics
         [v.reset() for v in metric.values()]
 
@@ -491,17 +471,19 @@ class ImageClassificationEvaluator(EvaluationTask):
                     with tr.inference_mode(), transfer_to_device(
                         batch, device=_device
                     ) as (batch_device,):
-                        output = model(batch_device)
-
-                        if post_processor is not None:
-                            output = post_processor(output)
+                        assert pr.is_typed_dict(batch_device, pr.HasDataImage)
+                        output = model(batch_device["image"])
 
                     if isinstance(output, pr.HasLogits):
+                        assert pr.is_typed_dict(batch_device, pr.HasDataLabel)
+
                         [
                             v.update(output.logits, batch_device["label"])
                             for k, v in metric.items()
                         ]
                     elif isinstance(output, pr.HasProbs):
+                        assert pr.is_typed_dict(batch_device, pr.HasDataLabel)
+
                         [
                             v.update(output.probs, batch_device["label"])
                             for k, v in metric.items()
@@ -574,21 +556,6 @@ class ObjectDetectionEvaluator(EvaluationTask):
         if device is None:
             device = self._infer_device()
 
-        post_processor: Optional[
-            Callable[
-                [
-                    Union[
-                        pr.HasDetectionLogits,
-                        pr.HasDetectionProbs,
-                        pr.HasDetectionPredictions,
-                    ]
-                ],
-                pr.HasDetectionPredictions,
-            ]
-        ] = None
-        if hasattr(model, "post_processor"):
-            post_processor = getattr(model, "post_processor")
-
         # Reset metrics
         [v.reset() for v in metric.values()]
 
@@ -614,13 +581,12 @@ class ObjectDetectionEvaluator(EvaluationTask):
                     with tr.inference_mode(), transfer_to_device(
                         batch, device=_device
                     ) as (batch_device,):
-                        output = model(batch_device)
-
-                        output = model(batch_device)
-                        if post_processor is not None:
-                            output = post_processor(output)
+                        assert pr.is_typed_dict(batch_device, pr.HasDataImage)
+                        output = model(batch_device["image"])
 
                     if isinstance(output, pr.HasDetectionPredictions):
+                        assert pr.is_typed_dict(batch_device, pr.HasDataDetections)
+
                         [
                             v.update(output, batch_device["objects"])
                             for k, v in metric.items()

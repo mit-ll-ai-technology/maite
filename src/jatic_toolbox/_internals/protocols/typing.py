@@ -102,6 +102,10 @@ class ObjectDetectionData(HasDataBoxes):
     labels: Union[Sequence[int], SupportsArray]
 
 
+class HasDataDetections(TypedDict):
+    objects: Union[ObjectDetectionData, Sequence[ObjectDetectionData]]
+
+
 class SupportsImageClassification(HasDataImage, HasDataLabel):
     ...
 
@@ -240,14 +244,14 @@ class Model(Protocol):
 
 @runtime_checkable
 class ImageClassifier(Model, Protocol):
-    def __call__(self, data: HasDataImage) -> Union[HasLogits, HasProbs, HasScores]:
+    def __call__(self, data: SupportsArray) -> Union[HasLogits, HasProbs, HasScores]:
         ...
 
 
 @runtime_checkable
 class ObjectDetector(Model, Protocol):
     def __call__(
-        self, data: HasDataImage
+        self, data: SupportsArray
     ) -> Union[HasDetectionLogits, HasDetectionProbs, HasDetectionPredictions]:
         ...
 

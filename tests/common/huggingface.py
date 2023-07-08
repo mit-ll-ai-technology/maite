@@ -137,6 +137,7 @@ def get_test_vision_model():
             self.config = Meta(
                 id2label={i: f"label_{i}" for i in range(10)}, num_labels=10
             )
+            self.linear = tr.nn.Linear(10, 10)
 
         def forward(self, *args, **kwargs):
             logits = tr.randn(1, 10)
@@ -169,6 +170,7 @@ def get_test_object_detection_model(output_as_list=False):
             self.config = Meta(
                 id2label={i: f"label_{i}" for i in range(10)}, num_labels=10
             )
+            self.linear = tr.nn.Linear(10, 10)
 
         def forward(self, *args, **kwargs):
             boxes = tr.tensor([[0, 0, 1, 1], [0, 0, 1, 1]])

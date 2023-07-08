@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING, Any, List, Mapping, Sequence
 
+from typing_extensions import TypeGuard
+
 from jatic_toolbox.errors import InvalidArgument
 from jatic_toolbox.protocols import ArrayLike
 
@@ -61,7 +63,7 @@ def is_numpy_array(x) -> bool:
     return False if not is_numpy_available() else _is_numpy(x)
 
 
-def is_pil_image(x) -> bool:
+def is_pil_image(x) -> TypeGuard[ArrayLike]:
     """Tests if `x` is a Image array or not."""
 
     def _is_pil(x):

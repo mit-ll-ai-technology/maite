@@ -115,13 +115,10 @@ def test_tv_vision_processors(task, loader, data, image_as_dict):
 
     hf_model = task(model, weights["DEFAULT"].transforms())
 
-    if image_as_dict:
-        features = hf_model.preprocessor([dict(image=data)])
-    else:
-        features = [hf_model.preprocessor([data])]
-    assert len(features) == 1
-    assert isinstance(features[0], dict)
-    assert "image" in features[0]
+    features = hf_model.preprocessor([data])
+    assert isinstance(features, dict)
+    assert "image" in features
+    assert len(features["image"]) == 1
 
     output = hf_model({"image": [data] * 10})
     assert isinstance(output, (HasLogits, HasDetectionPredictions))
@@ -145,8 +142,8 @@ def test_tv_load_vision_model(image_as_dict):
         if image_as_dict is not None:
             data = {image_as_dict: data}
 
-        if image_as_dict == "foo":
-            with pytest.raises(InvalidArgument):
+        if image_as_dict is not None and image_as_dict not in ["image"]:
+            with pytest.raises(AssertionError):
                 out = model_out(data)
             return
 
@@ -173,8 +170,8 @@ def test_tv_load_object_detection_model(image_as_dict):
         if image_as_dict is not None:
             data = {image_as_dict: data}
 
-        if image_as_dict == "foo":
-            with pytest.raises(InvalidArgument):
+        if image_as_dict is not None and image_as_dict not in ["image"]:
+            with pytest.raises(AssertionError):
                 out = model_out(data)
             return
 

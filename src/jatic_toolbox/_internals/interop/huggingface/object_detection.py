@@ -1,15 +1,13 @@
-from collections import UserDict
-from typing import Any, List, Optional, Sequence, TypeVar, Union, overload
+from typing import TYPE_CHECKING, Any, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import torch as tr
-from torch import nn
 from typing_extensions import Self
 
-from jatic_toolbox._internals.interop.utils import to_tensor_list
 from jatic_toolbox.errors import InvalidArgument
-from jatic_toolbox.protocols import ArrayLike, HasDataImage, is_list_dict, is_typed_dict
+from jatic_toolbox.protocols import HasDataImage, SupportsArray
 
+from .base import BaseHFModel
 from .typing import (
     HuggingFaceDetectorOutput,
     HuggingFaceDetectorPredictions,
@@ -21,10 +19,8 @@ from .typing import (
 
 __all__ = ["HuggingFaceObjectDetector"]
 
-T = TypeVar("T", bound=ArrayLike)
 
-
-class HuggingFaceObjectDetector(nn.Module):
+class HuggingFaceObjectDetector(BaseHFModel):
     """
     Wrapper for HuggingFace object detection models.
 
@@ -37,7 +33,7 @@ class HuggingFaceObjectDetector(nn.Module):
         model: HuggingFaceWithDetection,
         processor: Optional[HuggingFaceProcessor] = None,
         post_processor: Optional[HuggingFaceObjectDetectionPostProcessor] = None,
-        threshold: float = 0.5,
+        threshold: Optional[float] = 0.5,
     ) -> None:
         """
         Initialize HuggingFaceObjectDetector.
@@ -53,6 +49,9 @@ class HuggingFaceObjectDetector(nn.Module):
         post_processor : Callable[[HasObjectDetections, float, Any], HFProcessedDetection]
             A HuggingFace post processor for a given model.
 
+        threshold : float, optional
+            The threshold for the model, by default 0.5.
+
         Examples
         --------
         >>> from transformers import AutoFeatureExtractor, AutoModelForObjectDetection
@@ -60,48 +59,14 @@ class HuggingFaceObjectDetector(nn.Module):
         >>> model = AutoModelForObjectDetection.from_pretrained("facebook/detr-resnet-50")
         >>> hf_model = HuggingFaceObjectDetector(processor, model)
         """
-        super().__init__()
-        self.model = model
-        self._processor = processor
-        self._post_processor = post_processor
+        super().__init__(
+            model=model, processor=processor, post_processor=post_processor
+        )
         self._threshold = threshold
-        self._labels = list(model.config.id2label.values())
-
-    def get_labels(self) -> Sequence[str]:
-        """
-        Return the labels of the model.
-
-        Returns
-        -------
-        Sequence[str]
-            The labels of the model.
-
-        Examples
-        --------
-        >>> hf_model.get_labels()
-        """
-        return self._labels
-
-    @overload
-    def preprocessor(
-        self,
-        data: Sequence[ArrayLike],
-        image_key: str = "image",
-    ) -> HasDataImage:
-        ...
-
-    @overload
-    def preprocessor(
-        self,
-        data: Sequence[HasDataImage],
-        image_key: str = "image",
-    ) -> Sequence[HasDataImage]:
-        ...
 
     def preprocessor(
         self,
-        data: Union[Sequence[ArrayLike], Sequence[HasDataImage]],
-        image_key: str = "image",
+        data: SupportsArray,
     ) -> Union[HasDataImage, Sequence[HasDataImage]]:
         """
         Preprocess images for a HuggingFace object detector.
@@ -123,52 +88,36 @@ class HuggingFaceObjectDetector(nn.Module):
             raise InvalidArgument("No processor was provided.")
 
         assert isinstance(data, (list, tuple))
+        target_sizes = [tuple(np.asarray(img).shape[:2]) for img in data]
+        image_features = self._processor(images=data, return_tensors="pt")[
+            "pixel_values"
+        ]
 
-        if is_list_dict(data):
-            images = to_tensor_list([d[image_key] for d in data])
-            target_sizes = [tuple(np.asarray(img).shape[:2]) for img in images]
-            image_features = self._processor(images=images, return_tensors="pt")[
-                "pixel_values"
-            ]
-
-            assert isinstance(image_features, tr.Tensor)
-
-            lout: List[HasDataImage] = []
-            for d, image, ts in zip(data, image_features, target_sizes):
-                data_out = HasDataImage(image=image)
-                data_out["target_size"] = ts  # type: ignore
-                data_out.update({k: v for k, v in d.items() if k != image_key})  # type: ignore
-                lout.append(data_out)
-
-            return lout
-
-        elif isinstance(data, (list, tuple)):
-            images = to_tensor_list(data)  # type: ignore
-            target_sizes = [tuple(np.asarray(img).shape[:2]) for img in images]
-            image_features = self._processor(images=images, return_tensors="pt")[
-                "pixel_values"
-            ]
-
-            out = HasDataImage(image=image_features)
-            out["target_size"] = target_sizes  # type: ignore
-            return out
-        else:
-            raise InvalidArgument(f"Invalid data type {type(data)}.")
+        out = HasDataImage(image=image_features)
+        out["target_size"] = target_sizes  # type: ignore
+        return out
 
     def post_processor(
-        self, model_outputs: HuggingFaceDetectorOutput, **kwargs: Any
+        self,
+        model_outputs: HuggingFaceDetectorOutput,
+        threshold: float = 0.5,
+        target_sizes: Optional[Sequence[Tuple[int, ...]]] = None,
     ) -> HuggingFaceDetectorPredictions:
         """
         Post process the outputs of a HuggingFace object detector.
 
         Parameters
         ----------
-        outputs : Any
+        model_outputs : HuggingFaceDetectorOutput
             The outputs of the model.
+        threshold : float
+            The threshold to use for the post processing.
+        target_sizes : Sequence[Tuple[int, ...]]
+            The shape of each image.
 
         Returns
         -------
-        Any
+        HuggingFaceDetectorPredictions
             The post processed outputs.
 
         Examples
@@ -176,15 +125,11 @@ class HuggingFaceObjectDetector(nn.Module):
         """
         assert self._post_processor is not None, "No post processor was provided."
 
-        target_sizes = None
-        if isinstance(model_outputs, dict):
-            target_sizes = model_outputs.get("target_size", None)
-
         pp_input = HuggingFacePostProcessorInput(
             logits=model_outputs.logits, pred_boxes=model_outputs.boxes
         )
         results = self._post_processor(
-            pp_input, threshold=self._threshold, target_sizes=target_sizes
+            pp_input, threshold=threshold, target_sizes=target_sizes
         )
 
         if isinstance(results, list):
@@ -262,15 +207,14 @@ class HuggingFaceObjectDetector(nn.Module):
         )
 
     def forward(
-        self,
-        data: Union[HasDataImage, ArrayLike],
-    ) -> HuggingFaceDetectorOutput:
+        self, data: Union[SupportsArray, HasDataImage]
+    ) -> Union[HuggingFaceDetectorOutput, HuggingFaceDetectorPredictions]:
         """
         Extract object detection for HuggingFace Object Detection models.
 
         Parameters
         ----------
-        data : Union[ArrayLike, Sequence[ArrayLike]]
+        data : ArrayLike | Sequence[ArrayLike] | HasDataImage | Sequence[HasDataImage]
             A single image or a sequence of images to extract object detection from.
 
         Returns
@@ -301,21 +245,27 @@ class HuggingFaceObjectDetector(nn.Module):
         >>> from jatic_toolbox.protocols import HasObjectDetections
         >>> assert isinstance(detections, HasObjectDetections)
         """
-        target_size = None
-        if is_typed_dict(data, HasDataImage):
-            target_size = data.get("target_size", None)
-            pixel_values = data["image"]
-        elif isinstance(data, (dict, UserDict)):
-            raise InvalidArgument("Missing key in data.")
-        else:
-            pixel_values = tr.as_tensor(data)
+        images, target_size = self._process_inputs(data)
+        if target_size is None:
+            target_size = []
 
-        outputs = self.model(pixel_values)
+            assert isinstance(images, tr.Tensor) or isinstance(images, Sequence)
+            for img in images:
+                assert hasattr(img, "shape"), "Image must have a shape attribute."
+                shape = getattr(img, "shape")
+                target_size.append([shape[-2], shape[-1]])
+
+        if TYPE_CHECKING:
+            assert isinstance(self.model, HuggingFaceWithDetection)
+
+        outputs = self.model(images)
         results = HuggingFaceDetectorOutput(
             logits=outputs.logits, boxes=outputs.pred_boxes
         )
 
-        # HuggingFace models return a dataclass that subclasses OrderedDict
-        assert isinstance(results, dict)
-        results["target_size"] = target_size
+        if self._threshold is not None:
+            return self.post_processor(
+                results, threshold=self._threshold, target_sizes=target_size
+            )
+
         return results

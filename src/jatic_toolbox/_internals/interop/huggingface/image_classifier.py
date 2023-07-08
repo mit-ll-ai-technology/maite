@@ -1,14 +1,12 @@
-from collections import UserDict
-from typing import TYPE_CHECKING, Any, List, Optional, Sequence, Union, cast, overload
+from typing import TYPE_CHECKING, Any, List, Optional, Union, cast
 
 import torch as tr
-from torch import nn
 from typing_extensions import Self
 
-from jatic_toolbox._internals.interop.utils import to_tensor_list
 from jatic_toolbox.errors import InvalidArgument
-from jatic_toolbox.protocols import ArrayLike, HasDataImage, HasLogits, is_typed_dict
+from jatic_toolbox.protocols import HasDataImage, HasLogits, SupportsArray
 
+from .base import BaseHFModel
 from .typing import (
     HuggingFacePredictions,
     HuggingFaceProbs,
@@ -19,7 +17,7 @@ from .typing import (
 __all__ = ["HuggingFaceImageClassifier"]
 
 
-class HuggingFaceImageClassifier(nn.Module):
+class HuggingFaceImageClassifier(BaseHFModel):
     """
     Wrapper for HuggingFace image classifiation models.
 
@@ -51,44 +49,13 @@ class HuggingFaceImageClassifier(nn.Module):
         >>> model = AutoModelForImageClassification.from_pretrained("microsoft/resnet-50")
         >>> hf_model = HuggingFaceImageClassifier(processor, model)
         """
-        super().__init__()
-        self.model = model
-        self._processor = processor
-        self._labels = list(model.config.id2label.values())
+        super().__init__(model=model, processor=processor)
         self._top_k = top_k
 
-    def get_labels(self) -> Sequence[str]:
-        """
-        Get the labels of the model.
-
-        Returns
-        -------
-        Sequence[str]
-            The labels of the model.
-        """
-        return self._labels
-
-    @overload
     def preprocessor(
         self,
-        data: Sequence[ArrayLike],
-        image_key: str = "image",
+        data: SupportsArray,
     ) -> HasDataImage:
-        ...
-
-    @overload
-    def preprocessor(
-        self,
-        data: Sequence[HasDataImage],
-        image_key: str = "image",
-    ) -> Sequence[HasDataImage]:
-        ...
-
-    def preprocessor(
-        self,
-        data: Union[Sequence[ArrayLike], Sequence[HasDataImage]],
-        image_key: str = "image",
-    ) -> Union[HasDataImage, Sequence[HasDataImage]]:
         """
         Preprocess images for a HuggingFace object detector.
 
@@ -108,34 +75,11 @@ class HuggingFaceImageClassifier(nn.Module):
         assert self._processor is not None, "No processor was provided."
         assert isinstance(data, (list, tuple))
 
-        if isinstance(data[0], dict):
-            if TYPE_CHECKING:
-                data = cast(Sequence[HasDataImage], data)
-
-            images = to_tensor_list([d[image_key] for d in data])
-            image_features = self._processor(images=images, return_tensors="pt")[
-                "pixel_values"
-            ]
-            assert isinstance(image_features, tr.Tensor)
-
-            out = []
-            for d, image in zip(data, image_features):
-                assert isinstance(d, dict)
-                data_out: dict[str, Any] = {"image": image}
-                data_out.update({k: v for k, v in d.items() if k != image_key})
-                out.append(data_out)
-            return out
-
-        else:
-            if TYPE_CHECKING:
-                data = cast(Sequence[ArrayLike], data)
-
-            images = to_tensor_list(data)
-            image_features = self._processor(images=images, return_tensors="pt")[
-                "pixel_values"
-            ]
-            assert isinstance(image_features, tr.Tensor)
-            return {"image": image_features}
+        image_features = self._processor(images=data, return_tensors="pt")[
+            "pixel_values"
+        ]
+        assert isinstance(image_features, tr.Tensor)
+        return {"image": image_features}
 
     def post_processor(
         self, outputs: HasLogits
@@ -159,8 +103,7 @@ class HuggingFaceImageClassifier(nn.Module):
         probs = tr.as_tensor(outputs.logits).softmax(dim=-1)
 
         if self._top_k is None:
-            labels = list(self.get_labels()) * probs.shape[0]
-            return HuggingFaceProbs(probs=probs, labels=labels)
+            return HuggingFaceProbs(probs=probs)
 
         top_k = self._top_k
         if top_k > self.model.config.num_labels:
@@ -219,7 +162,9 @@ class HuggingFaceImageClassifier(nn.Module):
 
         return cls(clf_model, processor, top_k=top_k)
 
-    def forward(self, data: Union[HasDataImage, ArrayLike]) -> HasLogits:
+    def forward(
+        self, data: Union[HasDataImage, SupportsArray]
+    ) -> Union[HuggingFacePredictions, HuggingFaceProbs]:
         """
         Extract object detection for HuggingFace Object Detection models.
 
@@ -251,11 +196,10 @@ class HuggingFaceImageClassifier(nn.Module):
         >>> from jatic_toolbox.protocols import HasLogits
         >>> assert isinstance(detections, HasLogits)
         """
-        if is_typed_dict(data, HasDataImage):
-            pixel_values = data["image"]
-        elif isinstance(data, (dict, UserDict)):
-            raise InvalidArgument("Missing `image` key in data.")
-        else:
-            pixel_values = tr.as_tensor(data)
+        images, _ = self._process_inputs(data)
 
-        return self.model(pixel_values)
+        if TYPE_CHECKING:
+            assert isinstance(self.model, HuggingFaceWithLogits)
+
+        results = self.model(images)
+        return self.post_processor(results)

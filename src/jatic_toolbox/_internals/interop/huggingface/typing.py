@@ -1,7 +1,17 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, Mapping, Optional, Sequence, TypeVar, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    Mapping,
+    Optional,
+    Sequence,
+    TypeVar,
+    Union,
+)
 
 from torch import Tensor
 from typing_extensions import Protocol, Self, runtime_checkable
@@ -24,7 +34,6 @@ class HuggingFaceDataset(Dataset[Mapping[str, Any]], Protocol):
 @dataclass
 class HuggingFaceProbs:
     probs: Tensor
-    labels: Optional[Union[Tensor, Sequence[Sequence[str]]]] = None
 
 
 @dataclass
@@ -91,6 +100,9 @@ class HuggingFaceObjectDetectionPostProcessor(Protocol):
 @runtime_checkable
 class HuggingFaceModule(Protocol):
     config: Any
+
+    def parameters(self) -> Iterable[Tensor]:
+        ...
 
 
 @runtime_checkable

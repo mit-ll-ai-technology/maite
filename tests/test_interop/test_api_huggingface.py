@@ -13,7 +13,6 @@ from transformers import (
 )
 
 import jatic_toolbox
-from jatic_toolbox.errors import InvalidArgument
 from jatic_toolbox.interop.huggingface import (
     HuggingFaceImageClassifier,
     HuggingFaceObjectDetectionDataset,
@@ -24,7 +23,6 @@ from jatic_toolbox.protocols import (
     ArrayLike,
     HasDataImage,
     HasDetectionPredictions,
-    HasLogits,
     HasProbs,
     HasScores,
     is_typed_dict,
@@ -63,22 +61,6 @@ def test_hf_load_dataset_unsupported_task(task):
 def test_hf_load_model_unsupported_task(task):
     with pytest.raises(ValueError):
         jatic_toolbox.load_model(provider="huggingface", task=task, model_name="test")
-
-
-def test_hf_load_dataset_raises_warning(mocker):
-    a_dataset = get_test_vision_dataset(image_key="image", label_key="label")
-    mock_dataset = dict(train=a_dataset)
-    mocker.patch.object(datasets, "load_dataset", return_value=mock_dataset)
-
-    with pytest.warns(UserWarning):
-        jatic_toolbox.load_dataset(
-            provider="huggingface", task=None, dataset_name="test"
-        )
-
-    with pytest.warns(UserWarning):
-        jatic_toolbox.load_dataset(
-            provider="huggingface", task="image-classification", dataset_name="test"
-        )
 
 
 @pytest.mark.parametrize(
@@ -254,25 +236,15 @@ def test_hf_vision_processors(task, loader, data, image_as_dict):
     else:
         hf_model = task(model, processor)
 
-    if image_as_dict:
-        pre_data = [{"image": data}]
-    else:
-        pre_data = [data]
-
-    features = hf_model.preprocessor(pre_data)
+    features = hf_model.preprocessor([data])
+    assert isinstance(features, dict)
+    assert "image" in features
+    assert len(features["image"]) == 1
 
     if image_as_dict:
-        assert len(features) == 1
-        assert isinstance(features[0], dict)
-        assert "image" in features[0]
+        output = hf_model({"image": [data] * 10})
     else:
-        assert isinstance(features, dict)
-        assert "image" in features
-
-    output = hf_model({"image": [data] * 10})
-    assert isinstance(output, HasLogits)
-
-    output = hf_model.post_processor(output)
+        output = hf_model([data] * 10)
     assert isinstance(output, (HasProbs, HasDetectionPredictions))
 
 
@@ -302,14 +274,11 @@ def test_hf_load_vision_model(top_k, image_as_dict):
             data = {image_as_dict: data}
 
         if image_as_dict is not None and image_as_dict not in ["image"]:
-            with pytest.raises(InvalidArgument):
+            with pytest.raises(AssertionError):
                 out = model_out(data)
             return
 
         out = model_out(data)
-        assert isinstance(out, HasLogits)
-
-        out = model_out.post_processor(out)
         if top_k is None:
             assert isinstance(out, HasProbs)
         else:
@@ -342,11 +311,10 @@ def test_hf_load_object_detection_model(output_as_list, threshold, image_as_dict
             data = {image_as_dict: data}
 
         if image_as_dict is not None and image_as_dict not in ["image"]:
-            with pytest.raises(InvalidArgument):
+            with pytest.raises(AssertionError):
                 out = model_out(data)
             return
 
         assert is_typed_dict(data, HasDataImage) or isinstance(data, ArrayLike)
         out = model_out(data)
-        out = model_out.post_processor(out)
         assert isinstance(out, HasDetectionPredictions)

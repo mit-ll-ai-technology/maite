@@ -1,4 +1,8 @@
-from jatic_toolbox._internals.protocols.type_guards import is_list_dict, is_typed_dict
+from jatic_toolbox._internals.protocols.type_guards import (
+    is_list_dict,
+    is_list_of_type,
+    is_typed_dict,
+)
 from jatic_toolbox._internals.protocols.typing import (
     ArrayLike,
     Augmentation,
@@ -6,6 +10,7 @@ from jatic_toolbox._internals.protocols.typing import (
     DataLoader,
     Dataset,
     HasDataBoxes,
+    HasDataDetections,
     HasDataImage,
     HasDataLabel,
     HasDetectionLogits,
@@ -20,6 +25,7 @@ from jatic_toolbox._internals.protocols.typing import (
     ObjectDetectionDataLoader,
     ObjectDetectionDataset,
     ObjectDetector,
+    SupportsArray,
     SupportsImageClassification,
     SupportsObjectDetection,
     VisionDataLoader,
@@ -53,4 +59,7 @@ __all__ = [
     "HasDataImage",
     "HasDataLabel",
     "HasDataBoxes",
+    "SupportsArray",
+    "HasDataDetections",
+    "is_list_of_type",
 ]

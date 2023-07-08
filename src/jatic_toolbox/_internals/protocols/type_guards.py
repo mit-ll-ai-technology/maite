@@ -7,6 +7,30 @@ T = TypeVar("T")
 Td = TypeVar("Td", bound=TypedDict)
 
 
+def is_list_of_type(d: Any, guard: Type[T] = Any) -> TypeGuard[List[T]]:
+    """
+    Check if object is a list of dictionaries.
+
+    Parameters
+    ----------
+    d : Any
+        The object to check.
+    guard : Type[T]
+        The type guard of the dictionaries. Defaults to dict.
+
+    Returns
+    -------
+    TypeGuard[List[T]]
+        True if object is a list of dictionaries.
+
+    Examples
+    --------
+    >>> is_list_dict([{"a": 1}, {"b": 2}])
+    True
+    """
+    return isinstance(d, (list, tuple)) and isinstance(d[0], guard)
+
+
 def is_list_dict(d: Any, guard: Type[T] = Dict[Any, Any]) -> TypeGuard[List[T]]:
     """
     Check if object is a list of dictionaries.
