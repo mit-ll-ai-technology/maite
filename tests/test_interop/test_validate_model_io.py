@@ -83,46 +83,21 @@ def _draw_data(data, img_type):
     not is_hf_transformers_available(),
     reason="HuggingFace transfomers is not installed.",
 )
-@pytest.mark.usefixtures("hf_detector_model")
-@pytest.mark.parametrize(
-    "img_type",
-    [
-        "pillow",
-        "numpy",
-        "tensor",
-    ],
-)
-@pytest.mark.parametrize(
-    "input_type",
-    [
-        None,
-        "list",
-        "dict",
-    ],
-)
-@settings(deadline=None, max_examples=10)
-@given(data=st.data())
-def test_huggingface_object_detection(hf_detector_model, data, img_type, input_type):
-    array = _draw_data(data, img_type)
+@pytest.mark.usefixtures("hf_detector_model", "hf_vision_model")
+def test_huggingface_get_labels_sorted(hf_detector_model, hf_vision_model):
+    for model in [hf_detector_model, hf_vision_model]:
+        assert hasattr(model, "get_labels")
+        labels = model.get_labels()
 
-    with tr.no_grad():
-        if input_type is None:
-            output = hf_detector_model(array)
-        elif input_type == "list":
-            output = hf_detector_model([array])
-        elif input_type == "dict":
-            output = hf_detector_model({"image": array})
-        else:
-            raise ValueError(f"Unknown input_type: {input_type}")
-
-        assert isinstance(output, pr.HasDetectionPredictions)
+        id_map = model.model.config.id2label
+        assert all(labels[k] == id_map[k] for k in id_map.keys())
 
 
 @pytest.mark.skipif(
     not is_hf_transformers_available(),
-    reason="HuggingFace `transformers` is not installed.",
+    reason="HuggingFace transfomers is not installed.",
 )
-@pytest.mark.usefixtures("hf_vision_model")
+@pytest.mark.usefixtures("hf_detector_model", "hf_vision_model")
 @pytest.mark.parametrize(
     "img_type",
     [
@@ -141,26 +116,32 @@ def test_huggingface_object_detection(hf_detector_model, data, img_type, input_t
 )
 @settings(deadline=None, max_examples=10)
 @given(data=st.data())
-def test_huggingface_image_classification(hf_vision_model, data, img_type, input_type):
+def test_huggingface_inputs(
+    hf_detector_model, hf_vision_model, data, img_type, input_type
+):
     array = _draw_data(data, img_type)
 
-    with tr.no_grad():
-        if input_type is None:
-            output = hf_vision_model(array)
-        elif input_type == "list":
-            output = hf_vision_model([array])
-        elif input_type == "dict":
-            output = hf_vision_model({"image": array})
-        else:
-            raise ValueError(f"Unknown input_type: {input_type}")
+    for model, output_pr in [
+        (hf_detector_model, pr.HasDetectionPredictions),
+        (hf_vision_model, pr.HasProbs),
+    ]:
+        with tr.inference_mode():
+            if input_type is None:
+                output = model(array)
+            elif input_type == "list":
+                output = model([array])
+            elif input_type == "dict":
+                output = model({"image": array})
+            else:
+                raise ValueError(f"Unknown input_type: {input_type}")
 
-    assert isinstance(output, pr.HasProbs)
+            assert isinstance(output, output_pr)
 
 
 @pytest.mark.skipif(
     not is_torchvision_available(), reason="TorchVision is not installed."
 )
-@pytest.mark.usefixtures("tv_vision_model")
+@pytest.mark.usefixtures("tv_detector_model", "tv_vision_model")
 @pytest.mark.parametrize(
     "img_type",
     [
@@ -179,55 +160,23 @@ def test_huggingface_image_classification(hf_vision_model, data, img_type, input
 )
 @settings(deadline=None, max_examples=10)
 @given(data=st.data())
-def test_torchvision_image_classification(tv_vision_model, data, img_type, input_type):
+def test_torchvision_inputs(
+    tv_vision_model, tv_detector_model, data, img_type, input_type
+):
     array = _draw_data(data, img_type)
 
-    with tr.no_grad():
-        if input_type is None:
-            output = tv_vision_model(array)
-        elif input_type == "list":
-            output = tv_vision_model([array])
-        elif input_type == "dict":
-            output = tv_vision_model({"image": array})
-        else:
-            raise ValueError(f"Unknown input_type: {input_type}")
+    for model, output_pr in [
+        (tv_detector_model, pr.HasDetectionPredictions),
+        (tv_vision_model, pr.HasLogits),
+    ]:
+        with tr.inference_mode():
+            if input_type is None:
+                output = model(array)
+            elif input_type == "list":
+                output = model([array])
+            elif input_type == "dict":
+                output = model({"image": array})
+            else:
+                raise ValueError(f"Unknown input_type: {input_type}")
 
-    assert isinstance(output, pr.HasLogits)
-
-
-@pytest.mark.skipif(
-    not is_torchvision_available(), reason="TorchVision is not installed."
-)
-@pytest.mark.usefixtures("tv_detector_model")
-@pytest.mark.parametrize(
-    "img_type",
-    [
-        "pillow",
-        "numpy",
-        "tensor",
-    ],
-)
-@pytest.mark.parametrize(
-    "input_type",
-    [
-        None,
-        "list",
-        "dict",
-    ],
-)
-@settings(deadline=None, max_examples=10)
-@given(data=st.data())
-def test_torchvision_object_detection(tv_detector_model, data, img_type, input_type):
-    array = _draw_data(data, img_type)
-
-    with tr.no_grad():
-        if input_type is None:
-            output = tv_detector_model(array)
-        elif input_type == "list":
-            output = tv_detector_model([array])
-        elif input_type == "dict":
-            output = tv_detector_model({"image": array})
-        else:
-            raise ValueError(f"Unknown input_type: {input_type}")
-
-        assert isinstance(output, pr.HasDetectionPredictions)
+        assert isinstance(output, output_pr)
