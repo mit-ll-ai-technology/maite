@@ -14,17 +14,23 @@ description = "Utilities for developing test suites for JATIC-related projects."
 readme = "README.md"
 requires-python = ">=3.8"
 dependencies = [
-  "typing-extensions <= 4.5.0,!=4.6.0",  # TODO: Fix issue with 4.6 support
+  "typing-extensions >= 4.5,!= 4.6",
 ]
 
 license = { file = "LICENSE.txt" }
 keywords = ["machine learning", "testing", "pytest"]
 
-authors = [{ name = "Ryan Soklaski", email = "ryan.soklaski@ll.mit.edu" },
-           {name = "Justin Goodwin", email = "jgoodwin@ll.mit.edu" },
-           {name = "Michael Yee", email = "myee@ll.mit.edu" },
-           ]
-maintainers = [{name = "Justin Goodwin", email = "jgoodwin@ll.mit.edu" }]
+authors = [
+  {name = "Ryan Soklaski", email = "ryan.soklaski@ll.mit.edu"},
+  {name = "Justin Goodwin", email = "jgoodwin@ll.mit.edu"},
+  {name = "Michael Yee", email = "myee@ll.mit.edu"},
+  {name = "Lei Hamilton", email = "lei.hamilton@ll.mit.edu"},
+  {name = "Garrett Botkin", email = "garrett.botkin@ll.mit.edu"},
+]
+maintainers = [
+  {name = "Justin Goodwin", email = "jgoodwin@ll.mit.edu"},
+  {name = "Michael Yee", email = "myee@ll.mit.edu"},
+]
 
 classifiers = [
   "Development Status :: 4 - Beta",
