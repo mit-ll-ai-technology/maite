@@ -98,20 +98,20 @@ class HasDataBoxes(TypedDict):
     boxes: SupportsArray
 
 
-class ObjectDetectionData(HasDataBoxes):
+class HasDataBoxesLabels(HasDataBoxes):
     labels: Union[Sequence[int], SupportsArray]
 
 
-class HasDataDetections(TypedDict):
-    objects: Union[ObjectDetectionData, Sequence[ObjectDetectionData]]
+class HasDataObjects(TypedDict):
+    objects: Union[HasDataBoxesLabels, Sequence[HasDataBoxesLabels]]
 
 
 class SupportsImageClassification(HasDataImage, HasDataLabel):
     ...
 
 
-class SupportsObjectDetection(HasDataImage):
-    objects: Union[ObjectDetectionData, Sequence[ObjectDetectionData]]
+class SupportsObjectDetection(HasDataImage, HasDataObjects):
+    ...
 
 
 @runtime_checkable

@@ -585,7 +585,7 @@ class ObjectDetectionEvaluator(EvaluationTask):
                         output = model(batch_device["image"])
 
                     if isinstance(output, pr.HasDetectionPredictions):
-                        assert pr.is_typed_dict(batch_device, pr.HasDataDetections)
+                        assert pr.is_typed_dict(batch_device, pr.HasDataObjects)
 
                         [
                             v.update(output, batch_device["objects"])
