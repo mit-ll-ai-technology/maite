@@ -56,6 +56,7 @@ test = [
 
 hydra_zen = ["hydra-zen >= 0.9.0"]
 numpy = ["numpy >= 1.17"]
+pillow = ["pillow >= 9.4.0"]
 torch=["torch>=1.7,!=1.12.0"]
 torchvision = ["torchvision >= 0.14.1"]
 huggingface_hub = ["huggingface-hub >= 0.11.1"]
