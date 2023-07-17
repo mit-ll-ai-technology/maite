@@ -24,9 +24,15 @@ from torch.utils.data import DataLoader
 from typing_extensions import Self, TypeAlias
 
 import jatic_toolbox.protocols as pr
+from jatic_toolbox._internals.interop.api import (
+    DATASET_PROVIDERS,
+    METRIC_PROVIDERS,
+    MODEL_PROVIDERS,
+)
 
 from ..import_utils import is_torch_available, is_tqdm_available
 from ..utils import evaluating
+from .registry import JATIC_REGISTRY
 from .utils import is_pil_image
 
 ArrayLike = pr.ArrayLike
@@ -309,9 +315,9 @@ class EvaluationTask(ABC):
 
     def __call__(
         self,
-        model: Union[pr.ImageClassifier, pr.ObjectDetector],
-        data: Union[pr.VisionDataset, pr.ObjectDetectionDataset],
-        metric: Mapping[str, pr.Metric],
+        model: Union[str, pr.ImageClassifier, pr.ObjectDetector],
+        data: Union[str, pr.VisionDataset, pr.ObjectDetectionDataset],
+        metric: Union[str, Mapping[str, pr.Metric]],
         augmentation: Optional[
             pr.Augmentation[
                 Union[pr.SupportsImageClassification, pr.SupportsObjectDetection]
@@ -321,6 +327,9 @@ class EvaluationTask(ABC):
         device: Optional[Union[str, int]] = None,
         collate_fn: Optional[Callable] = None,
         use_progress_bar: bool = True,
+        dataset_kwargs: Mapping[str, Any] = {},
+        model_kwargs: Mapping[str, Any] = {},
+        metric_kwargs: Mapping[str, Any] = {},
         **kwargs: Any,
     ) -> Dict[str, Any]:
         """
@@ -374,8 +383,85 @@ class EvaluationTask(ABC):
         >>> evaluator(model, data, metric=dict(accuracy=acc_metric), batch_size=32, device=0)
         {'accuracy': tensor(0.9788, device='cuda:0')}
         """
-        assert isinstance(metric, Mapping)
 
+        if isinstance(data, str):
+            if JATIC_REGISTRY and ("dataset", data) in JATIC_REGISTRY["dataset"]:
+                from hydra_zen import instantiate
+
+                data_builder = instantiate(
+                    JATIC_REGISTRY[("dataset", data)], **dataset_kwargs
+                )
+                data = instantiate(data_builder)
+            else:
+                from jatic_toolbox import load_dataset
+
+                provider, dataset_name = data.split("::", 1)
+                if TYPE_CHECKING:
+                    provider = cast(DATASET_PROVIDERS, provider)
+
+                data_out = load_dataset(
+                    provider=provider, dataset_name=dataset_name, **dataset_kwargs
+                )
+                assert not isinstance(data_out, dict)
+                data = data_out
+
+            if TYPE_CHECKING:
+                assert not isinstance(data, str)
+
+        if isinstance(model, str):
+            if JATIC_REGISTRY and ("model", model) in JATIC_REGISTRY["model"]:
+                from hydra_zen import instantiate
+
+                model_builder = instantiate(
+                    JATIC_REGISTRY[("model", model)], **model_kwargs
+                )
+                model = instantiate(model_builder)
+            else:
+                from jatic_toolbox import load_model
+
+                provider, model_name = model.split("::", 1)
+
+                if TYPE_CHECKING:
+                    provider = cast(MODEL_PROVIDERS, provider)
+
+                model = load_model(
+                    provider=provider, model_name=model_name, **model_kwargs
+                )
+
+            if TYPE_CHECKING:
+                assert not isinstance(model, str)
+
+        if isinstance(metric, str):
+            metric_str = metric
+
+            if JATIC_REGISTRY and ("metric", metric) in JATIC_REGISTRY["metric"]:
+                from hydra_zen import instantiate
+
+                metric_out_builder = instantiate(
+                    JATIC_REGISTRY[("metric", metric)], **metric_kwargs
+                )
+                metric_out = instantiate(metric_out_builder)
+            else:
+                from jatic_toolbox import load_metric
+
+                provider, metric_name = metric.split("::", 1)
+
+                if TYPE_CHECKING:
+                    provider = cast(METRIC_PROVIDERS, provider)
+
+                metric_out = load_metric(
+                    provider=provider, metric_name=metric_name, **metric_kwargs
+                )
+
+            if TYPE_CHECKING:
+                assert not isinstance(metric, str)
+
+            if not isinstance(metric_out, dict):
+                metric = {metric_str: metric_out}
+            else:
+                metric = metric_out
+
+        assert isinstance(metric, Mapping)
         dl = get_dataloader(
             data,
             batch_size=batch_size,
