@@ -57,9 +57,6 @@ else:
     collect_ignore_glob.append("requires_torch/**")
 
 
-if not import_utils.is_hydra_zen_available():
-    collect_ignore_glob.append("*hydra_zen*.py")
-
 if not (
     import_utils.is_hf_transformers_available()
     and import_utils.is_hf_datasets_available()

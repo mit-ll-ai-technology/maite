@@ -10,9 +10,6 @@ else:  # pragma: no cover
 
 
 from jatic_toolbox._internals.interop.api import (
-    get_dataset_builder,
-    get_metric_builder,
-    get_model_builder,
     list_datasets,
     list_metrics,
     list_models,
@@ -21,6 +18,11 @@ from jatic_toolbox._internals.interop.api import (
     load_model,
 )
 from jatic_toolbox._internals.interop.evaluate import evaluate
+from jatic_toolbox._internals.interop.registry import (
+    DATASET_REGISTRY,
+    METRIC_REGISTRY,
+    MODEL_REGISTRY,
+)
 
 __all__ = [
     "list_models",
@@ -30,7 +32,7 @@ __all__ = [
     "list_metrics",
     "load_metric",
     "evaluate",
-    "get_dataset_builder",
-    "get_model_builder",
-    "get_metric_builder",
+    "MODEL_REGISTRY",
+    "DATASET_REGISTRY",
+    "METRIC_REGISTRY",
 ]

@@ -5,7 +5,6 @@ from typing import (
     List,
     Literal,
     Optional,
-    Type,
     TypeVar,
     Union,
     overload,
@@ -19,14 +18,13 @@ from jatic_toolbox._internals.interop.torchmetrics.api import TorchMetricsAPI
 from jatic_toolbox._internals.interop.torchvision.api import TorchVisionAPI
 from jatic_toolbox.protocols import (
     ArrayLike,
-    DataClass,
     Dataset,
     ImageClassifier,
     Metric,
     ObjectDetector,
 )
 
-from ..import_utils import is_hydra_zen_available
+from .registry import DATASET_REGISTRY, METRIC_REGISTRY, MODEL_REGISTRY
 
 A = TypeVar("A", bound=ArrayLike)
 T = TypeVar("T")
@@ -74,8 +72,8 @@ def list_datasets(
 
 def load_dataset(
     *,
-    provider: DATASET_PROVIDERS,
     dataset_name: str,
+    provider: Optional[DATASET_PROVIDERS] = None,
     task: Optional[Literal["image-classification", "object-detection"]] = None,
     split: Optional[str] = None,
     **kwargs: Any,
@@ -85,10 +83,10 @@ def load_dataset(
 
     Parameters
     ----------
-    provider : str
-        Where to search for datasets. Currently supported: "huggingface", "torchvision".
     dataset_name : str
         Name of dataset.
+    provider : str
+        Where to search for datasets. Currently supported: "huggingface", "torchvision".
     task : str | None (default: None)
         A string of tasks datasets were designed for, such as: "image-classification", "object-detection".
     split : str | None (default: None)
@@ -106,6 +104,15 @@ def load_dataset(
     >>> from jatic_toolbox import load_dataset
     >>> load_dataset(provider="huggingface", dataset_name="cifar10", task="image-classification")
     """
+
+    if dataset_name in DATASET_REGISTRY:
+        kwargs = {**DATASET_REGISTRY[dataset_name], **kwargs}
+        dataset_name = kwargs.pop("dataset_name")
+        provider = kwargs.pop("provider")
+        task = kwargs.pop("task")
+        _split = kwargs.pop("split")
+        split = split or _split
+
     if provider == "huggingface":
         api = HuggingFaceAPI()
     elif provider == "torchvision":
@@ -187,9 +194,9 @@ def load_model(
 
 def load_model(
     *,
-    provider: MODEL_PROVIDERS,
-    task: Literal["image-classification", "object-detection"],
     model_name: str,
+    provider: Optional[MODEL_PROVIDERS] = None,
+    task: Optional[Literal["image-classification", "object-detection"]] = None,
     **kwargs: Any,
 ) -> Union[ImageClassifier, ObjectDetector]:
     """
@@ -197,12 +204,12 @@ def load_model(
 
     Parameters
     ----------
+    model_name : str
+        The `model_name` for the model (e.g., "microsoft/resnet-18").
     provider : str
         The provider of the model (e.g., "huggingface"). Currently supported: "huggingface", "torchvision".
     task : str
         The task for the model (e.g., "image-classification").
-    model_name : str
-        The `model_name` for the model (e.g., "microsoft/resnet-18").
     **kwargs : Any
         Any keyword supported by provider interface.
 
@@ -216,9 +223,16 @@ def load_model(
     >>> from jatic_toolbox import load_model
     >>> load_model(provider="huggingface", task="image-classification", model_name="microsoft/resnet-18")
     """
+    if model_name in MODEL_REGISTRY:
+        kwargs = {**MODEL_REGISTRY[model_name], **kwargs}
+        provider = kwargs.pop("provider", provider)
+        task = kwargs.pop("task", task)
+        model_name = kwargs.pop("model_name")
+
     if provider == "huggingface":
         return HuggingFaceAPI().load_model(task=task, model_name=model_name, **kwargs)
     elif provider == "torchvision":
+        assert task is not None, "task must be specified for torchvision models."
         return TorchVisionAPI().load_model(task=task, model_name=model_name, **kwargs)
 
     raise ValueError(f"Provider, {provider}, not supported.")
@@ -260,8 +274,8 @@ def list_metrics(
 
 def load_metric(
     *,
-    provider: METRIC_PROVIDERS,
     metric_name: str,
+    provider: Optional[METRIC_PROVIDERS] = None,
     **kwargs: Any,
 ) -> Metric:
     """
@@ -269,10 +283,10 @@ def load_metric(
 
     Parameters
     ----------
-    provider : str
-        The provider of the metric (e.g., "torchmetrics"). Currently supported: "torcheval", "torchmetrics".
     metric_name : str
         The `metric_name` for the metric (e.g., "accuracy").
+    provider : str
+        The provider of the metric (e.g., "torchmetrics"). Currently supported: "torcheval", "torchmetrics".
     **kwargs : Any
         Any keyword supported by provider interface.
 
@@ -286,159 +300,14 @@ def load_metric(
     >>> from jatic_toolbox import load_metric
     >>> load_metric(provider="torchmetrics", metric_name="accuracy")
     """
+    if metric_name in METRIC_REGISTRY:
+        kwargs = {**METRIC_REGISTRY[metric_name], **kwargs}
+        provider = kwargs.pop("provider", provider)
+        metric_name = kwargs.pop("metric_name")
+
     if provider == "torcheval":
         return TorchEvalAPI().load_metric(metric_name=metric_name, **kwargs)
     elif provider == "torchmetrics":
         return TorchMetricsAPI().load_metric(metric_name=metric_name, **kwargs)
 
     raise ValueError(f"Provider, {provider}, not supported.")
-
-
-def get_dataset_builder(
-    *,
-    provider: Literal["torchvision", "huggingface"],
-    dataset_name: str,
-    task: SUPPORTED_TASKS,
-    split: Optional[str] = None,
-    **kwargs: Any,
-) -> Type[DataClass]:
-    """
-    Create a dataset builder for a given provider.
-
-    Parameters
-    ----------
-    provider : str
-        Where to search for datasets.
-    dataset_name : str
-        The name of the dataset.
-    task : str
-        The task for the dataset (e.g., "image-classification").
-    split : str, optional
-        The split for the dataset (e.g., "train").
-    **kwargs : Any
-        Any keyword supported by provider interface.
-
-    Returns
-    -------
-    Type[DataClass]
-        A dataset builder.
-
-    Raises
-    ------
-    ImportError
-        If hydra-zen is not installed.
-
-    Examples
-    --------
-    >>> from jatic_toolbox import get_dataset_builder
-    >>> get_dataset_builder(provider="torchvision", dataset_name="mnist", task="image-classification")
-    """
-    if not is_hydra_zen_available():  # pragma: no cover
-        raise ImportError(
-            "Please install hydra-zen to use this function: `pip install hydra-zen`"
-        )
-    from .hydra_zen.api import get_dataset_builder
-
-    return get_dataset_builder(
-        provider=provider,
-        dataset_name=dataset_name,
-        task=task,
-        split=split,
-        **kwargs,
-    )
-
-
-def get_model_builder(
-    *,
-    provider: Literal["torchvision", "huggingface"],
-    model_name: str,
-    task: SUPPORTED_TASKS,
-    **kwargs: Any,
-) -> Type[DataClass]:
-    """
-    Create a model builder for a given provider.
-
-    Parameters
-    ----------
-    provider : str
-        Where to search for models.
-    model_name : str
-        The name of the model.
-    task : str
-        The task for the model (e.g., "image-classification").
-    **kwargs : Any
-        Any keyword supported by provider interface.
-
-    Returns
-    -------
-    Type[DataClass]
-        A model builder.
-
-    Raises
-    ------
-    ImportError
-        If hydra-zen is not installed.
-
-    Examples
-    --------
-    >>> from jatic_toolbox import get_model_builder
-    >>> get_model_builder(provider="huggingface", model_name="microsoft/resnet-18", task="image-classification")
-    """
-    if not is_hydra_zen_available():  # pragma: no cover
-        raise ImportError(
-            "Please install hydra-zen to use this function: `pip install hydra-zen`"
-        )
-    from .hydra_zen.api import get_model_builder
-
-    return get_model_builder(
-        provider=provider,
-        model_name=model_name,
-        task=task,
-        **kwargs,
-    )
-
-
-def get_metric_builder(
-    *,
-    provider: Literal["torchmetrics", "torcheval"],
-    metric_name: str,
-    **kwargs: Any,
-) -> Type[DataClass]:
-    """
-    Create a metric builder for a given provider.
-
-    Parameters
-    ----------
-    provider : str
-        Where to search for metrics.
-    metric_name : str
-        The name of the metric.
-    **kwargs : Any
-        Any keyword supported by provider interface.
-
-    Returns
-    -------
-    Type[DataClass]
-        A metric builder.
-
-    Raises
-    ------
-    ImportError
-        If hydra-zen is not installed.
-
-    Examples
-    --------
-    >>> from jatic_toolbox import get_metric_builder
-    >>> get_metric_builder(provider="torchmetrics", metric_name="accuracy")
-    """
-    if not is_hydra_zen_available():  # pragma: no cover
-        raise ImportError(
-            "Please install hydra-zen to use this function: `pip install hydra-zen`"
-        )
-    from .hydra_zen.api import get_metric_builder
-
-    return get_metric_builder(
-        provider=provider,
-        metric_name=metric_name,
-        **kwargs,
-    )

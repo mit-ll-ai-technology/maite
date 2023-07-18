@@ -80,6 +80,15 @@ class TorchMetricsAPI:
                 return MeanAveragePrecision(**kwargs)  # type: ignore
 
             return CustomMAPBuilder
+        elif metrics_name == "ClassificationReport":
+
+            def CustomReportBuilder(**kwargs: Any) -> Metric:
+                from .implementations import ClassificationReport
+
+                # TODO: Fix Protocol
+                return ClassificationReport(**kwargs)
+
+            return CustomReportBuilder
         else:
             assert (
                 metrics_name in torchmetrics.__all__

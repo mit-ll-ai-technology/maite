@@ -32,7 +32,7 @@ from jatic_toolbox._internals.interop.api import (
 
 from ..import_utils import is_torch_available, is_tqdm_available
 from ..utils import evaluating
-from .registry import JATIC_REGISTRY
+from .registry import DATASET_REGISTRY, METRIC_REGISTRY, MODEL_REGISTRY
 from .utils import is_pil_image
 
 ArrayLike = pr.ArrayLike
@@ -385,16 +385,13 @@ class EvaluationTask(ABC):
         """
 
         if isinstance(data, str):
-            if JATIC_REGISTRY and ("dataset", data) in JATIC_REGISTRY["dataset"]:
-                from hydra_zen import instantiate
+            from jatic_toolbox import load_dataset
 
-                data_builder = instantiate(
-                    JATIC_REGISTRY[("dataset", data)], **dataset_kwargs
-                )
-                data = instantiate(data_builder)
-            else:
-                from jatic_toolbox import load_dataset
+            if data in DATASET_REGISTRY:
+                dataset_kwargs = {**DATASET_REGISTRY[data], **dataset_kwargs}
+                data_out = load_dataset(**dataset_kwargs)
 
+            elif "::" in data:
                 provider, dataset_name = data.split("::", 1)
                 if TYPE_CHECKING:
                     provider = cast(DATASET_PROVIDERS, provider)
@@ -402,23 +399,23 @@ class EvaluationTask(ABC):
                 data_out = load_dataset(
                     provider=provider, dataset_name=dataset_name, **dataset_kwargs
                 )
-                assert not isinstance(data_out, dict)
-                data = data_out
+            else:
+                raise ValueError(f"Unknown dataset: {data}")
+
+            assert not isinstance(data_out, dict)
+            data = data_out
 
             if TYPE_CHECKING:
                 assert not isinstance(data, str)
 
         if isinstance(model, str):
-            if JATIC_REGISTRY and ("model", model) in JATIC_REGISTRY["model"]:
-                from hydra_zen import instantiate
+            from jatic_toolbox import load_model
 
-                model_builder = instantiate(
-                    JATIC_REGISTRY[("model", model)], **model_kwargs
-                )
-                model = instantiate(model_builder)
-            else:
-                from jatic_toolbox import load_model
+            if model in MODEL_REGISTRY:
+                model_kwargs = {**MODEL_REGISTRY[model], **model_kwargs}
+                model = load_model(**model_kwargs)
 
+            elif "::" in model:
                 provider, model_name = model.split("::", 1)
 
                 if TYPE_CHECKING:
@@ -428,22 +425,22 @@ class EvaluationTask(ABC):
                     provider=provider, model_name=model_name, **model_kwargs
                 )
 
+            else:
+                raise ValueError(f"Unknown model: {model}")
+
             if TYPE_CHECKING:
                 assert not isinstance(model, str)
 
         if isinstance(metric, str):
+            from jatic_toolbox import load_metric
+
             metric_str = metric
 
-            if JATIC_REGISTRY and ("metric", metric) in JATIC_REGISTRY["metric"]:
-                from hydra_zen import instantiate
+            if metric in METRIC_REGISTRY:
+                metric_kwargs = {**METRIC_REGISTRY[metric], **metric_kwargs}
+                metric_out = load_metric(**metric_kwargs)
 
-                metric_out_builder = instantiate(
-                    JATIC_REGISTRY[("metric", metric)], **metric_kwargs
-                )
-                metric_out = instantiate(metric_out_builder)
-            else:
-                from jatic_toolbox import load_metric
-
+            elif "::" in metric:
                 provider, metric_name = metric.split("::", 1)
 
                 if TYPE_CHECKING:
@@ -452,6 +449,9 @@ class EvaluationTask(ABC):
                 metric_out = load_metric(
                     provider=provider, metric_name=metric_name, **metric_kwargs
                 )
+
+            else:
+                raise ValueError(f"Unknown metric: {metric}")
 
             if TYPE_CHECKING:
                 assert not isinstance(metric, str)
