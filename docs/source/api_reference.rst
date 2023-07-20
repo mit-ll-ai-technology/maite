@@ -17,6 +17,11 @@ bottom of any given reference page to see the examples.
 .. autosummary::
    :toctree: generated/
 
+   protocols
+
+.. autosummary::
+   :toctree: generated/
+
    list_datasets
    load_dataset
    list_models
