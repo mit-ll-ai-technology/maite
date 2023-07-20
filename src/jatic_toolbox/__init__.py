@@ -9,6 +9,7 @@ else:  # pragma: no cover
     __version__: str
 
 
+from jatic_toolbox._internals.import_utils import is_torch_available
 from jatic_toolbox._internals.interop.api import (
     list_datasets,
     list_metrics,
@@ -17,7 +18,6 @@ from jatic_toolbox._internals.interop.api import (
     load_metric,
     load_model,
 )
-from jatic_toolbox._internals.interop.evaluate import evaluate
 from jatic_toolbox._internals.interop.registry import (
     DATASET_REGISTRY,
     METRIC_REGISTRY,
@@ -36,3 +36,9 @@ __all__ = [
     "DATASET_REGISTRY",
     "METRIC_REGISTRY",
 ]
+
+
+if is_torch_available():
+    from jatic_toolbox._internals.interop.evaluate import evaluate
+
+    __all__.append("evaluate")

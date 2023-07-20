@@ -1,26 +1,21 @@
-import warnings
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Dict,
-    Iterable,
-    List,
-    Literal,
-    Optional,
-    Tuple,
-    Union,
-    cast,
-)
+from __future__ import annotations
 
-from jatic_toolbox.protocols import Dataset, ImageClassifier, ObjectDetector
+import warnings
+from typing import TYPE_CHECKING, Any, Iterable, List, Literal, Tuple, overload
+
+from jatic_toolbox.protocols import (
+    Dataset,
+    ImageClassifier,
+    ObjectDetector,
+    SupportsImageClassification,
+    SupportsObjectDetection,
+)
 
 from ...import_utils import (
     is_hf_datasets_available,
     is_hf_hub_available,
     is_hf_transformers_available,
 )
-from .datasets import HuggingFaceObjectDetectionDataset, HuggingFaceVisionDataset
-from .typing import HuggingFaceDataset
 
 __all__ = ["HuggingFaceAPI"]
 
@@ -30,12 +25,12 @@ class HuggingFaceAPI:
 
     def list_datasets(
         self,
-        author: Optional[str] = None,
-        benchmark: Optional[Union[str, List[str]]] = None,
-        dataset_name: Optional[str] = None,
-        size_categories: Optional[Union[str, List[str]]] = None,
-        task_categories: Optional[Union[str, List[str]]] = None,
-        task_ids: Optional[Union[str, List[str]]] = None,
+        author: str | None = None,
+        benchmark: str | List[str] | None = None,
+        dataset_name: str | None = None,
+        size_categories: str | List[str] | None = None,
+        task_categories: str | List[str] | None = None,
+        task_ids: str | List[str] | None = None,
         with_community_datasets: bool = False,
     ) -> Iterable[Any]:
         """
@@ -45,19 +40,19 @@ class HuggingFaceAPI:
         ----------
         author : str | None (default: None)
             The author of the HuggingFace dataset.
-        benchmark : Union[str, List[str]] | None (default: None)
+        benchmark : str | List[str] | None (default: None)
             A string or list of strings that can be used to identify datasets on the Hub by their official benchmark.
         dataset_name : str | None (default: None)
             A string or list of strings that can be used to identify datasets on the Hub by its name, such as `SQAC` or `wikineural`.
-        size_categories : Union[str, List[str]] | None (default: None)
+        size_categories : str | List[str] | None (default: None)
             A string or list of strings that can be used to identify datasets on
             the Hub by the size of the dataset such as `100K<n<1M` or
             `1M<n<10M`.
-        task_categories : Union[str, List[str]] | None (default: None)
+        task_categories : str | List[str] | None (default: None)
             A string or list of strings that can be used to identify datasets on
             the Hub by the designed task, such as `audio_classification` or
             `named_entity_recognition`.
-        task_ids : Union[str, List[str]] | None (default: None)
+        task_ids : str | List[str] | None (default: None)
             A string or list of strings that can be used to identify datasets on
             the Hub by the specific task such as `speech_emotion_recognition` or
             `paraphrase`.
@@ -109,13 +104,43 @@ class HuggingFaceAPI:
 
         return datasets_list
 
+    @overload
     def load_dataset(
         self,
         dataset_name: str,
-        task: Optional[Literal["image-classification", "object-detection"]] = None,
-        split: Optional[str] = None,
+        task: Literal["image-classification"],
+        split: str | None = None,
         **kwargs,
-    ) -> Union[Dataset[Any], Dict[str, Dataset[Any]]]:
+    ) -> Dataset[SupportsImageClassification]:
+        ...
+
+    @overload
+    def load_dataset(
+        self,
+        dataset_name: str,
+        task: Literal["object-detection"],
+        split: str | None = None,
+        **kwargs,
+    ) -> Dataset[SupportsObjectDetection]:
+        ...
+
+    @overload
+    def load_dataset(
+        self,
+        dataset_name: str,
+        task: None = None,
+        split: str | None = None,
+        **kwargs,
+    ) -> Dataset[SupportsImageClassification | SupportsObjectDetection]:
+        ...
+
+    def load_dataset(
+        self,
+        dataset_name: str,
+        task: Literal["image-classification", "object-detection"] | None = None,
+        split: str | None = None,
+        **kwargs,
+    ) -> Dataset[SupportsImageClassification | SupportsObjectDetection]:
         """
         Load a HuggingFace dataset.
 
@@ -135,7 +160,7 @@ class HuggingFaceAPI:
 
         Returns
         -------
-        Union[Dataset, Dict[str, Dataset]]
+        Dataset[SupportsImageClassification | SupportsObjectDetection]
             The HuggingFace dataset.
 
         Raises
@@ -152,12 +177,17 @@ class HuggingFaceAPI:
         if not is_hf_datasets_available():  # pragma: no cover
             raise ImportError("HuggingFace Datasets is not installed.")
 
+        from .datasets import (
+            HuggingFaceObjectDetectionDataset,
+            HuggingFaceVisionDataset,
+        )
+
         if task is not None and task not in self._SUPPORTED_TASKS:
             raise ValueError(
                 f"Task {task} is not supported. Supported tasks are {self._SUPPORTED_TASKS}."
             )
 
-        from datasets import load_dataset
+        from datasets import DatasetDict, IterableDataset, load_dataset
 
         wrapper_kwargs = {}
         keys = list(kwargs.keys())
@@ -183,13 +213,15 @@ class HuggingFaceAPI:
 
             return dataset
 
-        if split is None and isinstance(dataset, dict):
+        if isinstance(dataset, (dict, DatasetDict)):
             warnings.warn("Split is not specified. Returning raw HuggingFace dataset.")
-            return dataset
+            return dataset  # type: ignore
 
-        if TYPE_CHECKING:
-            assert isinstance(dataset, Dataset)
-            dataset = cast(HuggingFaceDataset, dataset)
+        if isinstance(dataset, IterableDataset):
+            warnings.warn(
+                "IterableDataset is not supported. Returning raw HuggingFace dataset."
+            )
+            return dataset  # type: ignore
 
         if task == "image-classification":
             return HuggingFaceVisionDataset(dataset, **wrapper_kwargs)
@@ -198,42 +230,42 @@ class HuggingFaceAPI:
 
     def list_models(
         self,
-        filter_str: Optional[Union[str, List[str]]] = None,
-        author: Optional[str] = None,
-        library: Optional[Union[str, List[str]]] = None,
-        language: Optional[Union[str, List[str]]] = None,
-        model_name: Optional[str] = None,
-        task: Optional[Union[str, List[str]]] = None,
-        trained_dataset: Optional[Union[str, List[str]]] = None,
-        tags: Optional[Union[str, List[str]]] = None,
+        filter_str: str | List[str] | None = None,
+        author: str | None = None,
+        library: str | List[str] | None = None,
+        language: str | List[str] | None = None,
+        model_name: str | None = None,
+        task: str | List[str] | None = None,
+        trained_dataset: str | List[str] | None = None,
+        tags: str | List[str] | None = None,
     ) -> Iterable[Any]:
         """
         List HuggingFace models.
 
         Parameters
         ----------
-        filter_str : Union[str, List[str]] | None (default: None)
+        filter_str : str | List[str] | None (default: None)
             The filter string to use to filter the models.
         author : str (default: None)
             A string or list of strings that can be used to identify datasets on
             the Hub by the original uploader (author or organization), such as
             `facebook` or `huggingface`.
-        library : Union[str, List[str]] | None (default: None)
+        library : str | List[str] | None (default: None)
             A string or list of strings of foundational libraries models were
             originally trained from, such as pytorch, tensorflow, or allennlp.
-        language :Union[str, List[str]] | None (default: None)
+        language : str | List[str] | None (default: None)
             A string or list of strings of languages, both by name and country
             code, such as "en" or "English".
         model_name : str | None (default: None)
             A string that contain complete or partial names for models on the
             Hub, such as "bert" or "bert-base-cased".
-        task : Union[str, List[str]] | None (default: None)
+        task : str | List[str] | None (default: None)
             A string or list of strings of tasks models were designed for, such
             as: "fill-mask" or "automatic-speech-recognition".
-        trained_dataset : Union[str, List[str]] | None (default: None)
+        trained_dataset : str | List[str] | None (default: None)
             A string tag or a list of string tags of the trained dataset for a
             model on the Hub.
-        tags : Union[str, List[str]] | None (default: None)
+        tags : str | List[str] | None (default: None)
             A string tag or a list of tags to filter models on the Hub by, such
             as `text-generation` or `spacy`.
 
@@ -278,16 +310,16 @@ class HuggingFaceAPI:
 
     def load_model(
         self,
-        task: Optional[Literal["image-classification", "object-detection"]],
+        task: Literal["image-classification", "object-detection"] | None,
         model_name: str,
         **kwargs: Any,
-    ) -> Union[ImageClassifier, ObjectDetector]:
+    ) -> ImageClassifier | ObjectDetector:
         """
         Load a HuggingFace model.
 
         Parameters
         ----------
-        task : str
+        task : str | None
             The task of the model.
         model_name : str
             The name of the HuggingFace model.
@@ -296,7 +328,7 @@ class HuggingFaceAPI:
 
         Returns
         -------
-        Union[Classifier[ArrayLike], ObjectDetector[ArrayLike]]
+        ImageClassifier | ObjectDetector
             The loaded model.
 
         Raises

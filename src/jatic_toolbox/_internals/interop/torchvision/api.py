@@ -1,15 +1,35 @@
-import warnings
-from typing import Any, Callable, Iterable, List, Literal, Optional, Tuple, Union
+from __future__ import annotations
 
-from jatic_toolbox.protocols import ImageClassifier, ObjectDetector
+import warnings
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Iterable,
+    List,
+    Literal,
+    Sequence,
+    Tuple,
+    cast,
+    overload,
+)
+
+from jatic_toolbox.protocols import (
+    Dataset,
+    ImageClassifier,
+    ObjectDetector,
+    SupportsImageClassification,
+    SupportsObjectDetection,
+)
 
 from ...import_utils import is_torchvision_available
-from .datasets import PyTorchVisionDataset, TorchVisionDataset
 
 __all__ = ["TorchVisionAPI"]
 
 
-def _get_torchvision_dataset(dataset_name: str) -> Callable[..., PyTorchVisionDataset]:
+def _get_torchvision_dataset(
+    dataset_name: str,
+) -> Callable[..., Sequence[Any]]:
     from torchvision import datasets
 
     return getattr(datasets, dataset_name)
@@ -19,7 +39,7 @@ class TorchVisionAPI:
     _SUPPORTED_TASKS: Tuple[str, ...] = ("image-classification", "object-detection")
 
     def _filter_string(
-        self, filter_str: Optional[Union[str, List[str]]], all_models: List[Any]
+        self, filter_str: str | List[str] | None, all_models: List[Any]
     ) -> Iterable[Any]:
         """
         Filter strings.
@@ -78,13 +98,43 @@ class TorchVisionAPI:
 
         return datasets_list
 
+    @overload
     def load_dataset(
         self,
         dataset_name: str,
-        task: Optional[Literal["image-classification", "object-detection"]] = None,
-        split: Optional[str] = None,
+        task: Literal["image-classification"],
+        split: str | None = None,
         **kwargs: Any,
-    ) -> TorchVisionDataset:
+    ) -> Dataset[SupportsImageClassification]:
+        ...
+
+    @overload
+    def load_dataset(
+        self,
+        dataset_name: str,
+        task: Literal["object-detection"],
+        split: str | None = None,
+        **kwargs: Any,
+    ) -> Dataset[SupportsObjectDetection]:
+        ...
+
+    @overload
+    def load_dataset(
+        self,
+        dataset_name: str,
+        task: None = None,
+        split: str | None = None,
+        **kwargs,
+    ) -> Dataset[SupportsImageClassification | SupportsObjectDetection]:
+        ...
+
+    def load_dataset(
+        self,
+        dataset_name: str,
+        task: Literal["image-classification", "object-detection"] | None = None,
+        split: str | None = None,
+        **kwargs: Any,
+    ) -> Dataset[SupportsImageClassification | SupportsObjectDetection]:
         """
         Load a dataset from torchvision.
 
@@ -92,9 +142,9 @@ class TorchVisionAPI:
         ----------
         dataset_name : str
             The name of the dataset to load.
-        task : str
+        task : str | None (default: None)
             The task of the dataset.
-        split : str
+        split : str | None (default: None)
             The split of the dataset.
         **kwargs : Any
             Any keyword supported by torchvision.
@@ -119,6 +169,8 @@ class TorchVisionAPI:
                 f"Task {task} is not supported. Supported tasks are ('image-classification', )."
             )
 
+        from .datasets import PyTorchVisionDataset, TorchVisionDataset
+
         fn = _get_torchvision_dataset(dataset_name)
 
         if split is None:
@@ -139,6 +191,9 @@ class TorchVisionAPI:
                         f"Split provided by torchvision dataset, {fn}, doesn't support splits. Tried both `split` and `train` arguments."
                     )
 
+        if TYPE_CHECKING:
+            dataset = cast(PyTorchVisionDataset, dataset)
+
         if task == "image-classification":
             return TorchVisionDataset(dataset)
 
@@ -146,18 +201,18 @@ class TorchVisionAPI:
 
     def list_models(
         self,
-        filter_str: Optional[Union[str, List[str]]] = None,
-        task: Optional[Union[str, List[str]]] = None,
-        model_name: Optional[str] = None,
+        filter_str: str | List[str] | None = None,
+        task: str | List[str] | None = None,
+        model_name: str | None = None,
     ) -> Iterable[Any]:
         """
         List torchvision models.
 
         Parameters
         ----------
-        filter_str : Union[str, List[str]] | None (default: None)
+        filter_str : str | List[str] | None (default: None)
             Filter string, by default None
-        task : Union[str, List[str]] | None (default: None)
+        task : str | List[str] | None (default: None)
             The task of the model, by default None
         model_name : str | None (default: None)
             The name of the model, by default None
@@ -231,7 +286,7 @@ class TorchVisionAPI:
 
     def load_model(
         self, task: str, model_name: str, **kwargs: Any
-    ) -> Union[ImageClassifier, ObjectDetector]:
+    ) -> ImageClassifier | ObjectDetector:
         """
         Load a TorchVision model.
 
@@ -246,7 +301,7 @@ class TorchVisionAPI:
 
         Returns
         -------
-        Union[Classifier[ArrayLike], ObjectDetector[ArrayLike]]
+        Classifier | ObjectDetector
             The TorchVision model.
 
         Raises

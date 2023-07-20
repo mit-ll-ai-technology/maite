@@ -15,6 +15,7 @@ readme = "README.md"
 requires-python = ">=3.8"
 dependencies = [
   "typing-extensions >= 4.5,!= 4.6",
+  "numpy >= 1.17"
 ]
 
 license = { file = "LICENSE.txt" }
@@ -54,7 +55,6 @@ test = [
   "pytest-mock >= 3.10.0"
 ]
 
-numpy = ["numpy >= 1.17"]
 pillow = ["pillow >= 9.4.0"]
 torch=["torch>=1.7,!=1.12.0"]
 torchvision = ["torchvision >= 0.14.1"]

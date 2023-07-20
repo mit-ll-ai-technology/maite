@@ -1,14 +1,6 @@
-from typing import (
-    Any,
-    Dict,
-    Iterable,
-    List,
-    Literal,
-    Optional,
-    TypeVar,
-    Union,
-    overload,
-)
+from __future__ import annotations
+
+from typing import Any, Iterable, List, Literal, Optional, TypeVar, overload
 
 from typing_extensions import TypeAlias
 
@@ -22,6 +14,8 @@ from jatic_toolbox.protocols import (
     ImageClassifier,
     Metric,
     ObjectDetector,
+    SupportsImageClassification,
+    SupportsObjectDetection,
 )
 
 from .registry import DATASET_REGISTRY, METRIC_REGISTRY, MODEL_REGISTRY
@@ -70,14 +64,38 @@ def list_datasets(
     return api.list_datasets(**kwargs)
 
 
+@overload
 def load_dataset(
     *,
     dataset_name: str,
-    provider: Optional[DATASET_PROVIDERS] = None,
-    task: Optional[Literal["image-classification", "object-detection"]] = None,
-    split: Optional[str] = None,
+    provider: DATASET_PROVIDERS | None = None,
+    task: Literal["image-classification"],
+    split: str | None = None,
     **kwargs: Any,
-) -> Union[Dataset[Any], Dict[str, Dataset[Any]]]:
+) -> Dataset[SupportsImageClassification]:
+    ...
+
+
+@overload
+def load_dataset(
+    *,
+    dataset_name: str,
+    provider: DATASET_PROVIDERS | None = None,
+    task: Literal["object-detection"],
+    split: str | None = None,
+    **kwargs: Any,
+) -> Dataset[SupportsObjectDetection]:
+    ...
+
+
+def load_dataset(
+    *,
+    dataset_name: str,
+    provider: DATASET_PROVIDERS | None = None,
+    task: Literal["image-classification", "object-detection"] | None = None,
+    split: str | None = None,
+    **kwargs: Any,
+) -> Dataset[SupportsImageClassification | SupportsObjectDetection]:
     """
     Load dataset for a given provider.
 
@@ -85,19 +103,23 @@ def load_dataset(
     ----------
     dataset_name : str
         Name of dataset.
-    provider : str
+        If the dataset is not in the registry, it will be passed to the provider interface.
+    provider : str | None (default: None)
         Where to search for datasets. Currently supported: "huggingface", "torchvision".
+        If None, the provider will be inferred from the registered dataset.
     task : str | None (default: None)
         A string of tasks datasets were designed for, such as: "image-classification", "object-detection".
+        If None, the task will be inferred from the registered dataset.
     split : str | None (default: None)
         A string of split to load, such as: "train", "test", "validation".
+        If None, the split will be inferred from the registered dataset.
     **kwargs : Any
         Any keyword supported by provider interface.
 
     Returns
     -------
-    Dataset[Any]
-        A dataset object.
+    Dataset[SupportsImageClassification | SupportsObjectDetection]
+        A dataset object that supports the given task.
 
     Examples
     --------
@@ -126,9 +148,9 @@ def load_dataset(
 def list_models(
     *,
     provider: MODEL_PROVIDERS,
-    filter_str: Optional[Union[str, List[str]]] = None,
-    model_name: Optional[str] = None,
-    task: Optional[Union[str, List[str]]] = None,
+    filter_str: str | List[str] | None = None,
+    model_name: str | None = None,
+    task: str | List[str] | None = None,
     **kwargs: Any,
 ) -> Iterable[Any]:
     """
@@ -195,10 +217,10 @@ def load_model(
 def load_model(
     *,
     model_name: str,
-    provider: Optional[MODEL_PROVIDERS] = None,
-    task: Optional[Literal["image-classification", "object-detection"]] = None,
+    provider: MODEL_PROVIDERS | None = None,
+    task: Literal["image-classification", "object-detection"] | None = None,
     **kwargs: Any,
-) -> Union[ImageClassifier, ObjectDetector]:
+) -> ImageClassifier | ObjectDetector:
     """
     Return a supported model.
 
@@ -206,17 +228,20 @@ def load_model(
     ----------
     model_name : str
         The `model_name` for the model (e.g., "microsoft/resnet-18").
-    provider : str
+        If the model is not in the registry, it will be passed to the provider interface.
+    provider : str | None
         The provider of the model (e.g., "huggingface"). Currently supported: "huggingface", "torchvision".
-    task : str
+        If None, the provider will be inferred from the registered model.
+    task : str | None
         The task for the model (e.g., "image-classification").
+        If None, the task will be inferred from the registered model.
     **kwargs : Any
         Any keyword supported by provider interface.
 
     Returns
     -------
-    Union[Classifier[ArrayLike], ObjectDetector[ArrayLike]]
-        A Model object.
+    ImageClassifier | ObjectDetector
+        A Model object that supports the given task.
 
     Examples
     --------
@@ -285,8 +310,10 @@ def load_metric(
     ----------
     metric_name : str
         The `metric_name` for the metric (e.g., "accuracy").
-    provider : str
+        If the metric is not in the registry, it will be passed to the provider interface.
+    provider : str | None
         The provider of the metric (e.g., "torchmetrics"). Currently supported: "torcheval", "torchmetrics".
+        If None, the provider will be inferred from the registered metric.
     **kwargs : Any
         Any keyword supported by provider interface.
 

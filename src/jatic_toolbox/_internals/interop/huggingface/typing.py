@@ -16,18 +16,25 @@ from typing import (
 from torch import Tensor
 from typing_extensions import Protocol, Self, runtime_checkable
 
-from jatic_toolbox.protocols import ArrayLike, Dataset, HasLogits
+from jatic_toolbox.protocols import ArrayLike, HasLogits
 
 T = TypeVar("T", bound=ArrayLike)
+T1 = TypeVar("T1")
 
 
 @runtime_checkable
-class HuggingFaceDataset(Dataset[Mapping[str, Any]], Protocol):
-    features: Mapping[str, Any]
+class HuggingFaceDataset(Protocol):
+    @property
+    def features(self) -> Mapping[str, Any]:
+        ...
 
-    def set_transform(
-        self, transform: Callable[[Mapping[str, Any]], Mapping[str, Any]]
-    ) -> None:
+    def set_transform(self, transform: Callable[[Any], Any]) -> None:
+        ...
+
+    def __getitem__(self, key: Union[int, slice, Iterable[int]]) -> Dict[str, Any]:
+        ...
+
+    def __len__(self) -> int:
         ...
 
 

@@ -56,6 +56,8 @@ if import_utils.is_torch_available():
 else:
     collect_ignore_glob.append("requires_torch/**")
 
+if not import_utils.is_torch_available():
+    collect_ignore_glob.append("*torch*.py")
 
 if not (
     import_utils.is_hf_transformers_available()

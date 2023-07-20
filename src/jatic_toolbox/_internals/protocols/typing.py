@@ -193,14 +193,6 @@ class HasScores(Protocol):
     """
     Scores are predictions for either an image or detection box.
 
-    ```python
-    >>> import torch as tr
-    >>> logits = tr.rand(3, 10) # batch size 3, 10 classes
-    >>> probs = logits.softmax(dim=1)  # sums to 1 along dim=1
-    >>> labels = probs.argmax(dim=1)  # predicted label for each score
-    >>> scores = probs[:, labels]  # probability of the predicted label
-    ```
-
     Attributes
     ----------
     scores : SupportsArray
