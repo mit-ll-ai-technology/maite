@@ -2,9 +2,9 @@
    :description: How-To on wrapping an object detection dataset.
 
 
-========================================
-How to Wrap an Object Detection Dataset
-========================================
+================================
+Wrap an Object Detection Dataset
+================================
 
 In this How-To, we will walk through the steps to:
 

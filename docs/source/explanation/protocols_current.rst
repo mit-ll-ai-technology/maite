@@ -40,7 +40,7 @@ The toolbox protocols aim to help define the following workflow:
 
    # runs on an image, list of images, or batch of images
    image: SupportsArray = data["image"]
-   model_output: HasProbs = model(image")
+   model_output: HasProbs = model("image")
 
    # a developer should just expect the following 
    # is true to support accuracy metrics

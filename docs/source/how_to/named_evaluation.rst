@@ -2,9 +2,9 @@
    :description: How-To use registered models, datasets, and metrics.
 
 
-===================================================
-How-To Use Registered Models, Datasets, and Metrics
-===================================================
+============================================
+Use Registered Models, Datasets, and Metrics
+============================================
 
 The toolbox includes a list of of registered models, datasets, and metrics 
 that can be found at the top level of the toolbox. 

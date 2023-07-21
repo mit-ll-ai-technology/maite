@@ -114,17 +114,17 @@ have a `shape` attribute that is a tuple of integers.
 
 .. code-block:: python
 
-    from typing_extensions import TypeVarTuple
+    from typing_extensions import TypeVarTuple, Unpack
 
     Shape = TypeVarTuple("Shape")
 
     @runtime_checkable
-    class ArrayLike(Protocol[*Shape]):
+    class ArrayLike(Protocol[Unpack[Shape]]):
         def __array__(self) -> Any:
             ...
 
         @property
-        def shape(self) -> tuple[*Shape]:
+        def shape(self) -> tuple[Unpack[Shape]]:
             ...
 
 .. dropdown:: ArrayLike Examples
@@ -250,12 +250,12 @@ Other tasks, like object detection, may require additional keys.
 
 
     @runtime_checkable
-    class Boxes(Protocol[*Shape]):
+    class Boxes(Protocol[Unpack[Shape]]):
         def __array__(self) -> Any:
             ...
 
         @property
-        def shape(self) -> tuple[*Shape]:
+        def shape(self) -> tuple[Unpack[Shape]]:
             ...
 
         # TODO: convert output type isn't helpful
@@ -266,15 +266,15 @@ Other tasks, like object detection, may require additional keys.
     Tbox = TypeVar("Tbox", bound=Boxes)
 
 
-    class HasBoxes(TypedDict, Generic[*Shape]):
-        boxes: Boxes[*Shape]
+    class HasBoxes(TypedDict, Generic[Unpack[Shape]]):
+        boxes: Boxes[Unpack[Shape]]
 
 
     HasVisionBoxes: TypeAlias = HasBoxes[BoxDim]
 
 
-    class HasVisionDetections(TypedDict, Generic[*Shape]):
-        box: Boxes[*Shape]
+    class HasVisionDetections(TypedDict, Generic[Unpack[Shape]]):
+        box: Boxes[Unpack[Shape]]
         label: Label
 
 **Task Support**
@@ -364,7 +364,7 @@ vision tasks that only require an image and those that require both an image and
             if hasattr(target, "__total__") and target.__total__:
                 return all(k in k_obj for k in ks)
             else:
-                return any(k in k_obj for k in ks)`
+                return any(k in k_obj for k in ks)
 
 .. dropdown:: Data Object Examples
 
@@ -541,6 +541,7 @@ at the end of the evaluation loop to return the final metric value.
             ...
 
         def compute(self) -> Mapping[str, Any]:
+            ...
 
 .. dropdown:: Metric Object Examples
 

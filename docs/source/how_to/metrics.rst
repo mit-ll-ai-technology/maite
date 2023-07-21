@@ -1,6 +1,6 @@
-========================================
-How to list, load, and configure metrics
-========================================
+=================================
+List, Load, and Configure Metrics
+=================================
 
 The JATIC Toolbox defines a ``Metric`` protocol that standardizes
 the metric interface across several very similar libraries

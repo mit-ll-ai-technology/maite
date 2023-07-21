@@ -1,6 +1,6 @@
-=================================================
-How to wrap a custom image classification dataset
-=================================================
+==========================================
+Wrap a Custom Image Classification Dataset
+==========================================
 
 The JATIC Toolbox defines a protocol for image classification datasets,
 :class:`~jatic_toolbox.protocols.VisionDataset`, that standardizes the dataset interface for use with
@@ -40,7 +40,7 @@ The dataset class should have the following structure:
         def __len__(self) -> int:
             ...
 
-        def __getitem__(self, index: Any) -> SupportsImageClassification
+        def __getitem__(self, index: Any) -> SupportsImageClassification:
             ...
 
 Thus, ``__len__`` must return an integer value representing the number of
@@ -48,8 +48,8 @@ data samples in the dataset, and
 ``__getitem__`` must return an output that is of type :class:`~jatic_toolbox.protocols.SupportsImageClassification`.
 
 :class:`~jatic_toolbox.protocols.SupportsImageClassification` is a custom JATIC data type that is also of type
-:class:`~jatic_toolbox.protocols.HasDataImage` and :class:`jatic_toolbox.protocols.HasDataLabel`.
-It is a :py:class:`typing.TypedDict`
+:class:`~jatic_toolbox.protocols.HasDataImage` and :class:`~jatic_toolbox.protocols.HasDataLabel`.
+It is a :py:class:`~typing.TypedDict`
 that contains an "image" of type :class:`~jatic_toolbox.protocols.SupportsArray` and a "label" of type ``int``,
 a sequence of ``int``, or :class:`~jatic_toolbox.protocols.SupportsArray`. And :class:`~jatic_toolbox.protocols.SupportsArray` covers
 many common array-like structures, such as
@@ -131,7 +131,7 @@ You are now ready to instantiate your JATIC-conforming dataset:
 .. code:: python
 
     jatic_dataset = JaticDataset(
-        root=<...> # path to data directory
+        root="<...>" # path to data directory
     )
 
 4. Alternative approach leveraging JATIC's ``TorchVisionDataset`` wrapper
@@ -139,7 +139,7 @@ You are now ready to instantiate your JATIC-conforming dataset:
 
 In our previous example, our custom dataset inherited from Torchvision's
 ``ImageFolder`` class. Rather than modifying our dataset's ``__getitem__`` method
-directly, we also could have leveraged ``jatic_toolbox.interop.TorchVisionDataset``,
+directly, we also could have leveraged :class:`~jatic_toolbox.interop.TorchVisionDataset`,
 which can be used to convert any Torchvision dataset into a JATIC :class:`~jatic_toolbox.protocols.VisionDataset`.
 
 For example, first instantiate a dataset that conforms to Torchvision's dataset API:
@@ -150,7 +150,7 @@ For example, first instantiate a dataset that conforms to Torchvision's dataset 
     from torchvision.transforms import ToTensor
 
     custom_dataset = ImageFolder(
-        root=<...>, # path to data directory
+        root="<...>", # path to data directory
         transform=ToTensor()
     )
 
