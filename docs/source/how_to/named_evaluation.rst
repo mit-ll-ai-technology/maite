@@ -1,5 +1,5 @@
 .. meta::
-   :description: How-To use registred models, datasets, and metrics.
+   :description: How-To use registered models, datasets, and metrics.
 
 
 ===================================================
