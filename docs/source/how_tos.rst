@@ -15,4 +15,5 @@ objectives.
    :caption: Contents:
 
    how_to/metrics
+   how_to/wrap_object_detection_dataset
    how_to/named_evaluation.rst
