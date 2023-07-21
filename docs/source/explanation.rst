@@ -10,3 +10,5 @@ Articles and posts about topics relevant -- directly or indirectly -- to jatic-t
    :caption: Contents:
 
    explanation/type_hints_for_API_design
+   explanation/protocols_vision
+   explanation/protocols_current

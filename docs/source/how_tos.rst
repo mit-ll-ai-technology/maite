@@ -15,3 +15,4 @@ objectives.
    :caption: Contents:
 
    how_to/metrics
+   how_to/named_evaluation.rst

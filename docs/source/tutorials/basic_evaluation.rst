@@ -255,9 +255,8 @@ get a prediction:
 
 .. code:: pycon
 
-    >>> data = model.preprocessor([dataset[0]])
-    >>> input = data[0]["image"].unsqueeze(0)
-    >>> output = model(input)
+    >>> data = dataset[0]
+    >>> output = model(data["image"])
 
 Finally, compare the model's prediction (i.e., output with highest logit value) to truth:
 

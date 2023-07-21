@@ -18,7 +18,7 @@ import jatic_toolbox
 # -- Project information -----------------------------------------------------
 
 project = "jatic-toolbox"
-copyright = "2022 Massachusetts Institute of Technology"
+copyright = "2023 Massachusetts Institute of Technology"
 author = "Ryan Soklaski, Justin Goodwin, Michael Yee"
 
 # The short X.Y version
@@ -29,7 +29,7 @@ release = ""
 
 # -- General configuration ---------------------------------------------------
 
-REPO_URL = "https://llcad-github.llan.ll.mit.edu/AIT/jatic_toolbox/"
+REPO_URL = "https://gitlab.jatic.net/jatic/cdao/jatic-toolbox"
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom

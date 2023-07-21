@@ -81,9 +81,9 @@ all_interop = [
 ]
 
 [project.urls]
-"Homepage" = "https://llcad-github.llan.ll.mit.edu/AIT/jatic_toolbox/"
-"Bug Reports" = "https://llcad-github.llan.ll.mit.edu/AIT/jatic_toolbox/issues"
-"Source" = "https://llcad-github.llan.ll.mit.edu/AIT/jatic_toolbox"
+"Homepage" = "https://jatic.pages.jatic.net/cdao/jatic-toolbox/"
+"Bug Reports" = "https://gitlab.jatic.net/jatic/cdao/jatic-toolbox/-/issues"
+"Source" = "https://gitlab.jatic.net/jatic/cdao/jatic-toolbox"
 
 
 [tool.setuptools_scm]
