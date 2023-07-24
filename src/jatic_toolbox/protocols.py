@@ -22,6 +22,7 @@ from jatic_toolbox._internals.protocols.typing import (
     HasScores,
     ImageClassifier,
     Metric,
+    Model,
     ObjectDetectionDataLoader,
     ObjectDetectionDataset,
     ObjectDetector,
@@ -63,4 +64,5 @@ __all__ = [
     "HasDataObjects",
     "is_list_of_type",
     "HasDataBoxesLabels",
+    "Model",
 ]

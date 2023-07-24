@@ -1,12 +1,12 @@
 .. meta::
-   :description: How-To on wrapping an object detection dataset.
+   :description: Tutorial on wrapping an object detection dataset.
 
 
 ================================
 Wrap an Object Detection Dataset
 ================================
 
-In this How-To, we will walk through the steps to:
+In this tutorial, we will walk through the steps to:
 
 1. Use HuggingFace's ``datasets.load_dataset`` to load images from a folder
 2. Add truth annotations to the dataset

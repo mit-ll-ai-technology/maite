@@ -199,7 +199,7 @@ class HuggingFaceAPI:
         # task. We need to check if the dataset is compatible with the task and if not,
         # we load the dataset without the task.
         try:
-            dataset = load_dataset(dataset_name, split=split, task=task, **kwargs)
+            dataset = load_dataset(dataset_name, split=split, task=task, **kwargs)  # type: ignore
         except ValueError as e:  # pragma: no cover
             if "Task object-detection is not compatible" in str(e):
                 dataset = load_dataset(dataset_name, split=split, **kwargs)

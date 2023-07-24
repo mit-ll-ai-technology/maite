@@ -17,6 +17,9 @@ that can be found at the top level of the toolbox.
     print(DATASET_REGISTRY.keys())
     print(METRIC_REGISTRY.keys())
 
+These registries are provided at the top level to allow developers and users to easily
+update or add new models, datasets, and metrics.
+
 These registries can be used to load models, datasets, and metrics with default values. 
 Supported keyword arguments will override the default values.
 

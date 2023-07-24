@@ -12,12 +12,85 @@ Encyclopedia JATICanica.
 All reference documentation includes detailed Examples sections. Please scroll to the 
 bottom of any given reference page to see the examples.
 
+
+.. toctree::
+
 .. currentmodule:: jatic_toolbox
+
+
++++++++++
+Protocols
++++++++++
+
+ArrayLike
+---------
 
 .. autosummary::
    :toctree: generated/
 
-   protocols
+   protocols.ArrayLike
+   protocols.SupportsArray
+
+Data Containers
+---------------
+
+.. autosummary::
+   :toctree: generated/
+
+   protocols.HasDataBoxes
+   protocols.HasDataBoxesLabels
+   protocols.HasDataImage
+   protocols.HasDataLabel
+   protocols.HasDataObjects
+   protocols.SupportsImageClassification
+   protocols.SupportsObjectDetection
+
+Dataset
+-------
+
+.. autosummary::
+   :toctree: generated/
+
+   protocols.Dataset
+   protocols.VisionDataset
+   protocols.ObjectDetectionDataset
+
+Model Outputs
+-------------
+
+.. autosummary::
+   :toctree: generated/
+
+   protocols.HasLogits
+   protocols.HasProbs
+   protocols.HasScores
+   protocols.HasDetectionLogits
+   protocols.HasDetectionPredictions
+   protocols.HasDetectionProbs
+
+Models
+------
+
+.. autosummary::
+   :toctree: generated/
+
+   protocols.Model
+   protocols.ImageClassifier
+   protocols.ObjectDetector
+
+Metrics
+-------
+
+.. autosummary::
+   :toctree: generated/
+
+   protocols.Metric
+
+
+
+++++++++++++++++++++++++++++++++++++++++++
+List and Load Datasets, Models and Metrics
+++++++++++++++++++++++++++++++++++++++++++
 
 .. autosummary::
    :toctree: generated/
@@ -28,8 +101,19 @@ bottom of any given reference page to see the examples.
    load_model
    list_metrics
    load_metric
+
++++++++++++++++++++++++
+Workflow Implementation
++++++++++++++++++++++++
+
+.. autosummary::
+   :toctree: generated/
+
    evaluate
 
++++++++++++++++++++++++++++++
+Validation and Error Handling
++++++++++++++++++++++++++++++
 
 .. currentmodule:: jatic_toolbox.utils.validation
 
@@ -49,6 +133,11 @@ bottom of any given reference page to see the examples.
 
    ToolBoxException
    InvalidArgument
+
+
++++++++++++++
+Testing Tools
++++++++++++++
 
 .. currentmodule:: jatic_toolbox.testing.docs
 
