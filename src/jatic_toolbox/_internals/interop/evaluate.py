@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
 from typing import (
@@ -11,7 +13,6 @@ from typing import (
     Optional,
     Protocol,
     Sequence,
-    Tuple,
     TypeVar,
     Union,
     cast,
@@ -23,6 +24,7 @@ import torch as tr
 from torch.utils.data import DataLoader
 from typing_extensions import Self, TypeAlias
 
+import jatic_toolbox
 import jatic_toolbox.protocols as pr
 from jatic_toolbox._internals.interop.api import (
     DATASET_PROVIDERS,
@@ -32,7 +34,6 @@ from jatic_toolbox._internals.interop.api import (
 
 from ..import_utils import is_torch_available, is_tqdm_available
 from ..utils import evaluating
-from .registry import DATASET_REGISTRY, METRIC_REGISTRY, MODEL_REGISTRY
 from .utils import is_pil_image
 
 ArrayLike = pr.ArrayLike
@@ -50,12 +51,12 @@ Metric: TypeAlias = Mapping[str, pr.Metric]
 
 @runtime_checkable
 class HasToDevice(Protocol):
-    def to(self, device: Union[str, int]) -> Self:
+    def to(self, device: str | int) -> Self:
         ...
 
 
 @contextmanager
-def set_device(device: Optional[Union[str, int]]):
+def set_device(device: Optional[str | int]):
     _device = None
     if is_torch_available():
         import torch as tr
@@ -72,7 +73,7 @@ def set_device(device: Optional[Union[str, int]]):
 
 
 @contextmanager
-def transfer_to_device(*modules: T, device) -> Iterator[Tuple[T]]:
+def transfer_to_device(*modules: T, device) -> Iterator[tuple[T]]:
     """
     Transfers a list of modules to a device.
 
@@ -81,12 +82,12 @@ def transfer_to_device(*modules: T, device) -> Iterator[Tuple[T]]:
     *modules : HasToDevice | Dict[str, HasToDevice] | List[HasToDevice]
         A list of modules to transfer to a device.
 
-    device : Union[str, int]
+    device : str | int
         The device to transfer the modules to.
 
     Yields
     ------
-    Union[HasToDevice, Dict[str, HasToDevice], List[HasToDevice]]
+    HasToDevice | Dict[str, HasToDevice] | List[HasToDevice]
         The modules transferred to the device.
 
     Examples
@@ -132,9 +133,8 @@ def transfer_to_device(*modules: T, device) -> Iterator[Tuple[T]]:
 
 
 def collate_and_pad(
-    preprocessor: Optional[
-        Callable[[Sequence[Mapping[str, Any]]], Sequence[Mapping[str, Any]]]
-    ] = None,
+    preprocessor: Callable[[Sequence[Mapping[str, Any]]], Sequence[Mapping[str, Any]]]
+    | None = None,
 ) -> Callable[[Sequence[Mapping[str, Any]]], Mapping[str, Any]]:
     """
     Collates and pads a batch of examples.
@@ -240,14 +240,13 @@ def collate_and_pad(
 
 
 def get_dataloader(
-    dataset: Union[pr.VisionDataset, pr.ObjectDetectionDataset],
+    dataset: pr.VisionDataset | pr.ObjectDetectionDataset,
     batch_size: int = 32,
     split: Literal["train", "test"] = "test",
-    shuffle: Optional[bool] = None,
-    collate_fn: Optional[Callable[[Any], Any]] = None,
-    preprocessor: Optional[
-        Callable[[Sequence[Mapping[str, Any]]], Sequence[Mapping[str, Any]]]
-    ] = None,
+    shuffle: bool | None = None,
+    collate_fn: Callable[[Any], Any] | None = None,
+    preprocessor: Callable[[Sequence[Mapping[str, Any]]], Sequence[Mapping[str, Any]]]
+    | None = None,
     **kwargs: Any,
 ) -> pr.DataLoader:
     """
@@ -255,22 +254,25 @@ def get_dataloader(
 
     Parameters
     ----------
-    dataset : Dataset[Dict[str, Any]]
+    dataset : VisionDataset | ObjectDetectionDataset
         The dataset to load.
-
     batch_size : int (default: 32)
         The batch size to use.
-
-    device : Optional[Union[str, tr.device]] = None
-        The device to transfer data to.
-
+    split : str (default: "test")
+        The split to use.
+    shuffle : bool | None (default: None)
+        Whether to shuffle the data. If None, the data is shuffled for the train split and not shuffled for the test split.
+    collate_fn : Callable[[Any], Any] | None (default: None)
+        The collate function to use for the data loader.
+    preprocessor : Preprocessor | None (default: None)
+        A callable that takes a batch of examples and returns a batch of examples, by default None
     **kwargs : Any
         Keyword arguments for `torch.utils.data.DataLoader`.
 
     Returns
     -------
     DataLoader
-        A JATIC PyTorch data loader object.
+        A data loader object.
     """
     if shuffle is None:
         shuffle = True if split == "train" else False
@@ -310,28 +312,27 @@ class EvaluationTask(ABC):
         raise RuntimeError("No supported backend found.")
 
     @abstractmethod
-    def _evaluate_on_dataset(self, *args: Any, **kwds: Any) -> Dict[str, Any]:
+    def _evaluate_on_dataset(self, *args: Any, **kwds: Any) -> dict[str, Any]:
         raise NotImplementedError()
 
     def __call__(
         self,
-        model: Union[str, pr.ImageClassifier, pr.ObjectDetector],
-        data: Union[str, pr.VisionDataset, pr.ObjectDetectionDataset],
-        metric: Union[str, Mapping[str, pr.Metric]],
-        augmentation: Optional[
-            pr.Augmentation[
-                Union[pr.SupportsImageClassification, pr.SupportsObjectDetection]
-            ]
+        model: str | pr.ImageClassifier | pr.ObjectDetector,
+        data: str | pr.VisionDataset | pr.ObjectDetectionDataset,
+        metric: str | Mapping[str, pr.Metric],
+        augmentation: None
+        | pr.Augmentation[
+            pr.SupportsImageClassification | pr.SupportsObjectDetection
         ] = None,
         batch_size: int = 1,
-        device: Optional[Union[str, int]] = None,
-        collate_fn: Optional[Callable] = None,
+        device: None | str | int = None,
+        collate_fn: None | Callable = None,
         use_progress_bar: bool = True,
         dataset_kwargs: Mapping[str, Any] = {},
         model_kwargs: Mapping[str, Any] = {},
         metric_kwargs: Mapping[str, Any] = {},
         **kwargs: Any,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Evalulate an image classification model for a given dataset.
 
@@ -339,17 +340,17 @@ class EvaluationTask(ABC):
         ----------
         task : str
             The task to evaluate on.
-        model : Model
+        model : str | ImageClassifier | ObjectDetector
             The model to evaluate.
-        data : Union[Dataset, ObjectDetectionDataset]
+        data : str | VisionDataset | ObjectDetectionDataset
             The dataset to evaluate on.
-        metric : Mapping[str, Metric]]
+        metric : str | Mapping[str, pr.Metric]
             The metric to evaluate the model on.
         augmentation : Augmentation | None (default: None)
             The augmentation to apply to the dataset.
         batch_size : int
             The batch size to use for evaluation.
-        device : Union[str, int] | None (default: None)
+        device : str | int | None (default: None)
             The device to use for evaluation. If None, the device is automatically selected.
         collate_fn : Callable | None (default: None)
             The collate function to use for the data loader.
@@ -385,35 +386,34 @@ class EvaluationTask(ABC):
         """
 
         if isinstance(data, str):
-            from jatic_toolbox import load_dataset
-
-            if data in DATASET_REGISTRY:
-                dataset_kwargs = {**DATASET_REGISTRY[data], **dataset_kwargs}
-                data_out = load_dataset(**dataset_kwargs)
+            if data in jatic_toolbox.DATASET_REGISTRY:
+                dataset_kwargs = {
+                    **jatic_toolbox.DATASET_REGISTRY[data],
+                    **dataset_kwargs,
+                }
+                data = jatic_toolbox.load_dataset(**dataset_kwargs)
+                assert isinstance(data, pr.Dataset)
 
             elif "::" in data:
                 provider, dataset_name = data.split("::", 1)
                 if TYPE_CHECKING:
                     provider = cast(DATASET_PROVIDERS, provider)
 
-                data_out = load_dataset(
+                data = jatic_toolbox.load_dataset(
                     provider=provider, dataset_name=dataset_name, **dataset_kwargs
                 )
+                assert isinstance(data, pr.Dataset)
             else:
                 raise ValueError(f"Unknown dataset: {data}")
-
-            assert not isinstance(data_out, dict)
-            data = data_out
 
             if TYPE_CHECKING:
                 assert not isinstance(data, str)
 
         if isinstance(model, str):
-            from jatic_toolbox import load_model
-
-            if model in MODEL_REGISTRY:
-                model_kwargs = {**MODEL_REGISTRY[model], **model_kwargs}
-                model = load_model(**model_kwargs)
+            if model in jatic_toolbox.MODEL_REGISTRY:
+                model_kwargs = {**jatic_toolbox.MODEL_REGISTRY[model], **model_kwargs}
+                model = jatic_toolbox.load_model(**model_kwargs)
+                assert isinstance(model, (pr.ImageClassifier, pr.ObjectDetector))
 
             elif "::" in model:
                 provider, model_name = model.split("::", 1)
@@ -421,7 +421,7 @@ class EvaluationTask(ABC):
                 if TYPE_CHECKING:
                     provider = cast(MODEL_PROVIDERS, provider)
 
-                model = load_model(
+                model = jatic_toolbox.load_model(
                     provider=provider, model_name=model_name, **model_kwargs
                 )
 
@@ -432,13 +432,14 @@ class EvaluationTask(ABC):
                 assert not isinstance(model, str)
 
         if isinstance(metric, str):
-            from jatic_toolbox import load_metric
-
             metric_str = metric
 
-            if metric in METRIC_REGISTRY:
-                metric_kwargs = {**METRIC_REGISTRY[metric], **metric_kwargs}
-                metric_out = load_metric(**metric_kwargs)
+            if metric in jatic_toolbox.METRIC_REGISTRY:
+                metric_kwargs = {
+                    **jatic_toolbox.METRIC_REGISTRY[metric],
+                    **metric_kwargs,
+                }
+                metric_out = jatic_toolbox.load_metric(**metric_kwargs)
 
             elif "::" in metric:
                 provider, metric_name = metric.split("::", 1)
@@ -446,7 +447,7 @@ class EvaluationTask(ABC):
                 if TYPE_CHECKING:
                     provider = cast(METRIC_PROVIDERS, provider)
 
-                metric_out = load_metric(
+                metric_out = jatic_toolbox.load_metric(
                     provider=provider, metric_name=metric_name, **metric_kwargs
                 )
 
@@ -502,10 +503,10 @@ class ImageClassificationEvaluator(EvaluationTask):
         data: pr.VisionDataLoader,
         model: pr.ImageClassifier,
         metric: Mapping[str, pr.Metric],
-        augmentation: Optional[pr.Augmentation[pr.SupportsImageClassification]] = None,
-        device: Optional[Union[str, int]] = None,
+        augmentation: pr.Augmentation[pr.SupportsImageClassification] | None = None,
+        device: str | int | None = None,
         use_progress_bar: bool = True,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Evaluate a model on a dataset.
 
@@ -517,9 +518,9 @@ class ImageClassificationEvaluator(EvaluationTask):
             The model to evaluate.
         metric : Mapping[str, Metric]
             The metric to use.
-        augmentation : Optional[Augmentation] (default: None)
+        augmentation : Augmentation | None (default: None)
             The augmentation to use.
-        device : Optional[Union[str, int]] (default: None)
+        device : str | int | None (default: None)
             The device to use.
         use_progress_bar : bool (default: True)
             Whether to use a progress bar.
@@ -606,10 +607,10 @@ class ObjectDetectionEvaluator(EvaluationTask):
         data: pr.DataLoader[pr.SupportsObjectDetection],
         model: pr.ObjectDetector,
         metric: Mapping[str, pr.Metric],
-        augmentation: Optional[pr.Augmentation[pr.SupportsObjectDetection]] = None,
-        device: Optional[Union[str, int]] = None,
+        augmentation: pr.Augmentation[pr.SupportsObjectDetection] | None = None,
+        device: str | int | None = None,
         use_progress_bar: bool = True,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Evaluate a model on a dataset.
 
@@ -621,9 +622,9 @@ class ObjectDetectionEvaluator(EvaluationTask):
             The model to evaluate.
         metric : Mapping[str, Metric]
             The metric to use.
-        augmentation : Optional[Augmentation] (default: None)
+        augmentation : Augmentation | None (default: None)
             The augmentation to use.
-        device : Optional[Union[str, int]] (default: None)
+        device : str | int | None (default: None)
             The device to use.
         use_progress_bar : bool (default: True)
             Whether to use a progress bar.
@@ -698,7 +699,7 @@ def evaluate(task: Literal["object-detection"]) -> ObjectDetectionEvaluator:
 
 def evaluate(
     task: Literal["image-classification", "object-detection"]
-) -> Union[ImageClassificationEvaluator, ObjectDetectionEvaluator]:
+) -> ImageClassificationEvaluator | ObjectDetectionEvaluator:
     """
     Provide an evaluator for a given task and provider.
 

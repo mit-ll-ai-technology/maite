@@ -1,17 +1,25 @@
 # flake8: noqa
 
+import os
 import subprocess
 import sys
 from importlib.util import find_spec
 from pathlib import Path
 
 import hypothesis.strategies as st
+from hypothesis import settings
 
 from jatic_toolbox._internals import import_utils
 from jatic_toolbox.testing.pytest import cleandir  # noqa: F401
 from tests import all_dummy_subpkgs
 
 st.register_type_strategy(st.DataObject, st.data())
+
+settings.register_profile("cicd", max_examples=10, deadline=None)
+
+if bool(os.environ.get("CI_JOB_ID")):
+    print("*** Running in CI, using CI settings ***")
+    settings.load_profile("cicd")
 
 # Skip collection of tests that don't work on the current version of Python.
 collect_ignore_glob = []

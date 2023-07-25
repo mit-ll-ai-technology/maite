@@ -126,13 +126,3 @@ class HuggingFaceWithDetection(HuggingFaceModule, Protocol):
         self, pixel_values: Union[ArrayLike, Sequence[ArrayLike]], **kwargs: Any
     ) -> HFOutput:
         ...
-
-
-@runtime_checkable
-class HuggingFaceWrapper(Protocol):
-    _dataset: HuggingFaceDataset
-
-    def set_transform(
-        self, transform: Callable[[Mapping[str, Any]], Mapping[str, Any]]
-    ) -> None:
-        self._dataset.set_transform(transform)

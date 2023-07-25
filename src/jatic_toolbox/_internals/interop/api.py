@@ -8,6 +8,7 @@ from jatic_toolbox._internals.interop.huggingface.api import HuggingFaceAPI
 from jatic_toolbox._internals.interop.torcheval.api import TorchEvalAPI
 from jatic_toolbox._internals.interop.torchmetrics.api import TorchMetricsAPI
 from jatic_toolbox._internals.interop.torchvision.api import TorchVisionAPI
+from jatic_toolbox.errors import InvalidArgument
 from jatic_toolbox.protocols import (
     ArrayLike,
     Dataset,
@@ -31,7 +32,7 @@ METRIC_PROVIDERS: TypeAlias = Literal["torchmetrics", "torcheval"]
 
 def list_datasets(
     *,
-    provider: DATASET_PROVIDERS,
+    provider: DATASET_PROVIDERS | None = None,
     **kwargs: Any,
 ) -> Iterable[Any]:
     """
@@ -54,6 +55,9 @@ def list_datasets(
     >>> from jatic_toolbox import list_datasets
     >>> list_datasets(provider="huggingface")
     """
+    if provider is None:
+        return list(DATASET_REGISTRY.keys())
+
     if provider == "huggingface":
         api = HuggingFaceAPI()
     elif provider == "torchvision":
@@ -88,6 +92,18 @@ def load_dataset(
     ...
 
 
+@overload
+def load_dataset(
+    *,
+    dataset_name: str,
+    provider: DATASET_PROVIDERS | None = None,
+    task: None = None,
+    split: str | None = None,
+    **kwargs: Any,
+) -> Dataset[SupportsImageClassification] | Dataset[SupportsObjectDetection]:
+    ...
+
+
 def load_dataset(
     *,
     dataset_name: str,
@@ -95,7 +111,7 @@ def load_dataset(
     task: Literal["image-classification", "object-detection"] | None = None,
     split: str | None = None,
     **kwargs: Any,
-) -> Dataset[SupportsImageClassification | SupportsObjectDetection]:
+) -> Dataset[SupportsImageClassification] | Dataset[SupportsObjectDetection]:
     """
     Load dataset for a given provider.
 
@@ -135,19 +151,24 @@ def load_dataset(
         _split = kwargs.pop("split")
         split = split or _split
 
+    if task is None:
+        raise InvalidArgument(
+            f"Task must be specified for loading datasets. Got task={task}."
+        )
+
     if provider == "huggingface":
         api = HuggingFaceAPI()
     elif provider == "torchvision":
         api = TorchVisionAPI()
     else:
-        raise NotImplementedError(f"Provider, {provider}, not supported.")
+        raise InvalidArgument(f"Provider, {provider}, not supported.")
 
     return api.load_dataset(dataset_name, task=task, split=split, **kwargs)
 
 
 def list_models(
     *,
-    provider: MODEL_PROVIDERS,
+    provider: MODEL_PROVIDERS | None,
     filter_str: str | List[str] | None = None,
     model_name: str | None = None,
     task: str | List[str] | None = None,
@@ -179,6 +200,8 @@ def list_models(
     >>> from jatic_toolbox import list_models
     >>> list_models(provider="huggingface", task="image-classification")
     """
+    if provider is None:
+        return list(MODEL_REGISTRY.keys())
 
     if provider == "huggingface":
         return HuggingFaceAPI().list_models(
@@ -259,13 +282,13 @@ def load_model(
     elif provider == "torchvision":
         assert task is not None, "task must be specified for torchvision models."
         return TorchVisionAPI().load_model(task=task, model_name=model_name, **kwargs)
-
-    raise ValueError(f"Provider, {provider}, not supported.")
+    else:
+        raise ValueError(f"Provider, {provider}, not supported.")
 
 
 def list_metrics(
     *,
-    provider: METRIC_PROVIDERS,
+    provider: METRIC_PROVIDERS | None,
     **kwargs: Any,
 ) -> Iterable[Any]:
     """
@@ -288,6 +311,8 @@ def list_metrics(
     >>> from jatic_toolbox import list_metrics
     >>> list_metrics(provider="torchmetrics")
     """
+    if provider is None:
+        return list(METRIC_REGISTRY.keys())
 
     if provider == "torcheval":
         return TorchEvalAPI().list_metrics()

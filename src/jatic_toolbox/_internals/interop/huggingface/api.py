@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-import warnings
-from typing import TYPE_CHECKING, Any, Iterable, List, Literal, Tuple, overload
+from typing import Any, Iterable, List, Literal, Tuple, overload
 
+from jatic_toolbox.errors import InvalidArgument
 from jatic_toolbox.protocols import (
     Dataset,
     ImageClassifier,
@@ -16,6 +16,23 @@ from ...import_utils import (
     is_hf_hub_available,
     is_hf_transformers_available,
 )
+
+if is_hf_datasets_available():
+    import datasets
+    from datasets import DatasetDict, IterableDataset
+
+    from .datasets import HuggingFaceObjectDetectionDataset, HuggingFaceVisionDataset
+
+if is_hf_hub_available():
+    from huggingface_hub.hf_api import HfApi
+    from huggingface_hub.utils.endpoint_helpers import DatasetFilter, ModelFilter
+
+if is_hf_transformers_available():
+    from jatic_toolbox.interop.huggingface import (
+        HuggingFaceImageClassifier,
+        HuggingFaceObjectDetector,
+    )
+
 
 __all__ = ["HuggingFaceAPI"]
 
@@ -75,12 +92,8 @@ class HuggingFaceAPI:
         >>> api.list_datasets(dataset_name="resnet")
         [...]
         """
-        if not is_hf_hub_available():
-            warnings.warn("HuggingFace Hub is not installed.")
-            return []
-
-        from huggingface_hub.hf_api import HfApi
-        from huggingface_hub.utils.endpoint_helpers import DatasetFilter
+        if not is_hf_hub_available():  # pragma: no cover
+            raise ImportError("HuggingFace Hub is not installed.")
 
         hf_api = HfApi()
 
@@ -124,20 +137,10 @@ class HuggingFaceAPI:
     ) -> Dataset[SupportsObjectDetection]:
         ...
 
-    @overload
     def load_dataset(
         self,
         dataset_name: str,
-        task: None = None,
-        split: str | None = None,
-        **kwargs,
-    ) -> Dataset[SupportsImageClassification | SupportsObjectDetection]:
-        ...
-
-    def load_dataset(
-        self,
-        dataset_name: str,
-        task: Literal["image-classification", "object-detection"] | None = None,
+        task: Literal["image-classification", "object-detection"],
         split: str | None = None,
         **kwargs,
     ) -> Dataset[SupportsImageClassification | SupportsObjectDetection]:
@@ -177,17 +180,12 @@ class HuggingFaceAPI:
         if not is_hf_datasets_available():  # pragma: no cover
             raise ImportError("HuggingFace Datasets is not installed.")
 
-        from .datasets import (
-            HuggingFaceObjectDetectionDataset,
-            HuggingFaceVisionDataset,
-        )
-
-        if task is not None and task not in self._SUPPORTED_TASKS:
-            raise ValueError(
+        if task is None:
+            raise InvalidArgument("Task is not specified")
+        elif task not in self._SUPPORTED_TASKS:
+            raise InvalidArgument(
                 f"Task {task} is not supported. Supported tasks are {self._SUPPORTED_TASKS}."
             )
-
-        from datasets import DatasetDict, IterableDataset, load_dataset
 
         wrapper_kwargs = {}
         keys = list(kwargs.keys())
@@ -199,29 +197,20 @@ class HuggingFaceAPI:
         # task. We need to check if the dataset is compatible with the task and if not,
         # we load the dataset without the task.
         try:
-            dataset = load_dataset(dataset_name, split=split, task=task, **kwargs)  # type: ignore
+            dataset = datasets.load_dataset(
+                dataset_name, split=split, task=task, **kwargs
+            )
         except ValueError as e:  # pragma: no cover
             if "Task object-detection is not compatible" in str(e):
-                dataset = load_dataset(dataset_name, split=split, **kwargs)
+                dataset = datasets.load_dataset(dataset_name, split=split, **kwargs)
             else:
                 raise e
 
-        if task is None:
-            warnings.warn("Task is not specified. Returning raw HuggingFace dataset.")
-            if TYPE_CHECKING:
-                assert isinstance(dataset, Dataset)
+        if isinstance(dataset, (dict, DatasetDict)):  # pragma: no cover
+            raise InvalidArgument("Split is not specified")
 
-            return dataset
-
-        if isinstance(dataset, (dict, DatasetDict)):
-            warnings.warn("Split is not specified. Returning raw HuggingFace dataset.")
-            return dataset  # type: ignore
-
-        if isinstance(dataset, IterableDataset):
-            warnings.warn(
-                "IterableDataset is not supported. Returning raw HuggingFace dataset."
-            )
-            return dataset  # type: ignore
+        if isinstance(dataset, IterableDataset):  # pragma: no cover
+            raise ValueError(f"IterableDataset is not supported. Got {type(dataset)}.")
 
         if task == "image-classification":
             return HuggingFaceVisionDataset(dataset, **wrapper_kwargs)
@@ -283,12 +272,8 @@ class HuggingFaceAPI:
         >>> api = HuggingFaceAPI()
         >>> api.list_models(model_name="bert")
         """
-        if not is_hf_hub_available():
-            warnings.warn("HuggingFace Hub is not installed.")
-            return []
-
-        from huggingface_hub.hf_api import HfApi
-        from huggingface_hub.utils.endpoint_helpers import ModelFilter
+        if not is_hf_hub_available():  # pragma: no cover
+            raise ImportError("HuggingFace Hub is not installed.")
 
         if task is None:
             task = list(self._SUPPORTED_TASKS)
@@ -347,11 +332,6 @@ class HuggingFaceAPI:
         """
         if not is_hf_transformers_available():  # pragma: no cover
             raise ImportError("HuggingFace Transformers is not installed.")
-
-        from jatic_toolbox.interop.huggingface import (
-            HuggingFaceImageClassifier,
-            HuggingFaceObjectDetector,
-        )
 
         if task == "image-classification":
             return HuggingFaceImageClassifier.from_pretrained(model_name, **kwargs)

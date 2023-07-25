@@ -5,7 +5,7 @@ from torchvision.models._api import WeightsEnum
 from .utils import create_random_image
 
 
-def get_test_vision_dataset(has_split, has_train):
+def get_test_vision_dataset(has_split: bool = True, has_train=False):
     """
     Creates a test dataset for testing torchvision datasets.
     """

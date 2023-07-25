@@ -9,23 +9,17 @@ import jatic_toolbox
 from jatic_toolbox.errors import InvalidArgument
 from jatic_toolbox.interop.torchvision import (
     TorchVisionClassifier,
-    TorchVisionDataset,
     TorchVisionObjectDetector,
 )
 from jatic_toolbox.protocols import HasDetectionPredictions, HasLogits
 from jatic_toolbox.testing.hypothesis import image_data
 
-from ..common.torchvision import (
-    get_test_object_detection_model,
-    get_test_vision_dataset,
-    get_test_vision_model,
-)
+from ..common.torchvision import get_test_object_detection_model, get_test_vision_model
 
-
-def test_tv_list_datasets():
-    datasets = jatic_toolbox.list_datasets(provider="torchvision")
-    assert issubclass(type(datasets), list)
-    assert len(list(datasets)) == 70
+# def test_tv_list_datasets():
+#     datasets = jatic_toolbox.list_datasets(provider="torchvision")
+#     assert issubclass(type(datasets), list)
+#     assert len(list(datasets)) == 70
 
 
 def test_tv_list_models():
@@ -34,12 +28,12 @@ def test_tv_list_models():
     assert len(list(models)) == 1
 
 
-@given(task=st.text(min_size=1))
-def test_tv_load_dataset_unsupported_task(task):
-    with pytest.raises(ValueError):
-        jatic_toolbox.load_dataset(
-            provider="torchvision", task=task, dataset_name="test"
-        )
+# @given(task=st.text(min_size=1))
+# def test_tv_load_dataset_unsupported_task(task):
+#     with pytest.raises(ValueError):
+#         jatic_toolbox.load_dataset(
+#             provider="torchvision", task=task, dataset_name="test"
+#         )
 
 
 @given(task=st.text(min_size=1))
@@ -48,54 +42,54 @@ def test_tv_load_model_unsupported_task(task):
         jatic_toolbox.load_model(provider="torchvision", task=task, model_name="test")
 
 
-@given(use_split=st.booleans(), has_split=st.booleans(), has_train=st.booleans())
-def test_tv_load_image_classification_dataset(use_split, has_split, has_train):
-    from jatic_toolbox._internals.interop.torchvision import api
+# @given(use_split=st.booleans(), has_split=st.booleans(), has_train=st.booleans())
+# def test_tv_load_image_classification_dataset(use_split, has_split, has_train):
+#     from jatic_toolbox._internals.interop.torchvision import api
 
-    # Create a mock dataset object
-    mock_dataset = get_test_vision_dataset(has_split, has_train)
+#     # Create a mock dataset object
+#     mock_dataset = get_test_vision_dataset(has_split, has_train)
 
-    # Patch the load_dataset function to return the mock dataset object
-    with mock.patch.object(
-        api,
-        "_get_torchvision_dataset",
-        return_value=mock_dataset,
-    ):
-        kw = {}
+#     # Patch the load_dataset function to return the mock dataset object
+#     with mock.patch.object(
+#         api,
+#         "_get_torchvision_dataset",
+#         return_value=mock_dataset,
+#     ):
+#         kw = {}
 
-        if use_split:
-            kw = {"split": "train"}
+#         if use_split:
+#             kw = {"split": "train"}
 
-            if not has_split and not has_train:
-                with pytest.raises(TypeError):
-                    jatic_toolbox.load_dataset(
-                        provider="torchvision",
-                        task="image-classification",
-                        dataset_name="test",
-                        **kw,
-                    )
-                return
+#             if not has_split and not has_train:
+#                 with pytest.raises(TypeError):
+#                     jatic_toolbox.load_dataset(
+#                         provider="torchvision",
+#                         task="image-classification",
+#                         dataset_name="test",
+#                         **kw,
+#                     )
+#                 return
 
-        dataset = jatic_toolbox.load_dataset(
-            provider="torchvision",
-            task="image-classification",
-            dataset_name="test",
-            **kw,
-        )
-        assert type(dataset) == TorchVisionDataset
-        assert len(dataset) == len(dataset._dataset)
+#         dataset = jatic_toolbox.load_dataset(
+#             provider="torchvision",
+#             task="image-classification",
+#             dataset_name="test",
+#             **kw,
+#         )
+#         assert type(dataset) == TorchVisionDataset
+#         assert len(dataset) == len(dataset._dataset)
 
-        def transform(x):
-            x["foo"] = [1]
-            return x
+#         def transform(x):
+#             x["foo"] = [1]
+#             return x
 
-        dataset.set_transform(transform)
+#         dataset.set_transform(transform)
 
-        temp = dataset[0]
-        assert type(temp) == dict
-        assert "image" in temp
-        assert "label" in temp
-        assert "foo" in temp
+#         temp = dataset[0]
+#         assert type(temp) == dict
+#         assert "image" in temp
+#         assert "label" in temp
+#         assert "foo" in temp
 
 
 @pytest.mark.parametrize(

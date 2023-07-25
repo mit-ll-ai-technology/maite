@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import warnings
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -14,6 +13,7 @@ from typing import (
     overload,
 )
 
+from jatic_toolbox.errors import InvalidArgument, ToolBoxException
 from jatic_toolbox.protocols import (
     Dataset,
     ImageClassifier,
@@ -24,15 +24,29 @@ from jatic_toolbox.protocols import (
 
 from ...import_utils import is_torchvision_available
 
+if is_torchvision_available():
+    from torchvision import datasets, models
+    from torchvision.models import list_models
+
+    from jatic_toolbox.interop.torchvision import (
+        TorchVisionClassifier,
+        TorchVisionObjectDetector,
+    )
+
+    from .datasets import PyTorchVisionDataset, TorchVisionDataset
+
 __all__ = ["TorchVisionAPI"]
 
 
 def _get_torchvision_dataset(
     dataset_name: str,
 ) -> Callable[..., Sequence[Any]]:
-    from torchvision import datasets
-
-    return getattr(datasets, dataset_name)
+    try:
+        return getattr(datasets, dataset_name)
+    except AttributeError as e:
+        raise InvalidArgument(
+            f"Dataset {dataset_name} is not supported by torchvision"
+        ) from e
 
 
 class TorchVisionAPI:
@@ -72,7 +86,7 @@ class TorchVisionAPI:
 
         return list(out_models)
 
-    def list_datasets(self) -> Iterable[str]:
+    def list_datasets(self, dataset_name: str | None = None) -> Iterable[str]:
         """
         List torchvision datasets.
 
@@ -88,13 +102,14 @@ class TorchVisionAPI:
         >>> api.list_datasets()
         [...]
         """
-        if not is_torchvision_available():
-            warnings.warn("TorchVision is not installed.")
-            return []
-        from torchvision import datasets
+        if not is_torchvision_available():  # pragma: no cover
+            raise ImportError("TorchVision is not installed.")
 
         datasets_list = list(datasets.__all__)
         datasets_list.sort()
+
+        if dataset_name is not None:
+            datasets_list = self._filter_string(dataset_name, datasets_list)
 
         return datasets_list
 
@@ -165,31 +180,30 @@ class TorchVisionAPI:
             raise ImportError("TorchVision is not installed.")
 
         if task is not None and task not in ("image-classification",):
-            raise ValueError(
+            raise InvalidArgument(
                 f"Task {task} is not supported. Supported tasks are ('image-classification', )."
             )
 
-        from .datasets import PyTorchVisionDataset, TorchVisionDataset
-
         fn = _get_torchvision_dataset(dataset_name)
 
-        if split is None:
-            dataset = fn(**kwargs)
+        try:
+            dataset = fn(split=split, **kwargs)
+        except TypeError:
+            train = False
+            if split == "train":
+                train = True
 
-        else:
             try:
-                dataset = fn(split=split, **kwargs)
+                dataset = fn(train=train, **kwargs)
             except TypeError:
-                train = False
-                if split == "train":
-                    train = True
+                pass
 
-                try:
-                    dataset = fn(train=train, **kwargs)
-                except TypeError:
-                    raise TypeError(
-                        f"Split provided by torchvision dataset, {fn}, doesn't support splits. Tried both `split` and `train` arguments."
-                    )
+            try:
+                dataset = fn(**kwargs)
+            except Exception as e:  # pragma: no cover
+                raise ToolBoxException(
+                    f"Unable to load dataset with `dataset_name={dataset_name}`."
+                ) from e
 
         if TYPE_CHECKING:
             dataset = cast(PyTorchVisionDataset, dataset)
@@ -228,12 +242,8 @@ class TorchVisionAPI:
         >>> api = TorchVisionAPI()
         >>> api.list_models()
         """
-        if not is_torchvision_available():
-            warnings.warn("TorchVision is not installed.")
-            return []
-
-        from torchvision import models
-        from torchvision.models import list_models
+        if not is_torchvision_available():  # pragma: no cover
+            raise ImportError("TorchVision is not installed.")
 
         all_models = []
         if task is None:
@@ -321,11 +331,6 @@ class TorchVisionAPI:
         """
         if not is_torchvision_available():  # pragma: no cover
             raise ImportError("TorchVision is not installed.")
-
-        from jatic_toolbox.interop.torchvision import (
-            TorchVisionClassifier,
-            TorchVisionObjectDetector,
-        )
 
         if "image-classification" in task:
             return TorchVisionClassifier.from_pretrained(model_name, **kwargs)

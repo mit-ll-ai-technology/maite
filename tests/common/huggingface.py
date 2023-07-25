@@ -34,7 +34,7 @@ class Meta:
     num_labels: int
 
 
-def get_test_vision_dataset(image_key, label_key):
+def get_test_vision_dataset(image_key="image", label_key="label"):
     """
     Creates a test dataset for testing vision datasets.
     """
@@ -64,10 +64,10 @@ def get_test_vision_dataset(image_key, label_key):
 
 
 def get_test_detection_dataset(
-    image_key,
-    object_key,
-    category_key,
-    bbox_key,
+    image_key="image",
+    object_key="objects",
+    category_key="category",
+    bbox_key="bbox",
     objects_as_list: bool = False,
 ):
     """

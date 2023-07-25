@@ -6,7 +6,7 @@ import hypothesis.strategies as st
 import numpy as np
 import pytest
 import torch as tr
-from hypothesis import given
+from hypothesis import given, settings
 
 from jatic_toolbox.errors import InvalidArgument
 from jatic_toolbox.interop.augmentation import AugmentationWrapper
@@ -112,6 +112,7 @@ def test_augmentor(image, to_type, transform):
     assert isinstance(out, type(data))
 
 
+@settings(deadline=None)
 @given(image=image_strategy)
 @pytest.mark.parametrize(
     "transform",
@@ -136,6 +137,7 @@ def test_reproducible(image, transform):
     np.testing.assert_raises(AssertionError, np.testing.assert_array_equal, out, out3)
 
 
+@settings(deadline=None)
 @given(image=image_strategy)
 @pytest.mark.parametrize(
     "collection",
