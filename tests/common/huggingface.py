@@ -3,8 +3,10 @@ from dataclasses import dataclass
 from typing import Any, Dict
 
 import datasets
+import numpy as np
 import torch as tr
 from datasets import Dataset, Features
+from PIL.Image import Image
 from transformers.utils import ModelOutput
 
 from .utils import create_random_image
@@ -127,6 +129,9 @@ def get_test_vision_model():
 
     class Processor:
         def __call__(self, images, return_tensors):
+            if isinstance(images[0], Image):
+                images = [np.asarray(i) for i in images]
+
             images = [tr.as_tensor(i) for i in images]
             return BatchFeatures(pixel_values=tr.stack(images))
 
@@ -149,6 +154,9 @@ def get_test_vision_model():
 def get_test_object_detection_model(output_as_list=False):
     class Processor:
         def __call__(self, images, return_tensors):
+            if isinstance(images[0], Image):
+                images = [np.asarray(i) for i in images]
+
             images = [tr.as_tensor(i) for i in images]
             return BatchFeatures(pixel_values=tr.stack(images))
 

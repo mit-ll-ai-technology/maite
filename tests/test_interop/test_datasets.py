@@ -20,15 +20,13 @@ if is_torchvision_available():
     from ..common import torchvision as tv_common
 
 
-def test_errors_load_dataset():
+@pytest.mark.parametrize(
+    ("task", "provider"),
+    [(None, None), ("image-classification", None), ("image-classification", "dummy")],
+)
+def test_errors_load_dataset(task, provider):
     with pytest.raises(InvalidArgument):
-        jatic_toolbox.load_dataset(dataset_name="_dummy")
-
-    with pytest.raises(InvalidArgument):
-        jatic_toolbox.load_dataset(dataset_name="_dummy", task="image-classification")
-
-    with pytest.raises(InvalidArgument):
-        jatic_toolbox.load_dataset(dataset_name="_dummy", provider="dummy", task="image-classification")  # type: ignore
+        jatic_toolbox.load_dataset(dataset_name="_dummy", task=task, provider=provider)
 
 
 @requires_hf_datasets

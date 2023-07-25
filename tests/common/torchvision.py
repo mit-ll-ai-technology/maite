@@ -1,6 +1,7 @@
 import torch as tr
 from torch.utils.data import Dataset
 from torchvision.models._api import WeightsEnum
+from torchvision.transforms import ToTensor
 
 from .utils import create_random_image
 
@@ -32,18 +33,13 @@ def get_test_vision_dataset(has_split: bool = True, has_train=False):
     return TVDataset
 
 
-class Transform:
-    def __call__(self, x):
-        return x
-
-
 class Weights:
     def __init__(self):
         self.weights = tr.randn(1, 3, 10, 10)
         self.meta = {"categories": ["a", "b", "c", "d"]}
 
     def transforms(self):
-        return Transform()
+        return ToTensor()
 
 
 class TVWeights(WeightsEnum):

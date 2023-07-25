@@ -42,7 +42,7 @@ class TorchVisionBase(nn.Module, BaseModel):
 
     def get_labels(self) -> Sequence[str]:
         """Get labels."""
-        if self._labels is None:
+        if self._labels is None:  # pragma: no cover
             raise InvalidArgument("No labels were provided.")
         return self._labels
 
@@ -50,13 +50,13 @@ class TorchVisionBase(nn.Module, BaseModel):
         self,
         data: SupportsArray,
     ) -> HasDataImage:
-        if self._processor is None:
+        if self._processor is None:  # pragma: no cover
             raise InvalidArgument("No processor was provided.")
 
         if isinstance(data, Sequence):
             return {"image": [self._processor(i) for i in data]}
 
-        return {"image": self._processor(data)}
+        return {"image": self._processor(data)}  # pragma: no cover
 
     @classmethod
     def from_pretrained(
@@ -72,7 +72,10 @@ class TorchVisionBase(nn.Module, BaseModel):
         if weights is None:
             weights = name
 
-        model_weights = get_model_weights(name=weights)
+        try:
+            model_weights = get_model_weights(name=weights)
+        except ValueError as e:
+            raise InvalidArgument(f"Invalid model name: {name}") from e
 
         assert issubclass(
             model_weights, WeightsEnum

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import warnings
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -229,7 +230,7 @@ class TorchVisionAPI:
         task : str | List[str] | None (default: None)
             The task of the model, by default None
         model_name : str | None (default: None)
-            The name of the model, by default None
+            The name of the model, by default None.  Replaces filter_str.
 
         Returns
         -------
@@ -254,14 +255,10 @@ class TorchVisionAPI:
 
         task = list(task)
 
-        if model_name is not None:
-            if isinstance(filter_str, str):
-                filter_str = [filter_str]
-
-            if filter_str is None:
-                filter_str = model_name
-            else:
-                filter_str.append(model_name)
+        if model_name is not None:  # pragma: no cover
+            if filter_str is not None:
+                warnings.warn("filter_str is ignored when model_name is provided.")
+            filter_str = model_name
 
         for t in task:
             module = None
@@ -272,16 +269,17 @@ class TorchVisionAPI:
             if "object-detection" in t:
                 module = models.detection
 
-            if "optical-flow" in t:
+            # the following are not supported but provided
+            if "optical-flow" in t:  # pragma: no cover
                 module = models.optical_flow
 
-            if "quantization" in t:
+            if "quantization" in t:  # pragma: no cover
                 module = models.quantization
 
-            if "segmentation" in t:
+            if "segmentation" in t:  # pragma: no cover
                 module = models.segmentation
 
-            if "video" in t:
+            if "video" in t:  # pragma: no cover
                 module = models.video
 
             if module is not None:
@@ -294,8 +292,29 @@ class TorchVisionAPI:
 
         return all_models
 
+    @overload
     def load_model(
-        self, task: str, model_name: str, **kwargs: Any
+        self,
+        task: Literal["image-classification"],
+        model_name: str,
+        **kwargs: Any,
+    ) -> ImageClassifier:
+        ...
+
+    @overload
+    def load_model(
+        self,
+        task: Literal["object-detection"],
+        model_name: str,
+        **kwargs: Any,
+    ) -> ObjectDetector:
+        ...
+
+    def load_model(
+        self,
+        task: Literal["image-classification", "object-detection"],
+        model_name: str,
+        **kwargs: Any,
     ) -> ImageClassifier | ObjectDetector:
         """
         Load a TorchVision model.
@@ -319,7 +338,7 @@ class TorchVisionAPI:
         ImportError
             If TorchVision is not installed.
 
-        ValueError
+        InvalidArgument
             If the task is not supported.
 
         Examples
@@ -338,4 +357,4 @@ class TorchVisionAPI:
         if "object-detection" in task:
             return TorchVisionObjectDetector.from_pretrained(model_name, **kwargs)
 
-        raise ValueError(f"Task {task} is not supported.")
+        raise InvalidArgument(f"Task {task} is not supported.")

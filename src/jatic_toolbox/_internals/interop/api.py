@@ -168,7 +168,7 @@ def load_dataset(
 
 def list_models(
     *,
-    provider: MODEL_PROVIDERS | None,
+    provider: MODEL_PROVIDERS | None = None,
     filter_str: str | List[str] | None = None,
     model_name: str | None = None,
     task: str | List[str] | None = None,
@@ -211,16 +211,16 @@ def list_models(
         return TorchVisionAPI().list_models(
             filter_str=filter_str, model_name=model_name, task=task, **kwargs
         )
-
-    raise ValueError(f"Provider, {provider}, not supported.")
+    else:
+        raise InvalidArgument(f"Provider, {provider}, not supported.")
 
 
 @overload
 def load_model(
     *,
-    provider: MODEL_PROVIDERS,
-    task: Literal["image-classification"],
     model_name: str,
+    provider: MODEL_PROVIDERS | None = None,
+    task: Literal["image-classification"],
     **kwargs: Any,
 ) -> ImageClassifier:
     ...
@@ -229,11 +229,22 @@ def load_model(
 @overload
 def load_model(
     *,
-    provider: MODEL_PROVIDERS,
-    task: Literal["object-detection"],
     model_name: str,
+    provider: MODEL_PROVIDERS | None = None,
+    task: Literal["object-detection"],
     **kwargs: Any,
 ) -> ObjectDetector:
+    ...
+
+
+@overload
+def load_model(
+    *,
+    model_name: str,
+    provider: MODEL_PROVIDERS | None = None,
+    task: None = None,
+    **kwargs: Any,
+) -> ImageClassifier | ObjectDetector:
     ...
 
 
@@ -277,13 +288,20 @@ def load_model(
         task = kwargs.pop("task", task)
         model_name = kwargs.pop("model_name")
 
+    if task is None:
+        raise InvalidArgument(
+            f"Task must be specified for loading models. Got task={task}."
+        )
+
     if provider == "huggingface":
-        return HuggingFaceAPI().load_model(task=task, model_name=model_name, **kwargs)
+        api = HuggingFaceAPI()
     elif provider == "torchvision":
         assert task is not None, "task must be specified for torchvision models."
-        return TorchVisionAPI().load_model(task=task, model_name=model_name, **kwargs)
+        api = TorchVisionAPI()
     else:
-        raise ValueError(f"Provider, {provider}, not supported.")
+        raise InvalidArgument(f"Provider, {provider}, not supported.")
+
+    return api.load_model(task=task, model_name=model_name, **kwargs)
 
 
 def list_metrics(

@@ -218,15 +218,7 @@ class HuggingFaceAPI:
             return HuggingFaceObjectDetectionDataset(dataset, **wrapper_kwargs)
 
     def list_models(
-        self,
-        filter_str: str | List[str] | None = None,
-        author: str | None = None,
-        library: str | List[str] | None = None,
-        language: str | List[str] | None = None,
-        model_name: str | None = None,
-        task: str | List[str] | None = None,
-        trained_dataset: str | List[str] | None = None,
-        tags: str | List[str] | None = None,
+        self, filter_str: str | List[str] | None = None, **kwargs: Any
     ) -> Iterable[Any]:
         """
         List HuggingFace models.
@@ -235,28 +227,8 @@ class HuggingFaceAPI:
         ----------
         filter_str : str | List[str] | None (default: None)
             The filter string to use to filter the models.
-        author : str (default: None)
-            A string or list of strings that can be used to identify datasets on
-            the Hub by the original uploader (author or organization), such as
-            `facebook` or `huggingface`.
-        library : str | List[str] | None (default: None)
-            A string or list of strings of foundational libraries models were
-            originally trained from, such as pytorch, tensorflow, or allennlp.
-        language : str | List[str] | None (default: None)
-            A string or list of strings of languages, both by name and country
-            code, such as "en" or "English".
-        model_name : str | None (default: None)
-            A string that contain complete or partial names for models on the
-            Hub, such as "bert" or "bert-base-cased".
-        task : str | List[str] | None (default: None)
-            A string or list of strings of tasks models were designed for, such
-            as: "fill-mask" or "automatic-speech-recognition".
-        trained_dataset : str | List[str] | None (default: None)
-            A string tag or a list of string tags of the trained dataset for a
-            model on the Hub.
-        tags : str | List[str] | None (default: None)
-            A string tag or a list of tags to filter models on the Hub by, such
-            as `text-generation` or `spacy`.
+        **kwargs : Any
+            Additional keyword arguments to pass to the HuggingFace model filter.
 
         Returns
         -------
@@ -275,27 +247,34 @@ class HuggingFaceAPI:
         if not is_hf_hub_available():  # pragma: no cover
             raise ImportError("HuggingFace Hub is not installed.")
 
-        if task is None:
-            task = list(self._SUPPORTED_TASKS)
-
         hf_api = HfApi()
         filt = filter_str
         if filter_str is None:
-            filt = ModelFilter(
-                author=author,
-                library=library,
-                language=language,
-                model_name=model_name,
-                task=task,
-                trained_dataset=trained_dataset,
-                tags=tags,
-            )
+            filt = ModelFilter(**kwargs)
         models = hf_api.list_models(filter=filt)
         return list(iter(models))
 
+    @overload
     def load_model(
         self,
-        task: Literal["image-classification", "object-detection"] | None,
+        task: Literal["image-classification"],
+        model_name: str,
+        **kwargs: Any,
+    ) -> ImageClassifier:
+        ...
+
+    @overload
+    def load_model(
+        self,
+        task: Literal["object-detection"],
+        model_name: str,
+        **kwargs: Any,
+    ) -> ObjectDetector:
+        ...
+
+    def load_model(
+        self,
+        task: Literal["image-classification", "object-detection"],
         model_name: str,
         **kwargs: Any,
     ) -> ImageClassifier | ObjectDetector:
@@ -304,7 +283,7 @@ class HuggingFaceAPI:
 
         Parameters
         ----------
-        task : str | None
+        task : str
             The task of the model.
         model_name : str
             The name of the HuggingFace model.
@@ -321,7 +300,7 @@ class HuggingFaceAPI:
         ImportError
             If HuggingFace Transformers is not installed.
 
-        ValueError
+        InvalidArgument
             If the task is not supported.
 
         Examples
@@ -333,10 +312,15 @@ class HuggingFaceAPI:
         if not is_hf_transformers_available():  # pragma: no cover
             raise ImportError("HuggingFace Transformers is not installed.")
 
+        if task is None:
+            raise InvalidArgument("Task is not specified")
+        elif task not in self._SUPPORTED_TASKS:
+            raise InvalidArgument(
+                f"Task {task} is not supported. Supported tasks are {self._SUPPORTED_TASKS}."
+            )
+
         if task == "image-classification":
             return HuggingFaceImageClassifier.from_pretrained(model_name, **kwargs)
 
         if task == "object-detection":
             return HuggingFaceObjectDetector.from_pretrained(model_name, **kwargs)
-
-        raise ValueError(f"Task {task} is not supported.")
