@@ -1,22 +1,6 @@
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    ClassVar,
-    Dict,
-    Mapping,
-    Optional,
-    Protocol,
-    Sequence,
-    Type,
-    TypeVar,
-    Union,
-    runtime_checkable,
-)
+from typing import Any, Iterator, Protocol, Sequence, TypeVar, Union, runtime_checkable
 
 from typing_extensions import ParamSpec, Self, TypeAlias, TypedDict
-
-from ..import_utils import is_pil_available
 
 T = TypeVar("T")
 T_co = TypeVar("T_co", covariant=True)
@@ -27,58 +11,28 @@ P = ParamSpec("P")
 
 @runtime_checkable
 class ArrayLike(Protocol):
+    """
+    A protocol for an array-like object.
+
+    Examples
+    --------
+    Create a fake array-like object.
+
+    >>> import numpy as np
+    >>> array_like: ArrayLike = np.ones((3, 224, 224))
+
+    Validate with a type checker.
+
+    >>> def supports_array_like(array_like: ArrayLike) -> None:
+    ...     pass
+    >>> supports_array_like(array_like)  # passes
+    """
+
     def __array__(self) -> Any:
         ...
 
 
-if is_pil_available():
-    from PIL.Image import Image
-
-else:
-    # minimum protocol for pillow-like Image?
-    class Image(Protocol):
-        format = None
-        format_description = None
-
-        @property
-        def __array_interface__(self):
-            ...
-
-
 SupportsArray: TypeAlias = Union[ArrayLike, Sequence[ArrayLike]]
-
-
-if TYPE_CHECKING:
-    from dataclasses import Field  # provided by typestub but not generic at runtime
-else:
-
-    class Field(Protocol[T2]):
-        name: str
-        type: Type[T2]
-        default: T2
-        default_factory: Callable[[], T2]
-        repr: bool
-        hash: Optional[bool]
-        init: bool
-        compare: bool
-        metadata: Mapping[str, Any]
-
-
-class DataClass_(Protocol):
-    # doesn't provide __init__, __getattribute__, etc.
-    __dataclass_fields__: ClassVar[Dict[str, Field[Any]]]
-
-
-@runtime_checkable
-class DataClass(DataClass_, Protocol):
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        ...
-
-    def __getattribute__(self, __name: str) -> Any:
-        ...
-
-    def __setattr__(self, __name: str, __value: Any) -> None:
-        ...
 
 
 #
@@ -300,11 +254,72 @@ class Dataset(Protocol[T_co]):
 
 @runtime_checkable
 class VisionDataset(Dataset[SupportsImageClassification], Protocol):
+    """
+    A protocol for vision datasets providing images and labels.
+
+    Examples
+    --------
+    Create a fake dataset.
+
+    >>> import numpy as np
+    >>> data: SupportsImageClassification = {
+    ...     "image": np.zeros((3, 224, 224)),
+    ...     'label': np.array([1]),
+    ... }
+
+    Create a dataset with the fake data.
+
+    >>> class FakeDataset:
+    ...     def __len__(self) -> int:
+    ...         return 1
+    ...     def __getitem__(self, index: int) -> SupportsImageClassification:
+    ...         return data
+    >>> dataset: VisionDataset = FakeDataset()
+
+    Validate with a type checker.
+
+    >>> def supports_vision_dataset(dataset: VisionDataset) -> None:
+    ...     pass
+    >>> supports_vision_dataset(dataset)  # passes
+    """
+
     ...
 
 
 @runtime_checkable
 class ObjectDetectionDataset(Dataset[SupportsObjectDetection], Protocol):
+    """
+    A protocol for object detection datasets providing images and detectuib objects with boxes and labels.
+
+    Examples
+    --------
+    Create a fake dataset.
+
+    >>> import numpy as np
+    >>> data: SupportsObjectDetection = {
+    ...     "image": np.zeros((3, 224, 224)),
+    ...     "objects": {
+    ...         "boxes": np.array([[0.0, 0.0, 1.0, 1.0]]),
+    ...         "labels": np.array([1])
+    ...     },
+    ... }
+
+    Create a dataset with the fake data.
+
+    >>> class FakeDataset:
+    ...     def __len__(self) -> int:
+    ...         return 1
+    ...     def __getitem__(self, index: int) -> SupportsObjectDetection:
+    ...         return data
+    >>> dataset: ObjectDetectionDataset = FakeDataset()
+
+    Validate with a type checker.
+
+    >>> def supports_object_detection_dataset(dataset: ObjectDetectionDataset) -> None:
+    ...     pass
+    >>> supports_object_detection_dataset(dataset)  # passes
+    """
+
     ...
 
 
@@ -313,35 +328,52 @@ class ObjectDetectionDataset(Dataset[SupportsObjectDetection], Protocol):
 #
 
 
-class _DataLoaderIterator(Protocol[T_co]):
-    def __next__(self) -> T_co:
+@runtime_checkable
+class DataLoader(Protocol[T_co]):
+    def __iter__(self) -> Iterator[T_co]:
         ...
 
 
 @runtime_checkable
-class DataLoader(Protocol[T_co]):
-    def __iter__(self) -> _DataLoaderIterator[T_co]:
+class VisionDataLoader(DataLoader[SupportsImageClassification], Protocol):
+    ...
+
+
+@runtime_checkable
+class ObjectDetectionDataLoader(DataLoader[SupportsObjectDetection], Protocol):
+    ...
+
+
+@runtime_checkable
+class Augmentation(Protocol[T]):
+    def __call__(self, input: T) -> T:
+        """
+        Augmentation Protocol.
+
+        Parameters
+        ----------
+        input : T
+            Input data.
+
+        Returns
+        -------
+        output : T
+            Augmented data.
+
+        Examples
+        --------
+        Create a fake augmentation.
+
+        >>> def augment(data: SupportsImageClassification) -> SupportsImageClassification:
+        ...     return data
+
+        Validate with a type checker.
+
+        >>> def supports_augmentation(augmentation: Augmentation) -> None:
+        ...     pass
+        >>> supports_augmentation(augment)  # passes
+        """
         ...
-
-
-VisionDataLoader: TypeAlias = DataLoader[SupportsImageClassification]
-ObjectDetectionDataLoader: TypeAlias = DataLoader[SupportsObjectDetection]
-
-
-Augmentation: TypeAlias = Callable[[T], T]
-"""
-Augmentation Protocol.
-
-Supports simple augmentations and adversarial attacks.
-
-Parameters
-----------
-input: T
-
-Returns
--------
-output: T
-"""
 
 
 #
@@ -513,16 +545,108 @@ class HasScores(Protocol):
 
 @runtime_checkable
 class HasDetectionLogits(HasBoxes, HasLogits, Protocol):
+    """
+    Detection logits are logits for detection boxes.
+
+    Attributes
+    ----------
+    logits : SupportsArray
+        A batch of logits.
+    boxes : SupportsArray
+        A batch of boxes.
+
+    Examples
+    --------
+    Create fake logits and boxes and add them to a dataclass.
+
+    >>> import numpy as np
+    >>> from dataclasses import dataclass
+    >>> @dataclass
+    ... class FakeData:
+    ...     logits: SupportsArray
+    ...     boxes: SupportsArray
+    >>> data = FakeData(np.array([0.5]), np.array([[0, 0, 1, 1]]))
+
+    Validate with a type checker.
+
+    >>> def supports_has_detection_logits(data: HasDetectionLogits) -> None:
+    ...     pass
+    >>> supports_has_detection_logits(data)  # passes
+    """
+
     ...
 
 
 @runtime_checkable
 class HasDetectionProbs(HasProbs, HasBoxes, Protocol):
+    """
+    Detection probabilities are probabilities for detection boxes.
+
+    Attributes
+    ----------
+    probs : SupportsArray
+        A batch of probabilities.
+    boxes : SupportsArray
+        A batch of boxes.
+
+    Examples
+    --------
+    Create fake probabilities and boxes and add them to a dataclass.
+
+    >>> import numpy as np
+    >>> from dataclasses import dataclass
+    >>> @dataclass
+    ... class FakeData:
+    ...     probs: SupportsArray
+    ...     boxes: SupportsArray
+    >>> data = FakeData(np.array([0.5]), np.array([[0, 0, 1, 1]]))
+
+    Validate with a type checker.
+
+    >>> def supports_has_detection_probs(data: HasDetectionProbs) -> None:
+    ...     pass
+    >>> supports_has_detection_probs(data)  # passes
+    """
+
     ...
 
 
 @runtime_checkable
 class HasDetectionPredictions(HasBoxes, HasScores, Protocol):
+    """
+    Detection predictions are scores and labels for detection boxes.
+
+    Attributes
+    ----------
+    scores : SupportsArray
+        Scores are predictions for a single class. For example, in binary classification,
+        scores are the probability of the positive class.
+    labels : SupportsArray
+        Labels are predicted label for each score. For example, in binary classification,
+        labels are either 0 or 1.
+    boxes : SupportsArray
+        The predicted bounding boxes.
+
+    Examples
+    --------
+    Create fake scores, labels, and boxes and add them to a dataclass.
+
+    >>> import numpy as np
+    >>> from dataclasses import dataclass
+    >>> @dataclass
+    ... class FakeData:
+    ...     scores: SupportsArray
+    ...     labels: SupportsArray
+    ...     boxes: SupportsArray
+    >>> data = FakeData(np.array([0.5]), np.array([1]), np.array([[0, 0, 1, 1]]))
+
+    Validate with a type checker.
+
+    >>> def supports_has_detection_predictions(data: HasDetectionPredictions) -> None:
+    ...     pass
+    >>> supports_has_detection_predictions(data)  # passes
+    """
+
     ...
 
 
@@ -532,15 +656,22 @@ Models
 
 
 @runtime_checkable
-class Model(Protocol):
+class Model(Protocol[T_cont, T_co]):
     """
     A protocol for models.
 
     Methods
     -------
-    get_labels
+    __call__(data: T_cont) -> T_co
+        Run inference on the data.
+
+    get_labels() -> Sequence[str]
         Returns the labels for the model.
     """
+
+    def __call__(self, data: T_cont) -> T_co:
+        """Run inference on the data."""
+        ...
 
     def get_labels(self) -> Sequence[str]:
         """Returns the labels for the model."""
@@ -548,47 +679,95 @@ class Model(Protocol):
 
 
 @runtime_checkable
-class ImageClassifier(Model, Protocol):
-    """A protocol for image classifiers."""
+class ImageClassifier(
+    Model[SupportsArray, Union[HasLogits, HasProbs, HasScores]],
+    Protocol,
+):
+    """
+    An image classifier model that takes in an image and returns logits, probabilities, or scores.
 
-    def __call__(self, data: SupportsArray) -> Union[HasLogits, HasProbs, HasScores]:
-        """
-        Call the model.
+    Methods
+    -------
+    __call__(data: SupportsArray) -> Union[HasLogits, HasProbs, HasScores]
+        Run inference on the data.
 
-        Parameters
-        ----------
-        data : SupportsArray
-            An image or batch of images.
+    get_labels() -> Sequence[str]
+        Returns the labels for the model.
 
-        Returns
-        -------
-        output : HasLogits | HasProbs | HasScores
-            The output of the model.
-        """
-        ...
+    Examples
+    --------
+    Create a fake logits and add it to a dataclass.
+
+    >>> import numpy as np
+    >>> from dataclasses import dataclass
+    >>> @dataclass
+    ... class FakeData:
+    ...     logits: SupportsArray
+    >>> data = FakeData(np.array([0.5, 0.5]))
+
+    Create a fake model that returns logits.
+
+    >>> from typing import Sequence
+    >>> class FakeModel:
+    ...     def __call__(self, data: SupportsArray) -> HasLogits:
+    ...         return FakeData(np.array([0.5, 0.5]))
+    ...     def get_labels(self) -> Sequence[str]:
+    ...         return ["cat", "dog"]
+    >>> model: ImageClassifier = FakeModel()
+    >>> output: HasLogits = model(np.zeros((2, 3, 224, 224)))
+
+    Validate with a type checker.
+
+    >>> def supports_image_classifier(model: ImageClassifier) -> None:
+    ...     pass
+    >>> supports_image_classifier(FakeModel())  # passes
+    """
+
+    ...
 
 
 @runtime_checkable
-class ObjectDetector(Model, Protocol):
-    """A protocol for object detectors."""
+class ObjectDetector(
+    Model[
+        SupportsArray,
+        Union[HasDetectionLogits, HasDetectionProbs, HasDetectionPredictions],
+    ],
+    Protocol,
+):
+    """
+    An object detector model that takes in an image and returns logits, probabilities, or predictions.
 
-    def __call__(
-        self, data: SupportsArray
-    ) -> Union[HasDetectionLogits, HasDetectionProbs, HasDetectionPredictions]:
-        """
-        Call the model.
+    Examples
+    --------
+    Create a fake logits and add it to a dataclass.
 
-        Parameters
-        ----------
-        data : SupportsArray
-            An image or batch of images.
+    >>> import numpy as np
+    >>> from dataclasses import dataclass
+    >>> @dataclass
+    ... class FakeData:
+    ...     logits: SupportsArray
+    ...     boxes: SupportsArray
+    >>> data: HasDetectionLogits = FakeData(np.array([0.5]), np.array([[0, 0, 1, 1]]))
 
-        Returns
-        -------
-        output : HasDetectionLogits | HasDetectionProbs | HasDetectionPredictions
-            The output of the model.
-        """
-        ...
+    Create a fake model that returns logits.
+
+    >>> from typing import Sequence
+    >>> class FakeModel:
+    ...     def __call__(self, data: SupportsArray) -> HasDetectionLogits:
+    ...         return FakeData(np.array([0.5]), np.array([[0, 0, 1, 1]]))
+    ...     def get_labels(self) -> Sequence[str]:
+    ...         return ["cat", "dog"]
+    >>> model: ObjectDetector = FakeModel()
+    >>> output: HasDetectionLogits = model(np.zeros((2, 3, 224, 224)))
+
+    Validate with a type checker.
+
+    >>> def supports_object_detector(model: ObjectDetector) -> None:
+    ...     pass
+    >>> supports_object_detector(model)  # passes
+    """
+
+    ...
 
 
 """
@@ -602,7 +781,46 @@ Metric protocol is based off of:
 
 @runtime_checkable
 class Metric(Protocol):
-    """A protocol for metrics."""
+    """
+    A protocol for metrics.
+
+    Methods
+    -------
+    reset() -> None
+        Resets the metric.
+
+    update(*args: Any, **kwargs: Any) -> None
+        Updates the metric.
+
+    compute() -> Any
+        Computes the metric.
+
+    to(*args: Any, **kwargs: Any) -> Self
+        Transfers the metric to a device.
+
+    Examples
+    --------
+    Create a fake metric.
+
+    >>> from typing import Any
+    >>> from typing_extensions import Self
+    >>> class FakeMetric:
+    ...     def reset(self) -> None:
+    ...         pass
+    ...     def update(self, *args: Any, **kwargs: Any) -> None:
+    ...         pass
+    ...     def compute(self) -> float:
+    ...         return 0.5
+    ...     def to(self, *args: Any, **kwargs: Any) -> Self:
+    ...         return self
+    >>> metric: Metric = FakeMetric()
+
+    Validate with a type checker.
+
+    >>> def supports_metric(metric: Metric) -> None:
+    ...     pass
+    >>> supports_metric(FakeMetric())  # passes
+    """
 
     def reset(self) -> None:
         """Resets the metric."""

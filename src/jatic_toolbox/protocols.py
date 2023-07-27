@@ -6,7 +6,6 @@ from jatic_toolbox._internals.protocols.type_guards import (
 from jatic_toolbox._internals.protocols.typing import (
     ArrayLike,
     Augmentation,
-    DataClass,
     DataLoader,
     Dataset,
     HasDataBoxes,
@@ -56,7 +55,6 @@ __all__ = [
     "ObjectDetectionDataset",
     "is_typed_dict",
     "HasDetectionProbs",
-    "DataClass",
     "HasDataImage",
     "HasDataLabel",
     "HasDataBoxes",

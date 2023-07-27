@@ -556,11 +556,11 @@ at the end of the evaluation loop to return the final metric value.
                 ...
 
             def update(
-                self, model_output: HasPredictions, target: Mapping[str, ArrayLike]
+                self, model_output: HasPredictions, target: HasLabel[BatchedLabel]
             ) -> None:
                 ...
 
-            def compute(self) -> Mapping[str, Any]:
+            def compute(self) -> Mapping[str, float]:
                 ...
 
 
@@ -573,12 +573,12 @@ at the end of the evaluation loop to return the final metric value.
 
         if TYPE_CHECKING:
 
-            def supports_metric(x: Metric[HasPredictions, Mapping[str, ArrayLike]]):
+            def supports_metric(x: Metric[HasPredictions, HasLabel[BatchedLabel]]):
                 ...
 
             supports_metric(metric)  # passes
 
-            def supports_metric_2(x: Metric[HasProbs, Mapping[str, ArrayLike]]):
+            def supports_metric_2(x: Metric[HasProbs, HasLabel[BatchedLabel]]):
                 ...
 
             # fails
