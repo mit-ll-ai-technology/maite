@@ -14,8 +14,6 @@ jatic-toolbox. They require no prior experience with these tools.
    :caption: Contents:
 
    tutorials/basic_evaluation
-   tutorials/wrap_object_detection_dataset
-
 
 
 These tutorials are meant to only focus on practical steps towards concrete outcomes, 
