@@ -49,7 +49,7 @@ in most deep learning frameworks.
 - See object detection model definition: :class:`jatic_toolbox.protocols.ObjectDetector`
 
 Additionally, the use of pre-processors and post-processors is kept internal to model inference
-rather than explictly requiring users to manage these steps.  Integration with augmentations and
+rather than explicitly requiring users to manage these steps.  Integration with augmentations and
 perturbations is still in development.
 
 Stability and Usability
