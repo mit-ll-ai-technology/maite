@@ -3,8 +3,6 @@ import pytest
 import jatic_toolbox
 import jatic_toolbox.protocols as pr
 from jatic_toolbox._internals.import_utils import (
-    is_hf_datasets_available,
-    is_torchvision_available,
     requires_hf_datasets,
     requires_torchvision,
 )
@@ -12,12 +10,6 @@ from jatic_toolbox._internals.interop import registry
 from jatic_toolbox._internals.interop.huggingface import api as hf_api
 from jatic_toolbox._internals.interop.torchvision import api as tv_api
 from jatic_toolbox.errors import InvalidArgument, ToolBoxException
-
-if is_hf_datasets_available():
-    from ..common import huggingface as hf_common
-
-if is_torchvision_available():
-    from ..common import torchvision as tv_common
 
 
 @pytest.mark.parametrize(
@@ -32,6 +24,8 @@ def test_errors_load_dataset(task, provider):
 @requires_hf_datasets
 @requires_torchvision
 def test_load_dataset_from_registry(mocker):
+    from ..common import huggingface as hf_common
+
     data = jatic_toolbox.list_datasets()
     assert all(x == y for x, y in zip(data, registry.DATASET_REGISTRY.keys()))
 
@@ -84,6 +78,8 @@ def test_errors_tv_load_dataset_from_hub():
 @requires_hf_datasets
 @pytest.mark.parametrize("task", ["image-classification", "object-detection"])
 def test_hf_datasets(mocker, task):
+    from ..common import huggingface as hf_common
+
     data = jatic_toolbox.list_datasets(
         provider="huggingface", dataset_name="cats_vs_dogs"
     )
@@ -122,6 +118,8 @@ def test_tv_list_datasets():
 @pytest.mark.parametrize("has_split", [True, False])
 @pytest.mark.parametrize("has_train", [True, False])
 def test_tv_datasets(mocker, task, has_split, has_train):
+    from ..common import torchvision as tv_common
+
     mock_dataset = tv_common.get_test_vision_dataset(
         has_split=has_split, has_train=has_train
     )
@@ -156,6 +154,8 @@ def test_tv_datasets(mocker, task, has_split, has_train):
     [(None, "label"), ("image", None), (None, None), ("image", "image")],
 )
 def test_hf_load_dataset_unsupported_vision_keys(mocker, image_key, label_key):
+    from ..common import huggingface as hf_common
+
     # Create a mock dataset object
     mock_dataset = hf_common.get_test_vision_dataset(
         image_key=image_key, label_key=label_key
@@ -190,6 +190,8 @@ def test_hf_load_dataset_unsupported_vision_keys(mocker, image_key, label_key):
 def test_hf_load_dataset_unsupported_detection_keys(
     mocker, image_key, object_key, bbox_key, category_key
 ):
+    from ..common import huggingface as hf_common
+
     # Create a mock dataset object
     mock_dataset = hf_common.get_test_detection_dataset(
         image_key=image_key,
@@ -214,6 +216,8 @@ def test_hf_load_dataset_unsupported_detection_keys(
 
 @requires_hf_datasets
 def test_hf_transforms(mocker):
+    from ..common import huggingface as hf_common
+
     for mock_dataset, task in [
         (hf_common.get_test_vision_dataset(), "image-classification"),
         (hf_common.get_test_detection_dataset(), "object-detection"),
@@ -246,6 +250,8 @@ def test_hf_transforms(mocker):
 
 @requires_torchvision
 def test_tv_transforms(mocker):
+    from ..common import torchvision as tv_common
+
     mock_dataset = tv_common.get_test_vision_dataset()
     mocker.patch.object(tv_api, "_get_torchvision_dataset", return_value=mock_dataset)
 

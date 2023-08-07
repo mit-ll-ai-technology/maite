@@ -256,7 +256,7 @@ def check_domain(
         err_msg += f"`.  Got: `{arg}`."
 
         raise InvalidArgument(err_msg)
-    return cast(C, arg)
+    return arg
 
 
 class SupportsEq(Protocol):

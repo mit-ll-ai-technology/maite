@@ -7,30 +7,14 @@ from hypothesis import given, settings
 import jatic_toolbox
 import jatic_toolbox.protocols as pr
 from jatic_toolbox._internals.import_utils import (
-    is_hf_transformers_available,
     is_pil_available,
     is_torch_available,
-    is_torchvision_available,
     requires_hf_transformers,
     requires_torchvision,
 )
 from jatic_toolbox._internals.interop import registry
 from jatic_toolbox._internals.interop.huggingface import api as hf_api
 from jatic_toolbox.errors import InvalidArgument
-
-if is_torch_available():
-    import torch as tr
-
-if is_hf_transformers_available():
-    from ..common import huggingface as hf_common
-
-if is_torchvision_available():
-    from ..common import torchvision as tv_common
-
-if is_pil_available():
-    from PIL import Image
-
-    from jatic_toolbox._internals.interop.utils import is_pil_image
 
 
 def test_errors_list_models():
@@ -59,6 +43,8 @@ def test_errors_hf_load_model(task, provider):
 
 @requires_hf_transformers
 def test_load_model_from_registry(mocker):
+    from ..common import huggingface as hf_common
+
     data = jatic_toolbox.list_models()
     assert all(x == y for x, y in zip(data, registry.MODEL_REGISTRY.keys()))
 
@@ -97,6 +83,8 @@ def test_hf_list_models(kwargs):
 @requires_hf_transformers
 @pytest.mark.parametrize("task", ["image-classification", "object-detection"])
 def test_hf_models(mocker, task):
+    from ..common import huggingface as hf_common
+
     models = jatic_toolbox.list_models(provider="huggingface", filter_str="resnet18")
     assert issubclass(type(models), list)
     assert len(list(models)) == 3
@@ -139,6 +127,8 @@ def test_tv_list_models(task, filter_str):
 @requires_torchvision
 @pytest.mark.parametrize("task", ["image-classification", "object-detection"])
 def test_tv_load_models(mocker, task):
+    from ..common import torchvision as tv_common
+
     if task == "image-classification":
         mock_model_weights, mock_model = tv_common.get_test_vision_model()
         protocol = pr.ImageClassifier
@@ -176,12 +166,18 @@ def _draw_data(data, img_type):
     )
 
     if img_type == "pillow" and is_pil_available():
+        from PIL import Image
+
+        from jatic_toolbox._internals.interop.utils import is_pil_image
+
         array = Image.fromarray((array * 255).astype("uint8")).convert("RGB")
         assert is_pil_image(array)
     elif img_type == "numpy":
         array = array.astype(np.float32).transpose(2, 0, 1)
         assert isinstance(array, pr.ArrayLike)
-    elif img_type == "tensor":
+    elif img_type == "tensor" and is_torch_available():
+        import torch as tr
+
         array = tr.tensor(array.transpose(2, 0, 1), dtype=tr.float)
         assert isinstance(array, pr.ArrayLike)
     else:
@@ -193,6 +189,8 @@ def _draw_data(data, img_type):
 @requires_hf_transformers
 @pytest.mark.parametrize("task", ["image-classification", "object-detection"])
 def test_huggingface_get_labels_sorted(task):
+    from ..common import huggingface as hf_common
+
     if task == "image-classification":
         from jatic_toolbox._internals.interop.huggingface.image_classifier import (
             HuggingFaceImageClassifier,
@@ -220,6 +218,8 @@ def test_huggingface_get_labels_sorted(task):
 @requires_torchvision
 @pytest.mark.parametrize("task", ["image-classification", "object-detection"])
 def test_tv_get_labels_sorted(task):
+    from ..common import torchvision as tv_common
+
     if task == "image-classification":
         from jatic_toolbox._internals.interop.torchvision.torchvision import (
             TorchVisionClassifier,
@@ -278,6 +278,10 @@ def test_tv_get_labels_sorted(task):
     ],
 )
 def test_huggingface_inputs(task, data, img_type, input_type, model_kwargs, kwargs):
+    import torch as tr
+
+    from ..common import huggingface as hf_common
+
     if task == "image-classification":
         from jatic_toolbox._internals.interop.huggingface.image_classifier import (
             HuggingFaceImageClassifier,
@@ -345,6 +349,10 @@ def test_huggingface_inputs(task, data, img_type, input_type, model_kwargs, kwar
 @settings(deadline=None, max_examples=10)
 @given(data=st.data())
 def test_torchvision_inputs(task, data, img_type, input_type):
+    import torch as tr
+
+    from ..common import torchvision as tv_common
+
     if task == "image-classification":
         from jatic_toolbox._internals.interop.torchvision.torchvision import (
             TorchVisionClassifier,

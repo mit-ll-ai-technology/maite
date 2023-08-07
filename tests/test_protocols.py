@@ -61,7 +61,7 @@ def test_arraylike():
 
     x = pyright_analyze(func)
     print(x)
-    assert x["summary"]["errorCount"] == 11
+    assert x[0]["summary"]["errorCount"] == 11
 
 
 @pytest.mark.skipif(not is_torch_available(), reason="PyTorch is not installed.")
@@ -80,7 +80,7 @@ def test_torch_arraylike():
         f(_tensor())
 
     x = pyright_analyze(func)
-    assert x["summary"]["errorCount"] == 0
+    assert x[0]["summary"]["errorCount"] == 0
 
 
 @pytest.mark.skipif(not is_numpy_available(), reason="NumPy is not installed.")
@@ -99,7 +99,7 @@ def test_numpy_arraylike():
         f(_numpy())
 
     x = pyright_analyze(func)
-    assert x["summary"]["errorCount"] == 0
+    assert x[0]["summary"]["errorCount"] == 0
 
 
 def test_classifier_workflow():
@@ -135,7 +135,7 @@ def test_classifier_workflow():
         f(dl(), model(), metric())
 
     x = pyright_analyze(func)
-    assert x["summary"]["errorCount"] == 0, x["generalDiagnostics"]
+    assert x[0]["summary"]["errorCount"] == 0, x["generalDiagnostics"]
 
 
 def test_object_detector_workflow():
@@ -171,4 +171,4 @@ def test_object_detector_workflow():
         f(dl(), model(), metric())
 
     x = pyright_analyze(func)
-    assert x["summary"]["errorCount"] == 0
+    assert x[0]["summary"]["errorCount"] == 0

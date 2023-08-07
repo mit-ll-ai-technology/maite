@@ -5,10 +5,7 @@ import numpy as np
 import torch as tr
 from torch.utils._pytree import tree_flatten, tree_unflatten
 
-from jatic_toolbox._internals.interop.utils import (
-    is_numpy_available,
-    is_torch_available,
-)
+from jatic_toolbox._internals.import_utils import is_numpy_available, is_torch_available
 from jatic_toolbox.errors import InvalidArgument
 
 __all__ = ["AugmentationWrapper"]

@@ -22,23 +22,27 @@ all_funcs_and_classes = list(
     ),
 )
 
-
-@pytest.mark.parametrize("obj", all_funcs_and_classes)
-def test_docstrings_scan_clean_via_pyright(obj):
-    if obj.__doc__ is None:
-        pytest.skip("Doesn't have docstring.")
-    if obj is pyright_analyze:
-        pytest.xfail(
-            reason="Examples in pyright_analyze doc is expected contain "
-            "type check errors."
-        )
-
-    results = pyright_analyze(
-        obj,
+PYRIGHT_SCAN_RESULTS = []
+FUNCS_TO_SCAN = [
+    obj
+    for obj in all_funcs_and_classes
+    if obj.__doc__ is not None and obj is not pyright_analyze
+]
+for obj, scan in zip(
+    FUNCS_TO_SCAN,
+    pyright_analyze(
+        *FUNCS_TO_SCAN,
         scan_docstring=True,
         report_unnecessary_type_ignore_comment=True,
         preamble=preamble,
-    )
+    ),
+):
+    PYRIGHT_SCAN_RESULTS.append([obj, scan])
+
+
+@pytest.mark.parametrize("func", PYRIGHT_SCAN_RESULTS)
+def test_docstrings_scan_clean_via_pyright(func):
+    _, results = func
     assert results["summary"]["errorCount"] == 0, list_error_messages(results)
 
 

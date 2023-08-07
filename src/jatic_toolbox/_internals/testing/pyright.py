@@ -6,11 +6,12 @@ import shutil
 import subprocess
 import tempfile
 import textwrap
+from collections import Counter, defaultdict
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Any, DefaultDict, Dict, List, Optional, Union
 
-from typing_extensions import NotRequired, TypedDict
+from typing_extensions import Literal, NotRequired, TypedDict
 
 
 def notebook_to_py_text(path_to_nb: Path) -> str:
@@ -311,16 +312,15 @@ def md_to_code(src: str) -> str:
 
 
 def pyright_analyze(
-    code_or_path: Any,
+    *code_objs_and_or_paths: Any,
     pyright_config: Optional[Dict[str, Any]] = None,
-    *,
     scan_docstring: bool = False,
     path_to_pyright: Union[Path, None] = PYRIGHT_PATH,
     preamble: str = "",
     python_version: Optional[str] = None,
     report_unnecessary_type_ignore_comment: Optional[bool] = None,
     type_checking_mode: Optional[Literal["basic", "strict"]] = None,
-) -> PyrightOutput:
+) -> List[PyrightOutput]:
     r"""
     Scan a Python object, docstring, or file with pyright.
 
@@ -335,7 +335,7 @@ def pyright_analyze(
 
     Parameters
     ----------
-    code_or_path : SourceObjectType | Path
+    *code_objs_and_or_paths : Any
         A function, module-object, class, or method to scan. Or, a path to a file
         to scan. Supported file formats are `.py`, `.rst`, `.md, and `.ipynb`.
 
@@ -374,7 +374,7 @@ def pyright_analyze(
 
     Returns
     -------
-    Dict[str, Any]
+    List[Dict[str, Any]]  (In one-to-one correspondence with `code_objs_and_or_paths`)
         The JSON-decoded results of the scan [3]_.
             - version: str
             - time: str
@@ -417,7 +417,7 @@ def pyright_analyze(
 
     >>> def f(x: str):
     ...     return 1 + x
-    >>> pyright_analyze(f)
+    >>> pyright_analyze(f)[0]
     {'version': '1.1.281',
      'time': '1669686515154',
      'generalDiagnostics': [{'file': 'source.py',
@@ -436,7 +436,7 @@ def pyright_analyze(
 
     >>> def g(x: int) -> int:
     ...     return 1 + x
-    >>> pyright_analyze(g)
+    >>> pyright_analyze(g)[0]
     {'version': '1.1.281',
      'time': '1669686578833',
      'generalDiagnostics': [],
@@ -452,12 +452,12 @@ def pyright_analyze(
     >>> import math  # import statement is not be in scope of `f`
     >>> def f():
     ...     math.acos(1)
-    >>> pyright_analyze(f)["summary"]["errorCount"]
+    >>> pyright_analyze(f)[0]["summary"]["errorCount"]
     1
 
     We can add a 'preamble' do that the `math` module is imported.
 
-    >>> pyright_analyze(f, preamble="import math")["summary"]["errorCount"]
+    >>> pyright_analyze(f, preamble="import math")[0]["summary"]["errorCount"]
     0
 
     Scanning a function's docstring.
@@ -471,7 +471,7 @@ def pyright_analyze(
     ...     3
     ...     '''
     ...     return x + 1
-    >>> pyright_analyze(plus_1, scan_docstring=True)["summary"]["errorCount"]
+    >>> pyright_analyze(plus_1, scan_docstring=True)[0]["summary"]["errorCount"]
     1
 
     Fixing the docstring issue
@@ -485,7 +485,7 @@ def pyright_analyze(
     ...     3
     ...     '''
     ...     return x + 1
-    >>> pyright_analyze(plus_1, scan_docstring=True)["summary"]["errorCount"]
+    >>> pyright_analyze(plus_1, scan_docstring=True)[0]["summary"]["errorCount"]
     0
     """
     if path_to_pyright is None:  # pragma: no cover
@@ -510,76 +510,131 @@ def pyright_analyze(
     if type_checking_mode is not None:
         pyright_config["typeCheckingMode"] = type_checking_mode
 
-    if scan_docstring and (
-        isinstance(code_or_path, (Path, str))
-        or getattr(code_or_path, "__doc__") is None
-    ):
-        raise ValueError(
-            "`scan_docstring=True` can only be specified when `code_or_path` is an "
-            "object with a `__doc__` attribute that returns a string."
-        )
-
-    if isinstance(code_or_path, str):
-        code_or_path = Path(code_or_path)
-
-    if isinstance(code_or_path, Path):
-        code_or_path = code_or_path.resolve()
-        if not code_or_path.exists():
-            raise FileNotFoundError(
-                f"Specified path {code_or_path} does not exist. Cannot be scanned by pyright."
-            )
-        if code_or_path.suffix == ".rst":
-            source = rst_to_code(code_or_path.read_text("utf-8"))
-        elif code_or_path.suffix == ".md":
-            source = md_to_code(code_or_path.read_text("utf-8"))
-        elif code_or_path.suffix == ".ipynb":
-            source = notebook_to_py_text(code_or_path)
-        elif code_or_path.is_file() and code_or_path.suffix != ".py":
+    sources: List[Optional[str]] = []
+    code_objs_and_or_paths_resolved = []
+    for code_or_path in code_objs_and_or_paths:
+        if scan_docstring and (
+            isinstance(code_or_path, (Path, str))
+            or getattr(code_or_path, "__doc__") is None
+        ):
             raise ValueError(
-                f"{code_or_path}: File type {code_or_path.suffix} not supported by "
-                "`pyright_analyze`."
+                "`scan_docstring=True` can only be specified when `code_or_path` is an "
+                "object with a `__doc__` attribute that returns a string."
             )
+
+        if isinstance(code_or_path, str):
+            code_or_path = Path(code_or_path)
+
+        if isinstance(code_or_path, Path):
+            code_or_path = code_or_path.resolve()
+
+            if not code_or_path.exists():
+                raise FileNotFoundError(
+                    f"Specified path {code_or_path} does not exist. Cannot be scanned by pyright."
+                )
+
+            if code_or_path.suffix == ".rst":
+                source = rst_to_code(code_or_path.read_text("utf-8"))
+            elif code_or_path.suffix == ".md":
+                source = md_to_code(code_or_path.read_text("utf-8"))
+            elif code_or_path.suffix == ".ipynb":
+                source = notebook_to_py_text(code_or_path)
+            elif code_or_path.is_file() and code_or_path.suffix != ".py":
+                raise ValueError(
+                    f"{code_or_path}: File type {code_or_path.suffix} not supported by "
+                    "`pyright_analyze`."
+                )
+            else:
+                source = None
         else:
-            source = None
-    else:
-        if preamble and not preamble.endswith("\n"):
-            preamble = preamble + "\n"
-        if not scan_docstring:
-            source = preamble + textwrap.dedent((inspect.getsource(code_or_path)))
-        else:
-            docstring = inspect.getdoc(code_or_path)
-            assert docstring is not None
-            source = preamble + get_docstring_examples(docstring)
+            if preamble and not preamble.endswith("\n"):
+                preamble = preamble + "\n"
+            if not scan_docstring:
+                source = preamble + textwrap.dedent((inspect.getsource(code_or_path)))
+            else:
+                docstring = inspect.getdoc(code_or_path)
+                assert docstring is not None
+                source = preamble + get_docstring_examples(docstring)
+        sources.append(source)
+        code_objs_and_or_paths_resolved.append(code_or_path)
 
     with chdir():
         cwd = Path.cwd()
-        if source is not None:
-            file_ = cwd / "source.py"
-            file_.write_text(source, encoding="utf-8")
-        else:
-            file_ = Path(code_or_path).absolute()
-            if file_ != cwd:
-                cp = shutil.copytree if file_.is_dir() else shutil.copy
-                file_ = cp(file_, cwd / file_.name)
 
-        run_dir = file_.parent if file_.is_file() else file_
-        config_path = run_dir / "pyrightconfig.json"
+        for n, (source, code_or_path) in enumerate(
+            zip(sources, code_objs_and_or_paths_resolved)
+        ):
+            target_dir = cwd / str(n)
+
+            if source is not None:
+                target_dir.mkdir()
+                file_ = target_dir / f"{getattr(code_or_path, '__name__', 'source')}.py"
+                file_.write_text(source, encoding="utf-8")
+            else:
+                file_ = Path(code_or_path).absolute()
+                if file_.is_dir():
+                    file_ = shutil.copytree(file_, target_dir / "SCAN_DIR")
+                elif file_ != cwd:
+                    target_dir.mkdir()
+                    file_ = shutil.copy(file_, target_dir / file_.name)
+
+        config_path = cwd / "pyrightconfig.json"
 
         if pyright_config:
             config_path.write_text(json.dumps(pyright_config))
 
         proc = subprocess.run(
-            [str(path_to_pyright.absolute()), str(file_.absolute()), "--outputjson"],
-            cwd=run_dir,
+            [str(path_to_pyright.absolute()), str(cwd.absolute()), "--outputjson"],
+            cwd=cwd,
             encoding="utf-8",
             text=True,
             capture_output=True,
         )
         try:
-            return json.loads(proc.stdout)
+            scan: PyrightOutput = json.loads(proc.stdout)
         except Exception as e:  # pragma: no cover
             print(proc.stdout)
             raise e
+
+    out = scan["generalDiagnostics"]
+    diagnostics_by_file: DefaultDict[int, List[Diagnostic]] = defaultdict(list)
+
+    for item in out:
+        file_str = item["file"]
+        if "SCAN_DIR" in file_str:
+            name = Path(file_str).name
+            target_dir = file_str.find("SCAN_DIR")
+            file_path = Path(file_str[:target_dir])
+        else:
+            file_path_all = Path(file_str)
+            name = file_path_all.name
+            file_path = file_path_all.parent
+
+        file_index = int(file_path.name)
+        diagnostic = item.copy()
+        diagnostic["file"] = name
+        diagnostics_by_file[file_index].append(diagnostic)
+
+    results: List[PyrightOutput] = []
+
+    for n in range(len(code_objs_and_or_paths)):
+        severities = Counter(d["severity"] for d in diagnostics_by_file[n])
+        summary = Summary(
+            filesAnalyzed=1,
+            errorCount=severities["error"],
+            warningCount=severities["warning"],
+            informationCount=severities["information"],
+            timeInSec=scan["summary"]["timeInSec"],
+        )
+        results.append(
+            PyrightOutput(
+                version=scan["version"],
+                time=scan["time"],
+                generalDiagnostics=diagnostics_by_file[n],
+                summary=summary,
+            )
+        )
+    return results
 
 
 def list_error_messages(results: PyrightOutput) -> List[str]:

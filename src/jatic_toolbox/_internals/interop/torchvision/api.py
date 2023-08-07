@@ -42,6 +42,8 @@ __all__ = ["TorchVisionAPI"]
 def _get_torchvision_dataset(
     dataset_name: str,
 ) -> Callable[..., Sequence[Any]]:
+    from torchvision import datasets
+
     try:
         return getattr(datasets, dataset_name)
     except AttributeError as e:
