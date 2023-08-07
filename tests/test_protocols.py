@@ -1,7 +1,173 @@
+from pathlib import Path
+
 import pytest
 
+import jatic_toolbox.protocols as pr
 from jatic_toolbox._internals.import_utils import is_numpy_available, is_torch_available
+from jatic_toolbox._internals.testing.pyright import chdir
 from jatic_toolbox.testing.pyright import pyright_analyze
+
+
+def define_model(input_type, output_type):
+    return f"""
+from jatic_toolbox.protocols import Model
+from typing import List, Tuple
+{input_type} as InputType
+{output_type} as OutputType
+
+def f(x: Model[[InputType], OutputType]):
+    ...
+
+class ModelNoLabel:
+    def __call__(self, x: InputType) -> OutputType:
+        ...
+
+class GoodModel:
+    def __call__(self, x: InputType) -> OutputType:
+        ...
+    def get_labels(self) -> List[str]:
+        ...
+
+class BadInputModel:
+    def __call__(self, x: InputType, y: str) -> OutputType:
+        ...
+    def get_labels(self) -> List[str]:
+        ...
+
+class BadOutputModel:
+    def __call__(self, x: InputType) -> Tuple[OutputType, str]:
+        ...
+    def get_labels(self) -> List[str]:
+        ...
+
+
+f(ModelNoLabel())
+f(BadInputModel())
+f(BadOutputModel())
+f(GoodModel())
+"""
+
+
+def save_models():
+    inputs = [
+        "from builtins import int",
+        "from jatic_toolbox.protocols import ArrayLike",
+        "from jatic_toolbox.protocols import SupportsArray",
+    ]
+    outputs = [
+        "from builtins import int",
+        "from jatic_toolbox.protocols import HasProbs",
+        "from jatic_toolbox.protocols import HasLogits",
+    ]
+
+    with chdir():
+        for i, (input, output) in enumerate(zip(inputs, outputs)):
+            Path(f"f_{i}.py").write_text(define_model(input, output))
+
+        fs = [f for f in Path.cwd().iterdir() if f.name.endswith(".py")]
+        results = pyright_analyze(*fs)
+        return zip(inputs, outputs, results)
+
+
+@pytest.mark.parametrize("input, output, result", save_models())
+def test_model(input, output, result):
+    assert result["summary"]["errorCount"] == 3
+
+
+@pytest.mark.parametrize("protocol", [pr.Model, pr.ImageClassifier, pr.ObjectDetector])
+def test_model_isinstance(protocol):
+    class A:
+        ...
+
+    class B:
+        def get_labels(self):
+            ...
+
+    assert not isinstance(A, protocol)
+    assert isinstance(B, protocol)
+
+
+def define_metrics(input_type, output_type):
+    return f"""
+from jatic_toolbox.protocols import Model
+from typing import List, Tuple
+{input_type} as InputType
+{output_type} as OutputType
+
+def f(x: Metrics[[InputType], OutputType]):
+    ...
+
+class MetricNone:
+    ...
+
+class BadMetric:
+    def reset(self): ...
+    def update(self, x: OutputType): ...
+    def compute(self) -> InputType: ...
+    def to(self, device): ...
+
+class GoodMetric:
+    def reset(self): ...
+    def update(self, x: InputType): ...
+    def compute(self) -> OutputType: ...
+    def to(self, device): ...
+
+f(MetricNone())
+f(Badmetric())
+f(GoodMetric())
+    """
+
+
+def save_metrics():
+    inputs = [
+        "from builtins import int",
+        "from jatic_toolbox.protocols import ArrayLike",
+        "from jatic_toolbox.protocols import SupportsArray",
+    ]
+    outputs = [
+        "from builtins import int",
+        "from jatic_toolbox.protocols import HasProbs",
+        "from jatic_toolbox.protocols import HasLogits",
+    ]
+
+    with chdir():
+        for i, (input, output) in enumerate(zip(inputs, outputs)):
+            Path(f"f_{i}.py").write_text(define_metrics(input, output))
+
+        fs = [f for f in Path.cwd().iterdir() if f.name.endswith(".py")]
+        results = pyright_analyze(*fs)
+        return zip(inputs, outputs, results)
+
+
+@pytest.mark.parametrize("input, output, result", save_metrics())
+def test_metrics(input, output, result):
+    assert result["summary"]["errorCount"] == 2
+
+
+def test_metric_isinstance():
+    class A:
+        ...
+
+    class B:
+        def reset(self):
+            ...
+
+        def update(self, x: int):
+            ...
+
+        def compute(self) -> str:
+            ...
+
+        def to(self, device):
+            ...
+
+    assert not isinstance(A, pr.Metric)
+    assert isinstance(B, pr.Metric)
+
+
+#
+# TODO: Phase out tests below for batch-like
+#
 
 
 def test_arraylike():

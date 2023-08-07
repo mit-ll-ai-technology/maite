@@ -20,39 +20,35 @@ developers are encouraged to adopt these protocols. However, it is advisable for
 incorporating the protocols into their own code to prevent unnecessary complexity and to prioritize static
 type checking with interfaces. Minimal validation should be emphasized, especially when speed is not a primary concern.
 
-The toolbox protocols aim to help define the following workflow:
+The toolbox protocols aim to help define and self-document code to make it easier to understand and use across different
+tasks. They also help to ensure that code is compatible with the toolbox, making it easier to integrate new models,
+datasets, and metrics. The protocols are designed to be flexible and extensible, allowing developers to define
+interfaces that are specific to their needs while still being compatible with the toolbox.
+
+An example workflow defined purely with toolbox protocols is shown below. This workflow explicitly defines the
+inputs to the workflow along with the requirements on the interfaces of objects such as models, datasets, and metrics.
 
 .. code-block:: python
 
-   data: VisionDataset = load_data_from_dataset()
+   def my_workflow(
+      data: DataLoader[SupportsImageClassification],
+      model: Model[[SupportsArray], HasProbs],
+      metric: Metric[[HasProbs, HasDataLabel], float]
+   ):
+      metric.reset()  # <-- expects this method
+      for batch in data:
+         # batch is a dictionary with keys "image" and "label"
+         image: SupportsArray = batch["image"]
 
-   # A developer should just expect the
-   # following is true for a vision datasets output:
-   assert isinstance(data, dict)
-   assert "image" in data
-   assert isinstance(data["image"], Tensor)
+         # model_output is a dictionary with keys "probs" and "logits"
+         model_output: HasProbs = model(image)
 
-   model: ImageClassifier = load_model()
+         # metric.update expects a dictionary with "label" and
+         # and a named attributed with "probs"
+         metric.update(model_output, batch) 
 
-   # should be able to get labels from model
-   assert hasattr(model, "get_labels")
-   labelids = model.get_labels()
+      return metric.compute()  # <-- expects this method
 
-   # runs on an image, list of images, or batch of images
-   image: SupportsArray = data["image"]
-   model_output: HasProbs = model("image")
-
-   # a developer should just expect the following 
-   # is true to support accuracy metrics
-   assert hasattr(model_output, "probs")
-   assert isinstance(dmodel_output.probs, Tensor)
-   
-   # a developer should just expect the following
-   # is true to support accuracy metrics for vision datasets
-   assert "label" in data
-   assert isinstance(data["label"], Tensor)
-   
-   accuracy(model_output.probs, data["label"])
 
 By explicitly defining the types of inputs and outputs, these protocols help users avoid common
 errors and make debugging easier. They also facilitate the integration of new models, datasets,
@@ -158,7 +154,7 @@ as arguments. This can help catch errors before they cause problems at runtime.
          assert array_like(np.asarray(array))
          assert array_like([np.asarray(array)])
 
-      out = pyright_analyze(test_array_like)
+      out = pyright_analyze(test_array_like)[0]
       assert out["summary"]["errorCount"] == 5, out["summary"]["errorCount"]
 
 
@@ -261,7 +257,8 @@ have an "image" key. For metrics like accuracy, a data object must have a "label
          supports_image({"not_image": array})  # does not pass pyright
          supports_image({"image": array})  # passes pyright
 
-      assert pyright_analyze(test_supports_image)["summary"]["errorCount"] == 3, pyright_analyze(test_supports_image)["summary"]["errorCount"]
+      results = pyright_analyze(test_supports_image)[0]
+      assert results["summary"]["errorCount"] == 3, results["summary"]["errorCount"]
 
 
 Model Objects
@@ -276,68 +273,42 @@ or a "predictions" output containing "scores" and "labels" attributes.
 
 .. code-block:: python
 
-   @runtime_checkable
    class HasLabel(Protocol):
       label: SupportsArray
 
 
-   @runtime_checkable
    class HasBoxes(Protocol):
       boxes: SupportsArray
 
 
-   @runtime_checkable
    class HasLogits(Protocol):
       logits: SupportsArray
 
 
-   @runtime_checkable
    class HasProbs(Protocol):
       probs: SupportsArray
 
 
-   @runtime_checkable
    class HasScores(Protocol):
       scores: SupportsArray
       labels: SupportsArray
 
 
-   @runtime_checkable
-   class HasDetectionLogits(HasBoxes, HasLogits, Protocol):
-      ...
-
-
-   @runtime_checkable
-   class HasDetectionProbs(HasProbs, HasBoxes, Protocol):
-      ...
-
-
-   @runtime_checkable
-   class HasDetectionPredictions(HasBoxes, HasScores, Protocol):
-      ...
+   class HasDetectionLogits(HasBoxes, HasLogits, Protocol): ...
+   class HasDetectionProbs(HasProbs, HasBoxes, Protocol): ...
+   class HasDetectionPredictions(HasBoxes, HasScores, Protocol):  ...
 
 **Models**
 
 .. code-block:: python
 
-   @runtime_checkable
-   class Model(Protocol):
-      def get_labels(self) -> Sequence[str]:
-         ...
+   class Model(Protocol[P, T]):
+      __call__: Callable[P, T]
+      def get_labels(self) -> Sequence[str]: ...
 
+   ImageClassifier = Model[[SupportsArray], Union[HasLogits, HasProbs, HasScores]]
+   ObjectDetector = Model[[SupportsArray], Union[HasDetectionLogits, HasDetectionProbs, HasDetectionPredictions]]
 
-   @runtime_checkable
-   class ImageClassifier(Model, Protocol):
-      def __call__(self, data: SupportsArray) -> Union[HasLogits, HasProbs, HasScores]:
-         ...
-
-
-   @runtime_checkable
-   class ObjectDetector(Model, Protocol):
-      def __call__(
-         self, data: SupportsArray
-      ) -> Union[HasDetectionLogits, HasDetectionProbs, HasDetectionPredictions]:
-         ...
 
 .. dropdown:: Validation
 
@@ -402,7 +373,7 @@ or a "predictions" output containing "scores" and "labels" attributes.
 
          supports_probs(DummyOutput(array))  # passes pyright
 
-      assert pyright_analyze(test_supports_probs)["summary"]["errorCount"] == 3
+      assert pyright_analyze(test_supports_probs)[0]["summary"]["errorCount"] == 3
 
 Metric Protocol
 ---------------
@@ -414,19 +385,11 @@ at the end of the evaluation loop to return the final metric value.
 
 .. code-block:: python
 
-   @runtime_checkable
-   class Metric(Protocol):
-      def reset(self) -> None:
-         ...
-
-      def update(self, *args: Any, **kwargs: Any) -> None:
-         ...
-
-      def compute(self) -> Any:
-         ...
-
-      def to(self, *args: Any, **kwargs: Any) -> Self:
-         ...
+   class Metric(Protocol[P, T]):
+      reset: Callable[[], None]
+      update: Callable[[P], None]
+      compute: Callable[[], T]
+      to: Callable[..., Self]
 
 
 .. dropdown:: Metric Object Examples
@@ -451,7 +414,7 @@ at the end of the evaluation loop to return the final metric value.
 
         if TYPE_CHECKING:
 
-            def supports_metric(x: pr.Metric):
+            def supports_metric(x: pr.Metric[[ArrayLike, ArrayLike], float]) -> None:
                 ...
 
             supports_metric(metric)  # passes

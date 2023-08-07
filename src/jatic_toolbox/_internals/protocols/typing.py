@@ -1,11 +1,11 @@
-from typing import Any, Iterator, Protocol, Sequence, TypeVar, Union, runtime_checkable
+from __future__ import annotations
+
+from typing import Any, Iterable, Protocol, Sequence, TypeVar, Union, runtime_checkable
 
 from typing_extensions import ParamSpec, Self, TypeAlias, TypedDict
 
 T = TypeVar("T")
 T_co = TypeVar("T_co", covariant=True)
-T_cont = TypeVar("T_cont", contravariant=True)
-T2 = TypeVar("T2")
 P = ParamSpec("P")
 
 
@@ -16,16 +16,14 @@ class ArrayLike(Protocol):
 
     Examples
     --------
-    Create a fake array-like object.
+
+    Arrays like NumPy NDArray objects are `ArrayLike` along
+    with PyTorch and JAX tensors.
 
     >>> import numpy as np
     >>> array_like: ArrayLike = np.ones((3, 224, 224))
-
-    Validate with a type checker.
-
-    >>> def supports_array_like(array_like: ArrayLike) -> None:
-    ...     pass
-    >>> supports_array_like(array_like)  # passes
+    >>> isinstance(array_like, ArrayLike)
+    True
     """
 
     def __array__(self) -> Any:
@@ -58,11 +56,20 @@ class HasDataImage(TypedDict):
     >>> image = np.ones((3, 224, 224))
     >>> data: HasDataImage = {'image': image}
 
-    Validate with a type checker.
+    For ``TypedDict`` types, validation cannot be done
+    with `isinstance`. The simple checks are
 
-    >>> def supports_has_data_image(data: HasDataImage) -> None:
-    ...     pass
-    >>> supports_has_data_image(data)  # passes
+    >>> isinstance(data, dict)
+    True
+    >>> "image" in data
+    True
+
+    The toolbox comes with a helper function that can do
+    both of these checks:
+
+    >>> from jatic_toolbox.protocols import is_typed_dict
+    >>> is_typed_dict(data, HasDataImage)
+    True
     """
 
     image: SupportsArray
@@ -85,11 +92,20 @@ class HasDataLabel(TypedDict):
     >>> label = np.array(1)
     >>> data: HasDataLabel = {'label': label}
 
-    Validate with a type checker.
+    For ``TypedDict`` types, validation cannot be done
+    with `isinstance`. The simple checks are
 
-    >>> def supports_has_data_label(data: HasDataLabel) -> None:
-    ...     pass
-    >>> supports_has_data_label(data)  # passes
+    >>> isinstance(data, dict)
+    True
+    >>> "label" in data
+    True
+
+    The toolbox comes with a helper function that can do
+    both of these checks:
+
+    >>> from jatic_toolbox.protocols import is_typed_dict
+    >>> is_typed_dict(data, HasDataLabel)
+    True
     """
 
     label: Union[int, SupportsArray, Sequence[int]]
@@ -112,11 +128,20 @@ class HasDataBoxes(TypedDict):
     >>> boxes = np.array([[0, 0, 1, 1]])
     >>> data: HasDataBoxes = {'boxes': boxes}
 
-    Validate with a type checker.
+    For ``TypedDict`` types, validation cannot be done
+    with `isinstance`. The simple checks are
 
-    >>> def supports_has_data_boxes(data: HasDataBoxes) -> None:
-    ...     pass
-    >>> supports_has_data_boxes(data)  # passes
+    >>> isinstance(data, dict)
+    True
+    >>> "boxes" in data
+    True
+
+    The toolbox comes with a helper function that can do
+    both of these checks:
+
+    >>> from jatic_toolbox.protocols import is_typed_dict
+    >>> is_typed_dict(data, HasDataBoxes)
+    True
     """
 
     boxes: SupportsArray
@@ -143,11 +168,20 @@ class HasDataBoxesLabels(HasDataBoxes):
     >>> labels = np.array([1])
     >>> data: HasDataBoxesLabels = {'boxes': boxes, 'labels': labels}
 
-    Validate with a type checker.
+    For ``TypedDict`` types, validation cannot be done
+    with `isinstance`. The simple checks are
 
-    >>> def supports_has_data_boxes_labels(data: HasDataBoxesLabels) -> None:
-    ...     pass
-    >>> supports_has_data_boxes_labels(data)  # passes
+    >>> isinstance(data, dict)
+    True
+    >>> "boxes" in data and "labels" in data
+    True
+
+    The toolbox comes with a helper function that can do
+    both of these checks:
+
+    >>> from jatic_toolbox.protocols import is_typed_dict
+    >>> is_typed_dict(data, HasDataBoxesLabels)
+    True
     """
 
     labels: Union[Sequence[int], SupportsArray]
@@ -171,11 +205,20 @@ class HasDataObjects(TypedDict):
     >>> data: HasDataBoxesLabels = {'boxes': boxes, 'labels': labels}
     >>> objects: HasDataObjects = {'objects': data}
 
-    Validate with a type checker.
+    For ``TypedDict`` types, validation cannot be done
+    with `isinstance`. The simple checks are
 
-    >>> def supports_has_data_objects(data: HasDataObjects) -> None:
-    ...     pass
-    >>> supports_has_data_objects(objects)  # passes
+    >>> isinstance(data, dict)
+    True
+    >>> "objects" in data
+    True
+
+    The toolbox comes with a helper function that can do
+    both of these checks:
+
+    >>> from jatic_toolbox.protocols import is_typed_dict
+    >>> is_typed_dict(data, HasDataObjects)
+    True
     """
 
     objects: Union[HasDataBoxesLabels, Sequence[HasDataBoxesLabels]]
@@ -201,11 +244,20 @@ class SupportsImageClassification(HasDataImage, HasDataLabel):
     >>> label = np.array([1])
     >>> data: SupportsImageClassification = {'image': image, 'label': label}
 
-    Validate with a type checker.
+    For ``TypedDict`` types, validation cannot be done
+    with `isinstance`. The simple checks are
 
-    >>> def supports_has_data_image_classification(data: SupportsImageClassification) -> None:
-    ...     pass
-    >>> supports_has_data_image_classification(data)  # passes
+    >>> isinstance(data, dict)
+    True
+    >>> "image" in data and "label" in data
+    True
+
+    The toolbox comes with a helper function that can do
+    both of these checks:
+
+    >>> from jatic_toolbox.protocols import is_typed_dict
+    >>> is_typed_dict(data, SupportsImageClassification)
+    True
     """
 
     ...
@@ -233,11 +285,20 @@ class SupportsObjectDetection(HasDataImage, HasDataObjects):
     >>> data: HasDataBoxesLabels = {'boxes': boxes, 'labels': labels}
     >>> batch: SupportsObjectDetection = {'image': image, 'objects': data}
 
-    Validate with a type checker.
+    For ``TypedDict`` types, validation cannot be done
+    with `isinstance`. The simple checks are
 
-    >>> def supports_has_data_objects(data: SupportsObjectDetection) -> None:
-    ...     pass
-    >>> supports_has_data_objects(batch)  # passes
+    >>> isinstance(data, dict)
+    True
+    >>> "image" in data and "objects" in data
+    True
+
+    The toolbox comes with a helper function that can do
+    both of these checks:
+
+    >>> from jatic_toolbox.protocols import is_typed_dict
+    >>> is_typed_dict(data, SupportsObjectDetection)
+    True
     """
 
     ...
@@ -327,11 +388,7 @@ class ObjectDetectionDataset(Dataset[SupportsObjectDetection], Protocol):
 # DataLoading
 #
 
-
-@runtime_checkable
-class DataLoader(Protocol[T_co]):
-    def __iter__(self) -> Iterator[T_co]:
-        ...
+DataLoader = Iterable[T]
 
 
 @runtime_checkable
@@ -345,33 +402,45 @@ class ObjectDetectionDataLoader(DataLoader[SupportsObjectDetection], Protocol):
 
 
 @runtime_checkable
-class Augmentation(Protocol[T]):
-    def __call__(self, input: T) -> T:
+class Augmentation(Protocol[P, T_co]):
+    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> T_co:
         """
-        Augmentation Protocol.
+        A generic augmenation protocol.
 
         Parameters
         ----------
-        input : T
-            Input data.
+        *args : P.args
+            The arguments for the augmentation.
+        **kwargs : P.kwargs
+            The keyword arguments for the augmentation.
 
         Returns
         -------
-        output : T
-            Augmented data.
+        T_co : Covariant type
+            The augmented data output.
 
         Examples
         --------
-        Create a fake augmentation.
 
-        >>> def augment(data: SupportsImageClassification) -> SupportsImageClassification:
-        ...     return data
+        Lets start with a simple augmentation that takes an image and returns an image.
 
-        Validate with a type checker.
+        >>> import numpy as np
+        >>> def my_augmentation(image: np.ndarray) -> np.ndarray:
+        ...     return image * 0.1
 
-        >>> def supports_augmentation(augmentation: Augmentation) -> None:
-        ...     pass
-        >>> supports_augmentation(augment)  # passes
+        Now we want to define a workflow that uses this type of augmentation interface
+        but allow users to create variations on the augmentation. We can use the
+        `Augmentation` protocol to define the expected in inputs and outputs of the expected
+        augmentation function.
+
+        >>> def my_workflow(image: np.ndarray, augmentation: Augmentation[[np.ndarray], np.ndarray]) -> np.ndarray:
+        ...     return augmentation(image)
+
+        Now we can use the workflow with the augmentation.
+
+        >>> image = np.ones((3, 224, 224))
+        >>> my_workflow(image, my_augmentation)
+        array([[[0.1, 0.1, 0.1, ..., 0.1, 0.1, 0.1],
         """
         ...
 
@@ -400,13 +469,14 @@ class HasLabel(Protocol):
     >>> @dataclass
     ... class FakeData:
     ...     label: SupportsArray
-    >>> data = FakeData(np.array([1]))
+    >>> data: HasLabel = FakeData(np.array([1]))
+    >>> isinstance(data, HasLabel)
+    True
 
-    Validate with a type checker.
+    The ``isinstance`` check is the same as doing the following:
 
-    >>> def supports_has_label(data: HasLabel) -> None:
-    ...     pass
-    >>> supports_has_label(data)  # passes
+    >>> hasattr(data, "label")
+    True
     """
 
     label: SupportsArray
@@ -431,13 +501,14 @@ class HasBoxes(Protocol):
     >>> @dataclass
     ... class FakeData:
     ...     boxes: SupportsArray
-    >>> data = FakeData(np.array([[0, 0, 1, 1]]))
+    >>> data: HasBoxes = FakeData(np.array([[0, 0, 1, 1]]))
+    >>> isinstance(data, HasBoxes)
+    True
 
-    Validate with a type checker.
+    The ``isinstance`` check is the same as doing the following:
 
-    >>> def supports_has_boxes(data: HasBoxes) -> None:
-    ...     pass
-    >>> supports_has_boxes(FakeData)  # passes
+    >>> hasattr(data, "boxes")
+    True
     """
 
     boxes: SupportsArray
@@ -462,13 +533,14 @@ class HasLogits(Protocol):
     >>> @dataclass
     ... class FakeData:
     ...     logits: SupportsArray
-    >>> data = FakeData(np.array([0.5]))
+    >>> data: HasLogits = FakeData(np.array([0.5]))
+    >>> isinstance(data, HasLogits)
+    True
 
-    Validate with a type checker.
+    The ``isinstance`` check is the same as doing the following:
 
-    >>> def supports_has_logits(data: HasLogits) -> None:
-    ...     pass
-    >>> supports_has_logits(data)  # passes
+    >>> hasattr(data, "logits")
+    True
     """
 
     logits: SupportsArray
@@ -494,12 +566,13 @@ class HasProbs(Protocol):
     ... class FakeData:
     ...     probs: SupportsArray
     >>> data = FakeData(np.array([0.5]))
+    >>> isinstance(data, HasProbs)
+    True
 
-    Validate with a type checker.
+    The ``isinstance`` check is the same as doing the following:
 
-    >>> def supports_has_probs(data: HasProbs) -> None:
-    ...     pass
-    >>> supports_has_probs(data)  # passes
+    >>> hasattr(data, "probs")
+    True
     """
 
     probs: SupportsArray
@@ -531,12 +604,13 @@ class HasScores(Protocol):
     ...     scores: SupportsArray
     ...     labels: SupportsArray
     >>> data = FakeData(np.array([0.5]), np.array([1]))
+    >>> isinstance(data, HasScores)
+    True
 
-    Validate with a type checker.
+    The ``isinstance`` check is the same as doing the following:
 
-    >>> def supports_has_scores(data: HasScores) -> None:
-    ...     pass
-    >>> supports_has_scores(data)  # passes
+    >>> hasattr(data, "scores") and hasattr(data, "labels")
+    True
     """
 
     scores: SupportsArray
@@ -566,12 +640,12 @@ class HasDetectionLogits(HasBoxes, HasLogits, Protocol):
     ...     logits: SupportsArray
     ...     boxes: SupportsArray
     >>> data = FakeData(np.array([0.5]), np.array([[0, 0, 1, 1]]))
+    >>> isinstance(data, HasDetectionLogits)
 
-    Validate with a type checker.
+    The ``isinstance`` check is the same as doing the following:
 
-    >>> def supports_has_detection_logits(data: HasDetectionLogits) -> None:
-    ...     pass
-    >>> supports_has_detection_logits(data)  # passes
+    >>> hasattr(data, "logits") and hasattr(data, "boxes")
+    True
     """
 
     ...
@@ -600,12 +674,13 @@ class HasDetectionProbs(HasProbs, HasBoxes, Protocol):
     ...     probs: SupportsArray
     ...     boxes: SupportsArray
     >>> data = FakeData(np.array([0.5]), np.array([[0, 0, 1, 1]]))
+    >>> isinstance(data, HasDetectionProbs)
+    True
 
-    Validate with a type checker.
+    The ``isinstance`` check is the same as doing the following:
 
-    >>> def supports_has_detection_probs(data: HasDetectionProbs) -> None:
-    ...     pass
-    >>> supports_has_detection_probs(data)  # passes
+    >>> hasattr(data, "probs") and hasattr(data, "boxes")
+    True
     """
 
     ...
@@ -639,12 +714,13 @@ class HasDetectionPredictions(HasBoxes, HasScores, Protocol):
     ...     labels: SupportsArray
     ...     boxes: SupportsArray
     >>> data = FakeData(np.array([0.5]), np.array([1]), np.array([[0, 0, 1, 1]]))
+    >>> isinstance(data, HasDetectionPredictions)
+    True
 
-    Validate with a type checker.
+    The ``isinstance`` check is the same as doing the following:
 
-    >>> def supports_has_detection_predictions(data: HasDetectionPredictions) -> None:
-    ...     pass
-    >>> supports_has_detection_predictions(data)  # passes
+    >>> hasattr(data, "scores") and hasattr(data, "labels") and hasattr(data, "boxes")
+    True
     """
 
     ...
@@ -656,20 +732,78 @@ Models
 
 
 @runtime_checkable
-class Model(Protocol[T_cont, T_co]):
+class Model(Protocol[P, T_co]):
     """
     A protocol for models.
 
     Methods
     -------
-    __call__(data: T_cont) -> T_co
-        Run inference on the data.
+    __call__: Callable[P, T]
+        Run inference on the data.  The input data can be anything
+        while the output data is covariant.
 
     get_labels() -> Sequence[str]
         Returns the labels for the model.
+
+
+    Examples
+    --------
+
+    Here we define a model that takes in a numpy NDArray and returns a numpy NDArray.
+
+    >>> from numpy.typing import NDArray
+    >>> NDArrayModelType = Model[[NDArray], NDArray]
+
+    Here we define a model that takes in a numpy NDArray and returns a dataclass with logits.
+
+    >>> LogitsModelType = Model[[NDArray], HasLogits]
+
+    We can use different variations on inputs and outputs too. In the following
+    model we take in a numpy NDArray and a dictionary and return a tuple of a numpy NDArray
+    and a dataclass with probabilities.
+
+    >>> from typing import Dict, Any, Tuple
+    >>> TupleModelType = Model[[NDArray, Dict[str, Any]], Tuple[NDArray, HasProbs]]
+
+    This protocol allows users to explicitly define the inputs and outputs of their models
+    for a given task.  By using the following approach to defining a given workflow for a task
+    we see that protocols help self-document the code.
+
+    >>> def my_task(model: Model[[NDArray], HasProbs], data: NDArray) -> HasProbs:
+    ...     return model(data)
+
+    We see that the type hints for the model and data are self-documenting.  We can also
+    see that the return type is a dataclass with probabilities.  This is a great way to
+    document the code and make it easier for others to understand what is going on.
+
+    For example if we define our model as:
+
+    >>> from dataclasses import dataclass
+    >>> @dataclass
+    ... class MyHasProbs:
+    ...     probs: SupportsArray
+
+    >>> from typing import Sequence
+    >>> class MyModel:
+    ...     def __call__(self, data: SupportsArray) -> MyHasProbs:
+    ...         return MyHasProbs(data)
+    ...     def get_labels(self) -> Sequence[str]:
+    ...         return ["0", "1"]
+    >>> my_model = MyModel()
+    >>> isinstance(my_model, Model)
+    True
+
+    Then we can use it in our task as follows:
+
+    >>> import numpy as np
+    >>> my_task(my_model, np.array([0.5]))
+    MyHasProbs(probs=array([0.5]))
+
+    A typechecker would validate that `my_model` implements the interface
+    defined in ``my_task``.
     """
 
-    def __call__(self, data: T_cont) -> T_co:
+    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> T_co:
         """Run inference on the data."""
         ...
 
@@ -679,16 +813,13 @@ class Model(Protocol[T_cont, T_co]):
 
 
 @runtime_checkable
-class ImageClassifier(
-    Model[SupportsArray, Union[HasLogits, HasProbs, HasScores]],
-    Protocol,
-):
+class ImageClassifier(Model[P, Union[HasLogits, HasProbs, HasScores]], Protocol[P]):
     """
     An image classifier model that takes in an image and returns logits, probabilities, or scores.
 
     Methods
     -------
-    __call__(data: SupportsArray) -> Union[HasLogits, HasProbs, HasScores]
+    __call__: Callable[[SupportsArray], Union[HasLogits, HasProbs, HasScores]]
         Run inference on the data.
 
     get_labels() -> Sequence[str]
@@ -713,14 +844,8 @@ class ImageClassifier(
     ...         return FakeData(np.array([0.5, 0.5]))
     ...     def get_labels(self) -> Sequence[str]:
     ...         return ["cat", "dog"]
-    >>> model: ImageClassifier = FakeModel()
+    >>> model = FakeModel()
     >>> output: HasLogits = model(np.zeros((2, 3, 224, 224)))
-
-    Validate with a type checker.
-
-    >>> def supports_image_classifier(model: ImageClassifier) -> None:
-    ...     pass
-    >>> supports_image_classifier(FakeModel())  # passes
     """
 
     ...
@@ -729,13 +854,21 @@ class ImageClassifier(
 @runtime_checkable
 class ObjectDetector(
     Model[
-        SupportsArray,
+        P,
         Union[HasDetectionLogits, HasDetectionProbs, HasDetectionPredictions],
     ],
-    Protocol,
+    Protocol[P],
 ):
     """
     An object detector model that takes in an image and returns logits, probabilities, or predictions.
+
+    Methods
+    -------
+    __call__: Callable[P, Union[HasDetectionLogits, HasDetectionProbs, HasDetectionPredictions]]
+        Run inference on the data.
+
+    get_labels() -> Sequence[str]
+        Returns the labels for the model.
 
     Examples
     --------
@@ -757,76 +890,130 @@ class ObjectDetector(
     ...         return FakeData(np.array([0.5]), np.array([[0, 0, 1, 1]]))
     ...     def get_labels(self) -> Sequence[str]:
     ...         return ["cat", "dog"]
-    >>> model: ObjectDetector = FakeModel()
+    >>> model: ObjectDetector[SupportsArray] = FakeModel()
     >>> output: HasDetectionLogits = model(np.zeros((2, 3, 224, 224)))
 
-    Validate with a type checker.
+    One can also be more specific on the types:
 
-    >>> def supports_object_detector(model: ObjectDetector) -> None:
-    ...     pass
-    >>> supports_object_detector(model)  # passes
+    >>> from numpy.typing import NDArray
+    >>> class FakeModel2:
+    ...     def __call__(self, data: NDArray) -> HasDetectionLogits:
+    ...         return FakeData(np.array([0.5]), np.array([[0, 0, 1, 1]]))
+    ...     def get_labels(self) -> Sequence[str]:
+    ...         return ["cat", "dog"]
+    >>> model2: ObjectDetector[NDArray] = FakeModel2()
+    >>> output: HasDetectionLogits = model2(np.zeros((2, 3, 224, 224)))
     """
 
     ...
 
 
 """
-Metric protocol is based off of:
-  - `torchmetrics`
-  - `torcheval`
+Metrics
 """
-
-# TODO: Add updates to support our protocols
 
 
 @runtime_checkable
-class Metric(Protocol):
+class Metric(Protocol[P, T_co]):
     """
-    A protocol for metrics.
+    A generic protocol for metrics.
+
+    This protocol follows the approach outlined for both
+    ``torchmetrics`` [1]_ and ``torcheval`` [2]_.  Their
+    approach allows metrics to hold state, be transferred
+    to a device, and utilize distributed frameworks by
+    automatically handling the synchronization of state.
 
     Methods
     -------
-    reset() -> None
+    reset : Callable[[], None]
         Resets the metric.
 
-    update(*args: Any, **kwargs: Any) -> None
+    update : Callable[[P], None]
         Updates the metric.
 
-    compute() -> Any
+    compute : Callable[[], T_co]
         Computes the metric.
 
-    to(*args: Any, **kwargs: Any) -> Self
+    to : Callable[[Any], Self]
         Transfers the metric to a device.
+        TODO: Determine if this method is required
 
     Examples
     --------
-    Create a fake metric.
 
+    Since we are working with a generic protocol we can define
+    different metrics that handle different types of inputs and
+    outputs.  For example, we can define a metric that takes in
+    a numpy NDArray and returns a numpy NDArray.
+
+    >>> from numpy.typing import NDArray
+    >>> MyMetricProtocol = Metric[[NDArray], NDArray]
+
+    An implementation of this metric would be as follows:
+
+    >>> import numpy as np
     >>> from typing import Any
-    >>> from typing_extensions import Self
-    >>> class FakeMetric:
-    ...     def reset(self) -> None:
-    ...         pass
-    ...     def update(self, *args: Any, **kwargs: Any) -> None:
-    ...         pass
-    ...     def compute(self) -> float:
-    ...         return 0.5
-    ...     def to(self, *args: Any, **kwargs: Any) -> Self:
+    >>> class MyMetric:
+    ...     def __init__(self):
+    ...         self._state = np.array([0.0])
+    ...     def to(self, device: Any):
     ...         return self
-    >>> metric: Metric = FakeMetric()
+    ...     def reset(self):
+    ...         self._state = np.array([0.0])
+    ...     def update(self, data: NDArray):
+    ...         self._state += data
+    ...     def compute(self) -> NDArray:
+    ...         return self._state
+    >>> my_metric = MyMetric()
+    >>> isinstance(my_metric, Metric)
+    True
 
-    Validate with a type checker.
+    In general we will have inputs to the metric that are extracted
+    from the dataset and the model output:
 
-    >>> def supports_metric(metric: Metric) -> None:
-    ...     pass
-    >>> supports_metric(FakeMetric())  # passes
+    >>> AccuracyLikeMetric = Metric[[HasLogits, HasDataLabel], ArrayLike]
+
+    For example,
+
+    >>> class AccuracyLike:
+    ...     def __init__(self):
+    ...         self._state = np.array([0.0])
+    ...     def to(self, device: Any):
+    ...         return self
+    ...     def reset(self):
+    ...         self._state = np.array([0.0])
+    ...     def update(self, model_output: HasLogits, batch_data: HasDataLabel):
+    ...         self._state += np.mean(model_output.logits == batch_data["label"])
+    ...     def compute(self) -> ArrayLike:
+    ...         return self._state
+
+    Similar to the :class:``~jatic_toolbox.protocol.Model`` protocol, we can utilize this protocol to self-document
+    our interfaces for different tasks.  For example, if we are working on a classification
+    task we can define our metric as follows:
+
+    >>> def classification_task(
+    ...     model: Model[[SupportsArray], HasProbs],
+    ...     data: DataLoader[SupportsImageClassification],
+    ...     metric: Metric[[HasProbs, HasDataLabel], ArrayLike],
+    ... ) -> ArrayLike:
+    ...     metric.reset()
+    ...     for batch in data:
+    ...         model_output = model(batch["image"])
+    ...         metric.update(model_output, batch)
+    ...     return metric.compute()
+
+    References
+    ----------
+    .. [1] https://torchmetrics.readthedocs.io/en/stable/
+    .. [2] https://pytorch.org/torcheval/stable/
     """
 
     def reset(self) -> None:
         """Resets the metric."""
         ...
 
-    def update(self, *args: Any, **kwargs: Any) -> None:
+    def update(self, *args: P.args, **kwargs: P.kwargs) -> None:
         """
         Updates the metric.
 
@@ -839,7 +1026,7 @@ class Metric(Protocol):
         """
         ...
 
-    def compute(self) -> Any:
+    def compute(self) -> T_co:
         """
         Computes the metric.
 

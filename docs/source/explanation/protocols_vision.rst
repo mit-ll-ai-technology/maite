@@ -118,13 +118,12 @@ have a `shape` attribute that is a tuple of integers.
 
     Shape = TypeVarTuple("Shape")
 
-    @runtime_checkable
-    class ArrayLike(Protocol[Unpack[Shape]]):
+    class ArrayLike(Protocol[*Shape]):
         def __array__(self) -> Any:
             ...
 
         @property
-        def shape(self) -> tuple[Unpack[Shape]]:
+        def shape(self) -> tuple[*Shape]:
             ...
 
 .. dropdown:: ArrayLike Examples
@@ -155,6 +154,12 @@ have a `shape` attribute that is a tuple of integers.
 
 Explicitly Typed Arrays
 -----------------------
+
+.. admonition:: Note
+    
+    Explicitly typed arrays will most likely not be implemented within the toolbox
+    but our protocols will support their usage to help improve self-documentation
+    of implementations and interfaces.
 
 Explicitly typed arrays are useful for defining the expected shape of arrays 
 (e.g., channel-first images, batched images) and for specifying explicit types
@@ -249,32 +254,29 @@ Other tasks, like object detection, may require additional keys.
     BoxDim = NewType("BoxDim", int)
 
 
-    @runtime_checkable
-    class Boxes(Protocol[Unpack[Shape]]):
+    class Boxes(Protocol[*Shape]):
+        format: Enum
+
         def __array__(self) -> Any:
             ...
 
         @property
-        def shape(self) -> tuple[Unpack[Shape]]:
-            ...
-
-        # TODO: convert output type isn't helpful
-        def convert(self, format: str) -> ArrayLike:
+        def shape(self) -> tuple[*Shape]:
             ...
 
 
     Tbox = TypeVar("Tbox", bound=Boxes)
 
 
-    class HasBoxes(TypedDict, Generic[Unpack[Shape]]):
-        boxes: Boxes[Unpack[Shape]]
+    class HasBoxes(TypedDict, Generic[*Shape]):
+        boxes: Boxes[*Shape]
 
 
     HasVisionBoxes: TypeAlias = HasBoxes[BoxDim]
 
 
-    class HasVisionDetections(TypedDict, Generic[Unpack[Shape]]):
-        box: Boxes[Unpack[Shape]]
+    class HasVisionDetections(TypedDict, Generic[*Shape]):
+        box: Boxes[*Shape]
         label: Label
 
 **Task Support**
@@ -291,20 +293,16 @@ Other tasks, like object detection, may require additional keys.
         objects: Sequence[HasVisionDetections[T2]]
 
 
-Here we define the protocols for Datasets and DataLoaders and make a distinction between
-vision tasks that only require an image and those that require both an image and a label.
+Next lets define the protocol for data iterators by combining the idea for both
+a dataset and dataloader as a generic iterable object that includes the ability to
+set a transform:
 
 .. code-block:: python
 
-    class _Dataset(Protocol[T]):
-        def __getitem__(self, idx: Any) -> T:
-            ...
-
-        def set_transform(self, transform: Callable[[T], T]):
-            ...
+    class DataLoader(Iterable[T]):
+        def set_transform(self, transform: Callable[[T], T]): ...
 
 
-    @runtime_checkable
     class ClassLabel(Protocol):
         names: list[str]
         num_classes: int | None  # none to support huggingface feature
@@ -320,133 +318,16 @@ vision tasks that only require an image and those that require both an image and
         label: ClassLabel
 
 
-    @runtime_checkable
-    class VisionDataset(_Dataset[HasImage[T]], Protocol[T]):
+    class VisionDataset(DataLoader[HasImage[T]], Protocol[T]):
         features: VisionFeatures
 
 
-    @runtime_checkable
     class VisionClassificationDataset(
-        _Dataset[SupportsVisionClassification[T1, T2]], Protocol[T1, T2]
+        DataLoader[SupportsVisionClassification[T1, T2]], Protocol[T1, T2]
     ):
         features: VisionFeatures
 
 
-    @runtime_checkable
-    class VisionDataLoader(Protocol[T]):
-        def __iter__(self) -> Iterator[HasImage[T]]:
-            ...
-
-
-    @runtime_checkable
-    class VisionClassificationDataLoader(Protocol[T1, T2]):
-        def __iter__(self) -> Iterator[SupportsVisionClassification[T1, T2]]:
-            ...
-
-
-.. dropdown:: How to Validate TypedDict Protocols
-
-    The following code can be used to validate the above TypedDict protocols.
-    Since `isinstance` cannot be used with TypedDicts, a custom function,
-    `is_typed_dict`, is used instead.
-
-    .. code-block:: python
-
-        Td = TypeVar("Td", bound=TypedDict)
-
-        def is_typed_dict(object: Any, target: Type[Td]) -> bool:
-            if not isinstance(object, dict):
-                return False
-
-            k_obj = set(object.keys())
-            ks = set(target.__annotations__.keys())
-
-            if hasattr(target, "__total__") and target.__total__:
-                return all(k in k_obj for k in ks)
-            else:
-                return any(k in k_obj for k in ks)
-
-.. dropdown:: Data Object Examples
-
-    The following examples demonstrate the usage of data objects:
-
-    **Runtime Validation**
-
-    .. code-block:: python
-
-        from datasets.features import ClassLabel as ImplClassLabel  # noqa: E402
-
-        assert is_typed_dict({"image": tr_image_first}, HasImage)
-
-        class TestDataset:
-            def __init__(self):
-                self.features = VisionFeatures(
-                    label=ImplClassLabel(names=["a", "b"], num_classes=2)
-                )
-
-            def __getitem__(self, idx: Any) -> HasImage[ImageChannelFirst]:
-                return HasImage(image=tr_image_first)
-
-            def set_transform(
-                self,
-                transform: Callable[[HasImage[ImageChannelFirst]], HasImage[ImageChannelFirst]],
-            ):
-                ...
-
-            def __len__(self) -> int:
-                return 10
-
-
-        class TestDataLoader:
-            def __iter__(self) -> Iterator[HasImage[ImageChannelFirst]]:
-                for _ in range(10):
-                    yield HasImage(image=tr_image_first)
-
-
-        dataset = TestDataset()
-        assert hasattr(dataset, "features")
-        assert "label" in dataset.features
-        example_label = dataset.features["label"].str2int("a")
-        assert example_label == 0
-
-        example_data = dataset[0]
-        image_from_example = example_data["image"]
-
-        assert is_typed_dict(example_data, HasImage)
-        assert image_from_example.shape[0] == 3
-
-
-        dataloader = TestDataLoader()
-        example_dl = next(iter(dataloader))
-        image_from_example_dl = example_dl["image"]
-
-        assert is_typed_dict(example_dl, HasImage)
-        assert image_from_example_dl.shape[0] == 3
-
-    **Static Type Checking**
-
-    .. code-block:: python
-
-        if TYPE_CHECKING:
-
-            def supports_has_image(x: HasImage[ImageChannelFirst]):
-                ...
-
-            # fails because the type checker is unaware of the shape dimensions
-            supports_has_image({"image": tr.zeros(3, 10, 10)})
-
-            # passes because it's properly casted
-            supports_has_image({"image": image_from_example})
-
-            def supports_dataset(x: VisionDataset[ImageChannelFirst]):
-                ...
-
-            supports_dataset(dataset)
-
-            def supports_dataloader(x: VisionDataLoader[ImageChannelFirst]):
-                ...
-
-            supports_dataloader(dataloader)
 
 Model Objects
 -------------
@@ -457,28 +338,22 @@ definition will make it easier to check that the model is being used correctly.
 
 .. code-block:: python
 
-    @runtime_checkable
     class HasProbs(Protocol):
         probs: ArrayLike[Batch, Category]
 
 
-    @runtime_checkable
     class HasPredictions(Protocol):
         scores: Sequence[ArrayLike]
         labels: Sequence[ArrayLike]
 
 
-    @runtime_checkable
-    class Model(Protocol[T_cont, T_co]):
-        def __call__(self, data: T_cont) -> T_co:
-            ...
-
-        def get_labels(self) -> list[str]:
-            ...
+    class Model(Protocol[P, T]):
+        __call__: Callable[P, T]
+        def get_labels(self) -> list[str]: ...
 
     
     # an example of explicitly defining a model type with input and output types
-    MyVisionModel: TypeAlias = Model[BatchImageChannelFirst, HasPredictions]
+    MyVisionModel: TypeAlias = Model[[BatchImageChannelFirst], HasPredictions]
 
 
 .. dropdown:: Model Object Examples
@@ -506,7 +381,7 @@ definition will make it easier to check that the model is being used correctly.
 
         if TYPE_CHECKING:
 
-            def supports_model(x: Model[BatchImageChannelFirst, HasPredictions]):
+            def supports_model(x: Model[[BatchImageChannelFirst], HasPredictions]):
                 ...
 
             # passes
@@ -518,78 +393,6 @@ definition will make it easier to check that the model is being used correctly.
             # passes because it's properly casted with the correct shape
             batched_np_image_first = parse((np.zeros((5, 3, 10, 10)), BatchImageChannelFirst))
             model(batched_np_image_first)
-
-Metric Protocol
----------------
-
-The Metric protocol supports any type of distributed metric computation. A metric is assumed to be stateful and have a `reset`
-method to clear the state. The `update` method is called for each batch of data, and the `compute` method is called
-at the end of the evaluation loop to return the final metric value.
-
-.. code-block:: python
-
-    T1_cont = TypeVar("T1_cont", contravariant=True, bound=HasProbs | HasPredictions)
-    T2_cont = TypeVar("T2_cont", contravariant=True, bound=Mapping[str, Any])
-
-
-    @runtime_checkable
-    class Metric(Protocol[T1_cont, T2_cont]):
-        def reset(self) -> None:
-            ...
-
-        def update(self, model_output: T1_cont, target: T2_cont) -> None:
-            ...
-
-        def compute(self) -> Mapping[str, Any]:
-            ...
-
-.. dropdown:: Metric Object Examples
-
-    The following examples demonstrate the usage of metric objects:
-
-    **Runtime Validation**
-
-    .. code-block:: python
-
-        class TestMetric:
-            def reset(self) -> None:
-                ...
-
-            def update(
-                self, model_output: HasPredictions, target: HasLabel[BatchedLabel]
-            ) -> None:
-                ...
-
-            def compute(self) -> Mapping[str, float]:
-                ...
-
-
-        metric = TestMetric()
-        assert isinstance(metric, Metric)
-
-    **Static Type Checking**
-
-    .. code-block:: python
-
-        if TYPE_CHECKING:
-
-            def supports_metric(x: Metric[HasPredictions, HasLabel[BatchedLabel]]):
-                ...
-
-            supports_metric(metric)  # passes
-
-            def supports_metric_2(x: Metric[HasProbs, HasLabel[BatchedLabel]]):
-                ...
-
-            # fails
-            supports_metric_2(metric)
-
-
-            def supports_metric_3(x: Metric[HasPredictions, str]):
-                ...
-
-            # fails
-            supports_metric_3(metric)
 
 
 Evaluation Function
@@ -612,11 +415,11 @@ inputs and outputs are well understood and can be easily tested.  Below we see:
 
 
         def evaluate(
-            model: Model[BatchImageChannelFirst, HasProbs],
+            model: Model[[BatchImageChannelFirst], HasProbs],
             data: EvalDataLoader[
                 SupportsVisionClassification[BatchImageChannelFirst, BatchedLabel]
             ],
-            metric: Metric[HasProbs, HasLabel[BatchedLabel]],
+            metric: Metric[[HasProbs], HasLabel[BatchedLabel]],
         ) -> Mapping[str, Any]:
             metric.reset()
             for batch in data:

@@ -345,7 +345,7 @@ def load_metric(
     metric_name: str,
     provider: Optional[METRIC_PROVIDERS] = None,
     **kwargs: Any,
-) -> Metric:
+) -> Metric[[Any, Any], Any]:
     """
     Return a Metric object.
 

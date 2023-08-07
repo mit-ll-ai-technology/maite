@@ -6,7 +6,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Dict,
     Iterator,
     Literal,
     Mapping,
@@ -14,7 +13,6 @@ from typing import (
     Protocol,
     Sequence,
     TypeVar,
-    Union,
     cast,
     overload,
     runtime_checkable,
@@ -22,7 +20,7 @@ from typing import (
 
 import torch as tr
 from torch.utils.data import DataLoader
-from typing_extensions import Self, TypeAlias
+from typing_extensions import Self
 
 import jatic_toolbox
 import jatic_toolbox.protocols as pr
@@ -39,14 +37,6 @@ from .utils import is_pil_image
 ArrayLike = pr.ArrayLike
 T = TypeVar("T")
 T_co = TypeVar("T_co", covariant=True)
-C: TypeAlias = Union[T, Dict[str, T]]
-Model: TypeAlias = Union[
-    pr.ImageClassifier,
-    pr.ObjectDetector,
-]
-
-
-Metric: TypeAlias = Mapping[str, pr.Metric]
 
 
 @runtime_checkable
@@ -319,10 +309,11 @@ class EvaluationTask(ABC):
         self,
         model: str | pr.ImageClassifier | pr.ObjectDetector,
         data: str | pr.VisionDataset | pr.ObjectDetectionDataset,
-        metric: str | Mapping[str, pr.Metric],
+        metric: str | Mapping[str, pr.Metric[[Any, Any], Any]],
         augmentation: None
         | pr.Augmentation[
-            pr.SupportsImageClassification | pr.SupportsObjectDetection
+            [pr.SupportsImageClassification | pr.SupportsObjectDetection],
+            pr.SupportsImageClassification | pr.SupportsObjectDetection,
         ] = None,
         batch_size: int = 1,
         device: None | str | int = None,
@@ -501,9 +492,12 @@ class ImageClassificationEvaluator(EvaluationTask):
     def _evaluate_on_dataset(
         self,
         data: pr.VisionDataLoader,
-        model: pr.ImageClassifier,
-        metric: Mapping[str, pr.Metric],
-        augmentation: pr.Augmentation[pr.SupportsImageClassification] | None = None,
+        model: pr.ImageClassifier[pr.SupportsArray],
+        metric: Mapping[str, pr.Metric[[Any, Any], Any]],
+        augmentation: pr.Augmentation[
+            [pr.SupportsImageClassification], pr.SupportsImageClassification
+        ]
+        | None = None,
         device: str | int | None = None,
         use_progress_bar: bool = True,
     ) -> dict[str, Any]:
@@ -605,9 +599,12 @@ class ObjectDetectionEvaluator(EvaluationTask):
     def _evaluate_on_dataset(
         self,
         data: pr.DataLoader[pr.SupportsObjectDetection],
-        model: pr.ObjectDetector,
-        metric: Mapping[str, pr.Metric],
-        augmentation: pr.Augmentation[pr.SupportsObjectDetection] | None = None,
+        model: pr.ObjectDetector[pr.SupportsArray],
+        metric: Mapping[str, pr.Metric[[Any, Any], Any]],
+        augmentation: pr.Augmentation[
+            [pr.SupportsObjectDetection], pr.SupportsObjectDetection
+        ]
+        | None = None,
         device: str | int | None = None,
         use_progress_bar: bool = True,
     ) -> dict[str, Any]:
@@ -710,7 +707,7 @@ def evaluate(
 
     Returns
     -------
-    EvaluationTask
+    ImageClassificationEvaluator | ObjectDetectionEvaluator
         The evaluation task.
 
     Examples
@@ -718,7 +715,6 @@ def evaluate(
     An example using `image-classification` task:
 
     >>> from jatic_toolbox import evaluate, load_model, load_dataset, load_metric
-    >>> from torchvision.transforms.functional import to_tensor
 
     Load a model and dataset and evaluate it on the CIFAR10 test set.
 
