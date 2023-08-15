@@ -10,6 +10,7 @@ from torch.utils.data import Dataset
 
 import jatic_toolbox
 from jatic_toolbox import protocols as pr
+from jatic_toolbox._internals.import_utils import requires_torchmetrics
 from jatic_toolbox._internals.interop.utils import is_pil_image
 
 
@@ -79,7 +80,7 @@ class VisionModel(tr.nn.Module):
         self.no_dataclass = no_dataclass
         self.conv2d = tr.nn.Conv2d(3, 10, 1)
         self.avgpool = tr.nn.AdaptiveAvgPool2d((1, 1))
-        self.linear = tr.nn.Linear(10, 1)
+        self.linear = tr.nn.Linear(10, 10)
 
     def get_labels(self):
         return [f"label_{i}" for i in range(10)]
@@ -211,6 +212,39 @@ def test_evaluate_object_detection(use_progress_bar, no_dataclass, data_type):
         model,
         data,
         metric=dict(metric=metric),
+        batch_size=4,
+        device=0,
+        use_progress_bar=use_progress_bar,
+    )
+
+
+@requires_torchmetrics
+@pytest.mark.parametrize("use_progress_bar", [True, False])
+@pytest.mark.parametrize("with_logits", [True, False])
+@pytest.mark.parametrize("no_dataclass", [True, False])
+@pytest.mark.parametrize("data_type", ["numpy", "tensor", "pillow"])
+def test_evaluate_image_classification_default_metric(
+    use_progress_bar, with_logits, no_dataclass, data_type
+):
+    data = RandomDataset(data_type, 10, 10)
+    model = VisionModel(with_logits=with_logits, no_dataclass=no_dataclass)
+
+    evaluator = jatic_toolbox.evaluate("image-classification")
+
+    if no_dataclass:
+        with pytest.raises(ValueError):
+            evaluator(
+                model,
+                data,
+                batch_size=4,
+                device=0,
+                use_progress_bar=use_progress_bar,
+            )
+        return
+
+    evaluator(
+        model,
+        data,
         batch_size=4,
         device=0,
         use_progress_bar=use_progress_bar,

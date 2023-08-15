@@ -29,6 +29,8 @@ from jatic_toolbox._internals.interop.api import (
     METRIC_PROVIDERS,
     MODEL_PROVIDERS,
 )
+from jatic_toolbox._internals.interop.registry import METRIC_REGISTRY
+from jatic_toolbox.errors import InvalidArgument
 
 from ..import_utils import is_torch_available, is_tqdm_available
 from ..utils import evaluating
@@ -309,7 +311,8 @@ class EvaluationTask(ABC):
         self,
         model: str | pr.ImageClassifier | pr.ObjectDetector,
         data: str | pr.VisionDataset | pr.ObjectDetectionDataset,
-        metric: str | Mapping[str, pr.Metric[[Any, Any], Any]],
+        metric: str
+        | Mapping[str, pr.Metric[[Any, Any], Any]] = "default_multiclass_accuracy",
         augmentation: None
         | pr.Augmentation[
             [pr.SupportsImageClassification | pr.SupportsObjectDetection],
@@ -431,6 +434,26 @@ class EvaluationTask(ABC):
                     **metric_kwargs,
                 }
                 metric_out = jatic_toolbox.load_metric(**metric_kwargs)
+
+            elif metric == "default_multiclass_accuracy":
+                assert isinstance(model, pr.ImageClassifier)
+                label_list = model.get_labels()
+                num_labels = len(label_list)
+
+                if num_labels == 0:
+                    raise InvalidArgument(
+                        "Length of label list from model's get_labels() function was 0."
+                    )
+
+                default_acc_dict = METRIC_REGISTRY["multiclass_accuracy"]
+                default_acc = jatic_toolbox.load_metric(
+                    provider=cast(METRIC_PROVIDERS, default_acc_dict["provider"]),
+                    metric_name=default_acc_dict["metric_name"],
+                    task=default_acc_dict["task"],
+                    num_classes=num_labels,
+                )
+
+                metric_out = {"default_multiclass_accuracy": default_acc}
 
             elif "::" in metric:
                 provider, metric_name = metric.split("::", 1)
