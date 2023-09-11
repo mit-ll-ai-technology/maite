@@ -27,7 +27,11 @@ class TorchEvalAPI:
 
         import torcheval.metrics as metrics
 
-        return [m for m in metrics.__all__ if m not in ("functional", "Metric")]
+        return [
+            m
+            for m in metrics.__all__
+            if m not in ("functional", "Metric", "FrechetAudioDistance")
+        ]
 
     def load_metric_builder(self, metrics_name: str) -> Callable[..., Metric]:
         """
