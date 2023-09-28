@@ -1,8 +1,6 @@
 import importlib
 import importlib.util
 
-import pytest
-
 
 def is_numpy_available():
     return importlib.util.find_spec("numpy") is not None
@@ -57,6 +55,8 @@ def is_hypothesis_available():
 
 
 if is_pytest_available():
+    import pytest
+
     requires_torch = pytest.mark.skipif(
         not is_torch_available(), reason="test requires torch"
     )
