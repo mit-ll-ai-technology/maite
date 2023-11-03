@@ -280,7 +280,7 @@ def get_dataloader(
 
 class EvaluationTask(ABC):
     """
-    Base evalulation task functionality.
+    Base evaluation task functionality.
 
     Parameters
     ----------
@@ -328,7 +328,7 @@ class EvaluationTask(ABC):
         **kwargs: Any,
     ) -> dict[str, Any]:
         """
-        Evalulate an image classification model for a given dataset.
+        Evaluate an image classification model for a given dataset.
 
         Parameters
         ----------
@@ -495,7 +495,7 @@ class EvaluationTask(ABC):
 
 
 class ImageClassificationEvaluator(EvaluationTask):
-    """Evalulator for image classification tasks."""
+    """Evaluator for image classification tasks."""
 
     def __init__(
         self,
@@ -602,7 +602,7 @@ class ImageClassificationEvaluator(EvaluationTask):
 
 
 class ObjectDetectionEvaluator(EvaluationTask):
-    """Evalulator for object detection tasks."""
+    """Evaluator for object detection tasks."""
 
     def __init__(
         self,

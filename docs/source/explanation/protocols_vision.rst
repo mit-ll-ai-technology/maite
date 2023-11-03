@@ -398,7 +398,7 @@ definition will make it easier to check that the model is being used correctly.
 Evaluation Function
 -------------------
 
-Here we show an example evalulation workflow in the sampe spirit of what we desired to achieve
+Here we show an example evaluation workflow in the sampe spirit of what we desired to achieve
 at the beginning of this explanation. The evaluation function takes a model, data, and metric
 and returns a dictionary of metric values.  The advantage of this workflow is that the code 
 inputs and outputs are well understood and can be easily tested.  Below we see:
