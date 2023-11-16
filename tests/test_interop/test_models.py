@@ -85,10 +85,6 @@ def test_hf_list_models(kwargs):
 def test_hf_models(mocker, task):
     from ..common import huggingface as hf_common
 
-    models = jatic_toolbox.list_models(provider="huggingface", filter_str="resnet18")
-    assert issubclass(type(models), list)
-    assert len(list(models)) == 3
-
     if task == "image-classification":
         processor, model = hf_common.get_test_vision_model()
         protocol = pr.ImageClassifier
