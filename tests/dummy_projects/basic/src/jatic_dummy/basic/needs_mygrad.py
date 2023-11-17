@@ -1,3 +1,7 @@
+# Copyright 2023, MASSACHUSETTS INSTITUTE OF TECHNOLOGY
+# Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).
+# SPDX-License-Identifier: MIT
+
 # This module is designed to intentionally include dependencies (i.e. mygrad)
 # that have not been installed by default. jatic-toolbox should handle this
 # gracefully.
