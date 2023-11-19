@@ -2,6 +2,7 @@
 # Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).
 # SPDX-License-Identifier: MIT
 
+import itertools
 from pathlib import Path
 
 import pytest
@@ -167,6 +168,131 @@ def test_metric_isinstance():
 
     assert not isinstance(A, pr.Metric)
     assert isinstance(B, pr.Metric)
+
+
+def define_provider(
+    has_help: bool,
+    has_list_model: bool,
+    has_load_model: bool,
+    has_list_dataset: bool,
+    has_load_dataset: bool,
+    has_list_metric: bool,
+    has_load_metric: bool,
+):
+    _help_def = "def help(self, name: str) -> str: ..."
+    _list_model_def = "def list_models(self, filter_str: str | List[str] | None = None, model_name: str | None = None, task: str | None = None, **kwargs: Any) -> Iterable[Any]: ..."
+    _load_model_def = "def load_model(self, model_name: str, task: TaskName | None = None, **kwargs: Any) -> Model: ... "
+    _list_dataset_def = "def list_datasets(self, **kwargs: Any) -> Iterable[Any]: ..."
+    _load_dataset_def = "def load_dataset(self, dataset_name: str, task: TaskName | None = None, split: str | None = None, **kwargs: Any) -> Dataset: ...  "
+    _list_metric_def = "def list_metrics(self, **kwargs: Any) -> Iterable[Any]: ..."
+    _load_metric_def = (
+        "def load_metric(self, metric_name: str, **kwargs: Any) -> Metric: ..."
+    )
+
+    body = {
+        "help_def": _help_def if has_help else "",
+        "list_model_def": _list_model_def if has_list_model else "",
+        "load_model_def": _load_model_def if has_load_model else "",
+        "list_dataset_def": _list_dataset_def if has_list_dataset else "",
+        "load_dataset_def": _load_dataset_def if has_load_dataset else "",
+        "list_metric_def": _list_metric_def if has_list_metric else "",
+        "load_metric_def": _load_metric_def if has_load_metric else "",
+    }
+    # NOTE: edge-case when has_x are all false, we must generate a valid class body
+    if all(len(v) == 0 for v in body.values()):
+        body["help_def"] = "pass"
+
+    return """
+from jatic_toolbox.protocols import MetricProvider, ModelProvider, DatasetProvider, Model, Dataset, Metric, TaskName
+from typing import List, Iterable, Any, Type, TypeAlias
+
+def expects_dataset_provider(provider: DatasetProvider):
+    ...
+
+def expects_metric_provider(provider: MetricProvider):
+    ...
+
+def expects_model_provider(provider: ModelProvider):
+    ...
+
+def expects_any_provider(provider: ModelProvider | DatasetProvider | MetricProvider):
+    ...
+
+def expects_any_provider_type(provider_type: Type[ModelProvider] | Type[DatasetProvider] | Type[MetricProvider]):
+    ...
+
+AnyProvider: TypeAlias = ModelProvider | DatasetProvider | MetricProvider
+
+def expects_any_provider_type_alias(provider_type: Type[AnyProvider]):
+    ...
+
+class MyProvider:
+    {help_def}
+
+    {list_metric_def}
+
+    {load_metric_def}
+
+    {list_dataset_def}
+
+    {load_dataset_def}
+
+    {list_model_def}
+
+    {load_model_def}
+
+
+expects_dataset_provider(MyProvider())
+expects_metric_provider(MyProvider())
+expects_model_provider(MyProvider())
+expects_any_provider(MyProvider())
+expects_any_provider_type(MyProvider)
+expects_any_provider_type_alias(MyProvider)
+
+    """.format(
+        **body
+    )
+
+
+def save_providers():
+    cases = {}
+    with chdir():
+        # repeat 7 for has_help + has_x_y (x: list/load, y: model,dataset,metric)
+        for i, has_methods in enumerate(itertools.product([True, False], repeat=7)):
+            contents = define_provider(*has_methods)
+            Path(f"f_{i}.py").write_text(contents)
+            cases[f"f_{i}.py"] = has_methods
+
+        fs = [f for f in Path.cwd().iterdir() if f.name.endswith(".py")]
+        results = pyright_analyze(*fs)
+        for f, r in zip(fs, results):
+            has_flags = cases[f.name]
+            cases[f.name] = (has_flags, r)
+        return cases.values()
+
+
+@pytest.mark.parametrize("has_methods, result", save_providers())
+def test_providers(has_methods, result):
+    # each use of `MyProvider` will generate a type error for each of the three uses that is not okay
+    has_help, *rest = has_methods
+    model_ok = all((has_help, *rest[0:2]))
+    dataset_ok = all((has_help, *rest[2:4]))
+    metric_ok = all((has_help, *rest[4:]))
+
+    expected_error_count = 0
+
+    if not model_ok:
+        expected_error_count += 1
+    if not dataset_ok:
+        expected_error_count += 1
+    if not metric_ok:
+        expected_error_count += 1
+
+    if not any([model_ok, metric_ok, dataset_ok]):
+        # 3 checks for any protocol will fail of none are satisfied
+        expected_error_count += 3
+
+    assert result["summary"]["errorCount"] == expected_error_count
 
 
 #
