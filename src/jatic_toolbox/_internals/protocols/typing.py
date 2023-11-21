@@ -495,7 +495,9 @@ class HasLabel(Protocol):
     True
     """
 
-    label: SupportsArray
+    @property
+    def label(self) -> SupportsArray:
+        ...
 
 
 @runtime_checkable
@@ -527,7 +529,9 @@ class HasBoxes(Protocol):
     True
     """
 
-    boxes: SupportsArray
+    @property
+    def boxes(self) -> SupportsArray:
+        ...
 
 
 @runtime_checkable
@@ -559,7 +563,9 @@ class HasLogits(Protocol):
     True
     """
 
-    logits: SupportsArray
+    @property
+    def logits(self) -> SupportsArray:
+        ...
 
 
 @runtime_checkable
@@ -591,7 +597,9 @@ class HasProbs(Protocol):
     True
     """
 
-    probs: SupportsArray
+    @property
+    def probs(self) -> SupportsArray:
+        ...
 
 
 @runtime_checkable
@@ -629,8 +637,13 @@ class HasScores(Protocol):
     True
     """
 
-    scores: SupportsArray
-    labels: SupportsArray
+    @property
+    def scores(self) -> SupportsArray:
+        ...
+
+    @property
+    def labels(self) -> SupportsArray:
+        ...
 
 
 @runtime_checkable
