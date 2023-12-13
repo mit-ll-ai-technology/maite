@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pytest
 
-from jatic_toolbox.testing.pyright import list_error_messages, pyright_analyze
+from maite.testing.pyright import list_error_messages, pyright_analyze
 
 
 def test_pyright_catches_errors():
@@ -64,10 +64,10 @@ def test_python_version():
 
 
 def test_scan_path_to_code():
-    import jatic_toolbox
+    import maite
 
     results = pyright_analyze(
-        Path(jatic_toolbox.__file__).parent, report_unnecessary_type_ignore_comment=True
+        Path(maite.__file__).parent, report_unnecessary_type_ignore_comment=True
     )
     assert len(results[0]["generalDiagnostics"]) >= 0
 

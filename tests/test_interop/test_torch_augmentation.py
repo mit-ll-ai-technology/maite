@@ -12,8 +12,8 @@ import pytest
 import torch as tr
 from hypothesis import given, settings
 
-from jatic_toolbox.errors import InvalidArgument
-from jatic_toolbox.interop.augmentation import AugmentationWrapper
+from maite.errors import InvalidArgument
+from maite.interop.augmentation import AugmentationWrapper
 
 
 def to_numpy(x):

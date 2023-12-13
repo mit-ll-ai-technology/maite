@@ -9,9 +9,9 @@ import pytest
 from pytest import param
 from typing_extensions import TypedDict
 
-from jatic_toolbox._internals.testing.docs import _get_numpy_tags
-from jatic_toolbox.errors import InvalidArgument
-from jatic_toolbox.testing.docs import validate_docstring
+from maite._internals.testing.docs import _get_numpy_tags
+from maite.errors import InvalidArgument
+from maite.testing.docs import validate_docstring
 
 
 def form_doc(

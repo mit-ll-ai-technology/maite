@@ -9,9 +9,9 @@ from typing import List
 
 import pytest
 
-from jatic_toolbox._internals.protocols.typing import Dataset, Metric, Model, TaskName
-from jatic_toolbox.errors import InternalError, InvalidArgument
-from jatic_toolbox.interop.provider import (
+from maite._internals.protocols.typing import Dataset, Metric, Model, TaskName
+from maite.errors import InternalError, InvalidArgument
+from maite.interop.provider import (
     create_provider,
     get_provider_type,
     list_providers,
@@ -258,7 +258,7 @@ def test_create_provider(name_gen):
 
 
 def test_registry_instantiate_error():
-    from jatic_toolbox._internals.interop.provider import _ProviderRegistry
+    from maite._internals.interop.provider import _ProviderRegistry
 
     with pytest.raises(InternalError):
         _ = _ProviderRegistry()

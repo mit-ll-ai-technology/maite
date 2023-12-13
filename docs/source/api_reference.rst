@@ -1,7 +1,7 @@
 .. meta::
-   :description: Reference documentation for jatic-toolbox.
+   :description: Reference documentation for maite.
 
-.. _jatic-toolbox-reference:
+.. _maite-reference:
 
 #########
 Reference
@@ -15,7 +15,7 @@ bottom of any given reference page to see the examples.
 
 .. toctree::
 
-.. currentmodule:: jatic_toolbox
+.. currentmodule:: maite
 
 
 +++++++++
@@ -115,7 +115,7 @@ Workflow Implementation
 Validation and Error Handling
 +++++++++++++++++++++++++++++
 
-.. currentmodule:: jatic_toolbox.utils.validation
+.. currentmodule:: maite.utils.validation
 
 .. autosummary::
    :toctree: generated/
@@ -126,7 +126,7 @@ Validation and Error Handling
    chain_validators
    
 
-.. currentmodule:: jatic_toolbox.errors
+.. currentmodule:: maite.errors
 
 .. autosummary::
    :toctree: generated/
@@ -139,7 +139,7 @@ Validation and Error Handling
 Testing Tools
 +++++++++++++
 
-.. currentmodule:: jatic_toolbox.testing.docs
+.. currentmodule:: maite.testing.docs
 
 .. autosummary::
    :toctree: generated/
@@ -149,7 +149,7 @@ Testing Tools
    NumPyDocResults
    
 
-.. currentmodule:: jatic_toolbox.testing.pyright
+.. currentmodule:: maite.testing.pyright
 
 .. autosummary::
    :toctree: generated/
@@ -159,7 +159,7 @@ Testing Tools
    list_error_messages
 
 
-.. currentmodule:: jatic_toolbox.testing.pytest
+.. currentmodule:: maite.testing.pytest
 
 .. autosummary::
    :toctree: generated/
@@ -167,7 +167,7 @@ Testing Tools
    cleandir
 
 
-.. currentmodule:: jatic_toolbox.testing.project
+.. currentmodule:: maite.testing.project
 
 .. autosummary::
    :toctree: generated/

@@ -13,8 +13,8 @@ from pathlib import Path
 import hypothesis.strategies as st
 from hypothesis import settings
 
-from jatic_toolbox._internals import import_utils
-from jatic_toolbox.testing.pytest import cleandir  # noqa: F401
+from maite._internals import import_utils
+from maite.testing.pytest import cleandir  # noqa: F401
 from tests import all_dummy_subpkgs
 
 st.register_type_strategy(st.DataObject, st.data())
@@ -38,7 +38,7 @@ def _safe_find_spec(pkg: str):
 
 
 for subpkg in all_dummy_subpkgs:
-    if _safe_find_spec(f"jatic_dummy.{subpkg}") is None:
+    if _safe_find_spec(f"maite_dummy.{subpkg}") is None:
         subprocess.check_call(
             [
                 sys.executable,

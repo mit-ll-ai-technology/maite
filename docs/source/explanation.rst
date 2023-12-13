@@ -1,9 +1,9 @@
-.. _jatic-toolbox-explanation:
+.. _maite-explanation:
 
 Explanation
 ===========
 
-Articles and posts about topics relevant -- directly or indirectly -- to jatic-toolbox.
+Articles and posts about topics relevant -- directly or indirectly -- to maite.
 
 .. toctree::
    :maxdepth: 1

@@ -13,11 +13,11 @@
 # import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
-import jatic_toolbox
+import maite
 
 # -- Project information -----------------------------------------------------
 
-project = "jatic-toolbox"
+project = "maite"
 copyright = "2023 Massachusetts Institute of Technology"
 author = "Ryan Soklaski, Justin Goodwin, Michael Yee"
 
@@ -29,7 +29,7 @@ release = ""
 
 # -- General configuration ---------------------------------------------------
 
-REPO_URL = "https://gitlab.jatic.net/jatic/cdao/jatic-toolbox"
+REPO_URL = "https://gitlab.jatic.net/jatic/cdao/maite"
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
@@ -93,7 +93,7 @@ extlinks = {
 # a list of builtin themes.
 #
 html_theme = "pydata_sphinx_theme"
-# html_logo = "../../brand/jatic-toolbox_logo_full_light_blue.png"
+# html_logo = "../../brand/maite_logo_full_light_blue.png"
 
 html_theme_options = {
     "collapse_navigation": True,
@@ -102,18 +102,18 @@ html_theme_options = {
     #     {
     #         "rel": "icon",
     #         "sizes": "32x32",
-    #         "href": "jatic_toolbox_favicon_32x32.png",
+    #         "href": "maite_favicon_32x32.png",
     #     },
     #     {
     #         "rel": "icon",
     #         "sizes": "64x64",
-    #         "href": "jatic_toolbox_favicon_64x64.png",
+    #         "href": "maite_favicon_64x64.png",
     #     },
     # ],
     # "icon_links": [
     #     {
     #         "name": "GitHub",
-    #         "url": "https://github.com/mit-ll-responsible-ai/jatic-toolbox",
+    #         "url": "https://github.com/mit-ll-responsible-ai/maite",
     #         "icon": "fab fa-github-square",
     #     },
     # ],

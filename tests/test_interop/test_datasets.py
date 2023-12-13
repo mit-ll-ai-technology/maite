@@ -4,16 +4,13 @@
 
 import pytest
 
-import jatic_toolbox
-import jatic_toolbox.protocols as pr
-from jatic_toolbox._internals.import_utils import (
-    requires_hf_datasets,
-    requires_torchvision,
-)
-from jatic_toolbox._internals.interop import registry
-from jatic_toolbox._internals.interop.huggingface import api as hf_api
-from jatic_toolbox._internals.interop.torchvision import api as tv_api
-from jatic_toolbox.errors import InvalidArgument, ToolBoxException
+import maite
+import maite.protocols as pr
+from maite._internals.import_utils import requires_hf_datasets, requires_torchvision
+from maite._internals.interop import registry
+from maite._internals.interop.huggingface import api as hf_api
+from maite._internals.interop.torchvision import api as tv_api
+from maite.errors import InvalidArgument, ToolBoxException
 
 
 @pytest.mark.parametrize(
@@ -22,7 +19,7 @@ from jatic_toolbox.errors import InvalidArgument, ToolBoxException
 )
 def test_errors_load_dataset(task, provider):
     with pytest.raises(InvalidArgument):
-        jatic_toolbox.load_dataset(dataset_name="_dummy", task=task, provider=provider)
+        maite.load_dataset(dataset_name="_dummy", task=task, provider=provider)
 
 
 @requires_hf_datasets
@@ -30,26 +27,26 @@ def test_errors_load_dataset(task, provider):
 def test_load_dataset_from_registry(mocker):
     from ..common import huggingface as hf_common
 
-    data = jatic_toolbox.list_datasets()
+    data = maite.list_datasets()
     assert all(x == y for x, y in zip(data, registry.DATASET_REGISTRY.keys()))
 
     mock_dataset = hf_common.get_test_vision_dataset()
     mocker.patch("datasets.load_dataset", return_value=mock_dataset)
-    jatic_toolbox.load_dataset(dataset_name="cifar10-test")
+    maite.load_dataset(dataset_name="cifar10-test")
 
 
 @requires_hf_datasets
 def test_errors_hf_load_dataset_from_hub():
     with pytest.raises(FileNotFoundError):
-        jatic_toolbox.load_dataset(
+        maite.load_dataset(
             dataset_name="_dummy", provider="huggingface", task="image-classification"
         )
 
     with pytest.raises(InvalidArgument):
-        jatic_toolbox.load_dataset(dataset_name="_dummy", provider="huggingface")
+        maite.load_dataset(dataset_name="_dummy", provider="huggingface")
 
     with pytest.raises(InvalidArgument):
-        jatic_toolbox.load_dataset(
+        maite.load_dataset(
             provider="huggingface",
             task="bad-task",  # type: ignore
             dataset_name="test",
@@ -65,12 +62,12 @@ def test_errors_hf_load_dataset_from_hub():
 @requires_torchvision
 def test_errors_tv_load_dataset_from_hub():
     with pytest.raises(InvalidArgument):
-        jatic_toolbox.load_dataset(
+        maite.load_dataset(
             dataset_name="_dummy", provider="torchvision", task="image-classification"
         )
 
     with pytest.raises(InvalidArgument):
-        jatic_toolbox.load_dataset(dataset_name="_dummy", provider="torchvision")
+        maite.load_dataset(dataset_name="_dummy", provider="torchvision")
 
     with pytest.raises(InvalidArgument):
         tv_api.TorchVisionAPI().load_dataset(
@@ -84,9 +81,7 @@ def test_errors_tv_load_dataset_from_hub():
 def test_hf_datasets(mocker, task):
     from ..common import huggingface as hf_common
 
-    data = jatic_toolbox.list_datasets(
-        provider="huggingface", dataset_name="cats_vs_dogs"
-    )
+    data = maite.list_datasets(provider="huggingface", dataset_name="cats_vs_dogs")
     assert len(list(data)) == 1
 
     if task == "image-classification":
@@ -95,7 +90,7 @@ def test_hf_datasets(mocker, task):
         mock_dataset = hf_common.get_test_detection_dataset()
 
     mocker.patch("datasets.load_dataset", return_value=mock_dataset)
-    dataset = jatic_toolbox.load_dataset(
+    dataset = maite.load_dataset(
         provider="huggingface",
         task=task,
         dataset_name="test",
@@ -113,7 +108,7 @@ def test_hf_datasets(mocker, task):
 
 @requires_torchvision
 def test_tv_list_datasets():
-    data = jatic_toolbox.list_datasets(provider="torchvision", dataset_name="MNIST")
+    data = maite.list_datasets(provider="torchvision", dataset_name="MNIST")
     assert len(list(data)) == 5
 
 
@@ -131,13 +126,13 @@ def test_tv_datasets(mocker, task, has_split, has_train):
 
     if task == "object-detection":
         with pytest.raises(ToolBoxException):
-            jatic_toolbox.load_dataset(
+            maite.load_dataset(
                 provider="torchvision",
                 task=task,
                 dataset_name="test",
             )
     else:
-        dataset = jatic_toolbox.load_dataset(
+        dataset = maite.load_dataset(
             provider="torchvision",
             task="image-classification",
             dataset_name="test",
@@ -170,7 +165,7 @@ def test_hf_load_dataset_unsupported_vision_keys(mocker, image_key, label_key):
     mocker.patch("datasets.load_dataset", return_value=mock_dataset)
 
     with pytest.raises(ToolBoxException):
-        jatic_toolbox.load_dataset(
+        maite.load_dataset(
             provider="huggingface",
             task="image-classification",
             dataset_name="test",
@@ -207,7 +202,7 @@ def test_hf_load_dataset_unsupported_detection_keys(
     mocker.patch("datasets.load_dataset", return_value=mock_dataset)
 
     with pytest.raises(ToolBoxException):
-        jatic_toolbox.load_dataset(
+        maite.load_dataset(
             provider="huggingface",
             task="object-detection",
             dataset_name="test",
@@ -228,7 +223,7 @@ def test_hf_transforms(mocker):
     ]:
         mocker.patch("datasets.load_dataset", return_value=mock_dataset)
 
-        dataset = jatic_toolbox.load_dataset(
+        dataset = maite.load_dataset(
             provider="huggingface",
             task=task,
             dataset_name="test",
@@ -259,7 +254,7 @@ def test_tv_transforms(mocker):
     mock_dataset = tv_common.get_test_vision_dataset()
     mocker.patch.object(tv_api, "_get_torchvision_dataset", return_value=mock_dataset)
 
-    dataset = jatic_toolbox.load_dataset(
+    dataset = maite.load_dataset(
         provider="torchvision",
         task="image-classification",
         dataset_name="test",

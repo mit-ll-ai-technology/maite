@@ -5,7 +5,7 @@
 
    Protocols are still under development, any feedback on expected behavior, use cases,
    and desired functionality is welcome. Please open an issue on the 
-   `Toolbox Repo <https://gitlab.jatic.net/jatic/cdao/jatic-toolbox/-/issues>`_.
+   `Toolbox Repo <https://gitlab.jatic.net/jatic/cdao/maite/-/issues>`_.
 
 ===========================================
 Current Implementation of Toolbox Protocols
@@ -65,26 +65,26 @@ testing and evaluation.
       from typing import runtime_checkable, Protocol
 
 
-      import jatic_toolbox.protocols as pr
+      import maite.protocols as pr
       import numpy as np
       import torch as tr
-      from jatic_toolbox.testing.pyright import pyright_analyze
+      from maite.testing.pyright import pyright_analyze
       from PIL import Image
 
 
 Array Objects
 -------------
 
-An :class:`~jatic_toolbox.protocols.ArrayLike` defines a common interface for objects that can be manipulated as arrays, regardless of the specific implementation.
+An :class:`~maite.protocols.ArrayLike` defines a common interface for objects that can be manipulated as arrays, regardless of the specific implementation.
 This allows code to be written in a more generic way, allowing it to work with different array-like objects without having to
-worry about the details of the specific implementation. With an :class:`~jatic_toolbox.protocols.ArrayLike` protocol, developers can write functions and algorithms
+worry about the details of the specific implementation. With an :class:`~maite.protocols.ArrayLike` protocol, developers can write functions and algorithms
 that operate on arrays without defining the specific implementation of arrays to use. 
 
 This will improve code readability and maintainability, as well as make it easier to switch to different array implementations
-if needed. For example, developers can write functions that takes an :class:`~jatic_toolbox.protocols.ArrayLike` object as input and perform some mathematical
-operation on the elements. This function would work with any object that satisfies the :class:`~jatic_toolbox.protocols.ArrayLike` protocol,
+if needed. For example, developers can write functions that takes an :class:`~maite.protocols.ArrayLike` object as input and perform some mathematical
+operation on the elements. This function would work with any object that satisfies the :class:`~maite.protocols.ArrayLike` protocol,
 such as a numpy `ndarray`, a PyTorch `tensor`, or a custom object that implements the same methods and attributes as
-the :class:`~jatic_toolbox.protocols.ArrayLike` protocol. In addition, an :class:`~jatic_toolbox.protocols.ArrayLike` protocol is useful for providing type hints and improving code safety,
+the :class:`~maite.protocols.ArrayLike` protocol. In addition, an :class:`~maite.protocols.ArrayLike` protocol is useful for providing type hints and improving code safety,
 as it can be used in conjunction with a static type checker to ensure that the correct types of objects are being passed
 as arguments. This can help catch errors before they cause problems at runtime.
 
@@ -120,15 +120,15 @@ as arguments. This can help catch errors before they cause problems at runtime.
    .. admonition:: Note
    
       The use of `pyright_analyze` requires the `pyright` package to be installed
-      and all imports and code to be within a function. See :class:`jatic_toolbox.testing.pyright.pyright_analyze`
+      and all imports and code to be within a function. See :class:`maite.testing.pyright.pyright_analyze`
       for more details.
 
    .. code-block:: python
 
-      from jatic_toolbox.testing.pyright import pyright_analyze
+      from maite.testing.pyright import pyright_analyze
 
       def test_array_like():
-         import jatic_toolbox.protocols as pr
+         import maite.protocols as pr
          import numpy as np
          import torch as tr
          from PIL import Image
@@ -237,16 +237,16 @@ have an "image" key. For metrics like accuracy, a data object must have a "label
    .. admonition:: Note
    
       The use of `pyright_analyze` requires the `pyright` package to be installed
-      and all imports and code to be within a function. See :class:`jatic_toolbox.testing.pyright.pyright_analyze`
+      and all imports and code to be within a function. See :class:`maite.testing.pyright.pyright_analyze`
       for more details.
 
    .. code-block:: python
 
-      from jatic_toolbox.testing.pyright import pyright_analyze
+      from maite.testing.pyright import pyright_analyze
 
       def test_supports_image():
          from typing import cast
-         import jatic_toolbox.protocols as pr
+         import maite.protocols as pr
          import torch as tr
 
          def supports_image(x: pr.HasDataImage):
@@ -315,7 +315,7 @@ or a "predictions" output containing "scores" and "labels" attributes.
    .. code-block:: python
 
       from dataclasses import dataclass
-      import jatic_toolbox.protocols as pr
+      import maite.protocols as pr
       import torch as tr
 
       @dataclass
@@ -340,16 +340,16 @@ or a "predictions" output containing "scores" and "labels" attributes.
    .. admonition:: Note
    
       The use of `pyright_analyze` requires the `pyright` package to be installed
-      and all imports and code to be within a function. See :class:`jatic_toolbox.testing.pyright.pyright_analyze`
+      and all imports and code to be within a function. See :class:`maite.testing.pyright.pyright_analyze`
       for more details.
 
    .. code-block:: python
 
-      from jatic_toolbox.testing.pyright import pyright_analyze
+      from maite.testing.pyright import pyright_analyze
 
       def test_supports_probs():
          from dataclasses import dataclass
-         import jatic_toolbox.protocols as pr
+         import maite.protocols as pr
          import torch as tr
 
          @dataclass

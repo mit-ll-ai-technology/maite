@@ -2,7 +2,7 @@ Please read through the following resources before you begin working on any cont
 code base.
 
 
-- [Maintaining the jatic-toolbox](#maintaining-the-jatic-toolbox)
+- [Maintaining MAITE](#maintaining-maite)
   - [Project dependencies, metadata, and versioning](#project-dependencies-metadata-and-versioning)
   - [Branching and Merging](#branching-and-merging)
   - [Tooling configuration](#tooling-configuration)
@@ -10,9 +10,9 @@ code base.
     - [Running tox](#running-tox)
 
 ## Contributor Basics
-### Installing jatic toolbox for development
+### Installing MAITE for development
 
-Install the toolbox along with its test dependencies; checkout the repo, navigate to its top level and run
+Install MAITE along with its test dependencies; checkout the repo, navigate to its top level and run
 
 ```shell
 pip install -e .[test]
@@ -31,7 +31,7 @@ First install pre-commit in your Python environment. Run:
 pip install pre-commit
 ```
 
-Then, in the top-level of the `jatic_toolbox` repo, run:
+Then, in the top-level of the `maite` repo, run:
 
 ```console
 pre-commit install
@@ -53,7 +53,7 @@ It also runs [flake8](https://github.com/PyCQA/flake8) to enforce PEP8 standards
 
 The most basic use case of `pytest` is trivial: it will look for files with the word "test" in their name, and will look for functions that also have "test" in their name, and it will simply run those functions.
 
-Navigate to the top-level of `jatic_toolbox` and run:
+Navigate to the top-level of `maite` and run:
 
 ```console
 pytest tests/
@@ -133,7 +133,7 @@ def count_vowels(x: str, include_y: bool = False) -> int:
     return sum(1 for char in x if char in vowels)
 ```
 
-See the Examples section of the jatic-toolbox's docs for a deep dive into this.
+See the Examples section of MAITE's docs for a deep dive into this.
 
 ### Documentation Strings
 
@@ -257,9 +257,9 @@ While this is helpful for getting immediate feedback about your code, it is no s
 tox -e pyright
 ```
 
-# Maintaining the jatic-toolbox
+# Maintaining MAITE
 
-The following lays out the essentials for maintaining the jatic-toolbox. It is recommended that you read the previous "Contributor Basics" before proceeding.
+The following lays out the essentials for maintaining the MAITE library. It is recommended that you read the previous "Contributor Basics" before proceeding.
 
 
 ## Project dependencies, metadata, and versioning
@@ -269,7 +269,7 @@ The project's build tooling (e.g. that we use setuptools to builds the installab
 The `project > dependencies` section is where the project's minimum dependencies are specified.
 In the case that a new dependency is added, a minimum version must be specified. `project > optional-dependencies` includes the dependencies that are needed to run our test suite, dependencies for the `mushin` and `datasets` submodules.
 
-The project's version (e.g. `v0.3.0`) is managed by [setuptools_scm](https://github.com/pypa/setuptools_scm), meaning that the `jatic_toolbox.__version__` attribute is not set manually, rather it is derived from the project's latest git-commit tag of the form `vX.Y.Z`. See [Creating a new release and publishing to PyPI](#creating-a-new-release-and-publishing-to-pypi) for more details.
+The project's version (e.g. `v0.3.0`) is managed by [setuptools_scm](https://github.com/pypa/setuptools_scm), meaning that the `maite.__version__` attribute is not set manually, rather it is derived from the project's latest git-commit tag of the form `vX.Y.Z`. See [Creating a new release and publishing to PyPI](#creating-a-new-release-and-publishing-to-pypi) for more details.
 
 ## Branching and Merging
 
@@ -311,7 +311,7 @@ If you use `conda` to manage Python environments already, you can have `tox` use
 $ pip install tox-conda
 ```
 
-The toolbox's tox config is located under the `[tool.tox]` entry in the pyproject.toml file. Navigate to the top-level `jatic_tolbox` directory and run `tox -a -v` to list all of the environments and their descriptions.
+The library's tox config is located under the `[tool.tox]` entry in the pyproject.toml file. Navigate to the top-level `maite` directory and run `tox -a -v` to list all of the environments and their descriptions.
 
 As an example, to run the test suite in Python 3.10 environment, run:
 

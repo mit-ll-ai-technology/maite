@@ -8,8 +8,8 @@ from typing import List
 import pytest
 from pytest import param
 
-from jatic_toolbox.errors import InvalidArgument
-from jatic_toolbox.testing.project import (
+from maite.errors import InvalidArgument
+from maite.testing.project import (
     CompletenessSection,
     ModuleScan,
     ModuleScanResults,
@@ -18,7 +18,7 @@ from jatic_toolbox.testing.project import (
     get_public_symbols,
     import_public_symbols,
 )
-from jatic_toolbox.testing.pyright import Summary
+from maite.testing.pyright import Summary
 from tests import module_scan
 
 ParameterSet = type(param("s"))
@@ -41,7 +41,7 @@ def test_bad_path_to_pyright():
         FileNotFoundError,
         match=r"`path_to_pyright` – bad_path – doesn't exist",
     ):
-        scanner("jatic_toolbox", path_to_pyright=Path("bad_path"))
+        scanner("maite", path_to_pyright=Path("bad_path"))
 
 
 def test_scan_caching():
@@ -50,13 +50,13 @@ def test_scan_caching():
     assert scanner.cache_info().misses == 0
     assert scanner.cache_info().hits == 0
 
-    scanner("jatic_toolbox")
+    scanner("maite")
     assert scanner.cache_info().currsize == 1
     assert scanner.cache_info().misses == 1
     assert scanner.cache_info().hits == 0
 
-    scanner("jatic_toolbox")
-    scanner("jatic_toolbox")
+    scanner("maite")
+    scanner("maite")
     assert scanner.cache_info().currsize == 1
     assert scanner.cache_info().misses == 1
     assert scanner.cache_info().hits == 2
@@ -68,34 +68,34 @@ def test_scan_caching():
 
 
 def test_known_scan():
-    results = module_scan("jatic_toolbox")["typeCompleteness"]
-    assert results["packageName"] == "jatic_toolbox"
+    results = module_scan("maite")["typeCompleteness"]
+    assert results["packageName"] == "maite"
     modules = set(v["name"] for v in results["modules"])
     # must update this if project's modules are renamed
     assert {
-        "jatic_toolbox.testing.docs",
-        "jatic_toolbox.testing.project",
-        "jatic_toolbox.testing.pyright",
-        "jatic_toolbox.testing.pytest",
-        "jatic_toolbox.testing",
-        "jatic_toolbox.utils.validation",
-        "jatic_toolbox.utils",
-        "jatic_toolbox",
+        "maite.testing.docs",
+        "maite.testing.project",
+        "maite.testing.pyright",
+        "maite.testing.pytest",
+        "maite.testing",
+        "maite.utils.validation",
+        "maite.utils",
+        "maite",
     } <= modules
     assert not any(
         name.split(".")[-1].startswith("_") for name in modules
     ), "reported module is private"
 
 
-@pytest.mark.parametrize("submodule", ["", "jatic_toolbox.testing.project"])
+@pytest.mark.parametrize("submodule", ["", "maite.testing.project"])
 def test_public_symbols(submodule):
     symbols = get_public_symbols(
-        module_scan("jatic_toolbox"), submodule=submodule, include_dunder_names=False
+        module_scan("maite"), submodule=submodule, include_dunder_names=False
     )
     names = set(s["name"] for s in symbols)
     assert {
-        "jatic_toolbox.testing.project.ModuleScan",
-        "jatic_toolbox.testing.project.get_public_symbols",
+        "maite.testing.project.ModuleScan",
+        "maite.testing.project.get_public_symbols",
     } <= names
     for symbol in symbols:
         *_, name = symbol["name"].split(".")
@@ -105,9 +105,9 @@ def test_public_symbols(submodule):
 
 
 def test_invalid_submodule():
-    results = module_scan("jatic_toolbox")
+    results = module_scan("maite")
     with pytest.raises(InvalidArgument, match="11 is not a valid module name."):
-        get_public_symbols(results, submodule="jatic_toolbox.11")
+        get_public_symbols(results, submodule="maite.11")
 
 
 def test_special_method_filtering():
@@ -210,10 +210,10 @@ def test_special_method_filtering():
 
 
 def test_import_symbols():
-    results = module_scan("jatic_dummy.basic")
+    results = module_scan("maite_dummy.basic")
     out = list(import_public_symbols(results))
 
-    from jatic_dummy.basic.stuff import (
+    from maite_dummy.basic.stuff import (
         AClass,
         ADataClass,
         AProtocol,
@@ -227,7 +227,7 @@ def test_import_symbols():
 
 
 def test_import_pytest_skip():
-    results = module_scan("jatic_dummy.basic")
+    results = module_scan("maite_dummy.basic")
     out: List[str] = [
         x.values[0]
         for x in import_public_symbols(results, skip_module_not_found="pytest-skip")
@@ -235,13 +235,13 @@ def test_import_pytest_skip():
     ]  # type: ignore
 
     expected = {
-        "jatic_dummy.basic.needs_mygrad.func_needs_mygrad",
+        "maite_dummy.basic.needs_mygrad.func_needs_mygrad",
     }
     assert sorted(out) == sorted(expected)
 
 
 def test_validate_import_public_symbols_input():
-    results = module_scan("jatic_dummy.basic")
+    results = module_scan("maite_dummy.basic")
 
     with pytest.raises(
         InvalidArgument,

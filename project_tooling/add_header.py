@@ -82,5 +82,5 @@ def add_headers(files: Iterable[Path]):
 
 
 if __name__ == "__main__":
-    add_headers(get_src_files("./src/jatic_toolbox/"))
+    add_headers(get_src_files("./src/maite/"))
     add_headers(get_src_files("./tests/"))

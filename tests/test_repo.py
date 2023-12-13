@@ -11,11 +11,11 @@ from tests import all_dummy_subpkgs
 
 
 def test_version():
-    import jatic_toolbox
+    import maite
 
-    assert isinstance(jatic_toolbox.__version__, str)
-    assert jatic_toolbox.__version__
-    assert "unknown" not in jatic_toolbox.__version__
+    assert isinstance(maite.__version__, str)
+    assert maite.__version__
+    assert "unknown" not in maite.__version__
 
 
 def test_xfail_strict(pytestconfig: Config):
@@ -27,4 +27,4 @@ def test_xfail_strict(pytestconfig: Config):
 
 @pytest.mark.parametrize("subpkg_name", all_dummy_subpkgs)
 def test_dummy_projects_installed(subpkg_name: str):
-    import_module(f"jatic_dummy.{subpkg_name}")
+    import_module(f"maite_dummy.{subpkg_name}")

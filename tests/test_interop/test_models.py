@@ -8,22 +8,22 @@ import numpy as np
 import pytest
 from hypothesis import given, settings
 
-import jatic_toolbox
-import jatic_toolbox.protocols as pr
-from jatic_toolbox._internals.import_utils import (
+import maite
+import maite.protocols as pr
+from maite._internals.import_utils import (
     is_pil_available,
     is_torch_available,
     requires_hf_transformers,
     requires_torchvision,
 )
-from jatic_toolbox._internals.interop import registry
-from jatic_toolbox._internals.interop.huggingface import api as hf_api
-from jatic_toolbox.errors import InvalidArgument
+from maite._internals.interop import registry
+from maite._internals.interop.huggingface import api as hf_api
+from maite.errors import InvalidArgument
 
 
 def test_errors_list_models():
     with pytest.raises(InvalidArgument):
-        jatic_toolbox.list_models(provider="_dummy")  # type: ignore
+        maite.list_models(provider="_dummy")  # type: ignore
 
 
 @pytest.mark.parametrize(
@@ -32,7 +32,7 @@ def test_errors_list_models():
 )
 def test_errors_load_model(task, provider):
     with pytest.raises(InvalidArgument):
-        jatic_toolbox.load_model(model_name="_dummy", task=task, provider=provider)
+        maite.load_model(model_name="_dummy", task=task, provider=provider)
 
 
 @requires_hf_transformers
@@ -49,7 +49,7 @@ def test_errors_hf_load_model(task, provider):
 def test_load_model_from_registry(mocker):
     from ..common import huggingface as hf_common
 
-    data = jatic_toolbox.list_models()
+    data = maite.list_models()
     assert all(x == y for x, y in zip(data, registry.MODEL_REGISTRY.keys()))
 
     feature_loader = "transformers.AutoFeatureExtractor.from_pretrained"
@@ -57,21 +57,21 @@ def test_load_model_from_registry(mocker):
     processor, model = hf_common.get_test_vision_model()
     mocker.patch(feature_loader, return_value=processor)
     mocker.patch(model_loader, return_value=model)
-    jatic_toolbox.load_model(model_name="vit_for_cifar10")
+    maite.load_model(model_name="vit_for_cifar10")
 
 
 @requires_hf_transformers
 @pytest.mark.parametrize("task", [None, "image-classification", "bad_task"])
 def test_errors_hf_load_model_from_hub(task):
     with pytest.raises(InvalidArgument):
-        jatic_toolbox.load_model(model_name="_dummy", provider="huggingface", task=task)
+        maite.load_model(model_name="_dummy", provider="huggingface", task=task)
 
 
 @requires_torchvision
 @pytest.mark.parametrize("task", [None, "image-classification", "bad_task"])
 def test_errors_tv_load_model_from_hub(task):
     with pytest.raises(InvalidArgument):
-        jatic_toolbox.load_model(model_name="_dummy", provider="torchvision", task=task)
+        maite.load_model(model_name="_dummy", provider="torchvision", task=task)
 
 
 @requires_hf_transformers
@@ -79,7 +79,7 @@ def test_errors_tv_load_model_from_hub(task):
     "kwargs", [dict(filter_str="resnet18"), dict(model_name="resnet-50")]
 )
 def test_hf_list_models(kwargs):
-    models = jatic_toolbox.list_models(provider="huggingface", **kwargs)
+    models = maite.list_models(provider="huggingface", **kwargs)
     assert issubclass(type(models), list)
     assert len(list(models)) > 0
 
@@ -103,7 +103,7 @@ def test_hf_models(mocker, task):
     mocker.patch(feature_loader, return_value=processor)
     mocker.patch(model_loader, return_value=model)
 
-    model = jatic_toolbox.load_model(
+    model = maite.load_model(
         provider="huggingface",
         task=task,
         model_name="test",
@@ -117,9 +117,7 @@ def test_hf_models(mocker, task):
     [("image-classification", "resnet18"), ("object-detection", None), (None, None)],
 )
 def test_tv_list_models(task, filter_str):
-    models = jatic_toolbox.list_models(
-        provider="torchvision", filter_str=filter_str, task=task
-    )
+    models = maite.list_models(provider="torchvision", filter_str=filter_str, task=task)
     assert issubclass(type(models), list)
     assert len(list(models)) > 0
 
@@ -141,7 +139,7 @@ def test_tv_load_models(mocker, task):
     )
     mocker.patch("torchvision.models._api.get_model", return_value=mock_model)
 
-    model_out = jatic_toolbox.load_model(
+    model_out = maite.load_model(
         provider="torchvision",
         task="object-detection",
         model_name="test",
@@ -168,7 +166,7 @@ def _draw_data(data, img_type):
     if img_type == "pillow" and is_pil_available():
         from PIL import Image
 
-        from jatic_toolbox._internals.interop.utils import is_pil_image
+        from maite._internals.interop.utils import is_pil_image
 
         array = Image.fromarray((array * 255).astype("uint8")).convert("RGB")
         assert is_pil_image(array)
@@ -192,14 +190,14 @@ def test_huggingface_get_labels_sorted(task):
     from ..common import huggingface as hf_common
 
     if task == "image-classification":
-        from jatic_toolbox._internals.interop.huggingface.image_classifier import (
+        from maite._internals.interop.huggingface.image_classifier import (
             HuggingFaceImageClassifier,
         )
 
         processor, model = hf_common.get_test_vision_model()
         model = HuggingFaceImageClassifier(model, processor)  # type: ignore
     else:
-        from jatic_toolbox._internals.interop.huggingface.object_detection import (
+        from maite._internals.interop.huggingface.object_detection import (
             HuggingFaceObjectDetector,
         )
 
@@ -221,7 +219,7 @@ def test_tv_get_labels_sorted(task):
     from ..common import torchvision as tv_common
 
     if task == "image-classification":
-        from jatic_toolbox._internals.interop.torchvision.torchvision import (
+        from maite._internals.interop.torchvision.torchvision import (
             TorchVisionClassifier,
         )
 
@@ -229,7 +227,7 @@ def test_tv_get_labels_sorted(task):
         labels = weights["DEFAULT"].meta["categories"]
         model = TorchVisionClassifier(model, weights["DEFAULT"].transforms(), labels)
     else:
-        from jatic_toolbox._internals.interop.torchvision.torchvision import (
+        from maite._internals.interop.torchvision.torchvision import (
             TorchVisionObjectDetector,
         )
 
@@ -283,7 +281,7 @@ def test_huggingface_inputs(task, data, img_type, input_type, model_kwargs, kwar
     from ..common import huggingface as hf_common
 
     if task == "image-classification":
-        from jatic_toolbox._internals.interop.huggingface.image_classifier import (
+        from maite._internals.interop.huggingface.image_classifier import (
             HuggingFaceImageClassifier,
         )
 
@@ -295,7 +293,7 @@ def test_huggingface_inputs(task, data, img_type, input_type, model_kwargs, kwar
         else:
             output_protocol = pr.HasProbs
     else:
-        from jatic_toolbox._internals.interop.huggingface.object_detection import (
+        from maite._internals.interop.huggingface.object_detection import (
             HuggingFaceObjectDetector,
         )
 
@@ -354,7 +352,7 @@ def test_torchvision_inputs(task, data, img_type, input_type):
     from ..common import torchvision as tv_common
 
     if task == "image-classification":
-        from jatic_toolbox._internals.interop.torchvision.torchvision import (
+        from maite._internals.interop.torchvision.torchvision import (
             TorchVisionClassifier,
         )
 
@@ -362,7 +360,7 @@ def test_torchvision_inputs(task, data, img_type, input_type):
         model = TorchVisionClassifier(model, weights["DEFAULT"].transforms())
         output_protocol = pr.HasLogits
     else:
-        from jatic_toolbox._internals.interop.torchvision.torchvision import (
+        from maite._internals.interop.torchvision.torchvision import (
             TorchVisionObjectDetector,
         )
 

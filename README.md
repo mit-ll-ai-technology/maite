@@ -1,4 +1,4 @@
-# jatic_toolbox
+# MAITE (Modular AI Trustworthy Engineering)
 
 
 <p align="center">
@@ -17,30 +17,35 @@
     A toolbox of common types, protocols, and tooling to support T&E workflows.
   </p>
   <p align="center">
-    Check out our <a href="https://jatic.pages.jatic.net/cdao/jatic-toolbox">documentation</a>.
+    Check out our <a href="https://jatic.pages.jatic.net/cdao/maite">documentation</a>.
   </p>
 </p>
 
-`jatic_toolbox` is provided to vendors as a source of common types, protocols (a.k.a structural subtypes), utilities, and tooling to be leveraged by JATIC Python projects. It is designed to streamline the development of JATIC Python projects and to ensure that end-users enjoy seamless, synergistic workflows when composing multiple JATIC capabilities. These serve to eliminate redundancies that would otherwise be shared across – and burden –  the majority of JATIC projects. jatic_toolbox  is designed to be a low-dependency, frequently-improved Python package that is installed by JATIC projects. The following is a brief overview of the current state of its submodules.
+MAITE is provided to vendors as a source of common types, protocols (a.k.a structural subtypes), utilities, and tooling to be leveraged by JATIC Python projects. It is designed to streamline the development of JATIC Python projects and to ensure that end-users enjoy seamless, synergistic workflows when composing multiple JATIC capabilities. These serve to eliminate redundancies that would otherwise be shared across – and burden – the majority of JATIC projects. MAITE is designed to be a low-dependency, frequently-improved Python package that is installed by JATIC projects. The following is a brief overview of the current state of its submodules.
 
 ## Installation
 
 To install from source, clone this repository and, from the top-level directory (in the directory containing `src/`), run:
 
 ```console
-$ git clone https://gitlab.jatic.net/jatic/cdao/jatic-toolbox
-$ cd jatic-toolbox
+$ git clone https://gitlab.jatic.net/jatic/cdao/maite
+$ cd maite
 $ pip install .
 ```
 
-Install for a given release tag, e.g. `v0.2.0rc1`, by running:
+You can install MAITE for a given release tag, e.g. `v0.3.0`, by running:
 
 ```console
-$ pip install git+ssh://git@gitlab.jatic.net/jatic/cdao/jatic-toolbox.git@v0.2.0rc1
+$ pip install git+ssh://git@gitlab.jatic.net/jatic/cdao/maite.git@v0.3.0
 ```
 
+If you would like to install an older version with the previous name jatic-toolbox for a given release tag, e.g. `v0.2.3`, run:
 
-## jatic_toolbox.protocols
+```console
+$ pip install git+ssh://git@gitlab.jatic.net/jatic/cdao/maite.git@v0.2.3
+```
+
+## maite.protocols
 
 Defines common types – such as an inference-mode object detector – factor to be leveraged across JATIC projects. These are specifically designed to be [protocols](https://peps.python.org/pep-0544/), which support structural subtyping. As a result developers and users can satisfy typed interfaces without having to explicitly subclass these custom types. These help to promote common interfaces across JATIC projects without introducing explicit inter-dependencies between them.
 
@@ -52,7 +57,7 @@ about the details of the specific implementation. With an `ArrayLike` protocol, 
 operate on arrays without JATIC defining the specific implementation of arrays to use.
 
 ```python
-import jatic_toolbox.protocols as pr
+import maite.protocols as pr
 
 # ArrayLike requires objects that implement `__array__` or `__array_interface__`.
 assert not isinstance([1, 2, 3], pr.ArrayLike)
@@ -71,7 +76,7 @@ from PIL import Image
 array = Image.fromarray(np_array)
 assert not isinstance(array, pr.ArrayLike) 
 ```
-## jatic_toolbox.testing
+## maite.testing
 
 Tools that help developers create a rigorous automated test suite for their JATIC project. These include:
 
@@ -101,12 +106,12 @@ pytest fixtures for initializing test functions with common models, datasets, an
   'timeInSec': 0.319}}
 ```
 
-## jatic_toolbox.interop
+## maite.interop
 
 Wrappers and functions that JATIC protocols compatible with popular 3rd party libraries and frameworks. For example, this module can be used to wrap the object detectors provided by huggingface and timm so that they adhere to the JATIC protocols for object detectors.
 
 ```python
->>> from jatic_toolbox import load_dataset
+>>> from maite import load_dataset
 >>> dataset = load_dataset(
 ...     provider="torchvision",
 ...     dataset_name="CIFAR10",
@@ -117,18 +122,24 @@ Wrappers and functions that JATIC protocols compatible with popular 3rd party li
 ... )
 ```
 
-## jatic_toolbox.utils
+## maite.utils
 
 Provides:
 
-- Functions for validating the types and values of user arguments, with explicit and consistent user-error messages, that raise jatic_toolbox-customized exceptions.
+- Functions for validating the types and values of user arguments, with explicit and consistent user-error messages, that raise maite-customized exceptions.
 - Specialized PyTorch utilities to help facilitate safe and ergonomic code patterns for manipulating stateful torch objects
 - Other quality assurance and convenience functions that may be widely useful across projects
 
 
+## Disclaimer
 
+DISTRIBUTION STATEMENT A. Approved for public release. Distribution is unlimited.
 
-## Points of Contact
+© 2023 MASSACHUSETTS INSTITUTE OF TECHNOLOGY
 
-POC: Michael Yee @myee  
-DPOC: Justin Goodwin @jgoodwin
+* Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014)
+* SPDX-License-Identifier: MIT
+
+This material is based upon work supported by the Under Secretary of Defense for Research and Engineering under Air Force Contract No. FA8702-15-D-0001. Any opinions, findings, conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the Under Secretary of Defense for Research and Engineering.
+
+The software/firmware is provided to you on an As-Is basis

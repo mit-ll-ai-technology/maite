@@ -4,8 +4,8 @@
 
 import pytest
 
-import jatic_toolbox
-from jatic_toolbox._internals.import_utils import (
+import maite
+from maite._internals.import_utils import (
     is_hf_datasets_available,
     is_hf_hub_available,
     is_hf_transformers_available,
@@ -27,12 +27,10 @@ from jatic_toolbox._internals.import_utils import (
 @pytest.mark.parametrize("provider", ["torchvision", "huggingface"])
 def test_import_models_datasets(provider):
     with pytest.raises(ImportError):
-        jatic_toolbox.list_datasets(provider=provider)
-        jatic_toolbox.load_dataset(provider=provider, dataset_name="test")
-        jatic_toolbox.list_models(provider=provider)
-        jatic_toolbox.load_model(
-            provider=provider, model_name="test", task="object-detection"
-        )
+        maite.list_datasets(provider=provider)
+        maite.load_dataset(provider=provider, dataset_name="test")
+        maite.list_models(provider=provider)
+        maite.load_model(provider=provider, model_name="test", task="object-detection")
 
 
 @pytest.mark.skipif(
@@ -42,5 +40,5 @@ def test_import_models_datasets(provider):
 @pytest.mark.parametrize("provider", ["torchmetrics", "torcheval"])
 def test_import_metrics(provider):
     with pytest.raises(ImportError):
-        jatic_toolbox.list_metrics(provider=provider)
-        jatic_toolbox.load_metric(provider=provider, metric_name="test")
+        maite.list_metrics(provider=provider)
+        maite.load_metric(provider=provider, metric_name="test")

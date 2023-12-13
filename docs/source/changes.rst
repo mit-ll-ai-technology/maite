@@ -1,11 +1,11 @@
 .. meta::
-   :description: The changelog for jatic-toolbox, including what's new.
+   :description: The changelog for maite, including what's new.
 
 =========
 Changelog
 =========
 
-This is a record of all past jatic-toolbox releases and what went into them, in reverse 
+This is a record of all past maite releases and what went into them, in reverse 
 chronological order.
 
 .. _v0.2.0:
@@ -21,7 +21,7 @@ Protocols
 ---------
 
 Many updates to the names of protocols, usability, and stability.
-See reference documentation: https://jatic.pages.jatic.net/cdao/jatic-toolbox/api_reference.html
+See reference documentation: https://jatic.pages.jatic.net/cdao/maite/api_reference.html
 
 For an explanation of usage of current protocols see :doc:`explanation/protocols_current`.
 
@@ -32,10 +32,10 @@ Documentation
 -------------
 
 Explanations, how-tos, and tutorials have been added
-to the toolbox documentation at https://jatic.pages.jatic.net/cdao/jatic-toolbox/.
+to the maite documentation at https://jatic.pages.jatic.net/cdao/maite/.
 
 Additionally, be sure to check reference documentation for examples of usage and API details.
-See https://jatic.pages.jatic.net/cdao/jatic-toolbox/api_reference.html.
+See https://jatic.pages.jatic.net/cdao/maite/api_reference.html.
 
 
 Model Inference
@@ -45,8 +45,8 @@ Previous release supported dictionary inputs to models.  This release changes th
 to a single or collection of arrays.  This is more consistent with model inference APIs utilized
 in most deep learning frameworks.
 
-- See image classification model definition: :class:`jatic_toolbox.protocols.ImageClassifier`
-- See object detection model definition: :class:`jatic_toolbox.protocols.ObjectDetector`
+- See image classification model definition: :class:`maite.protocols.ImageClassifier`
+- See object detection model definition: :class:`maite.protocols.ObjectDetector`
 
 Additionally, the use of pre-processors and post-processors is kept internal to model inference
 rather than explicitly requiring users to manage these steps.  Integration with augmentations and
@@ -69,5 +69,5 @@ Stability and Usability
 0.1.0 - 2023-05-12
 ---------------------
 
-This marks the first release of the jatic-toolbox.  We are not yet at a stable `v1.0.0`.  Future release will aim to improving testing and stability of the software for general use.
+This marks the first release of the maite.  We are not yet at a stable `v1.0.0`.  Future release will aim to improving testing and stability of the software for general use.
 

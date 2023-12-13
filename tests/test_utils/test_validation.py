@@ -11,8 +11,8 @@ import hypothesis.strategies as st
 import pytest
 from hypothesis import assume, given, settings
 
-from jatic_toolbox.errors import InvalidArgument
-from jatic_toolbox.utils.validation import (
+from maite.errors import InvalidArgument
+from maite.utils.validation import (
     chain_validators,
     check_domain,
     check_one_of,

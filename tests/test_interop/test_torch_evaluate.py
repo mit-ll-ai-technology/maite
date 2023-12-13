@@ -12,10 +12,10 @@ import typing_extensions as tpe
 from PIL import Image
 from torch.utils.data import Dataset
 
-import jatic_toolbox
-from jatic_toolbox import protocols as pr
-from jatic_toolbox._internals.import_utils import requires_torchmetrics
-from jatic_toolbox._internals.interop.utils import is_pil_image
+import maite
+from maite import protocols as pr
+from maite._internals.import_utils import requires_torchmetrics
+from maite._internals.interop.utils import is_pil_image
 
 
 class RandomDataset(Dataset):
@@ -59,7 +59,7 @@ class RandomDetectionDataset(Dataset):
         return pr.SupportsObjectDetection(
             image=self.data[index],
             objects=pr.HasDataBoxesLabels(
-                boxes=np.asarray([[0, 0, 1, 1]]), labels=np.asarray([[0, 0, 0, 0]])
+                boxes=np.asarray([[0, 0, 1, 1]]), labels=np.asarray([0])
             ),
         )
 
@@ -136,9 +136,11 @@ class DetectionModel(tr.nn.Module):
         if self.no_dataclass:
             return x
 
-        scores = tr.tensor([0.5])
-        bbox = tr.tensor([[0, 0, 1, 1]])
-        label = tr.tensor([0])
+        scores = tr.tensor([[0.5], [0.5], [0.5], [0.5]])
+        bbox = tr.tensor(
+            [[[0, 0, 1, 1]], [[0, 0, 1, 1]], [[0, 0, 1, 1]], [[0, 0, 1, 1]]]
+        )
+        label = tr.tensor([[0], [0], [0], [0]])
         return DetectorOutput(boxes=bbox, labels=label, scores=scores)
 
 
@@ -165,7 +167,7 @@ def test_evaluate(use_progress_bar, with_logits, no_dataclass, data_type):
     model = VisionModel(with_logits=with_logits, no_dataclass=no_dataclass)
     metric = Metric()
 
-    evaluator = jatic_toolbox.evaluate("image-classification")
+    evaluator = maite.evaluate("image-classification")
 
     if no_dataclass:
         with pytest.raises(ValueError):
@@ -198,7 +200,7 @@ def test_evaluate_object_detection(use_progress_bar, no_dataclass, data_type):
     model = DetectionModel(no_dataclass)
     metric = Metric()
 
-    evaluator = jatic_toolbox.evaluate("object-detection")
+    evaluator = maite.evaluate("object-detection")
 
     if no_dataclass:
         with pytest.raises(ValueError):
@@ -233,7 +235,39 @@ def test_evaluate_image_classification_default_metric(
     data = RandomDataset(data_type, 10, 10)
     model = VisionModel(with_logits=with_logits, no_dataclass=no_dataclass)
 
-    evaluator = jatic_toolbox.evaluate("image-classification")
+    evaluator = maite.evaluate("image-classification")
+
+    if no_dataclass:
+        with pytest.raises(ValueError):
+            evaluator(
+                model,
+                data,
+                batch_size=4,
+                device=0,
+                use_progress_bar=use_progress_bar,
+            )
+        return
+
+    evaluator(
+        model,
+        data,
+        batch_size=4,
+        device=0,
+        use_progress_bar=use_progress_bar,
+    )
+
+
+@requires_torchmetrics
+@pytest.mark.parametrize("use_progress_bar", [True, False])
+@pytest.mark.parametrize("no_dataclass", [True, False])
+@pytest.mark.parametrize("data_type", ["numpy", "tensor", "pillow"])
+def test_evaluate_object_detection_default_metric(
+    use_progress_bar, no_dataclass, data_type
+):
+    data = RandomDetectionDataset(data_type, 10, 4)
+    model = DetectionModel(no_dataclass=no_dataclass)
+
+    evaluator = maite.evaluate("object-detection")
 
     if no_dataclass:
         with pytest.raises(ValueError):

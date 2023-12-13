@@ -2,18 +2,18 @@
 Run a Basic Evaluation
 ======================
 
-The JATIC Toolbox provides APIs for datasets, models, metrics, and evaluation
+The MAITE provides APIs for datasets, models, metrics, and evaluation
 to make the use of JATIC capabilities more consistent across T&E tools.
 
-In this tutorial, you will use methods from jatic-toolbox to:
+In this tutorial, you will use methods from MAITE to:
 
 - List datasets that are available from different providers, and load the CIFAR-10 test set from `TorchVision <https://pytorch.org/vision/stable/datasets.html>`__,
 - List models that are available from different providers, and load a model from `HuggingFace <https://huggingface.co/datasets>`__ that has been pretrained on CIFAR-10,
 - List metrics that are available from different providers, and load an accuracy metric from `TorchMetrics <https://github.com/Lightning-AI/torchmetrics>`__, and
 - Run an evaluation to compute the accuracy of the loaded model on the CIFAR-10 test set.
 
-Once complete, you will have a basic understanding of the toolbox's APIs for loading data,
-models, and metrics from various external libraries, and use the toolbox's native API for
+Once complete, you will have a basic understanding of the MAITE's APIs for loading data,
+models, and metrics from various external libraries, and use the MAITE's native API for
 running evaluations.
 
 This tutorial does not assume any prior knowledge, but some experience with Python, machine learning,
@@ -27,39 +27,39 @@ If you don't already have it installed, follow the instructions on the PyTorch w
 `here <https://pytorch.org/get-started/locally/>`__ to install the version that matches
 your OS, compute platform, and preferred package manager.
 
-To install jatic-toolbox in your Python environment, run the following command in your terminal:
+To install maite in your Python environment, run the following command in your terminal:
 
 .. code:: shell
 
-    pip install jatic-toolbox[all_interop]
+    pip install maite[all_interop]
 
 ``all_interop`` ensures you have the necessary packages to interoperate with external providers
 such as TorchVision, HuggingFace, and TorchMetrics.
 This will allow you to access datasets, models, and
 metrics from these providers, which are needed for this tutorial.
 
-Alternatively, you can also install the toolbox by cloning the git repository and installing locally:
+Alternatively, you can also install the maite by cloning the git repository and installing locally:
 
 .. code:: shell
 
-    git clone git@gitlab.jatic.net:jatic/cdao/jatic-toolbox.git
-    cd jatic-toolbox
+    git clone git@gitlab.jatic.net:jatic/cdao/maite.git
+    cd maite
     pip install .[all_interop]
 
-To verify that the toolbox is installed as expected, open a Python console and try importing:
+To verify that the maite is installed as expected, open a Python console and try importing:
 
 .. code:: pycon
 
-    >>> import jatic_toolbox
+    >>> import maite
 
-We will now use jatic-toolbox to list and load a dataset, model, and metrics, and then use those to run
+We will now use maite to list and load a dataset, model, and metrics, and then use those to run
 an evaluation.
 
 
 Listing and Loading Datasets
 ============================
 
-The JATIC toolbox provides APIs for listing and loading datasets from multiple providers,
+The MAITE provides APIs for listing and loading datasets from multiple providers,
 including `TorchVision <https://pytorch.org/vision/stable/datasets.html>`__
 and `HuggingFace <https://huggingface.co/datasets>`__.
 
@@ -71,7 +71,7 @@ and then use it to list the first 20 datasets that are available from TorchVisio
 
 .. code:: pycon
 
-    >>> from jatic_toolbox import list_datasets
+    >>> from maite import list_datasets
 
 .. code:: pycon
 
@@ -128,11 +128,11 @@ We'll use the CIFAR-10 dataset for this tutorial, due to its moderate size
 and the availability of pretrained models.
 
 To load the test set from the TorchVision version of CIFAR-10, we'll use the
-toolbox's ``load_dataset`` method:
+maite's ``load_dataset`` method:
 
 .. code:: pycon
 
-    >>> from jatic_toolbox import load_dataset
+    >>> from maite import load_dataset
 
 .. code:: pycon
 
@@ -178,7 +178,7 @@ Now that your dataset is configured, it's time to select and load a model to eva
 Listing and Loading Models
 ==========================
 
-The JATIC Toolbox provides APIs for listing and loading models and pretrained weights from multiple providers,
+The MAITE provides APIs for listing and loading models and pretrained weights from multiple providers,
 including `TorchVision <https://pytorch.org/vision/stable/models.html>`__
 and `HuggingFace <https://huggingface.co/models>`__.
 
@@ -190,7 +190,7 @@ available from TorchVision and HuggingFace for image classification:
 
 .. code:: pycon
 
-    >>> from jatic_toolbox import list_models
+    >>> from maite import list_models
 
 .. code:: pycon
 
@@ -236,11 +236,11 @@ the HuggingFace hub by users in the community.
 Load a Model
 ------------
 
-Next, let's load one of those HuggingFace models using the toolbox's ``load_model`` method:
+Next, let's load one of those HuggingFace models using the maite's ``load_model`` method:
 
 .. code:: pycon
 
-    >>> from jatic_toolbox import load_model
+    >>> from maite import load_model
 
 .. code:: pycon
 
@@ -277,7 +277,7 @@ let's load a metric that we'll use to compute performance of the model across th
 Listing and Loading Metrics
 ===========================
 
-The JATIC Toolbox also provides APIs for listing and loading metrics from common providers,
+The MAITE also provides APIs for listing and loading metrics from common providers,
 including `TorchMetrics <https://github.com/Lightning-AI/torchmetrics>`__
 and `TorchEval <https://github.com/pytorch/torcheval>`__.
 
@@ -288,7 +288,7 @@ We'll start by using the ``list_metrics`` method to compare the number of metric
 
 .. code:: pycon
 
-    >>> from jatic_toolbox import list_metrics
+    >>> from maite import list_metrics
 
 .. code:: pycon
 
@@ -353,11 +353,11 @@ Load Metrics
 ------------
 
 For this tutorial, we'll evaluate the performance of our model using a common metric: accuracy.
-We'll use the toolbox's ``load_metric`` method to load and configure the accuracy metric from TorchMetrics:
+We'll use the maite's ``load_metric`` method to load and configure the accuracy metric from TorchMetrics:
 
 .. code:: pycon
 
-    >>> from jatic_toolbox import load_metric
+    >>> from maite import load_metric
 
 .. code:: pycon
 
@@ -368,11 +368,11 @@ You are now ready to run a full evaluation using your dataset, model, and metric
 Run an Evaluation
 =================
 
-First, instantiate an evaluator using the jatic-toolbox ``evaluate`` method:
+First, instantiate an evaluator using the maite ``evaluate`` method:
 
 .. code:: pycon
 
-    >>> from jatic_toolbox import evaluate
+    >>> from maite import evaluate
 
 .. code:: pycon
 
@@ -397,6 +397,6 @@ Once complete, print your results:
     >>> print(output)
     {'accuracy': tensor(0.9736)}
 
-Congrats! You have now successfully used the jatic-toolbox to load a dataset, model,
+Congrats! You have now successfully used the maite to load a dataset, model,
 and metric from external providers, and run an evaluation to compute the accuracy of
 the loaded model on the CIFAR-10 test dataset.

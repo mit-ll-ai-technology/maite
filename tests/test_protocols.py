@@ -7,15 +7,15 @@ from pathlib import Path
 
 import pytest
 
-import jatic_toolbox.protocols as pr
-from jatic_toolbox._internals.import_utils import is_numpy_available, is_torch_available
-from jatic_toolbox._internals.testing.pyright import chdir
-from jatic_toolbox.testing.pyright import pyright_analyze
+import maite.protocols as pr
+from maite._internals.import_utils import is_numpy_available, is_torch_available
+from maite._internals.testing.pyright import chdir
+from maite.testing.pyright import pyright_analyze
 
 
 def define_model(input_type, output_type):
     return f"""
-from jatic_toolbox.protocols import Model
+from maite.protocols import Model
 from typing import List, Tuple
 {input_type} as InputType
 {output_type} as OutputType
@@ -56,13 +56,13 @@ f(GoodModel())
 def save_models():
     inputs = [
         "from builtins import int",
-        "from jatic_toolbox.protocols import ArrayLike",
-        "from jatic_toolbox.protocols import SupportsArray",
+        "from maite.protocols import ArrayLike",
+        "from maite.protocols import SupportsArray",
     ]
     outputs = [
         "from builtins import int",
-        "from jatic_toolbox.protocols import HasProbs",
-        "from jatic_toolbox.protocols import HasLogits",
+        "from maite.protocols import HasProbs",
+        "from maite.protocols import HasLogits",
     ]
 
     with chdir():
@@ -94,7 +94,7 @@ def test_model_isinstance(protocol):
 
 def define_metrics(input_type, output_type):
     return f"""
-from jatic_toolbox.protocols import Model
+from maite.protocols import Model
 from typing import List, Tuple
 {input_type} as InputType
 {output_type} as OutputType
@@ -126,13 +126,13 @@ f(GoodMetric())
 def save_metrics():
     inputs = [
         "from builtins import int",
-        "from jatic_toolbox.protocols import ArrayLike",
-        "from jatic_toolbox.protocols import SupportsArray",
+        "from maite.protocols import ArrayLike",
+        "from maite.protocols import SupportsArray",
     ]
     outputs = [
         "from builtins import int",
-        "from jatic_toolbox.protocols import HasProbs",
-        "from jatic_toolbox.protocols import HasLogits",
+        "from maite.protocols import HasProbs",
+        "from maite.protocols import HasLogits",
     ]
 
     with chdir():
@@ -203,7 +203,7 @@ def define_provider(
         body["help_def"] = "pass"
 
     return """
-from jatic_toolbox.protocols import MetricProvider, ModelProvider, DatasetProvider, Model, Dataset, Metric, TaskName
+from maite.protocols import MetricProvider, ModelProvider, DatasetProvider, Model, Dataset, Metric, TaskName
 from typing import List, Iterable, Any, Type, TypeAlias
 
 def expects_dataset_provider(provider: DatasetProvider):
@@ -304,7 +304,7 @@ def test_arraylike():
     def func():
         from typing import List, Tuple
 
-        from jatic_toolbox.protocols import ArrayLike
+        from maite.protocols import ArrayLike
 
         def f(x: ArrayLike):
             ...
@@ -365,7 +365,7 @@ def test_torch_arraylike():
     def func():
         from torch import Tensor
 
-        from jatic_toolbox.protocols import ArrayLike
+        from maite.protocols import ArrayLike
 
         def f(x: ArrayLike):
             ...
@@ -384,7 +384,7 @@ def test_numpy_arraylike():
     def func():
         import numpy as np
 
-        from jatic_toolbox.protocols import ArrayLike
+        from maite.protocols import ArrayLike
 
         def f(x: ArrayLike):
             ...
@@ -400,7 +400,7 @@ def test_numpy_arraylike():
 
 def test_classifier_workflow():
     def func():
-        from jatic_toolbox.protocols import (
+        from maite.protocols import (
             DataLoader,
             ImageClassifier,
             Metric,
@@ -436,7 +436,7 @@ def test_classifier_workflow():
 
 def test_object_detector_workflow():
     def func():
-        from jatic_toolbox.protocols import (
+        from maite.protocols import (
             DataLoader,
             Metric,
             ObjectDetectionDataLoader,

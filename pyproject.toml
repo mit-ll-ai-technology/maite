@@ -8,7 +8,7 @@ build-backend = "setuptools.build_meta"
 
 
 [project]
-name = "jatic_toolbox"
+name = "maite"
 dynamic = ["version"]
 description = "Utilities for developing test suites for JATIC-related projects."
 readme = "README.md"
@@ -81,13 +81,13 @@ all_interop = [
 ]
 
 [project.urls]
-"Homepage" = "https://jatic.pages.jatic.net/cdao/jatic-toolbox/"
-"Bug Reports" = "https://gitlab.jatic.net/jatic/cdao/jatic-toolbox/-/issues"
-"Source" = "https://gitlab.jatic.net/jatic/cdao/jatic-toolbox"
+"Homepage" = "https://jatic.pages.jatic.net/cdao/maite/"
+"Bug Reports" = "https://gitlab.jatic.net/jatic/cdao/maite/-/issues"
+"Source" = "https://gitlab.jatic.net/jatic/cdao/maite"
 
 
 [tool.setuptools_scm]
-write_to = "src/jatic_toolbox/_version.py"
+write_to = "src/maite/_version.py"
 version_scheme = "no-guess-dev"
 
 
@@ -99,11 +99,11 @@ where = ["src"]
 exclude = ["tests*", "tests.*"]
 
 [tool.setuptools.package-data]
-jatic_toolbox = ["py.typed"]
+maite = ["py.typed"]
 
 
 [tool.isort]
-known_first_party = ["jatic_toolbox", "tests"]
+known_first_party = ["maite", "tests"]
 profile = "black"
 combine_as_imports = true
 
@@ -132,7 +132,7 @@ include = ["src"]
 exclude = [
   "**/node_modules",
   "**/__pycache__",
-  "src/jatic_toolbox/_version.py",
+  "src/maite/_version.py",
   "tests/conftest.py",
   "tests/test_testing/test_type_checking.py",
   "tests/test_testing/test_project.py",

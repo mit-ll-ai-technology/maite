@@ -5,10 +5,10 @@
 Wrap an Image Classification Model
 ==================================
 
-The JATIC Toolbox provides a powerful and flexible interface for models
+The MAITE provides a powerful and flexible interface for models
 of many shapes, purposes, and provider to interact in a uniform way with
 other disparate machine learning objects. Using JATIC wrapped models, we
-can run useful functions like :class:`jatic_toolbox.evaluate`, which allows us to seamlessly
+can run useful functions like :class:`maite.evaluate`, which allows us to seamlessly
 evaluate our model using metrics defined from a handful of metric
 provider libraries.
 
@@ -31,8 +31,8 @@ how-to.  Following are the specific imports needed for this demo.
 
     from typing import Sequence, TYPE_CHECKING, Callable
     
-    from jatic_toolbox import evaluate, load_metric
-    from jatic_toolbox.protocols import (
+    from maite import evaluate, load_metric
+    from maite.protocols import (
         ImageClassifier,
         HasLogits,
         ArrayLike,
@@ -46,9 +46,9 @@ Defining Model Outputs
 Not only are JATIC models themselves standardized, but also their
 outputs. This means we should create a wrapper for our model's outputs.
 We will create a :py:func:`~dataclasses.dataclass` called MNISTOutputs. It will simply define
-the logits that is a type that implements :class:`~jatic_toolbox.protocols.SupportsArray`.
+the logits that is a type that implements :class:`~maite.protocols.SupportsArray`.
 Though this specific implementation is for logits, a very similar wrapper would be created
-for either :class:`~jatic_toolbox.protocols.HasProbs` like outputs, and :class:`~jatic_toolbox.protocols.HasScores` like outputs, depending on the output
+for either :class:`~maite.protocols.HasProbs` like outputs, and :class:`~maite.protocols.HasScores` like outputs, depending on the output
 of the pytorch model.  The test at the bottom of the code block ensures that our wrapper class
 matches the format JATIC expects from our output.
 
@@ -71,9 +71,9 @@ Wrapping Image Classification Models
 ====================================
 
 With our model output defined, we will now define the model itself.
-Image classification must implement the :class:`~jatic-toolbox.protocols.ImageClassifier` protocol.  
+Image classification must implement the :class:`~maite.protocols.ImageClassifier` protocol.  
 That is, it must be a callable function that take in a data object that supports the 
-:class:`~jatic_toolbox.protocols.SupportsArray` protocol while also implementing the 
+:class:`~maite.protocols.SupportsArray` protocol while also implementing the 
 `get_labels` method.  This ``__call__`` function will process images through the model, 
 outputting predictions on that data.  In our case, it will output logits.  The ``get_labels``
 method returns strings associated with each class that can be output, giving themselves
@@ -84,7 +84,7 @@ Methods
 
 ``__call__`` needs the image data provided as an argument, and will
 return the predictions the model provides on that data. To ensure JATIC
-compliance, the input data should be typed as :class:`~jatic-toolbox.protocols.SupportsArray`.
+compliance, the input data should be typed as :class:`~maite.protocols.SupportsArray`.
 The function will return the logits prediction output, so we will tag our output with HasLogits.
 
 ``get_labels`` doesn't take any arguments, and simply returns a list of the

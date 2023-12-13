@@ -2,7 +2,7 @@
 List, Load, and Configure Metrics
 =================================
 
-The JATIC Toolbox defines a ``Metric`` protocol that standardizes
+The MAITE defines a ``Metric`` protocol that standardizes
 the metric interface across several very similar libraries
 (e.g., `TorchMetrics <https://github.com/Lightning-AI/torchmetrics>`__,
 `TorchEval <https://github.com/pytorch/torcheval>`__)
@@ -13,7 +13,7 @@ with common methods:
 - ``compute``, and
 - ``to(...)``
 
-The toolbox also provides APIs for listing and loading metrics from common providers,
+The maite also provides APIs for listing and loading metrics from common providers,
 including `TorchMetrics <https://github.com/Lightning-AI/torchmetrics>`__ and
 `TorchEval <https://github.com/pytorch/torcheval>`__,
 which adhere to this protocol.
@@ -22,29 +22,29 @@ In this How-To, we will walk through the steps of:
 
 1. Listing available metrics from a provider
 2. Loading a metric from a provider
-3. Verifying that the metric conforms to the jatic-toolbox ``Metric`` protocol
-4. Loading and configuring multiple metrics for use with jatic-toolbox's ``evaluate``
+3. Verifying that the metric conforms to the maite ``Metric`` protocol
+4. Loading and configuring multiple metrics for use with maite's ``evaluate``
 
 0. Installation
 ===============
 If you haven't already, make sure that you've installed the library for the
 metrics provider that you are planning to use (e.g., ``pip install torchmetrics``).
 
-If you want to install all libraries associated with the toolbox's interoperability
-capabilities, you can install them along with the toolbox by running:
+If you want to install all libraries associated with the maite's interoperability
+capabilities, you can install them along with the maite by running:
 
 .. code:: console
 
-   $ pip install jatic-toolbox[all_interop]
+   $ pip install maite[all_interop]
 
 1. List available metrics from a provider
 =========================================
-Use the ``list_metrics`` method to list available metrics from one of the toolbox's
+Use the ``list_metrics`` method to list available metrics from one of the maite's
 supported providers:
 
 .. code:: pycon
 
-    >>> from jatic_toolbox import list_metrics
+    >>> from maite import list_metrics
     >>> print(list_metrics(provider="torchmetrics")[:20])
     ['Accuracy',
     'AUROC',
@@ -77,7 +77,7 @@ Here is an example of loading the accuracy metric from TorchMetrics:
 
 .. code:: python
 
-    from jatic_toolbox import load_metric
+    from maite import load_metric
     
     metric = load_metric(
         provider="torchmetrics",
@@ -105,14 +105,14 @@ Here is an example of using the metric on some toy data:
     >>> metric(preds, target)
     tensor(0.5000)
 
-3. Verify that the metric conforms to the jatic-toolbox ``Metric`` protocol
+3. Verify that the metric conforms to the maite ``Metric`` protocol
 ===========================================================================
-Verify that the metric you just loaded conforms to the toolbox's protocol
+Verify that the metric you just loaded conforms to the maite's protocol
 by asserting that the loaded metric is an instance of ``Metric``:
 
 .. code:: pycon
 
-    >>> from jatic_toolbox.protocols import Metric
+    >>> from maite.protocols import Metric
     >>> assert isinstance(metric, Metric)
 
 This assertion should pass.
@@ -145,17 +145,17 @@ the output reflects the accuracy using both ``preds1`` and ``preds2``.
 After calling ``metric.reset()`` the second time,
 the accuracy is only computed using ``preds2``.
 
-4. Load and configure multiple metrics for use with jatic-toolbox's ``evaluate``
+4. Load and configure multiple metrics for use with maite's ``evaluate``
 ================================================================================
 If you would like to evaluate a model and dataset against multiple metrics at the same time,
 a collection of metrics can be loaded and saved as a dictionary,
-and then passed into the toolbox's ``evaluate`` method.
+and then passed into the maite's ``evaluate`` method.
 
 Here is an example of configuring two different metrics:
 
 .. code:: python
 
-    from jatic_toolbox import load_metric
+    from maite import load_metric
 
     metrics = dict(
         accuracy=load_metric(
@@ -175,15 +175,15 @@ Here is an example of configuring two different metrics:
     )
 
 Note that while in this example we loaded all of the metrics from the
-TorchMetrics provider, the toolbox's standard APIs also allow for
+TorchMetrics provider, the maite's standard APIs also allow for
 mix and matching metrics from multiple providers.
 
-The metrics can now be passed to an instantiation of the toolbox's ``evaluate`` method
+The metrics can now be passed to an instantiation of the maite's ``evaluate`` method
 to run an evaluation given a previously loaded ``model`` and ``dataset``:
 
 .. code:: python
     
-    from jatic_toolbox import evaluate
+    from maite import evaluate
 
     evaluator = evaluate(task="image-classification")
 
@@ -213,7 +213,7 @@ This configuration allowed us to compute the metrics for each of the 10 classes 
 
 We have now walked through the process of listing, loading, and configuring a collection of
 metrics from an external provider (e.g., TorchMetrics) for use in an evaluation,
-as well as verifying a loaded metric adheres to the toolbox's ``Metric`` protocol.
+as well as verifying a loaded metric adheres to the maite's ``Metric`` protocol.
 
 It is also possible to define custom metrics that conform to the ``Metric`` protocol
 and can be used with ``evaluate``,

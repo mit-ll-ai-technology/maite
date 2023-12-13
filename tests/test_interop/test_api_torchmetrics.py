@@ -4,14 +4,14 @@
 
 import pytest
 
-import jatic_toolbox
+import maite
 
-METRICS = list(jatic_toolbox.list_metrics(provider="torchmetrics"))
+METRICS = list(maite.list_metrics(provider="torchmetrics"))
 
 
 @pytest.mark.parametrize("metric", METRICS + ["MeanAveragePrecision"])
 def test_api_torchmetrics_load_metric(metric):
-    m = jatic_toolbox.load_metric(
+    m = maite.load_metric(
         provider="torchmetrics", metric_name=metric, task="multiclass", num_classes=10
     )
     assert m is not None

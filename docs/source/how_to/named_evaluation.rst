@@ -6,12 +6,12 @@
 Use Registered Models, Datasets, and Metrics
 ============================================
 
-The toolbox includes a list of of registered models, datasets, and metrics 
-that can be found at the top level of the toolbox. 
+The MAITE includes a list of of registered models, datasets, and metrics 
+that can be found at the top level of the MAITE. 
 
 .. code-block:: python
 
-    from jatic_toolbox import MODEL_REGISTRY, DATASET_REGISTRY, METRIC_REGISTRY
+    from maite import MODEL_REGISTRY, DATASET_REGISTRY, METRIC_REGISTRY
 
     print(MODEL_REGISTRY.keys())
     print(DATASET_REGISTRY.keys())
@@ -25,26 +25,26 @@ Supported keyword arguments will override the default values.
 
 .. code-block:: python
 
-    import jatic_toolbox
+    import maite
      
-    model = jatic_toolbox.load_model(model_name="vit_for_cifar10")
+    model = maite.load_model(model_name="vit_for_cifar10")
      
     # override default split of "test"
-    dataset = jatic_toolbox.load_dataset(dataset_name="cifar10-test", split="test[:100]")
+    dataset = maite.load_dataset(dataset_name="cifar10-test", split="test[:100]")
     
     # must set num_classes
-    metric = jatic_toolbox.load_metric(metric_name="classification_report", num_classes=10)
+    metric = maite.load_metric(metric_name="classification_report", num_classes=10)
 
 
-These registries can also be used to run :class:`jatic_toolbox.evaluate` with named arguments.
+These registries can also be used to run :class:`maite.evaluate` with named arguments.
 To override default values, pass a dictionary of keyword arguments to ```model_kwargs``,
 ``dataset_kwargs`` and ``metric_kwargs``. 
 
 .. code-block:: python
 
-    import jatic_toolbox
+    import maite
 
-    evaluator = jatic_toolbox.evaluate("image-classification")
+    evaluator = maite.evaluate("image-classification")
     output = evaluator(
         model="vit_for_cifar10",
         data="cifar10-test",

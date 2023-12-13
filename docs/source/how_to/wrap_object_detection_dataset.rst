@@ -10,8 +10,8 @@ In this tutorial, we will walk through the steps to:
 
 1. Use HuggingFace's ``datasets.load_dataset`` to load images from a folder
 2. Add truth annotations to the dataset
-3. Wrap the dataset to conform to ``jatic-toolbox`` protocols
-4. Validate the dataset conforms to jatic-toolbox protocols
+3. Wrap the dataset to conform to ``MAITE`` protocols
+4. Validate the dataset conforms to MAITE protocols
 
 
 1. Load VisDrone with Huggingface API
@@ -63,7 +63,7 @@ for the Visdrone dataset.
         import typing as t
         from pathlib import Path
         import torch as tr
-        import jatic_toolbox.protocols as pr
+        import maite.protocols as pr
         from torchvision.ops.boxes import box_convert
 
         def create_objects(
@@ -178,19 +178,19 @@ Here is an example output of the ``objects`` data:
         ]
     }
 
-3. Create a :class:`~jatic_toolbox.protocols.ObjectDetectionDataset`
+3. Create a :class:`~maite.protocols.ObjectDetectionDataset`
 ====================================================================
 
-To conform with :class:`~jatic_toolbox.protocols.ObjectDetectionDataset`, a dataset's
-output must support :class:`~jatic_toolbox.protocols.SupportsObjectDetection`, a dictionary
+To conform with :class:`~maite.protocols.ObjectDetectionDataset`, a dataset's
+output must support :class:`~maite.protocols.SupportsObjectDetection`, a dictionary
 requiring the following keys:
 
-- `images`: a :class:`~jatic_toolbox.protocols.SupportsArray` type
-- `objects`: a :class:`~jatic_toolbox.protocols.HasDataObjects` type
+- `images`: a :class:`~maite.protocols.SupportsArray` type
+- `objects`: a :class:`~maite.protocols.HasDataObjects` type
 
 By construction the `objects` key is already supported by the dataset.  However, the `image` key is not.
 We can update by defining a transform function that converts the image to 
-a :class:`~jatic_toolbox.protocols.SupportsArray` type simply by converting the image to a numpy array:
+a :class:`~maite.protocols.SupportsArray` type simply by converting the image to a numpy array:
 
 
 .. code-block:: python
@@ -203,7 +203,7 @@ a :class:`~jatic_toolbox.protocols.SupportsArray` type simply by converting the 
 
 
 Now lets pull this all together into a dataset that conforms to 
-the :class:`~jatic_toolbox.protocols.ObjectDetectionDataset` protocol:
+the :class:`~maite.protocols.ObjectDetectionDataset` protocol:
 
 .. code-block:: python
 
@@ -235,12 +235,12 @@ the :class:`~jatic_toolbox.protocols.ObjectDetectionDataset` protocol:
 4. Validate the Dataset
 =======================
 
-We can validate the dataset conforms to the :class:`~jatic_toolbox.protocols.ObjectDetectionDataset` protocol using 
+We can validate the dataset conforms to the :class:`~maite.protocols.ObjectDetectionDataset` protocol using 
 both static type checking and runtime validation:
 
 .. code-block:: python
 
-    import jatic_toolbox.protocols as pr
+    import maite.protocols as pr
     import typing as t
 
     VisDrone_dataset = VisDronDataset.from_hf_dataset(path, split="test")

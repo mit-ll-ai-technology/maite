@@ -10,7 +10,7 @@ import hypothesis.strategies as st
 import pytest
 from hypothesis import given, settings
 
-from jatic_toolbox._internals.testing.pyright import md_to_code, rst_to_code
+from maite._internals.testing.pyright import md_to_code, rst_to_code
 
 src1 = """.. tab-set::
 

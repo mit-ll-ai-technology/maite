@@ -4,7 +4,7 @@
 
 from pathlib import Path
 
-from jatic_toolbox.testing.project import ModuleScan
+from maite.testing.project import ModuleScan
 
 module_scan = ModuleScan()
 

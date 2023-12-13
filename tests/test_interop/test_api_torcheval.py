@@ -4,9 +4,9 @@
 
 import pytest
 
-import jatic_toolbox
+import maite
 
-METRICS = jatic_toolbox.list_metrics(provider="torcheval")
+METRICS = maite.list_metrics(provider="torcheval")
 
 
 @pytest.mark.parametrize("metrics_name", METRICS)
@@ -41,9 +41,7 @@ def test_api_torcheval_load_metric(metrics_name):
     if metrics_name == "TopKMultilabelAccuracy":
         kwargs.update({"k": 3})
 
-    m = jatic_toolbox.load_metric(
-        provider="torcheval", metric_name=metrics_name, **kwargs
-    )
+    m = maite.load_metric(provider="torcheval", metric_name=metrics_name, **kwargs)
     assert m is not None
     assert hasattr(m, "update")
     assert hasattr(m, "compute")

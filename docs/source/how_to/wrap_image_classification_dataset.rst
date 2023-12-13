@@ -2,38 +2,38 @@
 Wrap a Custom Image Classification Dataset
 ==========================================
 
-The JATIC Toolbox defines a protocol for image classification datasets,
-:class:`~jatic_toolbox.protocols.VisionDataset`, that standardizes the dataset interface for use with
-other toolbox methods.
-Many JATIC users may come to the toolbox with
+The MAITE defines a protocol for image classification datasets,
+:class:`~maite.protocols.VisionDataset`, that standardizes the dataset interface for use with
+other MAITE methods.
+Many JATIC users may come to the MAITE with
 their own custom dataset that they wish to use with our tools,
 but does not initially conform to our protocol.
 
 In this How-To, we will walk through the process of wrapping a
 custom image classification dataset to conform to JATIC's
-:class:`~jatic_toolbox.protocols.VisionDataset` protocol.
+:class:`~maite.protocols.VisionDataset` protocol.
 
-After familiarizing ourselves with the :class:`~jatic_toolbox.protocols.VisionDataset` protocol,
+After familiarizing ourselves with the :class:`~maite.protocols.VisionDataset` protocol,
 we will:
 
-1. Start with a custom image classification dataset that does not conform to :class:`~jatic_toolbox.protocols.VisionDataset`
-2. Create a custom wrapper for our dataset so it conforms to :class:`~jatic_toolbox.protocols.VisionDataset`
+1. Start with a custom image classification dataset that does not conform to :class:`~maite.protocols.VisionDataset`
+2. Create a custom wrapper for our dataset so it conforms to :class:`~maite.protocols.VisionDataset`
 3. Verify that a wrapped dataset does indeed conform to the JATIC API
 
 
-0. The :class:`~jatic_toolbox.protocols.VisionDataset` protocol
+0. The :class:`~maite.protocols.VisionDataset` protocol
 ===============================================================
 
-A dataset conforming to JATIC's :class:`~jatic_toolbox.protocols.VisionDataset` should contain the following two methods:
+A dataset conforming to JATIC's :class:`~maite.protocols.VisionDataset` should contain the following two methods:
 
 - ``__len__``, which returns an integer value representing the number of data samples in the dataset
-- ``__getitem__``, which takes in an `int` index, and returns an output that is of type :class:`~jatic_toolbox.protocols.SupportsImageClassification`
+- ``__getitem__``, which takes in an `int` index, and returns an output that is of type :class:`~maite.protocols.SupportsImageClassification`
 
-:class:`~jatic_toolbox.protocols.SupportsImageClassification` is a custom JATIC data type that is also of type
-:class:`~jatic_toolbox.protocols.HasDataImage` and :class:`~jatic_toolbox.protocols.HasDataLabel`.
+:class:`~maite.protocols.SupportsImageClassification` is a custom JATIC data type that is also of type
+:class:`~maite.protocols.HasDataImage` and :class:`~maite.protocols.HasDataLabel`.
 It is a :py:class:`~typing.TypedDict`
-that contains an "image" of type :class:`~jatic_toolbox.protocols.SupportsArray` and a "label" of type ``int``,
-a sequence of ``int``, or :class:`~jatic_toolbox.protocols.SupportsArray`. And :class:`~jatic_toolbox.protocols.SupportsArray` covers
+that contains an "image" of type :class:`~maite.protocols.SupportsArray` and a "label" of type ``int``,
+a sequence of ``int``, or :class:`~maite.protocols.SupportsArray`. And :class:`~maite.protocols.SupportsArray` covers
 many common array-like structures, such as
 `PyTorch Tensor <https://pytorch.org/docs/stable/tensors.html>`__
 and `NumPy NDArray <https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html>`__
@@ -68,14 +68,14 @@ The use of ``ImageFolder`` in this example dataset is meant for illustrative pur
 as it assumes the dataset is organized using a specific folder structure.
 
 Currently, ``__getitem__`` returns a ``Tuple``, however to conform to the JATIC API, we need it to
-return an output of the form :class:`~jatic_toolbox.protocols.SupportsImageClassification`.
+return an output of the form :class:`~maite.protocols.SupportsImageClassification`.
 
 2. Creating a custom dataset wrapper
 ====================================
 
-To conform to :class:`~jatic_toolbox.protocols.VisionDataset`,
+To conform to :class:`~maite.protocols.VisionDataset`,
 create a wrapper for your custom dataset which includes ``__len__`` and ``__getitem__`` methods,
-with ``__getitem__`` returning an output of type :class:`~jatic_toolbox.protocols.SupportsImageClassification`.
+with ``__getitem__`` returning an output of type :class:`~maite.protocols.SupportsImageClassification`.
 
 For example:
 
@@ -84,7 +84,7 @@ For example:
     from torch import Tensor
     from torchvision.datasets import ImageFolder
     from torchvision.transforms import ToTensor
-    from jatic_toolbox.protocols import SupportsImageClassification
+    from maite.protocols import SupportsImageClassification
 
     class JaticDatasetWrapper():
         def __init__(self, custom_dataset: ImageFolder):
@@ -101,15 +101,15 @@ For example:
             return {"image": image, "label": label}
 
 In this example, we used Torchvision's ``ToTensor`` transform to ensure that
-our image was converted to a ``Tensor``, which is of type :class:`~jatic_toolbox.protocols.SupportsArray`.
-However, there are other data types that also conform to :class:`~jatic_toolbox.protocols.SupportsArray`
+our image was converted to a ``Tensor``, which is of type :class:`~maite.protocols.SupportsArray`.
+However, there are other data types that also conform to :class:`~maite.protocols.SupportsArray`
 (e.g., ``numpy.ndarray``)
 that could have been used as well, depending on the needs of the user.
 Additionally, a user may wish to apply other
 transforms to their data before returning the dictionary output,
 which is allowed as long as the final "image" and "label" adhere to
-the data types specified by :class:`~jatic_toolbox.protocols.HasDataImage`
-and :class:`~jatic_toolbox.protocols.HasDataLabel`, respectively.
+the data types specified by :class:`~maite.protocols.HasDataImage`
+and :class:`~maite.protocols.HasDataLabel`, respectively.
 
 Note that we have also included type annotations in our dataset wrapper,
 which will make it easier to perform static type checking
@@ -134,7 +134,7 @@ static type checker:
 
 .. code:: python
 
-    from jatic_toolbox.protocols import VisionDataset
+    from maite.protocols import VisionDataset
 
     def f(dataset: VisionDataset):
             ...
@@ -142,18 +142,18 @@ static type checker:
     f(jatic_dataset) # should pass
 
 Here, we create an empty method ``f()`` to test whether an input to the function
-adheres to the :class:`~jatic_toolbox.protocols.VisionDataset` protocol, according
+adheres to the :class:`~maite.protocols.VisionDataset` protocol, according
 to its type annotations.
 
 Additionally, you can perform an instance check on your wrapped
 dataset to verify that it contains the required
-methods for the :class:`~jatic_toolbox.protocols.VisionDataset` protocol,
-and leverage :func:`~jatic_toolbox.protocols.is_typed_dict`, a JATIC helper method,
+methods for the :class:`~maite.protocols.VisionDataset` protocol,
+and leverage :func:`~maite.protocols.is_typed_dict`, a JATIC helper method,
 to verify that the output of a dataset is indeed a typed dictionary with the required keys:
 
 .. code:: python
 
-    import jatic_toolbox.protocols as pr
+    import maite.protocols as pr
 
     assert isinstance(jatic_dataset, pr.VisionDataset) # should pass
     assert is_typed_dict(jatic_dataset[0], pr.SupportsImageClassification) # should pass
@@ -161,6 +161,6 @@ to verify that the output of a dataset is indeed a typed dictionary with the req
     assert is_typed_dict(jatic_dataset[0], pr.HasDataLabel) # should pass
 
 We have now walked through the process of wrapping a custom image classification
-dataset for use with the JATIC toolbox. Your dataset is now ready for use with
+dataset for use with the MAITE. Your dataset is now ready for use with
 other tools in the JATIC ecosystem, such as running an evaluation using the 
-toolbox's :func:`jatic_toolbox.evaluate` method.
+maite's :func:`maite.evaluate` method.

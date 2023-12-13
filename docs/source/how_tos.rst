@@ -1,12 +1,12 @@
 .. meta::
-   :description: How-to guides for using the jatic-toolbox.
+   :description: How-to guides for using the maite.
 
-.. _jatic-toolbox-how-to:
+.. _maite-how-to:
 
 How-To Guides
 =============
 
-These how-to guides are here to help jatic-toolbox users who are wondering: "How do I ___?". 
+These how-to guides are here to help maite users who are wondering: "How do I ___?". 
 Our guides help you learn by having you do; they provide simple steps towards concrete 
 objectives.
 

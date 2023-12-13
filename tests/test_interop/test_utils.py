@@ -2,16 +2,12 @@
 # Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).
 # SPDX-License-Identifier: MIT
 
-from jatic_toolbox._internals.import_utils import (
+from maite._internals.import_utils import (
     is_numpy_available,
     is_pil_available,
     is_torch_available,
 )
-from jatic_toolbox._internals.interop.utils import (
-    is_numpy_array,
-    is_pil_image,
-    is_torch_tensor,
-)
+from maite._internals.interop.utils import is_numpy_array, is_pil_image, is_torch_tensor
 
 
 def test_is_torch_tensor():

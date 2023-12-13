@@ -7,15 +7,15 @@ from typing import Any
 
 import pytest
 
-from jatic_toolbox._internals.interop.artifact_hub.deduction import (
+from maite._internals.interop.artifact_hub.deduction import (
     make_entrypoint_deduction_filter,
 )
-from jatic_toolbox._internals.interop.artifact_hub.module_utils import import_hubconf
-from jatic_toolbox._internals.interop.artifact_hub.registry import HubEndpointRegistry
-from jatic_toolbox._internals.testing.pyright import chdir
-from jatic_toolbox.errors import InternalError, InvalidArgument
-from jatic_toolbox.interop.provider import ArtifactHubProvider
-from jatic_toolbox.protocols import (
+from maite._internals.interop.artifact_hub.module_utils import import_hubconf
+from maite._internals.interop.artifact_hub.registry import HubEndpointRegistry
+from maite._internals.testing.pyright import chdir
+from maite.errors import InternalError, InvalidArgument
+from maite.interop.provider import ArtifactHubProvider
+from maite.protocols import (
     Dataset,
     ImageClassifier,
     Metric,
@@ -27,9 +27,7 @@ from jatic_toolbox.protocols import (
 
 
 def test_register_endpoint():
-    from jatic_toolbox._internals.interop.artifact_hub.registry import (
-        HubEndpointRegistry,
-    )
+    from maite._internals.interop.artifact_hub.registry import HubEndpointRegistry
 
     class FakeEndpoint:
         def __init__(self, path):
@@ -96,7 +94,7 @@ def test_artifact_hub_api():
                     [
                         x.strip()
                         for x in """
-                          from jatic_toolbox.protocols import Model, Dataset, Metric
+                          from maite.protocols import Model, Dataset, Metric
                           def model() -> Model: ...
                           def dataset(split) -> Dataset:...
                           def metric() -> Metric:...
@@ -182,7 +180,7 @@ def function():
 """
 
     missing_deps_hubconf = """
-dependencies = ["this_module_does_not_exist", "jatic_toolbox"]
+dependencies = ["this_module_does_not_exist", "maite"]
 """
 
     with chdir() as local_dir:
