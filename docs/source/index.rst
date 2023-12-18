@@ -5,14 +5,17 @@
 
 
 =========================================
-Welcome to maite's documentation!
+Welcome to MAITE's documentation!
 =========================================
 
+The Modular AI Trustworthy Engineering (MAITE) library provides common interfaces, 
+utilities, and tooling to streamline the development of test and evaluation (T&E) capabilities, 
+support core evaluation use cases, and allow composition of T&E tools into custom workflows.
 
 Installation
 ============
 
-The core of maite is lightweight: its only dependencies is ``typing-extensions``. 
+The core of MAITE is lightweight: its only dependencies is ``typing-extensions``. 
 To install it, run:
 
 .. code:: console
@@ -20,13 +23,13 @@ To install it, run:
    $ pip install maite
 
 If instead you want to try out the features in the upcoming version, you can install 
-the latest pre-release of maite with:
+the latest pre-release of MAITE with:
 
 .. code:: console
 
    $ pip install --pre maite
 
-The toolbox also contains APIs and helper utilities to provide interoperability with
+The MAITE library also contains APIs and helper utilities to provide interoperability with
 various other open-source libraries such as
 `HuggingFace <https://huggingface.co/datasets>`_,
 `TorchVision <https://pytorch.org/vision/stable/datasets.html>`_, and
@@ -39,18 +42,18 @@ along with these other dependencies:
    $ pip install maite[all_interop]
 
 
-Learning About maite
+Learning about MAITE
 ============================
 
 Our docs are divided into four sections: Tutorials, How-Tos, Explanations, and 
 Reference.
 
-If you want to get a bird's-eye view of what maite is all about check out our 
-**Tutorials**. For folks who have used the maite, our **How-Tos** and 
+If you want to get a bird's-eye view of what MAITE is all about check out our 
+**Tutorials**. For folks who have already used the MAITE library, our **How-Tos** and 
 **Reference** materials can help acquaint you with the unique capabilities that are 
-offered by maite. Finally, **Explanations** provide readers with taxonomies, 
+offered by MAITE. Finally, **Explanations** provide readers with taxonomies, 
 design principles, recommendations, and other articles that will enrich their 
-understanding of maite.
+understanding of the MAITE library.
 
 .. toctree::
    :maxdepth: 2
