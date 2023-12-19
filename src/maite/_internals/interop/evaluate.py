@@ -448,28 +448,13 @@ class EvaluationTask(ABC):
                         )
 
                     default_acc_dict = maite.METRIC_REGISTRY["multiclass_accuracy"]
-                    default_acc = maite.load_metric(
-                        provider=cast(METRIC_PROVIDERS, default_acc_dict["provider"]),
-                        metric_name=default_acc_dict["metric_name"],
-                        task=default_acc_dict["task"],
-                        num_classes=num_labels,
-                    )
+                    default_acc_dict["num_classes"] = num_labels
+                    default_acc = maite.load_metric(**default_acc_dict)
                     metric_out = {"default_multiclass_accuracy": default_acc}
 
                 elif self.task == "object-detection":
                     default_map_dict = maite.METRIC_REGISTRY["mean_average_precision"]
-                    default_map = maite.load_metric(
-                        provider=cast(METRIC_PROVIDERS, default_map_dict["provider"]),
-                        metric_name=default_map_dict["metric_name"],
-                        box_format=default_map_dict[
-                            "box_format"
-                        ],  # Need to take in as arg?
-                        iou_thresholds=default_map_dict["iou_thresholds"],
-                        rec_thresholds=default_map_dict["rec_thresholds"],
-                        max_detection_thresholds=default_map_dict[
-                            "max_detection_thresholds"
-                        ],
-                    )
+                    default_map = maite.load_metric(**default_map_dict)
                     metric_out = {"default_map": default_map}
 
                 else:
