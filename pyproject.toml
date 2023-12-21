@@ -10,7 +10,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "maite"
 dynamic = ["version"]
-description = "Utilities for developing test suites for JATIC-related projects."
+description = "Library of common types, protocols (a.k.a. structural subtypes), and utilities to support AI test and evaluation"
 readme = "README.md"
 requires-python = ">=3.8"
 dependencies = [
@@ -22,19 +22,22 @@ license = { file = "LICENSE.txt" }
 keywords = ["machine learning", "testing", "pytest"]
 
 authors = [
-  {name = "Ryan Soklaski", email = "ryan.soklaski@ll.mit.edu"},
   {name = "Justin Goodwin", email = "jgoodwin@ll.mit.edu"},
   {name = "Michael Yee", email = "myee@ll.mit.edu"},
+  {name = "Ryan Soklaski"},
   {name = "Lei Hamilton", email = "lei.hamilton@ll.mit.edu"},
+  {name = "Jeff Arena", email = "jeffrey.arena@ll.mit.edu"},
   {name = "Garrett Botkin", email = "garrett.botkin@ll.mit.edu"},
+  {name = "Manasi Sharma", email = "manasi.sharma@ll.mit.edu"},
 ]
 maintainers = [
   {name = "Justin Goodwin", email = "jgoodwin@ll.mit.edu"},
   {name = "Michael Yee", email = "myee@ll.mit.edu"},
+  {name = "Jeff Arena", email = "jeffrey.arena@ll.mit.edu"},
 ]
 
 classifiers = [
-  "Development Status :: 4 - Beta",
+  "Development Status :: 3 - Alpha",
   "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
   "Intended Audience :: Science/Research",
@@ -81,9 +84,9 @@ all_interop = [
 ]
 
 [project.urls]
-"Homepage" = "https://jatic.pages.jatic.net/cdao/maite/"
-"Bug Reports" = "https://gitlab.jatic.net/jatic/cdao/maite/-/issues"
-"Source" = "https://gitlab.jatic.net/jatic/cdao/maite"
+"Homepage" = "https://github.com/mit-ll-ai-technology/maite"
+"Bug Reports" = "https://github.com/mit-ll-ai-technology/maite/-/issues"
+"Source" = "https://github.com/mit-ll-ai-technology/maite"
 
 
 [tool.setuptools_scm]
