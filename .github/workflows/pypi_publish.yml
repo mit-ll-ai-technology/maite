@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: 
       name: pypi-publish
-      url: https://test.pypi.org/p/maite  # CHANGETHIS - doing first publish to test.pypi
+      url: https://pypi.org/p/maite
     permissions:
       id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
     steps:
@@ -45,5 +45,3 @@ jobs:
     # retrieve your distributions here
     - name: Publish package distributions to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        repository-url: https://test.pypi.org/legacy/  # CHANGETHIS - doing first publish to test.pypi
