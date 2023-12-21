@@ -22,18 +22,18 @@ license = { file = "LICENSE.txt" }
 keywords = ["machine learning", "testing", "pytest"]
 
 authors = [
-  {name = "Justin Goodwin", email = "jgoodwin@ll.mit.edu"},
-  {name = "Michael Yee", email = "myee@ll.mit.edu"},
-  {name = "Ryan Soklaski"},
-  {name = "Lei Hamilton", email = "lei.hamilton@ll.mit.edu"},
-  {name = "Jeff Arena", email = "jeffrey.arena@ll.mit.edu"},
-  {name = "Garrett Botkin", email = "garrett.botkin@ll.mit.edu"},
-  {name = "Manasi Sharma", email = "manasi.sharma@ll.mit.edu"},
+    { name = "Justin Goodwin"},
+    { name = "Michael Yee"},
+    { name = "Ryan Soklaski" },
+    { name = "Lei Hamilton" },
+    { name = "Jeff Arena" },
+    { name = "Garrett Botkin"},
+    { name = "Manasi Sharma"}
 ]
 maintainers = [
-  {name = "Justin Goodwin", email = "jgoodwin@ll.mit.edu"},
-  {name = "Michael Yee", email = "myee@ll.mit.edu"},
-  {name = "Jeff Arena", email = "jeffrey.arena@ll.mit.edu"},
+    { name = "Justin Goodwin"}, 
+    { name = "Michael Yee"},
+    { name = "Jeff Arena"}
 ]
 
 classifiers = [
@@ -85,7 +85,7 @@ all_interop = [
 
 [project.urls]
 "Homepage" = "https://github.com/mit-ll-ai-technology/maite"
-"Bug Reports" = "https://github.com/mit-ll-ai-technology/maite/-/issues"
+"Bug Reports" = "https://github.com/mit-ll-ai-technology/maite/issues"
 "Source" = "https://github.com/mit-ll-ai-technology/maite"
 
 
