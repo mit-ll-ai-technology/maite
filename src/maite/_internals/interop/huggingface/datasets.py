@@ -5,6 +5,7 @@
 from typing import TYPE_CHECKING, Callable, Optional
 
 import numpy as np
+from attr import dataclass
 
 from maite._internals.import_utils import is_hf_datasets_available
 from maite._internals.protocols.typing import ObjectDetectionDataset
@@ -22,6 +23,11 @@ if is_hf_datasets_available():
 from .typing import HuggingFaceDataset
 
 __all__ = ["HuggingFaceVisionDataset"]
+
+
+@dataclass
+class HuggingfaceDatumMetadata:
+    id: int
 
 
 class HuggingFaceVisionDataset(VisionDataset):
@@ -117,6 +123,7 @@ class HuggingFaceVisionDataset(VisionDataset):
         data_dict = SupportsImageClassification(
             image=data[self.image_key],
             label=data[self.label_key],
+            metadata=HuggingfaceDatumMetadata(id=idx),
         )
 
         for k, v in data.items():
@@ -246,6 +253,7 @@ class HuggingFaceObjectDetectionDataset(ObjectDetectionDataset):
         data_dict: SupportsObjectDetection = {
             "image": image[0] if single_example else image,
             "objects": obj_out[0] if single_example else obj_out,
+            "metadata": HuggingfaceDatumMetadata(id=idx),
         }
 
         for k, v in data.items():

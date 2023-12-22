@@ -228,6 +228,8 @@ def collate_and_pad(
                     collated_batch[key] = tr.as_tensor(batch_item)
                 except TypeError:
                     collated_batch[key] = batch_item
+                except RuntimeError:
+                    collated_batch[key] = batch_item
 
         return collated_batch
 

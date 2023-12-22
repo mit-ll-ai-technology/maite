@@ -8,6 +8,7 @@ import os
 from typing import (
     Any,
     Callable,
+    Hashable,
     Iterable,
     List,
     Literal,
@@ -52,6 +53,40 @@ SupportsArray: TypeAlias = Union[ArrayLike, Sequence[ArrayLike]]
 #
 # Data Structures
 #
+
+
+@runtime_checkable
+class DatumMetadata(Protocol):
+    """
+    A simple protocol for metadata provided by a datum
+
+    Attributes:
+    -----------
+    id: hashable value (e.g. an integer) that refers to an individual datum
+
+    Examples
+    --------
+    Users can use it the following way. First define a data class with id and user added metadata
+
+    >>> from dataclasses import dataclass
+    >>> from typing import Any
+    >>> @dataclass
+    >>> class ImplImageClassificationDatum:
+    >>>     id: int
+    >>>     user_added_metadata: 'dict[str, Any]'
+
+    Then Users define a datum, id as an integer is hashable.
+
+    >>> id = 1
+    >>> datum = ImplImageClassificationDatum(id=id, user_added_metadata={"user_metadata": {"image_gsd": 0.3}})
+
+    >>> isinstance(datum, DatumMetadata)
+    True
+    """
+
+    @property
+    def id(self) -> Hashable:  # require id field in a class that is hashable
+        ...
 
 
 class HasDataImage(TypedDict):
@@ -240,7 +275,51 @@ class HasDataObjects(TypedDict):
     objects: Union[HasDataBoxesLabels, Sequence[HasDataBoxesLabels]]
 
 
-class SupportsImageClassification(HasDataImage, HasDataLabel):
+class HasDataMetadata(TypedDict):
+    """
+    # A dictionary that contains datum meta data. All data protocols should inherit this
+
+    Attributes:
+    ----------
+    meta: DatumMetadata | Sequence[DatumMetadata]
+
+    Examples:
+    ----------
+    Create a fake datum meta data to add to dataset
+
+    >>> from dataclasses import dataclass
+    >>> from typing import Any
+    >>> @dataclass
+    >>> class ImplDatum:
+    >>>     id: int
+    >>>     user_added_metadata: 'dict[str, Any]'
+
+    >>> id = 1
+    >>> datum = ImplDatum(id=id, user_added_metadata={"user_metadata": {"image_gsd": 0.3}})
+    >>> data: HasDataMetadata = {"metadata": datum}
+
+    For ``TypedDict`` types, validation cannot be done
+    with `isinstance`. The simple checks are
+
+    >>> isinstance(data, dict)
+    True
+    >>> "metadata" in data
+    True
+
+    The toolbox comes with a helper function that can do
+    both of these checks:
+
+    >>> from maite.protocols import is_typed_dict
+    >>> is_typed_dict(data, HasDataMetadata)
+    True
+    """
+
+    metadata: DatumMetadata | Sequence[
+        DatumMetadata
+    ]  # NOTE: HasDataImage supports batch of images, we have Sequence[DatumMetadata] here for now
+
+
+class SupportsImageClassification(HasDataImage, HasDataLabel, HasDataMetadata):
     """
     A dictionary that contains an image and label.
 
@@ -250,22 +329,34 @@ class SupportsImageClassification(HasDataImage, HasDataLabel):
         An image or batch of images.
     label : int | SupportsArray, Sequence[int]
         A label or batch of labels.
+    metadata: DatumMetadata | Sequence[DatumMetadata]
+        An datum metadat or batch of datum metadata
 
     Examples
     --------
     Create a fake image and label and add them to a dictionary.
 
     >>> import numpy as np
+    >>> from typing import Any
     >>> image = np.zeros((3, 224, 224))
     >>> label = np.array([1])
-    >>> data: SupportsImageClassification = {'image': image, 'label': label}
+
+    >>> from dataclasses import dataclass
+    >>> @dataclass
+    >>> class ImplImageClassificationDatum:
+    >>>     id: int
+    >>>     user_added_metadata: 'dict[str, Any]'  # dict needs quote in Python 3.8
+
+    >>> id = 1
+    >>> datum = ImplImageClassificationDatum(id=id, user_added_metadata={"user_metadata": {"image_gsd": 0.3}})
+    >>> data: SupportsImageClassification = {'image': image, 'label': label, 'metadata': datum}
 
     For ``TypedDict`` types, validation cannot be done
     with `isinstance`. The simple checks are
 
     >>> isinstance(data, dict)
     True
-    >>> "image" in data and "label" in data
+    >>> "image" in data and "label" in data and 'metadata' in data
     True
 
     The toolbox comes with a helper function that can do
@@ -279,7 +370,7 @@ class SupportsImageClassification(HasDataImage, HasDataLabel):
     ...
 
 
-class SupportsObjectDetection(HasDataImage, HasDataObjects):
+class SupportsObjectDetection(HasDataImage, HasDataObjects, HasDataMetadata):
     """
     A dictionary that contains an image and objects (boxes and labels).
 
@@ -289,24 +380,36 @@ class SupportsObjectDetection(HasDataImage, HasDataObjects):
         An image or batch of images.
     objects : HasDataBoxesLabels | Sequence[HasDataBoxesLabels]
         A batch of objects.
+    metadata: DatumMetadata | Sequence[DatumMetadata]
+        An datum metadat or batch of datum metadata
 
     Examples
     --------
-    Create fake boxes and labels and add them to a dictionary.
+    Create fake boxes, labels, metadata and add them to a dictionary.
 
     >>> import numpy as np
     >>> image = np.zeros((3, 224, 224))
     >>> boxes = np.array([[0.0, 0., 1., 1.]])
     >>> labels = np.array([1])
-    >>> data: HasDataBoxesLabels = {'boxes': boxes, 'labels': labels}
-    >>> batch: SupportsObjectDetection = {'image': image, 'objects': data}
+    >>> objects: HasDataBoxesLabels = {'boxes': boxes, 'labels': labels}
+
+    >>> from dataclasses import dataclass
+    >>> from typing import Any
+    >>> @dataclass
+    >>> class ImplObjectDetectionDatum:
+    >>>     id: int
+    >>>     user_added_metadata: 'dict[str, Any]'  # dict needs quote in Python 3.8
+
+    >>> id = 1
+    >>> datum = ImplObjectDetectionDatum(id=id, user_added_metadata={"user_metadata": {"image_gsd": 0.3}})
+    >>> data: SupportsObjectDetection = {'image': image, 'objects': objects, 'metadata': datum}
 
     For ``TypedDict`` types, validation cannot be done
     with `isinstance`. The simple checks are
 
     >>> isinstance(data, dict)
     True
-    >>> "image" in data and "objects" in data
+    >>> "image" in data and "objects" in data and "metadata" in data
     True
 
     The toolbox comes with a helper function that can do
@@ -332,17 +435,28 @@ class Dataset(Protocol[T_co]):
 @runtime_checkable
 class VisionDataset(Dataset[SupportsImageClassification], Protocol):
     """
-    A protocol for vision datasets providing images and labels.
+    A protocol for vision datasets providing images, labels and metadata.
 
     Examples
     --------
     Create a fake dataset.
 
     >>> import numpy as np
+    >>> from dataclasses import dataclass
+    >>> from typing import Any
+    >>> @dataclass
+    >>> class ImplImageClassificationDatum:
+    >>>     id: int
+    >>>     user_added_metadata: 'dict[str, Any]'  # dict needs quote in Python 3.8
+
+    >>> id = 1
+    >>> datum = ImplImageClassificationDatum(id=id, user_added_metadata={"user_metadata": {"image_gsd": 0.3}})
     >>> data: SupportsImageClassification = {
     ...     "image": np.zeros((3, 224, 224)),
     ...     'label': np.array([1]),
+    ...     "metadata": datum,
     ... }
+
 
     Create a dataset with the fake data.
 
@@ -373,12 +487,23 @@ class ObjectDetectionDataset(Dataset[SupportsObjectDetection], Protocol):
     Create a fake dataset.
 
     >>> import numpy as np
+    >>> from dataclasses import dataclass
+    >>> from typing import Any
+    >>> @dataclass
+    >>> class ImplImageClassificationDatum:
+    >>>     id: int
+    >>>     user_added_metadata: 'dict[str, Any]'  # dict needs quote in Python 3.8
+
+    >>> id = 1
+    >>> datum = ImplImageClassificationDatum(id=id, user_added_metadata={"user_metadata": {"image_gsd": 0.3}})
+
     >>> data: SupportsObjectDetection = {
     ...     "image": np.zeros((3, 224, 224)),
     ...     "objects": {
     ...         "boxes": np.array([[0.0, 0.0, 1.0, 1.0]]),
     ...         "labels": np.array([1])
     ...     },
+    ...     "metadata": datum,
     ... }
 
     Create a dataset with the fake data.

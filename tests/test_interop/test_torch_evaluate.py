@@ -18,6 +18,11 @@ from maite._internals.import_utils import requires_torchmetrics
 from maite._internals.interop.utils import is_pil_image
 
 
+@dataclass
+class TestDatumMetadata:
+    id: int
+
+
 class RandomDataset(Dataset):
     def __init__(self, data_type: str, size: int, length: int):
         if data_type == "numpy":
@@ -33,7 +38,10 @@ class RandomDataset(Dataset):
             ]
 
     def __getitem__(self, index) -> pr.SupportsImageClassification:
-        return pr.SupportsImageClassification(image=self.data[index], label=0)
+        datum_metadata: TestDatumMetadata = index
+        return pr.SupportsImageClassification(
+            image=self.data[index], label=0, metadata=datum_metadata
+        )
 
     def __len__(self):
         return len(self.data)
@@ -56,11 +64,13 @@ class RandomDetectionDataset(Dataset):
         # self.data = tr.randn(length, size)
 
     def __getitem__(self, index) -> pr.SupportsObjectDetection:
+        datum_metadata: TestDatumMetadata = index
         return pr.SupportsObjectDetection(
             image=self.data[index],
             objects=pr.HasDataBoxesLabels(
                 boxes=np.asarray([[0, 0, 1, 1]]), labels=np.asarray([0])
             ),
+            metadata=datum_metadata,
         )
 
     def __len__(self):

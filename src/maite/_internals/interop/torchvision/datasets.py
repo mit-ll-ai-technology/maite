@@ -2,6 +2,7 @@
 # Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).
 # SPDX-License-Identifier: MIT
 
+from dataclasses import dataclass
 from typing import (
     Any,
     Callable,
@@ -22,6 +23,11 @@ from maite.protocols import SupportsImageClassification, VisionDataset
 T_co = TypeVar("T_co", covariant=True)
 
 HuggingFaceVisionOuput: TypeAlias = Dict[str, Any]
+
+
+@dataclass
+class TorchVisionDatumMetadata:
+    id: int
 
 
 class Image(TypedDict):
@@ -99,8 +105,9 @@ class TorchVisionDataset(VisionDataset):
             Dictionary of `image` and `label` for each dataset.
         """
         data = self._dataset[idx]
-
-        output = SupportsImageClassification(image=data[0], label=data[1])
+        output = SupportsImageClassification(
+            image=data[0], label=data[1], metadata=TorchVisionDatumMetadata(id=idx)
+        )
         if self._transform is not None:
             output = self._transform(output)
 
