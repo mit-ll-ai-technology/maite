@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import itertools
+from dataclasses import dataclass
 from typing import List
 
 import pytest
@@ -19,7 +20,16 @@ from maite.interop.provider import (
 )
 
 
+@dataclass
+class ModelMetadataExample:
+    model_name: str = "model_name"
+    provider: str = "provider_name"
+    task: str = "task_name"
+
+
 class AModel:
+    metadata = ModelMetadataExample()
+
     def get_labels(self):
         return ["A", "B", "C"]
 

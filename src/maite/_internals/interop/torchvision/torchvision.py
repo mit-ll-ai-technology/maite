@@ -11,7 +11,7 @@ from typing_extensions import Self, TypeAlias
 from maite.errors import InvalidArgument
 from maite.protocols import HasDataImage, SupportsArray
 
-from ..base_model import BaseModel
+from ..base_model import BaseModel, InteropModelMetadata
 
 __all__ = ["TorchVisionClassifier", "TorchVisionObjectDetector"]
 
@@ -32,8 +32,11 @@ class TorchVisionObjectDetectorOutput:
 
 
 class TorchVisionBase(nn.Module, BaseModel):
+    metadata: InteropModelMetadata
+
     def __init__(
         self,
+        model_name: str,
         model: nn.Module,
         processor: Optional[TorchVisionProcessor] = None,
         labels: Optional[Sequence[str]] = None,
@@ -43,6 +46,9 @@ class TorchVisionBase(nn.Module, BaseModel):
         self._model = model
         self._processor = processor
         self._labels = labels
+        self.metadata = InteropModelMetadata(
+            model_name=model_name, provider="TorchVision", task=""
+        )
 
     def get_labels(self) -> Sequence[str]:
         """Get labels."""
@@ -65,21 +71,46 @@ class TorchVisionBase(nn.Module, BaseModel):
     @classmethod
     def from_pretrained(
         cls,
-        name: str,
+        model_name: str,
         weights: Optional[str] = None,
         with_processor: bool = True,
         weights_value_name: str = "DEFAULT",
         **config: Any,
     ) -> Self:
+        """
+        Load a TorchVision pretrained model.
+
+        Parameters
+        ----------
+        model_name: str
+            A TorchVision model name, e.g. "resnet18"
+
+        weights : Optional[str]
+            The TorchVision model with trained weights.
+
+        with_processor: bool
+            Use a process
+
+        weights_value_name: str
+            The Torchvision dataclass entry with the weights information, "DEFAULT" points to the best available weights for the specific model
+
+        **config: Any
+            Parameters passed to the TorchVision model builder methoed
+
+        Returns
+        -------
+        TorchVision model
+            The MAITE wrapper for a TorchVision model.
+        """
         from torchvision.models._api import WeightsEnum, get_model, get_model_weights
 
         if weights is None:
-            weights = name
+            weights = model_name
 
         try:
             model_weights = get_model_weights(name=weights)
         except ValueError as e:
-            raise InvalidArgument(f"Invalid model name: {name}") from e
+            raise InvalidArgument(f"Invalid model name: {model_name}") from e
 
         assert issubclass(
             model_weights, WeightsEnum
@@ -94,8 +125,8 @@ class TorchVisionBase(nn.Module, BaseModel):
 
         labels = the_model_weights.meta["categories"]
         config["weights"] = the_model_weights
-        model = get_model(name=name, **config)
-        return cls(model, processor, labels)
+        model = get_model(name=model_name, **config)
+        return cls(model_name, model, processor, labels)
 
 
 class TorchVisionClassifier(TorchVisionBase):
@@ -104,6 +135,9 @@ class TorchVisionClassifier(TorchVisionBase):
 
     Parameters
     ----------
+    model_name: str
+        A TorchVision model name, e.g. "resnet18"
+
     model : nn.Module
         TorchVision model.
 
@@ -121,14 +155,20 @@ class TorchVisionClassifier(TorchVisionBase):
     >>> model = TorchVisionClassifier.from_pretrained("resnet18")
     """
 
+    metadata: InteropModelMetadata
+
     def __init__(
         self,
+        model_name: str,
         model: nn.Module,
         processor: Optional[TorchVisionProcessor] = None,
         labels: Optional[Sequence[str]] = None,
     ) -> None:
         """Initialize a TorchVisionClassifier."""
-        super().__init__(model, processor, labels)
+        super().__init__(model_name, model, processor, labels)
+        self.metadata = InteropModelMetadata(
+            model_name=model_name, provider="TorchVision", task="Image Classification"
+        )
 
     def forward(
         self, data: Union[HasDataImage, SupportsArray]
@@ -144,6 +184,9 @@ class TorchVisionObjectDetector(TorchVisionBase):
 
     Parameters
     ----------
+    model_name: str
+        A TorchVision model name, e.g. "maskrcnn_resnet50_fpn"
+
     model : nn.Module
         TorchVision model.
 
@@ -161,13 +204,19 @@ class TorchVisionObjectDetector(TorchVisionBase):
     >>> model = TorchVisionObjectDetector.from_pretrained("maskrcnn_resnet50_fpn")
     """
 
+    metadata: InteropModelMetadata
+
     def __init__(
         self,
+        model_name: str,
         model: nn.Module,
         processor: Optional[TorchVisionProcessor] = None,
         labels: Optional[Sequence[str]] = None,
     ) -> None:
-        super().__init__(model, processor, labels)
+        super().__init__(model_name, model, processor, labels)
+        self.metadata = InteropModelMetadata(
+            model_name=model_name, provider="TorchVision", task="Object Detection"
+        )
 
     def forward(
         self, data: Union[HasDataImage, SupportsArray]

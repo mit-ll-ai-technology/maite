@@ -22,6 +22,13 @@ class BatchFeatures(UserDict):
 
 
 @dataclass
+class ModelMetadata:
+    model_name: str = "model_name"
+    provider: str = "provider_name"
+    task: str = "task_name"
+
+
+@dataclass
 class ObjectDetectionWithLogits(ModelOutput):
     logits: tr.Tensor = None  # type: ignore[assignment]
     pred_boxes: tr.Tensor = None  # type: ignore[assignment]
@@ -140,12 +147,15 @@ def get_test_vision_model():
             return BatchFeatures(pixel_values=tr.stack(images))
 
     class Model(tr.nn.Module):
+        metadata: ModelMetadata
+
         def __init__(self):
             super().__init__()
             self.device = "cpu"
             self.config = Meta(
                 id2label={i: f"label_{i}" for i in range(10)}, num_labels=10
             )
+            self.metadata = ModelMetadata()
             self.linear = tr.nn.Linear(10, 10)
 
         def forward(self, *args, **kwargs):
@@ -176,12 +186,15 @@ def get_test_object_detection_model(output_as_list=False):
             return ObjectDetectionOutput(boxes, scores, labels)
 
     class Model(tr.nn.Module):
+        metadata: ModelMetadata
+
         def __init__(self):
             super().__init__()
             self.device = "cpu"
             self.config = Meta(
                 id2label={i: f"label_{i}" for i in range(10)}, num_labels=10
             )
+            self.metadata = ModelMetadata()
             self.linear = tr.nn.Linear(10, 10)
 
         def forward(self, *args, **kwargs):

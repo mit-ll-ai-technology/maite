@@ -4,6 +4,7 @@
 
 import itertools
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -20,26 +21,45 @@ from typing import List, Tuple
 {input_type} as InputType
 {output_type} as OutputType
 
+from dataclasses import dataclass
+@dataclass
+class TestModelMetadata:
+    model_name: str = "model_name"
+    provider: str = "provider_name"
+    task: str = "task_name"
+
+
 def f(x: Model[[InputType], OutputType]):
     ...
 
 class ModelNoLabel:
+    metadata = TestModelMetadata()
     def __call__(self, x: InputType) -> OutputType:
         ...
 
+class ModelNoMetadata:
+
+    def __call__(self, x: InputType) -> OutputType:
+        ...
+    def get_labels(self) -> List[str]:
+        ...
+
 class GoodModel:
+    metadata = TestModelMetadata()
     def __call__(self, x: InputType) -> OutputType:
         ...
     def get_labels(self) -> List[str]:
         ...
 
 class BadInputModel:
+    metadata = TestModelMetadata()
     def __call__(self, x: InputType, y: str) -> OutputType:
         ...
     def get_labels(self) -> List[str]:
         ...
 
 class BadOutputModel:
+    metadata = TestModelMetadata()
     def __call__(self, x: InputType) -> Tuple[OutputType, str]:
         ...
     def get_labels(self) -> List[str]:
@@ -47,6 +67,7 @@ class BadOutputModel:
 
 
 f(ModelNoLabel())
+f(ModelNoMetadata())
 f(BadInputModel())
 f(BadOutputModel())
 f(GoodModel())
@@ -76,7 +97,7 @@ def save_models():
 
 @pytest.mark.parametrize("input, output, result", save_models())
 def test_model(input, output, result):
-    assert result["summary"]["errorCount"] == 3
+    assert result["summary"]["errorCount"] == 4
 
 
 @pytest.mark.parametrize("protocol", [pr.Model, pr.ImageClassifier, pr.ObjectDetector])
@@ -85,6 +106,13 @@ def test_model_isinstance(protocol):
         ...
 
     class B:
+        @property
+        def metadata(self) -> pr.ModelMetadata:
+            ...
+
+        def __call__(self) -> Any:
+            ...
+
         def get_labels(self):
             ...
 

@@ -11,6 +11,7 @@ from typing_extensions import Self
 from maite.errors import InvalidArgument
 from maite.protocols import HasDataImage, SupportsArray
 
+from ..base_model import InteropModelMetadata
 from .base import BaseHFModel
 from .typing import (
     HuggingFaceDetectorOutput,
@@ -32,8 +33,11 @@ class HuggingFaceObjectDetector(BaseHFModel):
     to load the HuggingFace models.
     """
 
+    metadata: InteropModelMetadata
+
     def __init__(
         self,
+        model_name: str,
         model: HuggingFaceWithDetection,
         processor: Optional[HuggingFaceProcessor] = None,
         post_processor: Optional[HuggingFaceObjectDetectionPostProcessor] = None,
@@ -44,6 +48,9 @@ class HuggingFaceObjectDetector(BaseHFModel):
 
         Parameters
         ----------
+        model_name: str
+            A Huggingface model name from model id, e.g. "facebook/detr-resnet-50"
+
         model : Callable[[Tensor, ...], HasObjectDetections]
             A HuggingFace object detection model.
 
@@ -64,9 +71,15 @@ class HuggingFaceObjectDetector(BaseHFModel):
         >>> hf_model = HuggingFaceObjectDetector(processor, model)
         """
         super().__init__(
-            model=model, processor=processor, post_processor=post_processor
+            model_name=model_name,
+            model=model,
+            processor=processor,
+            post_processor=post_processor,
         )
         self._threshold = threshold
+        self.metadata = InteropModelMetadata(
+            model_name=model_name, provider="HuggingFace", task="Object Detection"
+        )
 
     def preprocessor(
         self,
@@ -159,7 +172,7 @@ class HuggingFaceObjectDetector(BaseHFModel):
     @classmethod
     def from_pretrained(
         cls,
-        model: str,
+        model_name: str,
         **kwargs: Any,
     ) -> Self:  # pragma: no cover
         """
@@ -169,7 +182,7 @@ class HuggingFaceObjectDetector(BaseHFModel):
 
         Parameters
         ----------
-        model : str
+        model_name : str
             The `model id` of a pretrained object detector from HuggingFace.
 
         **kwargs : Any
@@ -192,18 +205,21 @@ class HuggingFaceObjectDetector(BaseHFModel):
         threshold = kwargs.pop("threshold", 0.5)
 
         try:
-            det_model = AutoModelForObjectDetection.from_pretrained(model, **kwargs)
+            det_model = AutoModelForObjectDetection.from_pretrained(
+                model_name, **kwargs
+            )
         except OSError as e:  # pragma: no cover
             raise InvalidArgument(e)
 
         try:
-            processor = AutoImageProcessor.from_pretrained(model, **kwargs)
+            processor = AutoImageProcessor.from_pretrained(model_name, **kwargs)
         except OSError as e:  # noqa: F841
             raise InvalidArgument(e)
 
         post_processor = getattr(processor, "post_process_object_detection", None)
 
         return cls(
+            model_name,
             det_model,
             processor,
             post_processor=post_processor,

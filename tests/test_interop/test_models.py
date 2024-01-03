@@ -57,7 +57,7 @@ def test_load_model_from_registry(mocker):
     processor, model = hf_common.get_test_vision_model()
     mocker.patch(feature_loader, return_value=processor)
     mocker.patch(model_loader, return_value=model)
-    maite.load_model(model_name="vit_for_cifar10")
+    maite.load_model(model_name="vit_for_cifar10", provider="huggingface")
 
 
 @requires_hf_transformers
@@ -104,9 +104,9 @@ def test_hf_models(mocker, task):
     mocker.patch(model_loader, return_value=model)
 
     model = maite.load_model(
+        model_name="test",
         provider="huggingface",
         task=task,
-        model_name="test",
     )
     assert isinstance(model, protocol)
 
@@ -194,18 +194,19 @@ def test_huggingface_get_labels_sorted(task):
             HuggingFaceImageClassifier,
         )
 
-        processor, model = hf_common.get_test_vision_model()
-        model = HuggingFaceImageClassifier(model, processor)  # type: ignore
+        processor, test_model = hf_common.get_test_vision_model()
+        model = HuggingFaceImageClassifier(test_model.metadata.model_name, test_model, processor)  # type: ignore
     else:
         from maite._internals.interop.huggingface.object_detection import (
             HuggingFaceObjectDetector,
         )
 
-        processor, model = hf_common.get_test_object_detection_model()
-        model = HuggingFaceObjectDetector(model, processor)  # type: ignore
+        processor, test_model = hf_common.get_test_object_detection_model()
+        model = HuggingFaceObjectDetector(test_model.metadata.model_name, test_model, processor)  # type: ignore
 
     assert isinstance(model, pr.Model)
     assert hasattr(model, "get_labels")
+    assert isinstance(model.metadata, pr.ModelMetadata)
     labels = model.get_labels()
 
     id_map = model.model.config.id2label
@@ -223,22 +224,31 @@ def test_tv_get_labels_sorted(task):
             TorchVisionClassifier,
         )
 
-        weights, model = tv_common.get_test_vision_model()
+        weights, test_model = tv_common.get_test_vision_model()
         labels = weights["DEFAULT"].meta["categories"]
-        model = TorchVisionClassifier(model, weights["DEFAULT"].transforms(), labels)
+        model = TorchVisionClassifier(
+            test_model.metadata.model_name,
+            test_model,
+            weights["DEFAULT"].transforms(),
+            labels,
+        )
     else:
         from maite._internals.interop.torchvision.torchvision import (
             TorchVisionObjectDetector,
         )
 
-        weights, model = tv_common.get_test_object_detection_model()
+        weights, test_model = tv_common.get_test_object_detection_model()
         labels = weights["DEFAULT"].meta["categories"]
         model = TorchVisionObjectDetector(
-            model, weights["DEFAULT"].transforms(), labels
+            test_model.metadata.model_name,
+            test_model,
+            weights["DEFAULT"].transforms(),
+            labels,
         )
 
     assert isinstance(model, pr.Model)
     assert hasattr(model, "get_labels")
+    assert isinstance(model.metadata, pr.ModelMetadata)
     labels = model.get_labels()
 
     weights_labels = weights["DEFAULT"].meta["categories"]
@@ -285,8 +295,8 @@ def test_huggingface_inputs(task, data, img_type, input_type, model_kwargs, kwar
             HuggingFaceImageClassifier,
         )
 
-        processor, model = hf_common.get_test_vision_model(**kwargs)
-        model = HuggingFaceImageClassifier(model, processor, **model_kwargs)  # type: ignore
+        processor, test_model = hf_common.get_test_vision_model(**kwargs)
+        model = HuggingFaceImageClassifier(test_model.metadata.model_name, test_model, processor, **model_kwargs)  # type: ignore
 
         if "top_k" in model_kwargs and model_kwargs["top_k"] is not None:
             output_protocol = pr.HasScores
@@ -297,9 +307,9 @@ def test_huggingface_inputs(task, data, img_type, input_type, model_kwargs, kwar
             HuggingFaceObjectDetector,
         )
 
-        processor, model = hf_common.get_test_object_detection_model(**kwargs)
+        processor, test_model = hf_common.get_test_object_detection_model(**kwargs)
         post_processor = getattr(processor, "post_process_object_detection", None)
-        model = HuggingFaceObjectDetector(model, processor, post_processor, **model_kwargs)  # type: ignore
+        model = HuggingFaceObjectDetector(test_model.metadata.model_name, test_model, processor, post_processor, **model_kwargs)  # type: ignore
 
         if "threshold" in model_kwargs and model_kwargs["threshold"] is not None:
             output_protocol = pr.HasDetectionPredictions
@@ -356,16 +366,24 @@ def test_torchvision_inputs(task, data, img_type, input_type):
             TorchVisionClassifier,
         )
 
-        weights, model = tv_common.get_test_vision_model()
-        model = TorchVisionClassifier(model, weights["DEFAULT"].transforms())
+        weights, test_model = tv_common.get_test_vision_model()
+        model = TorchVisionClassifier(
+            test_model.metadata.model_name,
+            test_model,
+            weights["DEFAULT"].transforms(),
+        )
         output_protocol = pr.HasLogits
     else:
         from maite._internals.interop.torchvision.torchvision import (
             TorchVisionObjectDetector,
         )
 
-        weights, model = tv_common.get_test_object_detection_model()
-        model = TorchVisionObjectDetector(model, weights["DEFAULT"].transforms())
+        weights, test_model = tv_common.get_test_object_detection_model()
+        model = TorchVisionObjectDetector(
+            test_model.metadata.model_name,
+            test_model,
+            weights["DEFAULT"].transforms(),
+        )
         output_protocol = pr.HasDetectionPredictions
 
     array = _draw_data(data, img_type)

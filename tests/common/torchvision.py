@@ -2,12 +2,21 @@
 # Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).
 # SPDX-License-Identifier: MIT
 
+from dataclasses import dataclass
+
 import torch as tr
 from torch.utils.data import Dataset
 from torchvision.models._api import WeightsEnum
 from torchvision.transforms import ToTensor
 
 from .utils import create_random_image
+
+
+@dataclass
+class ModelMetadata:
+    model_name: str = "model_name"
+    provider: str = "provider_name"
+    task: str = "task_name"
 
 
 def get_test_vision_dataset(has_split: bool = True, has_train=False):
@@ -54,8 +63,11 @@ def get_test_vision_model():
     """Creates a test model for testing torchvision image classification models."""
 
     class TVModel(tr.nn.Module):
+        metadata: ModelMetadata
+
         def __init__(self):
             super().__init__()
+            self.metadata = ModelMetadata()
             self.linear = tr.nn.Linear(1, 1)
 
         def forward(self, x):
@@ -68,8 +80,11 @@ def get_test_object_detection_model():
     """Creates a test model for testing torchvision object detectionmodels."""
 
     class TVModel(tr.nn.Module):
+        metadata: ModelMetadata
+
         def __init__(self):
             super().__init__()
+            self.metadata = ModelMetadata()
             self.linear = tr.nn.Linear(1, 1)
 
         def forward(self, x):

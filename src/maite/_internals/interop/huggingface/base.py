@@ -6,7 +6,7 @@ from typing import Optional, Sequence, Union
 
 from torch import nn
 
-from ..base_model import BaseModel
+from ..base_model import BaseModel, InteropModelMetadata
 from .typing import (
     HuggingFaceObjectDetectionPostProcessor,
     HuggingFaceProcessor,
@@ -34,13 +34,19 @@ class BaseHFModel(nn.Module, BaseModel):
         Return the labels of the model.
     """
 
+    metadata: InteropModelMetadata
+
     def __init__(
         self,
+        model_name: str,
         model: Union[HuggingFaceWithLogits, HuggingFaceWithDetection],
         processor: Optional[HuggingFaceProcessor] = None,
         post_processor: Optional[HuggingFaceObjectDetectionPostProcessor] = None,
     ) -> None:
         super().__init__()
+        self.metadata = InteropModelMetadata(
+            model_name=model_name, provider="HuggingFace", task=""
+        )
         self.model = model
         self._processor = processor
         self._post_processor = post_processor

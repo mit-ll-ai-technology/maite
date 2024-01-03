@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from collections import UserDict
+from dataclasses import dataclass
 from typing import Any, Callable, Iterable, Optional, Sequence, Tuple, Union
 
 import torch as tr
@@ -13,9 +14,20 @@ from ..protocols.typing import ArrayLike, HasDataImage, SupportsArray
 from .utils import is_pil_image
 
 
+@dataclass
+class InteropModelMetadata:
+    model_name: str = ""
+    provider: str = ""
+    task: str = ""
+
+
 class BaseModel:
     preprocessor: Optional[Callable[[Union[HasDataImage, SupportsArray]], HasDataImage]]
     parameters: Callable[[], Iterable[Tensor]]
+    metadata: InteropModelMetadata
+
+    def __init__(self) -> None:
+        self.metadata = InteropModelMetadata()
 
     def _process_inputs(
         self, data: Union[HasDataImage, Sequence[ArrayLike], ArrayLike]

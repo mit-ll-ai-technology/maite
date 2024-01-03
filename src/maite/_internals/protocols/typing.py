@@ -454,7 +454,7 @@ class VisionDataset(Dataset[SupportsImageClassification], Protocol):
     >>> data: SupportsImageClassification = {
     ...     "image": np.zeros((3, 224, 224)),
     ...     'label': np.array([1]),
-    ...     "metadata": datum,
+    ...     'metadata': datum,
     ... }
 
 
@@ -490,13 +490,12 @@ class ObjectDetectionDataset(Dataset[SupportsObjectDetection], Protocol):
     >>> from dataclasses import dataclass
     >>> from typing import Any
     >>> @dataclass
-    >>> class ImplImageClassificationDatum:
+    >>> class ImplObjectDetectionDatum:
     >>>     id: int
     >>>     user_added_metadata: 'dict[str, Any]'  # dict needs quote in Python 3.8
 
     >>> id = 1
-    >>> datum = ImplImageClassificationDatum(id=id, user_added_metadata={"user_metadata": {"image_gsd": 0.3}})
-
+    >>> datum = ImplObjectDetectionDatum(id=id, user_added_metadata={"user_metadata": {"image_gsd": 0.3}})
     >>> data: SupportsObjectDetection = {
     ...     "image": np.zeros((3, 224, 224)),
     ...     "objects": {
@@ -886,9 +885,44 @@ Models
 
 
 @runtime_checkable
+class ModelMetadata(Protocol):
+    """
+    A simple protocol for metadata provided by a model
+
+    Attributes:
+    -----------
+    model_name: str
+        name of model
+
+    provider: str
+        source of model (e.g. "HuggingFace", "TorchVision")
+
+    task: str
+        task for model (e.g. "Object Detection", "Image Classification")
+    """
+
+    @property
+    def model_name(self) -> str:
+        ...
+
+    @property
+    def provider(self) -> str:
+        ...
+
+    @property
+    def task(self) -> str:
+        ...
+
+
+@runtime_checkable
 class Model(Protocol[P, T_co]):
     """
     A protocol for models.
+
+    Attributes:
+    -----------
+    metadata: ModelMetadata
+        model's metadata
 
     Methods
     -------
@@ -923,6 +957,7 @@ class Model(Protocol[P, T_co]):
     for a given task.  By using the following approach to defining a given workflow for a task
     we see that protocols help self-document the code.
 
+    >>> from maite.protocols import SupportsArray
     >>> def my_task(model: Model[[NDArray], HasProbs], data: NDArray) -> HasProbs:
     ...     return model(data)
 
@@ -937,13 +972,23 @@ class Model(Protocol[P, T_co]):
     ... class MyHasProbs:
     ...     probs: SupportsArray
 
+    >>> @dataclass
+    ... class ModelMetadataExample:
+    ...     model_name: str = "model_name"
+    ...     provider: str = "provider_name"
+    ...     task: str = "task"
+
     >>> from typing import Sequence
     >>> class MyModel:
-    ...     def __call__(self, data: SupportsArray) -> MyHasProbs:
+    >>>     metadata = ModelMetadataExample()
+    ...     def __call__(self, data: NDArray) -> MyHasProbs:
     ...         return MyHasProbs(data)
     ...     def get_labels(self) -> Sequence[str]:
     ...         return ["0", "1"]
+
     >>> my_model = MyModel()
+    >>> my_model.metadata
+    ModelMetadataExample(model_name='model_name', provider='provider_name', task='task_name')
     >>> isinstance(my_model, Model)
     True
 
@@ -956,6 +1001,10 @@ class Model(Protocol[P, T_co]):
     A typechecker would validate that `my_model` implements the interface
     defined in ``my_task``.
     """
+
+    @property
+    def metadata(self) -> ModelMetadata:
+        ...
 
     def __call__(self, *args: P.args, **kwargs: P.kwargs) -> T_co:
         """Run inference on the data."""
@@ -970,6 +1019,11 @@ class Model(Protocol[P, T_co]):
 class ImageClassifier(Model[P, Union[HasLogits, HasProbs, HasScores]], Protocol[P]):
     """
     An image classifier model that takes in an image and returns logits, probabilities, or scores.
+
+    Attributes:
+    -----------
+    metadata: ModelMetadata
+        model's metadata
 
     Methods
     -------
@@ -990,14 +1044,24 @@ class ImageClassifier(Model[P, Union[HasLogits, HasProbs, HasScores]], Protocol[
     ...     logits: SupportsArray
     >>> data = FakeData(np.array([0.5, 0.5]))
 
+    Create a model metadata dataclass.
+
+    >>> @dataclass
+    ... class ModelMetadataExample:
+    ...     model_name: str = "model_name"
+    ...     provider: str = "provider_name"
+    ...     task: str = "task"
+
     Create a fake model that returns logits.
 
     >>> from typing import Sequence
     >>> class FakeModel:
+    ...     metadata = ModelMetadataExample()
     ...     def __call__(self, data: SupportsArray) -> HasLogits:
     ...         return FakeData(np.array([0.5, 0.5]))
     ...     def get_labels(self) -> Sequence[str]:
     ...         return ["cat", "dog"]
+
     >>> model = FakeModel()
     >>> output: HasLogits = model(np.zeros((2, 3, 224, 224)))
     """
@@ -1015,6 +1079,11 @@ class ObjectDetector(
 ):
     """
     An object detector model that takes in an image and returns logits, probabilities, or predictions.
+
+    Attributes:
+    -----------
+    metadata: ModelMetadata
+        model's metadata
 
     Methods
     -------
@@ -1036,10 +1105,19 @@ class ObjectDetector(
     ...     boxes: SupportsArray
     >>> data: HasDetectionLogits = FakeData(np.array([0.5]), np.array([[0, 0, 1, 1]]))
 
+    Create a model metadata dataclass.
+
+    >>> @dataclass
+    ... class ModelMetadataExample:
+    ...     model_name: str = "model_name"
+    ...     provider: str = "provider_name"
+    ...     task: str = "task"
+
     Create a fake model that returns logits.
 
     >>> from typing import Sequence
     >>> class FakeModel:
+    ...     metadata = ModelMetadataExample()
     ...     def __call__(self, data: SupportsArray) -> HasDetectionLogits:
     ...         return FakeData(np.array([0.5]), np.array([[0, 0, 1, 1]]))
     ...     def get_labels(self) -> Sequence[str]:
@@ -1051,6 +1129,7 @@ class ObjectDetector(
 
     >>> from numpy.typing import NDArray
     >>> class FakeModel2:
+    ...     metadata = ModelMetadataExample(model_name="fake_model2_name", provider="provider_name", task="task_name")
     ...     def __call__(self, data: NDArray) -> HasDetectionLogits:
     ...         return FakeData(np.array([0.5]), np.array([[0, 0, 1, 1]]))
     ...     def get_labels(self) -> Sequence[str]:

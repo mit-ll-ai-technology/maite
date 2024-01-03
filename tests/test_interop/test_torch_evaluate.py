@@ -78,6 +78,13 @@ class RandomDetectionDataset(Dataset):
 
 
 @dataclass
+class TestModelMetadata:
+    model_name: str = "test_model_name"
+    provider: str = "test_provider"
+    task: str = "test_task"
+
+
+@dataclass
 class VisionOutput:
     logits: tr.Tensor
 
@@ -88,6 +95,8 @@ class VisionOutputProbs:
 
 
 class VisionModel(tr.nn.Module):
+    metadata = TestModelMetadata()
+
     def __init__(self, with_logits=False, no_dataclass=False):
         super().__init__()
         self.with_logits = with_logits
@@ -134,6 +143,8 @@ class DetectorOutput:
 
 
 class DetectionModel(tr.nn.Module):
+    metadata = TestModelMetadata()
+
     def __init__(self, no_dataclass=False):
         super().__init__()
         self.no_dataclass = no_dataclass

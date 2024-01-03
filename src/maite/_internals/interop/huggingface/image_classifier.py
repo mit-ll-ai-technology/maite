@@ -10,7 +10,7 @@ from typing_extensions import Self
 from maite.errors import InvalidArgument
 from maite.protocols import HasDataImage, HasLogits, SupportsArray
 
-from .base import BaseHFModel
+from .base import BaseHFModel, InteropModelMetadata
 from .typing import (
     HuggingFacePredictions,
     HuggingFaceProbs,
@@ -29,8 +29,11 @@ class HuggingFaceImageClassifier(BaseHFModel):
     to load the HuggingFace models.
     """
 
+    metadata: InteropModelMetadata
+
     def __init__(
         self,
+        model_name: str,
         model: HuggingFaceWithLogits,
         processor: Optional[HuggingFaceProcessor] = None,
         top_k: Optional[int] = None,
@@ -40,6 +43,8 @@ class HuggingFaceImageClassifier(BaseHFModel):
 
         Parameters
         ----------
+        model_name: str
+            A Huggingface model name from model id, e.g. "microsoft/resnet-50"
         processor : HuggingFaceProcessor
             A HuggingFace feature extractor for a given model.
 
@@ -53,8 +58,11 @@ class HuggingFaceImageClassifier(BaseHFModel):
         >>> model = AutoModelForImageClassification.from_pretrained("microsoft/resnet-50")
         >>> hf_model = HuggingFaceImageClassifier(processor, model)
         """
-        super().__init__(model=model, processor=processor)
+        super().__init__(model_name=model_name, model=model, processor=processor)
         self._top_k = top_k
+        self.metadata = InteropModelMetadata(
+            model_name=model_name, provider="HuggingFace", task="Image Classification"
+        )
 
     def preprocessor(
         self,
@@ -124,7 +132,7 @@ class HuggingFaceImageClassifier(BaseHFModel):
         return HuggingFacePredictions(scores=scores, labels=labels)
 
     @classmethod
-    def from_pretrained(cls, model: str, **kwargs: Any) -> Self:
+    def from_pretrained(cls, model_name: str, **kwargs: Any) -> Self:
         """
         Load a HuggingFace model from pretrained weights.
 
@@ -132,7 +140,7 @@ class HuggingFaceImageClassifier(BaseHFModel):
 
         Parameters
         ----------
-        model : str
+        model_name : str
             The `model id` of a pretrained image classifier stored on HuggingFace.
 
         **kwargs : Any
@@ -155,16 +163,18 @@ class HuggingFaceImageClassifier(BaseHFModel):
         top_k = kwargs.pop("top_k", None)
 
         try:
-            clf_model = AutoModelForImageClassification.from_pretrained(model, **kwargs)
+            clf_model = AutoModelForImageClassification.from_pretrained(
+                model_name, **kwargs
+            )
         except OSError as e:  # pragma: no cover
             raise InvalidArgument(e)
 
         try:
-            processor = AutoFeatureExtractor.from_pretrained(model, **kwargs)
+            processor = AutoFeatureExtractor.from_pretrained(model_name, **kwargs)
         except OSError:  # pragma: no cover
             processor = None
 
-        return cls(clf_model, processor, top_k=top_k)
+        return cls(model_name, clf_model, processor, top_k=top_k)
 
     def forward(
         self, data: Union[HasDataImage, SupportsArray]
