@@ -201,14 +201,9 @@ class HuggingFaceAPI:
         # task. We need to check if the dataset is compatible with the task and if not,
         # we load the dataset without the task.
         try:
-            dataset = datasets.load_dataset(
-                dataset_name, split=split, task=task, **kwargs
-            )
+            dataset = datasets.load_dataset(dataset_name, split=split, **kwargs)
         except ValueError as e:  # pragma: no cover
-            if "Task object-detection is not compatible" in str(e):
-                dataset = datasets.load_dataset(dataset_name, split=split, **kwargs)
-            else:
-                raise e
+            raise e
 
         if isinstance(dataset, (dict, DatasetDict)):  # pragma: no cover
             raise InvalidArgument("Split is not specified")
