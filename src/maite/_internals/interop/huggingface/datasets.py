@@ -2,10 +2,10 @@
 # Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).
 # SPDX-License-Identifier: MIT
 
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Callable, Optional
 
 import numpy as np
-from attr import dataclass
 
 from maite._internals.import_utils import is_hf_datasets_available
 from maite._internals.protocols.typing import ObjectDetectionDataset
