@@ -65,7 +65,7 @@ huggingface_hub = ["huggingface-hub >= 0.11.1"]
 datasets = ["datasets >= 2.7.1"]
 transformers = ["transformers >= 4.25.1"]
 timm = ["timm >= 0.6.12"]
-torchmetrics = ["torchmetrics >= 0.11, < 1.0"]
+torchmetrics = ["torchmetrics >= 0.11"]
 torcheval = ["torcheval >= 0.0.6"]
 tqdm = ["tqdm>=4.62.1"]
 
@@ -78,9 +78,10 @@ all_interop = [
   "huggingface-hub >= 0.11.1",
   "transformers >= 4.25.1",
   "timm >= 0.6.12",
-  "torchmetrics >= 0.11, < 1.0",
+  "torchmetrics >= 0.11",
   "torcheval >= 0.0.6",
-  "tqdm>=4.62.1"
+  "tqdm>=4.62.1",
+  "pycocotools"
 ]
 
 [project.urls]
