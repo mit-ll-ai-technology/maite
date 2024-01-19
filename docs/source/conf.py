@@ -18,18 +18,18 @@ import maite
 # -- Project information -----------------------------------------------------
 
 project = "maite"
-copyright = "2023 Massachusetts Institute of Technology"
+copyright = "2024 Massachusetts Institute of Technology"
 author = "Ryan Soklaski, Justin Goodwin, Michael Yee"
 
 # The short X.Y version
-version = ""
+version = '.'.join(maite.__version__.split('.')[:-1])
 # The full version, including alpha/beta/rc tags
-release = ""
+release = maite.__version__
 
 
 # -- General configuration ---------------------------------------------------
 
-REPO_URL = "https://gitlab.jatic.net/jatic/cdao/maite"
+REPO_URL = "https://github.com/mit-ll-ai-technology/maite"
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom

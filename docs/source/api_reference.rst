@@ -7,7 +7,7 @@
 Reference
 #########
 
-Encyclopedia JATICanica.
+Encyclopedia MAITEanica.
 
 All reference documentation includes detailed Examples sections. Please scroll to the 
 bottom of any given reference page to see the examples.
@@ -88,9 +88,9 @@ Metrics
 
 
 
-++++++++++++++++++++++++++++++++++++++++++
-List and Load Datasets, Models and Metrics
-++++++++++++++++++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++++++++++++++
+List/Load Datasets, Models, and Metrics
++++++++++++++++++++++++++++++++++++++++++++
 
 .. autosummary::
    :toctree: generated/

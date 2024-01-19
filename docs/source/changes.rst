@@ -8,6 +8,81 @@ Changelog
 This is a record of all past maite releases and what went into them, in reverse 
 chronological order.
 
+
+.. _v0.3.6:
+
+---------------------
+0.3.6 - 2024-01-17
+---------------------
+   
+This release includes the following changes:
+
+- Fix issue with loading datasets from huggingface hub (e.g., cifar10) (bugfix)
+- Import dataclass from dataclasses instead of attr (bugfix)
+- Remove version constraints for torchmetrics
+
+
+.. _v0.3.5:
+
+---------------------
+0.3.5 - 2024-01-05
+---------------------
+   
+This release includes two new features:
+
+- Add dataset and datum level metadata
+- Add model metadata
+
+.. _v0.3.4:
+
+---------------------
+0.3.4 - 2023-12-21
+---------------------
+
+Publish to pypi.org
+
+.. _v0.3.3:
+
+---------------------
+0.3.3 - 2023-12-21
+---------------------
+
+Modifying pyproject.toml to obtain better author display representation on pypi
+
+.. _v0.3.2:
+
+---------------------
+0.3.2 - 2023-12-21
+---------------------
+
+Updated README and pyproject.toml in preparation for pypi publishing (Note: we are still publishing to test.pypi)
+
+.. _v0.3.1:
+
+---------------------
+0.3.1 - 2023-12-21
+---------------------
+
+Updated docs
+
+- Updated references in docs/README.md and docs/index.rst to reflect current repo name
+     - Updated basic_evaluation.md tutorial
+     - Implemented default parameters for object detection
+
+- Added .github/pypi_publish.yml directory to automate publishing the repository to online packaging indices (after GitLab is mirrored to GitHub)
+
+.. _v0.3.0:
+
+---------------------
+0.3.0 - 2023-12-20
+---------------------
+
+This release is the first release after renaming to maite, the changes are follows
+
+- The major change is the rename jatic-toolbox to maite
+- It adds headers (copyright, license) to each file
+- It adds the Phase-1 protocol and base provider/hub registration system from Quansight.
+
 .. _v0.2.0:
 
 ---------------------
@@ -23,9 +98,9 @@ Protocols
 Many updates to the names of protocols, usability, and stability.
 See reference documentation: https://jatic.pages.jatic.net/cdao/maite/api_reference.html
 
-For an explanation of usage of current protocols see :doc:`explanation/protocols_current`.
+For an explanation of usage of current protocols see  (*deprecated link*) `explanation/protocols_current`.
 
-For an overview of the future vision of protocols see :doc:`explanation/protocols_vision`.
+For an overview of the future vision of protocols see  (*deprecated link*) `explanation/protocols_vision`.
 
 
 Documentation
@@ -60,7 +135,7 @@ Stability and Usability
 - Number of bug fixes and stability improvements
 - Improved testing to ensure toolbox protocols and testing utilities work with minimal installation.
 - Improve testing coverage for dataset and model loading
-- Initial implementation of dataset, model, and metric registries. See :doc:`how_to/named_evaluation`.
+- Initial implementation of dataset, model, and metric registries. See  (*deprecated link*) `how_to/named_evaluation`.
 
 
 .. _v0.1.0:

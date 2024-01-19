@@ -76,11 +76,11 @@ assert isinstance(array, pr.ArrayLike)
 
 *Support for rigorous software testing*
 
-The `testing` subpackage is designed to help developers create a rigorous automated test suite for their JATIC project. These include:
+The `testing` subpackage is designed to help developers create a rigorous automated test suite for their project. These include:
 
 - Pytest fixtures for initializing test functions with common models, datasets, and other inputs that are useful for testing machine learning code.
 - Functions running static type checking tests using [pyright](https://github.com/microsoft/pyright) in a pytest test suite, including scans of both source code and example documentation code blocks.
-- [Hypothesis strategies](https://hypothesis.readthedocs.io/en/latest/) for driving property-based tests of interfaces that leverage JATIC protocols.
+- [Hypothesis strategies](https://hypothesis.readthedocs.io/en/latest/) for driving property-based tests of interfaces that leverage MAITE protocols.
 
 ### Pyright Static Type Checking in Code
 
@@ -107,7 +107,7 @@ The `testing` subpackage is designed to help developers create a rigorous automa
 
 *MAITE-compatible wrappers for popular 3rd-party libraries*
 
-The interop subpackage provides wrappers and functions that allow use of popular 3rd party libraries and frameworks in ways that are compatible with JATIC protocols. For example, this module can be used to wrap the object detectors provided by HuggingFace so that they adhere to the JATIC protocols for object detectors.
+The interop subpackage provides wrappers and functions that allow use of popular 3rd party libraries and frameworks in ways that are compatible with MAITE protocols. For example, this module can be used to wrap the image classification datasets provided by Torchvision so that they adhere to the MAITE protocols for datasets.
 
 ```python
 >>> from maite import load_dataset

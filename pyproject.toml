@@ -33,6 +33,7 @@ authors = [
 maintainers = [
     { name = "Justin Goodwin"}, 
     { name = "Michael Yee"},
+    { name = "Lei Hamilton"},
     { name = "Jeff Arena"}
 ]
 
