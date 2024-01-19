@@ -2,19 +2,19 @@
 # Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).
 # SPDX-License-Identifier: MIT
 
-__all__ = ["ToolBoxException", "InternalError", "ToolBoxException"]
+__all__ = ["MaiteException", "InternalError", "InvalidArgument"]
 
 
-class ToolBoxException(Exception):
+class MaiteException(Exception):
     # doc-ignore: NOQA
-    """Base exception thrown by the toolbox."""
+    """Base exception thrown by the MAITE."""
 
 
-class InternalError(ToolBoxException, AssertionError):
+class InternalError(MaiteException, AssertionError):
     # doc-ignore: NOQA
     """An internal function was misconfigured or misused."""
 
 
-class InvalidArgument(ToolBoxException, TypeError):
+class InvalidArgument(MaiteException, TypeError):
     # doc-ignore: NOQA
-    """A toolbox interface was passed a bad value or type."""
+    """A MAITE interface was passed a bad value or type."""

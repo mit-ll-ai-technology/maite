@@ -148,7 +148,7 @@ class ModuleScan:
     'maite'
     >>> results["typeCompleteness"]["symbols"]
     [{'category': 'class',
-      'name': 'maite.errors.ToolBoxException',
+      'name': 'maite.errors.MaiteException',
       'referenceCount': 3,
       'isExported': True,
       'isTypeKnown': True,

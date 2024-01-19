@@ -131,7 +131,7 @@ Validation and Error Handling
 .. autosummary::
    :toctree: generated/
 
-   ToolBoxException
+   MaiteException
    InvalidArgument
 
 

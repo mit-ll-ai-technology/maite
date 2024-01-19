@@ -10,7 +10,7 @@ from maite._internals.import_utils import requires_hf_datasets, requires_torchvi
 from maite._internals.interop import registry
 from maite._internals.interop.huggingface import api as hf_api
 from maite._internals.interop.torchvision import api as tv_api
-from maite.errors import InvalidArgument, ToolBoxException
+from maite.errors import InvalidArgument, MaiteException
 
 
 @pytest.mark.parametrize(
@@ -125,7 +125,7 @@ def test_tv_datasets(mocker, task, has_split, has_train):
     mocker.patch.object(tv_api, "_get_torchvision_dataset", return_value=mock_dataset)
 
     if task == "object-detection":
-        with pytest.raises(ToolBoxException):
+        with pytest.raises(MaiteException):
             maite.load_dataset(
                 provider="torchvision",
                 task=task,
@@ -164,7 +164,7 @@ def test_hf_load_dataset_unsupported_vision_keys(mocker, image_key, label_key):
     # with mock.patch.object(datasets, "load_dataset", return_value=mock_dataset):
     mocker.patch("datasets.load_dataset", return_value=mock_dataset)
 
-    with pytest.raises(ToolBoxException):
+    with pytest.raises(MaiteException):
         maite.load_dataset(
             provider="huggingface",
             task="image-classification",
@@ -201,7 +201,7 @@ def test_hf_load_dataset_unsupported_detection_keys(
 
     mocker.patch("datasets.load_dataset", return_value=mock_dataset)
 
-    with pytest.raises(ToolBoxException):
+    with pytest.raises(MaiteException):
         maite.load_dataset(
             provider="huggingface",
             task="object-detection",

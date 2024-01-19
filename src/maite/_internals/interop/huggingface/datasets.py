@@ -9,7 +9,7 @@ import numpy as np
 
 from maite._internals.import_utils import is_hf_datasets_available
 from maite._internals.protocols.typing import ObjectDetectionDataset
-from maite.errors import ToolBoxException
+from maite.errors import MaiteException
 from maite.protocols import (
     HasDataBoxesLabels,
     SupportsImageClassification,
@@ -89,17 +89,17 @@ class HuggingFaceVisionDataset(VisionDataset):
             self.label_key = label_key
 
         if self.image_key == self.label_key:
-            raise ToolBoxException(
+            raise MaiteException(
                 f"Image key and label key are the same: {self.image_key}"
             )
 
         if self.image_key not in dataset.features:
-            raise ToolBoxException(
+            raise MaiteException(
                 f"Image key, {self.image_key}, not found in dataset.  Available keys: {dataset.features.keys()}"
             )
 
         if self.label_key not in dataset.features:
-            raise ToolBoxException(
+            raise MaiteException(
                 f"Label key, {self.label_key}, not found in dataset.  Available keys: {dataset.features.keys()}"
             )
 
@@ -172,7 +172,7 @@ class HuggingFaceObjectDetectionDataset(ObjectDetectionDataset):
         """
 
         if len(set([image_key, objects_key, bbox_key, category_key])) != 4:
-            raise ToolBoxException(
+            raise MaiteException(
                 "All keys must be unique.  Keys provided: "
                 f"{image_key}, {objects_key}, {bbox_key}, {category_key}"
             )
@@ -193,7 +193,7 @@ class HuggingFaceObjectDetectionDataset(ObjectDetectionDataset):
             self.image_key not in dataset.features
             or self.objects_key not in dataset.features
         ):
-            raise ToolBoxException(
+            raise MaiteException(
                 f"Dataset does not have the expected keys: {self.image_key}, {self.objects_key}"
             )
 
@@ -203,7 +203,7 @@ class HuggingFaceObjectDetectionDataset(ObjectDetectionDataset):
             feature = dataset.features[self.objects_key][0]
 
         if self.bbox_key not in feature or self.category_key not in feature:
-            raise ToolBoxException(
+            raise MaiteException(
                 f"Dataset does not have the expected keys: {self.bbox_key}, {self.category_key}"
             )
 

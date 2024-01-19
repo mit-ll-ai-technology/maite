@@ -1,6 +1,6 @@
-maite.errors.ToolBoxException
+maite.errors.MaiteException
 ======================================
 
 .. currentmodule:: maite.errors
 
-.. autoexception:: ToolBoxException
+.. autoexception:: MaiteException

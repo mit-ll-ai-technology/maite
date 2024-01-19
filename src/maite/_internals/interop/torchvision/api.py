@@ -18,7 +18,7 @@ from typing import (
     overload,
 )
 
-from maite.errors import InvalidArgument, ToolBoxException
+from maite.errors import InvalidArgument, MaiteException
 from maite.protocols import (
     Dataset,
     ImageClassifier,
@@ -208,7 +208,7 @@ class TorchVisionAPI:
             try:
                 dataset = fn(**kwargs)
             except Exception as e:  # pragma: no cover
-                raise ToolBoxException(
+                raise MaiteException(
                     f"Unable to load dataset with `dataset_name={dataset_name}`."
                 ) from e
 
