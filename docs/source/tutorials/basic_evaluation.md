@@ -174,10 +174,10 @@ data = dataset[0]
 print(data)
 ```
 
-    {'image': <PIL.PngImagePlugin.PngImageFile image mode=RGB size=32x32 at 0x2ABB8DF0D90>, 'label': 3}
+    {'image': <PIL.PngImagePlugin.PngImageFile image mode=RGB size=32x32 at 0x2ABB8DF0D90>, 'label': 3, 'metadata': HuggingfaceDatumMetadata(id=0)}}
     
 
-Note that the data sample is in the form of a dictionary, with keys for ``image`` and ``label``. The ``image`` is currently in the form of a PIL image. For this tutorial, we’ll be loading a model from the [PyTorch](https://pytorch.org/) framework, so we’ll need to convert the images in our dataset to [Tensors](https://pytorch.org/docs/stable/tensors.html). To do this, we’ll leverage TorchVision’s ``to_tensor`` method, with a resize to match our eventual model:
+Note that the data sample is in the form of a dictionary, with keys for ``image``, ``label`` and ``metadata``. The ``image`` is currently in the form of a PIL image. For this tutorial, we’ll be loading a model from the [PyTorch](https://pytorch.org/) framework, so we’ll need to convert the images in our dataset to [Tensors](https://pytorch.org/docs/stable/tensors.html). To do this, we’ll leverage TorchVision’s ``to_tensor`` method, with a resize to match our eventual model:
 
 
 ```python
