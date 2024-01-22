@@ -1,0 +1,21 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions" # monitor github actions dependencies
+    directory: "/" # Location of package manifests
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "pip" # monitor dependencies in pyproject.toml
+    directory: "/"
+    schedule:
+      interval: "daily"
+    target-branch: "main"
+  - package-ecosystem: "pip" # monitor dependencies in deps (just pyright)
+    directory: "/deps/"
+    schedule:
+      interval: "daily"
+    target-branch: "main"
+  - package-ecosystem: "pip" # monitor dependencies for sphinx doc building
+    directory: "/docs/"
+    schedule:
+      interval: "weekly"
+    target-branch: "main"
