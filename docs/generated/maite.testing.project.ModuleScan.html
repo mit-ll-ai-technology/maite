@@ -1,0 +1,531 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.19: https://docutils.sourceforge.io/" name="generator"/>
+<title>maite.testing.project.ModuleScan — maite 0.4.0 documentation</title>
+<script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+<!-- Loaded before other Sphinx assets -->
+<link href="../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet"/>
+<link href="../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet"/>
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet"/>
+<link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet"/>
+<link as="font" crossorigin="" href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" rel="preload" type="font/woff2"/>
+<link as="font" crossorigin="" href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" rel="preload" type="font/woff2"/>
+<link as="font" crossorigin="" href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" rel="preload" type="font/woff2"/>
+<link href="../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/copybutton.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" rel="stylesheet" type="text/css"/>
+<!-- Pre-loaded scripts that we'll load fully later -->
+<link as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" rel="preload"/>
+<link as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" rel="preload"/>
+<script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+<script src="../_static/doctools.js"></script>
+<script src="../_static/sphinx_highlight.js"></script>
+<script src="../_static/clipboard.min.js"></script>
+<script src="../_static/copybutton.js"></script>
+<script async="async" src="https://www.googletagmanager.com/gtag/js?id=UA-115029372-2"></script>
+<script src="../_static/gtag.js"></script>
+<script src="../_static/design-tabs.js"></script>
+<script>DOCUMENTATION_OPTIONS.pagename = 'generated/maite.testing.project.ModuleScan';</script>
+<link href="../genindex.html" rel="index" title="Index"/>
+<link href="../search.html" rel="search" title="Search"/>
+<link href="maite.testing.project.get_public_symbols.html" rel="next" title="maite.testing.project.get_public_symbols"/>
+<link href="maite.testing.pytest.cleandir.html" rel="prev" title="maite.testing.pytest.cleandir"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="en" name="docsearch:language"/>
+</head>
+<body data-bs-root-margin="0px 0px -60%" data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-default-mode="" data-offset="180">
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<input class="sidebar-toggle" id="__primary" name="__primary" type="checkbox"/>
+<label class="overlay overlay-primary" for="__primary"></label>
+<input class="sidebar-toggle" id="__secondary" name="__secondary" type="checkbox"/>
+<label class="overlay overlay-secondary" for="__secondary"></label>
+<div class="search-button__wrapper">
+<div class="search-button__overlay"></div>
+<div class="search-button__search-container">
+<form action="../search.html" class="bd-search d-flex align-items-center" method="get">
+<i class="fa-solid fa-magnifying-glass"></i>
+<input aria-label="Search the docs ..." autocapitalize="off" autocomplete="off" autocorrect="off" class="form-control" id="search-input" name="q" placeholder="Search the docs ..." spellcheck="false" type="search"/>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+</div>
+<nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+<label class="sidebar-toggle primary-toggle" for="__primary">
+<span class="fa-solid fa-bars"></span>
+</label>
+<div class="navbar-header-items__start">
+<div class="navbar-item">
+<a class="navbar-brand logo" href="../index.html">
+<p class="title logo__title">maite 0.4.0 documentation</p>
+</a></div>
+</div>
+<div class="col-lg-9 navbar-header-items">
+<div class="me-auto navbar-header-items__center">
+<div class="navbar-item"><nav class="navbar-nav">
+<p aria-label="Site Navigation" aria-level="1" class="sidebar-header-items__title" role="heading">
+    Site Navigation
+  </p>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../tutorials.html">
+                        Tutorials
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../how_tos.html">
+                        How-To Guides
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../explanation.html">
+                        Explanation
+                      </a>
+</li>
+<li class="nav-item current active">
+<a class="nav-link nav-internal" href="../api_reference.html">
+                        Reference
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../changes.html">
+                        Changelog
+                      </a>
+</li>
+</ul>
+</nav></div>
+</div>
+<div class="navbar-header-items__end">
+<div class="navbar-item navbar-persistent--container">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+</div>
+<div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+</div>
+</div>
+<div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+</div>
+<label class="sidebar-toggle secondary-toggle" for="__secondary">
+<span class="fa-solid fa-outdent"></span>
+</label>
+</div>
+</nav>
+<div class="bd-container">
+<div class="bd-container__inner bd-page-width">
+<div class="bd-sidebar-primary bd-sidebar">
+<div class="sidebar-header-items sidebar-primary__section">
+<div class="sidebar-header-items__center">
+<div class="navbar-item"><nav class="navbar-nav">
+<p aria-label="Site Navigation" aria-level="1" class="sidebar-header-items__title" role="heading">
+    Site Navigation
+  </p>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../tutorials.html">
+                        Tutorials
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../how_tos.html">
+                        How-To Guides
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../explanation.html">
+                        Explanation
+                      </a>
+</li>
+<li class="nav-item current active">
+<a class="nav-link nav-internal" href="../api_reference.html">
+                        Reference
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../changes.html">
+                        Changelog
+                      </a>
+</li>
+</ul>
+</nav></div>
+</div>
+<div class="sidebar-header-items__end">
+<div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+</div>
+</div>
+<div class="sidebar-primary-items__start sidebar-primary__section">
+<div class="sidebar-primary-item"><nav aria-label="Section Navigation" class="bd-docs-nav bd-links">
+<p aria-level="1" class="bd-links__title" role="heading">Section Navigation</p>
+<div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.ArrayLike.html">maite.protocols.ArrayLike</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.SupportsArray.html">maite.protocols.SupportsArray</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.HasDataBoxes.html">maite.protocols.HasDataBoxes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.HasDataBoxesLabels.html">maite.protocols.HasDataBoxesLabels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.HasDataImage.html">maite.protocols.HasDataImage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.HasDataLabel.html">maite.protocols.HasDataLabel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.HasDataObjects.html">maite.protocols.HasDataObjects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.SupportsImageClassification.html">maite.protocols.SupportsImageClassification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.SupportsObjectDetection.html">maite.protocols.SupportsObjectDetection</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.Dataset.html">maite.protocols.Dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.VisionDataset.html">maite.protocols.VisionDataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.ObjectDetectionDataset.html">maite.protocols.ObjectDetectionDataset</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.HasLogits.html">maite.protocols.HasLogits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.HasProbs.html">maite.protocols.HasProbs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.HasScores.html">maite.protocols.HasScores</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.HasDetectionLogits.html">maite.protocols.HasDetectionLogits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.HasDetectionPredictions.html">maite.protocols.HasDetectionPredictions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.HasDetectionProbs.html">maite.protocols.HasDetectionProbs</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.Model.html">maite.protocols.Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.ImageClassifier.html">maite.protocols.ImageClassifier</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.ObjectDetector.html">maite.protocols.ObjectDetector</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.Metric.html">maite.protocols.Metric</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.list_datasets.html">maite.list_datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.load_dataset.html">maite.load_dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.list_models.html">maite.list_models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.load_model.html">maite.load_model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.list_metrics.html">maite.list_metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.load_metric.html">maite.load_metric</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.evaluate.html">maite.evaluate</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.utils.validation.check_type.html">maite.utils.validation.check_type</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.utils.validation.check_domain.html">maite.utils.validation.check_domain</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.utils.validation.check_one_of.html">maite.utils.validation.check_one_of</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.utils.validation.chain_validators.html">maite.utils.validation.chain_validators</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.errors.MaiteException.html">maite.errors.MaiteException</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.errors.InvalidArgument.html">maite.errors.InvalidArgument</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.docs.validate_docstring.html">maite.testing.docs.validate_docstring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.docs.NumpyDocErrorCode.html">maite.testing.docs.NumpyDocErrorCode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.docs.NumPyDocResults.html">maite.testing.docs.NumPyDocResults</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.pyright.pyright_analyze.html">maite.testing.pyright.pyright_analyze</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.pyright.PyrightOutput.html">maite.testing.pyright.PyrightOutput</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.pyright.list_error_messages.html">maite.testing.pyright.list_error_messages</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.pytest.cleandir.html">maite.testing.pytest.cleandir</a></li>
+</ul>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">maite.testing.project.ModuleScan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.project.get_public_symbols.html">maite.testing.project.get_public_symbols</a></li>
+</ul>
+</div>
+</nav></div>
+</div>
+<div class="sidebar-primary-items__end sidebar-primary__section">
+</div>
+<div id="rtd-footer-container"></div>
+</div>
+<main class="bd-main" id="main-content">
+<div class="bd-content">
+<div class="bd-article-container">
+<div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+<div class="header-article-items__start">
+<div class="header-article-item">
+<nav aria-label="Breadcrumbs">
+<ul aria-label="Breadcrumb" class="bd-breadcrumbs" role="navigation">
+<li class="breadcrumb-item breadcrumb-home">
+<a aria-label="Home" class="nav-link" href="../index.html">
+<i class="fa-solid fa-home"></i>
+</a>
+</li>
+<li class="breadcrumb-item"><a class="nav-link" href="../api_reference.html">Reference</a></li>
+<li aria-current="page" class="breadcrumb-item active">maite.testing.project.ModuleScan</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+</div>
+<div id="searchbox"></div>
+<article class="bd-article" role="main">
+<section id="maite-testing-project-modulescan">
+<h1>maite.testing.project.ModuleScan<a class="headerlink" href="#maite-testing-project-modulescan" title="Permalink to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="maite.testing.project.ModuleScan">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">maite.testing.project.</span></span><span class="sig-name descname"><span class="pre">ModuleScan</span></span><a class="reference internal" href="../_modules/maite/_internals/testing/project.html#ModuleScan"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#maite.testing.project.ModuleScan" title="Permalink to this definition">#</a></dt>
+<dd><p>Uses pyright’s type completeness scan to summarize a module’s contents.</p>
+<p>By default, <a class="reference internal" href="#maite.testing.project.ModuleScan" title="maite.testing.project.ModuleScan"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModuleScan</span></code></a>’s __call__ is cached to reduce overhead for getting
+scan results for a module multiple times. Each <a class="reference internal" href="#maite.testing.project.ModuleScan" title="maite.testing.project.ModuleScan"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModuleScan</span></code></a> instance has an
+independent cache.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">maite.testing.project</span> <span class="kn">import</span> <a class="sphinx-codeautolink-a" href="../generated/maite.testing.project.ModuleScan.html#maite.testing.project.ModuleScan" title="maite._internals.testing.project.ModuleScan"><span class="n">ModuleScan</span></a>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../generated/maite.testing.project.ModuleScan.html#maite.testing.project.ModuleScan" title="maite._internals.testing.project.ModuleScan"><span class="n">scanner</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../generated/maite.testing.project.ModuleScan.html#maite.testing.project.ModuleScan" title="maite._internals.testing.project.ModuleScan"><span class="n">ModuleScan</span></a><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../generated/maite.testing.project.ModuleScan.html#maite.testing.project.ModuleScan" title="maite._internals.testing.project.ModuleScan"><span class="n">scanner</span></a><span class="p">(</span><span class="s2">"maite"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span><span class="p">[</span><span class="s2">"summary"</span><span class="p">]</span>
+<span class="go">{'filesAnalyzed': 9,</span>
+<span class="go">'errorCount': 0,</span>
+<span class="go">'warningCount': 0,</span>
+<span class="go">'informationCount': 0,</span>
+<span class="go">'timeInSec': 0.662}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span><span class="p">[</span><span class="s2">"typeCompleteness"</span><span class="p">][</span><span class="s2">"packageName"</span><span class="p">]</span>
+<span class="go">'maite'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span><span class="p">[</span><span class="s2">"typeCompleteness"</span><span class="p">][</span><span class="s2">"symbols"</span><span class="p">]</span>
+<span class="go">[{'category': 'class',</span>
+<span class="go">  'name': 'maite.errors.MaiteException',</span>
+<span class="go">  'referenceCount': 3,</span>
+<span class="go">  'isExported': True,</span>
+<span class="go">  'isTypeKnown': True,</span>
+<span class="go">  'isTypeAmbiguous': False,</span>
+<span class="go">  'diagnostics': []},</span>
+<span class="go"> {'category': 'class',</span>
+<span class="go">  'name': 'maite.errors.InternalError',</span>
+<span class="go">  'referenceCount': 1,</span>
+<span class="go">  'isExported': True,</span>
+<span class="go">  'isTypeKnown': True,</span>
+<span class="go">  'isTypeAmbiguous': False,</span>
+<span class="go">  'diagnostics': []},</span>
+<span class="go">...</span>
+</pre></div>
+</div>
+<p class="rubric">Methods</p>
+<table class="table">
+<tbody>
+<tr class="row-odd"><td><p><strong>__call__(module_name, *, path_to_pyright=PYRIGHT_PATH, cached=True)</strong></p></td>
+<td><p>Perform a scan on the specified module or submodule.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>cache_info()</strong></p></td>
+<td><p>Return a CacheInfo object with statistics about the cache of this instance.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="maite.testing.project.ModuleScan.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/maite/_internals/testing/project.html#ModuleScan.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#maite.testing.project.ModuleScan.__init__" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="maite.testing.project.ModuleScan.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module_name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_pyright</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cached</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/maite/_internals/testing/project.html#ModuleScan.__call__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#maite.testing.project.ModuleScan.__call__" title="Permalink to this definition">#</a></dt>
+<dd><p>Perform a scan on the specified module or submodule.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>module_name</strong><span class="classifier">str</span></dt><dd><p>The name of a module to scan. This must the name of a module that is
+installed in the current Python environment.</p>
+</dd>
+<dt><strong>path_to_pyright</strong><span class="classifier">Path, optional, keyword-only</span></dt><dd><p>Path to the pyright executable (see installation instructions).
+Defaults to <code class="xref py py-obj docutils literal notranslate"><span class="pre">shutil.where('pyright')</span></code> if the executable can be found.</p>
+</dd>
+<dt><strong>cached</strong><span class="classifier">bool, optional (default=True)</span></dt><dd><p>If <a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></a>, then the result of the scan will be mediated by an LRU cache.
+I.e. subsequent identical calls will return a cached result.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt>ModuleScanResults</dt><dd><p>A dictionary containing:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">version</span><span class="p">:</span> <span class="nb">str</span>
+<span class="n">time</span><span class="p">:</span> <span class="nb">str</span>
+<span class="n">generalDiagnostics</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Diagnostic</span><span class="p">]</span>  <span class="p">(</span><span class="n">empty</span><span class="p">)</span>
+<span class="n">summary</span><span class="p">:</span> <span class="n">Summary</span>
+    <span class="n">filesAnalyzed</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">errorCount</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">warningCount</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">informationCount</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">timeInSec</span><span class="p">:</span> <span class="nb">float</span>
+<span class="n">typeCompleteness</span><span class="p">:</span> <span class="n">CompletenessSection</span>
+    <span class="n">packageName</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">packageRootDirectory</span><span class="p">:</span> <span class="n">Path</span>
+    <span class="n">moduleName</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">moduleRootDirectory</span><span class="p">:</span> <span class="n">Path</span>
+    <span class="n">ignoreUnknownTypesFromImports</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">pyTypedPath</span><span class="p">:</span> <span class="n">NotRequired</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span>
+    <span class="n">exportedSymbolCounts</span><span class="p">:</span> <span class="nb">dict</span>
+    <span class="n">otherSymbolCounts</span><span class="p">:</span> <span class="nb">dict</span>
+    <span class="n">missingFunctionDocStringCount</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">missingClassDocStringCount</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">missingDefaultParamCount</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">completenessScore</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">modules</span><span class="p">:</span> <span class="nb">list</span>
+    <span class="n">symbols</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Symbol</span><span class="p">]</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ModuleNotFoundError</dt><dd><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">module</span></code> was not found.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="maite.testing.project.ModuleScan.cache_info">
+<span class="sig-name descname"><span class="pre">cache_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/maite/_internals/testing/project.html#ModuleScan.cache_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#maite.testing.project.ModuleScan.cache_info" title="Permalink to this definition">#</a></dt>
+<dd><p>Access the scanner instance’s cache stats.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>CacheInfo</dt><dd><p>A named tuple with fields:
+- hits
+- misses
+- maxsize
+- currsize</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="maite.testing.project.ModuleScan.clear_cache">
+<span class="sig-name descname"><span class="pre">clear_cache</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/maite/_internals/testing/project.html#ModuleScan.clear_cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#maite.testing.project.ModuleScan.clear_cache" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#maite.testing.project.ModuleScan.__init__" title="maite.testing.project.ModuleScan.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#maite.testing.project.ModuleScan.__call__" title="maite.testing.project.ModuleScan.__call__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__call__</span></code></a>(module_name, *[, path_to_pyright, ...])</p></td>
+<td><p>Perform a scan on the specified module or submodule.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#maite.testing.project.ModuleScan.cache_info" title="maite.testing.project.ModuleScan.cache_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cache_info</span></code></a>()</p></td>
+<td><p>Access the scanner instance's cache stats.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#maite.testing.project.ModuleScan.clear_cache" title="maite.testing.project.ModuleScan.clear_cache"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clear_cache</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+</section>
+</article>
+<footer class="bd-footer-article">
+<div class="footer-article-items footer-article__inner">
+<div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+<a class="left-prev" href="maite.testing.pytest.cleandir.html" title="previous page">
+<i class="fa-solid fa-angle-left"></i>
+<div class="prev-next-info">
+<p class="prev-next-subtitle">previous</p>
+<p class="prev-next-title">maite.testing.pytest.cleandir</p>
+</div>
+</a>
+<a class="right-next" href="maite.testing.project.get_public_symbols.html" title="next page">
+<div class="prev-next-info">
+<p class="prev-next-subtitle">next</p>
+<p class="prev-next-title">maite.testing.project.get_public_symbols</p>
+</div>
+<i class="fa-solid fa-angle-right"></i>
+</a>
+</div></div>
+</div>
+</footer>
+</div>
+<div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+<div class="sidebar-secondary-item">
+<div class="page-toc tocsection onthispage">
+<i class="fa-solid fa-list"></i> On this page
+  </div>
+<nav class="bd-toc-nav page-toc">
+<ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#maite.testing.project.ModuleScan"><code class="docutils literal notranslate"><span class="pre">ModuleScan</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#maite.testing.project.ModuleScan.__init__"><code class="docutils literal notranslate"><span class="pre">ModuleScan.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#maite.testing.project.ModuleScan.__call__"><code class="docutils literal notranslate"><span class="pre">ModuleScan.__call__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#maite.testing.project.ModuleScan.cache_info"><code class="docutils literal notranslate"><span class="pre">ModuleScan.cache_info()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#maite.testing.project.ModuleScan.clear_cache"><code class="docutils literal notranslate"><span class="pre">ModuleScan.clear_cache()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</nav></div>
+<div class="sidebar-secondary-item">
+<div class="tocsection sourcelink">
+<a href="../_sources/generated/maite.testing.project.ModuleScan.rst.txt">
+<i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+</div>
+</div>
+</div></div>
+</div>
+<footer class="bd-footer-content">
+</footer>
+</main>
+</div>
+</div>
+<!-- Scripts loaded after <body> so the DOM is not blocked -->
+<script src="../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+<footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+<div class="footer-items__start">
+<div class="footer-item">
+<p class="copyright">
+    
+      © Copyright 2024 Massachusetts Institute of Technology.
+      <br/>
+</p>
+</div>
+<div class="footer-item">
+<p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.2.1.
+    <br/>
+</p>
+</div>
+</div>
+<div class="footer-items__end">
+<div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+</p></div>
+</div>
+</div>
+</footer>
+</body>
+</html>
