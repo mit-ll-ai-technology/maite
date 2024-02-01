@@ -72,7 +72,7 @@ def add_headers(files: Iterable[Path]):
 
         if contents[: len(OLD_HEADER)] == OLD_HEADER:
             contents = contents[len(OLD_HEADER) :]
-        
+
         # if sum([len(line) for line in contents]) != 0:
         if contents[: len(NEW_HEADER)] != NEW_HEADER:
             contents = NEW_HEADER + contents

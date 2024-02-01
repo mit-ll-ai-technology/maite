@@ -314,9 +314,9 @@ class HasDataMetadata(TypedDict):
     True
     """
 
-    metadata: DatumMetadata | Sequence[
-        DatumMetadata
-    ]  # NOTE: HasDataImage supports batch of images, we have Sequence[DatumMetadata] here for now
+    metadata: (
+        DatumMetadata | Sequence[DatumMetadata]
+    )  # NOTE: HasDataImage supports batch of images, we have Sequence[DatumMetadata] here for now
 
 
 class SupportsImageClassification(HasDataImage, HasDataLabel, HasDataMetadata):

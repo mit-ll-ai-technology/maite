@@ -128,8 +128,9 @@ def transfer_to_device(*modules: T, device) -> Iterator[tuple[T]]:
 
 
 def collate_and_pad(
-    preprocessor: Callable[[Sequence[Mapping[str, Any]]], Sequence[Mapping[str, Any]]]
-    | None = None,
+    preprocessor: (
+        Callable[[Sequence[Mapping[str, Any]]], Sequence[Mapping[str, Any]]] | None
+    ) = None,
 ) -> Callable[[Sequence[Mapping[str, Any]]], Mapping[str, Any]]:
     """
     Collates and pads a batch of examples.
@@ -242,8 +243,9 @@ def get_dataloader(
     split: Literal["train", "test"] = "test",
     shuffle: bool | None = None,
     collate_fn: Callable[[Any], Any] | None = None,
-    preprocessor: Callable[[Sequence[Mapping[str, Any]]], Sequence[Mapping[str, Any]]]
-    | None = None,
+    preprocessor: (
+        Callable[[Sequence[Mapping[str, Any]]], Sequence[Mapping[str, Any]]] | None
+    ) = None,
     **kwargs: Any,
 ) -> pr.DataLoader:
     """
@@ -317,11 +319,13 @@ class EvaluationTask(ABC):
         model: str | pr.ImageClassifier | pr.ObjectDetector,
         data: str | pr.VisionDataset | pr.ObjectDetectionDataset,
         metric: str | Mapping[str, pr.Metric[[Any, Any], Any]] = "default_metric",
-        augmentation: None
-        | pr.Augmentation[
-            [pr.SupportsImageClassification | pr.SupportsObjectDetection],
-            pr.SupportsImageClassification | pr.SupportsObjectDetection,
-        ] = None,
+        augmentation: (
+            None
+            | pr.Augmentation[
+                [pr.SupportsImageClassification | pr.SupportsObjectDetection],
+                pr.SupportsImageClassification | pr.SupportsObjectDetection,
+            ]
+        ) = None,
         batch_size: int = 1,
         device: None | str | int = None,
         collate_fn: None | Callable = None,
@@ -526,10 +530,12 @@ class ImageClassificationEvaluator(EvaluationTask):
         data: pr.VisionDataLoader,
         model: pr.ImageClassifier[pr.SupportsArray],
         metric: Mapping[str, pr.Metric[[Any, Any], Any]],
-        augmentation: pr.Augmentation[
-            [pr.SupportsImageClassification], pr.SupportsImageClassification
-        ]
-        | None = None,
+        augmentation: (
+            pr.Augmentation[
+                [pr.SupportsImageClassification], pr.SupportsImageClassification
+            ]
+            | None
+        ) = None,
         device: str | int | None = None,
         use_progress_bar: bool = True,
     ) -> dict[str, Any]:
@@ -633,10 +639,10 @@ class ObjectDetectionEvaluator(EvaluationTask):
         data: pr.DataLoader[pr.SupportsObjectDetection],
         model: pr.ObjectDetector[pr.SupportsArray],
         metric: Mapping[str, pr.Metric[[Any, Any], Any]],
-        augmentation: pr.Augmentation[
-            [pr.SupportsObjectDetection], pr.SupportsObjectDetection
-        ]
-        | None = None,
+        augmentation: (
+            pr.Augmentation[[pr.SupportsObjectDetection], pr.SupportsObjectDetection]
+            | None
+        ) = None,
         device: str | int | None = None,
         use_progress_bar: bool = True,
     ) -> dict[str, Any]:

@@ -22,7 +22,7 @@ copyright = "2024 Massachusetts Institute of Technology"
 author = "Ryan Soklaski, Justin Goodwin, Michael Yee"
 
 # The short X.Y version
-version = '.'.join(maite.__version__.split('.')[:-1])
+version = ".".join(maite.__version__.split(".")[:-1])
 # The full version, including alpha/beta/rc tags
 release = maite.__version__
 
