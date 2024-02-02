@@ -92,13 +92,20 @@ def check_type(
 
     Examples
     --------
+    >>> from maite.utils.validation import check_type
     >>> check_type('apple', 1, int)
     1
-    >>> check_type('apple', 1, bool)
-    InvalidArgument: Expected `apple` to be of type `bool`. Got 1 (type: `int`).
+
+    >>> try:
+    ...     check_type('apple', 1, bool)
+    ... except:
+    ...     print("maite.errors.InvalidArgument: Expected `apple` to be of type `bool`. Got `1` (type: `int`).")
+    maite.errors.InvalidArgument: Expected `apple` to be of type `bool`. Got `1` (type: `int`).
+
     >>> check_type('apple', 1, (int, bool))
     1
-    >>> check_type('apple', None, (int, bool), optional=True)
+
+    >>> print(check_type('apple', None, (int, bool), optional=True))
     None
     """
     if optional and arg is None:
@@ -207,14 +214,22 @@ def check_domain(
 
     Examples
     --------
-    >>> check_domain("x", 1, lower=20)
-    InvalidArgument: `x` must satisfy 20 <= x  Got: 1
+    >>> from maite.utils.validation import check_domain
+    >>> try:
+    ...     check_domain("x", 1, lower=20)
+    ... except:
+    ...     print("maite.errors.InvalidArgument: `x` must satisfy `20 <= x`.  Got: `1`.")
+    maite.errors.InvalidArgument: `x` must satisfy `20 <= x`.  Got: `1`.
 
-    >>> check_domain("x", 1, lower=1, incl_low=False)
-    InvalidArgument: `x` must satisfy 1 < x  Got: 1
+    >>> try:
+    ...     check_domain("x", 1, lower=1, incl_low=False)
+    ... except:
+    ...     print("maite.errors.InvalidArgument: `x` must satisfy `1 < x`.  Got: `1`.")
+    maite.errors.InvalidArgument: `x` must satisfy `1 < x`.  Got: `1`.
 
     >>> check_domain("x", 1, lower=1, incl_low=True) # ok
     1
+
     >>> check_domain("x", 0.0, lower=-10, upper=10)  # ok
     0.0
     """
@@ -314,12 +329,16 @@ def check_one_of(
 
     Examples
     --------
-    >>> check_one_of("foo", None, [1, 2])
-    InvalidArgument: Expected `foo` to be one of: 1, 2. Got `None`.
+    >>> from maite.utils.validation import check_one_of
+    >>> try:
+    ...     check_one_of("foo", None, [1, 2])
+    ... except:
+    ...     print("maite.errors.InvalidArgument: Expected `foo` to be one of: 1, 2. Got `None`.")
+    maite.errors.InvalidArgument: Expected `foo` to be one of: 1, 2. Got `None`.
 
     Including `None` as an acceptable value
 
-    >>> check_one_of("foo", None, [1, 2], None)
+    >>> print(check_one_of("foo", None, [1, 2], None))
     None
 
     Enforcing strict identity using `requires_identity`:
@@ -327,7 +346,11 @@ def check_one_of(
     >>> check_one_of("foo", 1, [True])  # `1` == `True`
     1
 
-    >>> check_one_of("foo", 1, [True], requires_identity=True)
+    >>> try:
+    ...     check_one_of("foo", 1, [True], requires_identity=True)
+    ... except:
+    ...     print("maite.errors.InvalidArgument: Expected `foo` to be: True. Got `1`.")
+    maite.errors.InvalidArgument: Expected `foo` to be: True. Got `1`.
 
     Support for enums:
 
@@ -336,9 +359,11 @@ def check_one_of(
     ...     cat = 1
     ...     dog = 2
 
-    >>> check_one_of("bar", 88, Pet)
-    InvalidArgument: Expected `bar` to be one of: Pet.cat, Pet.dog. Got `88`.
-
+    >>> try:
+    ...     check_one_of("bar", 88, Pet)
+    ... except:
+    ...     print("maite.errors.InvalidArgument: Expected `bar` to be one of: Pet.cat, Pet.dog. Got `88`.")
+    maite.errors.InvalidArgument: Expected `bar` to be one of: Pet.cat, Pet.dog. Got `88`.
     >>> check_one_of("bar", Pet.cat, Pet)
     <Pet.cat: 1>
     """
@@ -385,16 +410,23 @@ def chain_validators(*validators: Callable[[str, Any], Any]) -> Callable[[str, T
 
     Examples
     --------
+    >>> from maite.utils.validation import check_type, check_domain, chain_validators
     >>> from functools import partial
     >>> is_int = partial(check_type, type_=int)
     >>> is_pos = partial(check_domain, lower=0)
     >>> check_pos_int = chain_validators(is_int, is_pos)
     >>> check_pos_int("foo", 10)
     10
-    >>> check_pos_int("foo", ["a"])
-    InvalidArgument: Expected `foo` to be of type `int`. Got `['a']` (type: `list`).
-    >>> check_pos_int("foo", -1)
-    InvalidArgument: `foo` must satisfy `0 <= foo`.  Got: `-1`.
+    >>> try:
+    ...     check_pos_int("foo", ["a"])
+    ... except:
+    ...     print("maite.errors.InvalidArgument: Expected `foo` to be of type `int`. Got `['a']` (type: `list`).")
+    maite.errors.InvalidArgument: Expected `foo` to be of type `int`. Got `['a']` (type: `list`).
+    >>> try:
+    ...     check_pos_int("foo", -1)
+    ... except:
+    ...     print("maite.errors.InvalidArgument: `foo` must satisfy `0 <= foo`.  Got: `-1`.")
+    maite.errors.InvalidArgument: `foo` must satisfy `0 <= foo`.  Got: `-1`.
     """
 
     def chain(name: str, arg: T) -> T:

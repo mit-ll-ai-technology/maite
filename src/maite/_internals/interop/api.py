@@ -144,7 +144,8 @@ def load_dataset(
     Examples
     --------
     >>> from maite import load_dataset
-    >>> load_dataset(provider="huggingface", dataset_name="cifar10", task="image-classification")
+    >>> load_dataset(provider="huggingface", dataset_name="cifar10", task="image-classification", split="train") # doctest: +ELLIPSIS
+    <maite._internals.interop.huggingface.datasets.HuggingFaceVisionDataset object at 0x00000...>
     """
 
     if dataset_name in DATASET_REGISTRY:
@@ -372,7 +373,8 @@ def load_metric(
     Examples
     --------
     >>> from maite import load_metric
-    >>> load_metric(provider="torchmetrics", metric_name="accuracy")
+    >>> load_metric(provider="torchmetrics", metric_name="Accuracy", task="multiclass", num_classes=3)
+    MulticlassAccuracy()
     """
     if metric_name in METRIC_REGISTRY:
         kwargs = {**METRIC_REGISTRY[metric_name], **kwargs}

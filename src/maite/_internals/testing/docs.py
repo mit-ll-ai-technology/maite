@@ -123,6 +123,31 @@ def _get_numpy_tags(obj: Any) -> Set[NumpyDocErrorCode]:
     return ERRORCODES & joined_tags
 
 
+def person(name: str, age: int) -> None:
+    """
+    Enter person ID info.
+
+    Parameters
+    ----------
+    name : str
+        The person's first name.
+    age : int
+        The person's age.
+
+    Returns
+    -------
+    None
+        Nothing.
+
+    Examples
+    --------
+    >>> from maite.testing.documentation.documentation_dependencies import person
+    >>> person('Brad', 22)
+    """
+
+    return
+
+
 @overload
 def validate_docstring(
     obj: Any,
@@ -260,39 +285,13 @@ def validate_docstring(
 
     Examples
     --------
-    >>> def person(name: str, age: int):
-    ...     '''
-    ...     Enter person ID info.
-    ...     
-    ...     Parameters
-    ...     ----------
-    ...     name : str
-    ...         The person's first name.
-    ...     
-    ...     age : int
-    ...         The person's age.
-    ...     
-    ...     Returns
-    ...     -------
-    ...     None
-    ...         Nothing.
-    ...     
-    ...     Examples
-    ...     --------
-    ...     person('Brad', 22)
-    ...     '''
-    ...     return
-    ...
-
+    >>> from maite.testing.docs import validate_docstring, person
+    >>> from maite.testing.documentation.documentation_dependencies import person
+    
     Let's ignore the need for an Extended Summary and a See Also section.
 
-    >>> out = validate_docstring(person, ignore=('ES01', 'SA01'))
-    {'error_count': 0,
-     'errors': {},
-     'ignored_errors': {'ES01': ['No extended summary found'],
-      'SA01': ['See Also section not found']},
-     'file': 'home/scratch.py',
-     'file_line': 1}
+    >>> validate_docstring(person, ignore=('ES01', 'SA01'), include_ignored_errors=True) # doctest: +ELLIPSIS
+    {'error_count': 0, 'errors': {},...'ignored_errors': {'ES01': ['No extended summary found'], 'SA01': ['See Also section not found']}...
     
     Using comments to skip validation.
 
@@ -300,15 +299,9 @@ def validate_docstring(
     ...     # doc-ignore: GL08
     ...     return
     >>> validate_docstring(f)
-    {'error_count': 0,
-     'errors': {},
-     'file': 'foo.py',
-     'file_line': 3}
+    {'error_count': 0, 'errors': {}, 'file': None, 'file_line': 1}
     >>> validate_docstring(f, ignore_via_comments_allowed=False)
-    {'error_count': 1,
-     'errors': {'GL08': ['The object does not have a docstring']},
-     'file': 'foo.py',
-     'file_line': 3}
+    {'error_count': 1, 'errors': {'GL08': ['The object does not have a docstring']}, 'file': None, 'file_line': 1}
     """
     # fmt: on
     try:

@@ -9,11 +9,8 @@ Utilities for validating documentation strings for maite projects.
 from maite._internals.testing.docs import (
     NumpyDocErrorCode,
     NumPyDocResults,
+    person,
     validate_docstring,
 )
 
-__all__ = [
-    "validate_docstring",
-    "NumpyDocErrorCode",
-    "NumPyDocResults",
-]
+__all__ = ["validate_docstring", "NumpyDocErrorCode", "NumPyDocResults", "person"]

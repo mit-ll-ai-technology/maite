@@ -214,6 +214,7 @@ class HasDataBoxesLabels(HasDataBoxes):
     --------
     Create fake boxes and labels and add them to a dictionary.
 
+    >>> from maite.protocols import HasDataBoxesLabels
     >>> import numpy as np
     >>> boxes = np.array([[0, 0, 1, 1]])
     >>> labels = np.array([1])
@@ -250,6 +251,7 @@ class HasDataObjects(TypedDict):
     --------
     Create fake boxes and labels and add them to a dictionary.
 
+    >>> from maite.protocols import HasDataBoxesLabels, HasDataObjects
     >>> import numpy as np
     >>> boxes = np.array([[0.0, 0., 1., 1.]])
     >>> labels = np.array([1])
@@ -259,16 +261,16 @@ class HasDataObjects(TypedDict):
     For ``TypedDict`` types, validation cannot be done
     with `isinstance`. The simple checks are
 
-    >>> isinstance(data, dict)
+    >>> isinstance(objects, dict)
     True
-    >>> "objects" in data
+    >>> "objects" in objects
     True
 
     The toolbox comes with a helper function that can do
     both of these checks:
 
     >>> from maite.protocols import is_typed_dict
-    >>> is_typed_dict(data, HasDataObjects)
+    >>> is_typed_dict(objects, HasDataObjects)
     True
     """
 
@@ -387,6 +389,7 @@ class SupportsObjectDetection(HasDataImage, HasDataObjects, HasDataMetadata):
     --------
     Create fake boxes, labels, metadata and add them to a dictionary.
 
+    >>> from maite.protocols import SupportsObjectDetection, HasDataBoxesLabels
     >>> import numpy as np
     >>> image = np.zeros((3, 224, 224))
     >>> boxes = np.array([[0.0, 0., 1., 1.]])
@@ -396,9 +399,9 @@ class SupportsObjectDetection(HasDataImage, HasDataObjects, HasDataMetadata):
     >>> from dataclasses import dataclass
     >>> from typing import Any
     >>> @dataclass
-    >>> class ImplObjectDetectionDatum:
-    >>>     id: int
-    >>>     user_added_metadata: 'dict[str, Any]'  # dict needs quote in Python 3.8
+    ... class ImplObjectDetectionDatum:
+    ...     id: int
+    ...     user_added_metadata: 'dict[str, Any]'  # dict needs quote in Python 3.8
 
     >>> id = 1
     >>> datum = ImplObjectDetectionDatum(id=id, user_added_metadata={"user_metadata": {"image_gsd": 0.3}})
@@ -486,13 +489,14 @@ class ObjectDetectionDataset(Dataset[SupportsObjectDetection], Protocol):
     --------
     Create a fake dataset.
 
+    >>> from maite.protocols import SupportsObjectDetection
     >>> import numpy as np
     >>> from dataclasses import dataclass
     >>> from typing import Any
     >>> @dataclass
-    >>> class ImplObjectDetectionDatum:
-    >>>     id: int
-    >>>     user_added_metadata: 'dict[str, Any]'  # dict needs quote in Python 3.8
+    ... class ImplObjectDetectionDatum:
+    ...     id: int
+    ...     user_added_metadata: 'dict[str, Any]'  # dict needs quote in Python 3.8
 
     >>> id = 1
     >>> datum = ImplObjectDetectionDatum(id=id, user_added_metadata={"user_metadata": {"image_gsd": 0.3}})
@@ -786,6 +790,7 @@ class HasDetectionLogits(HasBoxes, HasLogits, Protocol):
     --------
     Create fake logits and boxes and add them to a dataclass.
 
+    >>> from maite.protocols import SupportsArray, HasDetectionLogits
     >>> import numpy as np
     >>> from dataclasses import dataclass
     >>> @dataclass
@@ -794,6 +799,7 @@ class HasDetectionLogits(HasBoxes, HasLogits, Protocol):
     ...     boxes: SupportsArray
     >>> data = FakeData(np.array([0.5]), np.array([[0, 0, 1, 1]]))
     >>> isinstance(data, HasDetectionLogits)
+    True
 
     The ``isinstance`` check is the same as doing the following:
 
@@ -820,6 +826,7 @@ class HasDetectionProbs(HasProbs, HasBoxes, Protocol):
     --------
     Create fake probabilities and boxes and add them to a dataclass.
 
+    >>> from maite.protocols import SupportsArray, HasDetectionProbs
     >>> import numpy as np
     >>> from dataclasses import dataclass
     >>> @dataclass
@@ -1097,6 +1104,7 @@ class ObjectDetector(
     --------
     Create a fake logits and add it to a dataclass.
 
+    >>> from maite.protocols import SupportsArray, HasDetectionLogits
     >>> import numpy as np
     >>> from dataclasses import dataclass
     >>> @dataclass

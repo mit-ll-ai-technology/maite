@@ -47,6 +47,7 @@ extensions = [
     "sphinx_design",
     "sphinx_codeautolink",
     "myst_parser",
+    'sphinx.ext.doctest'
 ]
 
 autosummary_generate = False
