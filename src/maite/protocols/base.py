@@ -55,7 +55,9 @@ DatumBatch: TypeAlias = Tuple[
     InputBatchType_co, OutputBatchType_co, DatumMetadataBatchType_co
 ]
 # TODO 0: add docstrings
+#
 # TODO 1: check type expected by pytorch getitem
+#
 # TODO 2: Decide if I really need different TypeVars based on context?
 #           - in the context of Dataset, class is covariant to all types
 #           - in the context of Augmentation, class is invariant to all types
@@ -68,6 +70,12 @@ DatumBatch: TypeAlias = Tuple[
 #         when the TypeAlias is used (as 'Any' or as the provided bracketed types.) We
 #         could also define a 4th version of Input/Output/Metadata types, but this also
 #         seems confusing.
+# TODO 5: Consider how easily and usefully variadic generics (which sound a bit scary)
+#         could be used to helpfully represent the shape of an expected array.
+#         So, for example, instead of having type hints that specified that 'InputType=ArrayLike'
+#         we could say 'InputType=ArrayLike[H,W,C]'.
+#
+# TODO 6: Add AugmentationMetadata
 
 
 # Generic versions of all protocols
@@ -135,7 +143,11 @@ class Augmentation(
     ):
         ...
 
-
+# We need the __iter__ method to return an instance of the same type as the object
+# on which we are calling the method. Instead of using typing.Self, which was 
+# introduced in Python 3.11 (PEP 673), we can use a bound TypeVar as clunkier method
+# toward the same ends (see https://peps.python.org/pep-0673/)
+T_DataLoader = TypeVar('T_DataLoader', bound='DataLoader')
 class DataLoader(
     Protocol,
     Generic[
@@ -153,6 +165,9 @@ class DataLoader(
         DatumBatch[InputBatchType_co, OutputBatchType_co, DatumMetadataBatchType_co]
         | DatumBatch[InputBatchType_co, OutputBatchType_co, OutputBatchType_co]
     ):
+        ...
+
+    def __iter__(self: T_DataLoader)-> T_DataLoader:
         ...
 
     @property
