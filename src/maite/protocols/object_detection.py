@@ -2,12 +2,12 @@
 # Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).
 # SPDX-License-Identifier: MIT
 
-# import generics from base.py and specialize them for object detection domain
+# import component generics from generic.py and specialize them for object detection
+# domain
 
 from typing import Protocol, Sequence, Any, runtime_checkable
 
-import base
-
+import generic as gen
 
 @runtime_checkable
 class ArrayLike(Protocol):
@@ -35,14 +35,14 @@ MetadataBatchType = Sequence[object]
 #       In this case, typechecker seems to use the first matching method signature to
 #       determine type of output.
 
-Dataset = base.Dataset[InputType, OutputType, MetadataType]
-DataLoader = base.DataLoader[
+Dataset = gen.Dataset[InputType, OutputType, MetadataType]
+DataLoader = gen.DataLoader[
     InputType, OutputType, MetadataType, InputBatchType, OutputBatchType, MetadataType
 ]
-Model = base.Model[InputType, OutputType, InputBatchType, OutputBatchType]
-Metric = base.Metric[OutputType, OutputBatchType]
+Model = gen.Model[InputType, OutputType, InputBatchType, OutputBatchType]
+Metric = gen.Metric[OutputType, OutputBatchType]
 
-Augmentation = base.Augmentation[
+Augmentation = gen.Augmentation[
     InputType,
     OutputType,
     MetadataType,
@@ -250,8 +250,7 @@ class Metric_impl:
 
 
 # try to run through "evaluate" workflow
-# Metric = base.Metric[Any, Any]
-
+    
 aug: Augmentation = AugmentationImpl()
 metric: Metric = Metric_impl()
 dataset: Dataset = DataSet_impl()
@@ -268,7 +267,6 @@ for input_batch, output_batch, metadata_batch in dataloader:
     
     assert not isinstance(preds_batch, OutputType)
     preds.append(preds_batch)
-    
     # This is onerous type-narrowing, because I can't run an isinstance check
     # directly on generic types (e.g. 'Sequence[dict]', which is OutputBatchType)
     # I have to use 'not isinstance' to rule out preds_batch being a 
@@ -276,8 +274,6 @@ for input_batch, output_batch, metadata_batch in dataloader:
     #
     # Perhaps we should always make singular input/output/metadata types
     # non-generic (parameterized or otherwise)?
-
-    cast(OutputBatchType, output_batch_aug)
 
     metric.update(preds_batch, output_batch_aug)
     # problem: typechecker seems to assume that first matching signature
