@@ -5,7 +5,7 @@
 __all__ = []
 
 
-from typing import Tuple, TypeAlias, TypeVar, Protocol, Hashable, Generic, Any
+from typing import Tuple, TypeAlias, TypeVar, Protocol, Hashable, Generic, Any, overload
 
 # Note
 # (1) the use of each generic variable can differ in generic components
@@ -76,6 +76,15 @@ DatumBatch: TypeAlias = Tuple[
 #         we could say 'InputType=ArrayLike[H,W,C]'.
 #
 # TODO 6: Add AugmentationMetadata
+#
+# TODO 7: Verify use of 'overload' decorator in protocol definition
+#       Methods/signatures advertised by a protocol class *must* be mirrored by 
+#       compatible types in implementation. If overload decorator is present,
+#       only the overloaded methods are the source of these "promised" signatures.
+#       If more than one signature is advertised by a protocol, then implementors
+#       must use overload-decorator to advertise compatible signatures.
+
+
 
 
 # Generic versions of all protocols
@@ -93,6 +102,25 @@ class Model(
     Protocol,
     Generic[InputType_cn, OutputType_co, InputBatchType_cn, OutputBatchType_co],
 ):
+    
+    @overload
+    def __call__(
+        self, _single_input: InputType_cn
+    ) -> OutputType_co:
+        ...
+
+    @overload
+    def __call__(
+        self, _batch_input: InputBatchType_cn
+    ) -> OutputBatchType_co:
+        ...
+
+    @overload
+    def __call__(
+        self, _single_input_or_batch: InputType_cn | InputBatchType_cn
+    ) -> OutputType_co | OutputBatchType_co:
+        ...
+
     def __call__(
         self, _single_input_or_batch: InputType_cn | InputBatchType_cn
     ) -> OutputType_co | OutputBatchType_co:
@@ -103,10 +131,26 @@ class Metric(Protocol, Generic[OutputType_cn, OutputBatchType_cn]):
     def reset(self) -> None:
         ...
 
+    @overload
     def update(
         self,
-        preds: OutputType_cn | OutputBatchType_cn,
-        targets: OutputType_cn | OutputBatchType_cn,
+        _preds: OutputType_cn,
+        _targets: OutputType_cn,
+    ) -> None:
+        ...
+
+    @overload
+    def update(
+        self,
+        _preds_batch: OutputBatchType_cn,
+        _targets_batch: OutputBatchType_cn,
+    ) -> None:
+        ...
+    
+    def update(
+        self,
+        _preds_or_preds_batch: OutputType_cn | OutputBatchType_cn,
+        _targets_or_targets_batch: OutputType_cn | OutputBatchType_cn,
     ) -> None:
         ...
 
@@ -133,6 +177,19 @@ class Augmentation(
         DatumMetadataBatchType_cn,
     ],
 ):
+    @overload
+    def __call__(
+        self, _datum: Datum[InputType_cn, OutputType_cn, DatumMetadataType_cn]
+    ) -> Datum[InputType_co, OutputType_co, DatumMetadataType_co]:
+        ...
+
+    @overload
+    def __call__(
+        self,
+        _batch: DatumBatch[InputBatchType_cn, OutputBatchType_cn, DatumMetadataBatchType_cn],
+    ) -> DatumBatch[InputBatchType_co, OutputBatchType_co, DatumMetadataBatchType_co]:
+        ...
+
     def __call__(
         self,
         _datum_or_datum_batch: Datum[InputType_cn, OutputType_cn, DatumMetadataType_cn]
@@ -143,11 +200,14 @@ class Augmentation(
     ):
         ...
 
+
 # We need the __iter__ method to return an instance of the same type as the object
-# on which we are calling the method. Instead of using typing.Self, which was 
+# on which we are calling the method. Instead of using typing.Self, which was
 # introduced in Python 3.11 (PEP 673), we can use a bound TypeVar as clunkier method
 # toward the same ends (see https://peps.python.org/pep-0673/)
-T_DataLoader = TypeVar('T_DataLoader', bound='DataLoader')
+T_DataLoader = TypeVar("T_DataLoader", bound="DataLoader")
+
+
 class DataLoader(
     Protocol,
     Generic[
@@ -161,18 +221,18 @@ class DataLoader(
 ):
     def __next__(
         self,
-    ) -> (
-        DatumBatch[InputBatchType_co, OutputBatchType_co, DatumMetadataBatchType_co]
-        | DatumBatch[InputBatchType_co, OutputBatchType_co, OutputBatchType_co]
-    ):
+    ) -> DatumBatch[InputBatchType_co, OutputBatchType_co, DatumMetadataBatchType_co]:
         ...
 
-    def __iter__(self: T_DataLoader)-> T_DataLoader:
+    def __iter__(self: T_DataLoader) -> T_DataLoader:
         ...
 
     @property
-    def _dataset(self) -> Dataset[InputBatchType_co, OutputType_co, DatumMetadataType_co]:
+    def _dataset(
+        self,
+    ) -> Dataset[InputBatchType_co, OutputType_co, DatumMetadataType_co]:
         ...
+
 
 # Sanity checks
 

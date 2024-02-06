@@ -26,8 +26,14 @@ MetadataBatchType = Sequence[object]
 # TODO: Consider what pylance shows on cursoring over: "(type alias) Dataset: type[Dataset[ArrayLike, dict[Unknown, Unknown], object]]"
 # Can these type hints be made more intuitive? Perhaps given a name like type[Dataset[InputType = ArrayLike,...]]
 
-# TODO: determine whether I should/can parameterize on the Datum TypeAlias.
+# TODO: Determine whether I should/can parameterize on the Datum TypeAlias.
 # This could make the pylance messages more intuitive?
+
+# TODO: Consider how we should help type-checker infer method return type when argument type
+#       matches more than one method signature. For example: Model.__call__ takes an
+#       ArrayLike in two separate method signatures, but the return type differs.
+#       In this case, typechecker seems to use the first matching method signature to
+#       determine type of output.
 
 Dataset = base.Dataset[InputType, OutputType, MetadataType]
 DataLoader = base.DataLoader[
@@ -185,11 +191,17 @@ class AugmentationImpl:
 
 class Model_impl:
     @overload
-    def __call__(self, _input: InputBatchType) -> OutputBatchType:
+    def __call__(
+        self, _input: InputType | InputBatchType
+    ) -> OutputType | OutputBatchType:
         ...
 
     @overload
     def __call__(self, _input: InputType) -> OutputType:
+        ...
+
+    @overload
+    def __call__(self, _input: InputBatchType) -> OutputBatchType:
         ...
 
     def __call__(
@@ -211,10 +223,10 @@ class Model_impl:
 
 class Metric_impl:
     def __init__(self):
-        pass
+        ...
 
     def reset(self) -> None:
-        pass
+        ...
 
     @overload
     def update(self, _pred: OutputType, _target: OutputType) -> None:
@@ -228,8 +240,8 @@ class Metric_impl:
 
     def update(
         self,
-        _pred_or_pred_batch: OutputType | OutputBatchType,
-        _target_or_target_batch: OutputType | OutputBatchType,
+        _preds: OutputType | OutputBatchType,
+        _targets: OutputType | OutputBatchType,
     ) -> None:
         return None
 
@@ -238,6 +250,7 @@ class Metric_impl:
 
 
 # try to run through "evaluate" workflow
+# Metric = base.Metric[Any, Any]
 
 aug: Augmentation = AugmentationImpl()
 metric: Metric = Metric_impl()
@@ -245,11 +258,24 @@ dataset: Dataset = DataSet_impl()
 dataloader: DataLoader = DataLoaderImpl(d=dataset)
 model: Model = Model_impl()
 
+preds:list[OutputBatchType] = []
 for input_batch, output_batch, metadata_batch in dataloader:
     input_batch_aug, output_batch_aug, metadata_batch_aug = aug(
         (input_batch, output_batch, metadata_batch)
     )
+
     preds_batch = model(input_batch_aug)
+    
+    assert not isinstance(preds_batch, OutputType)
+    preds.append(preds_batch)
+    
+    # This is onerous type-narrowing, because I can't run an isinstance check
+    # directly on generic types (e.g. 'Sequence[dict]', which is OutputBatchType)
+    # I have to use 'not isinstance' to rule out preds_batch being a 
+    # dictionary instead of a sequence of dictionaries.
+    #
+    # Perhaps we should always make singular input/output/metadata types
+    # non-generic (parameterized or otherwise)?
 
     cast(OutputBatchType, output_batch_aug)
 
@@ -264,3 +290,5 @@ for input_batch, output_batch, metadata_batch in dataloader:
     # an OutputBatchType (a Sequence[dict]), only viewable after you trace)
     # the TypeAliasing used in this file. FOr some reason, output_batch_aug
     # is not interpreted as a valid implementor of Sequence[dict].
+
+metric_scores = metric.compute()
