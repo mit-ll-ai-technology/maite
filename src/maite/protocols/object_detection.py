@@ -218,13 +218,13 @@ class Metric_impl:
 
     @overload
     def update(self, _pred: OutputType, _target: OutputType) -> None:
-        return None
+        ...
 
     @overload
     def update(
         self, _pred_batch: OutputBatchType, _target_batch: OutputBatchType
     ) -> None:
-        return None
+        ...
 
     def update(
         self,
@@ -237,11 +237,13 @@ class Metric_impl:
         return {"metric1": "val1", "metric2": "val2"}
 
 
-aug = AugmentationImpl()
-metric = Metric_impl
-dataset = DataSet_impl()
-dataloader = DataLoaderImpl(d=dataset)
-model = Model_impl()
+# try to run through "evaluate" workflow
+
+aug: Augmentation = AugmentationImpl()
+metric: Metric = Metric_impl()
+dataset: Dataset = DataSet_impl()
+dataloader: DataLoader = DataLoaderImpl(d=dataset)
+model: Model = Model_impl()
 
 for input_batch, output_batch, metadata_batch in dataloader:
     input_batch_aug, output_batch_aug, metadata_batch_aug = aug(
@@ -249,12 +251,14 @@ for input_batch, output_batch, metadata_batch in dataloader:
     )
     preds_batch = model(input_batch_aug)
 
+    cast(OutputBatchType, output_batch_aug)
+
     metric.update(preds_batch, output_batch_aug)
     # problem: typechecker seems to assume that first matching signature
     # in a set of 'overloads' happens to give the right return type. In
-    # the case of the Model component in Object detection problems, we 
+    # the case of the Model component in Object detection problems, we
     # want instances of Model component protocol to take ArrayLike objects
-    # for both batch and single inputs. 
+    # for both batch and single inputs.
 
     # another problem: output_batch_aug is a `list[dict]` not *literally*
     # an OutputBatchType (a Sequence[dict]), only viewable after you trace)
