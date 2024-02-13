@@ -9,11 +9,7 @@ from typing import (
     Sequence,
     Any,
     runtime_checkable,
-    TypedDict,
-    NamedTuple,
     Hashable,
-    TypeAlias,
-    NewType,
 )
 
 import generic as gen
@@ -71,7 +67,7 @@ Augmentation = gen.Augmentation[
 # MetadataBatchType is an ordinary Python Class with integer-formatted 'id' field
 
 
-from typing import Hashable, Tuple, overload, cast, Iterable
+from typing import Hashable, Tuple, overload
 import numpy as np
 import random
 
