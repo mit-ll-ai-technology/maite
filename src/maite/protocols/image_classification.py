@@ -276,8 +276,32 @@ for input_batch, output_batch, metadata_batch in dataloader:
 
     preds_batch = model(input_batch_aug)
 
+    # appending predictions here could take into account their being numpy arrays
     preds.append(preds_batch)
 
     metric.update(preds_batch, output_batch_aug)
 
 metric_scores = metric.compute()
+
+# Interesting "failure mode" for static type checking:
+# If you cursor over the type of metadata_batch that is returned from 
+# "aug" function in evaluate workflow, you'll see it isn't a 
+# list[DatumMetadata_impl] as you might expect. The Augmentation
+# implementation class has two methods that each take a tuple:
+# The first method signature is:
+#
+#  (Tuple[ArrayLike, ArrayLike, object]) -> Tuple[np.array, np.array, Augmentation_impl]
+# 
+# and the second is:
+#   
+#  (Tuple[ArrayLike, ArrayLike, list[object]]) -> Tuple[np.array, np.array, list[Augmentation_impl]]
+# 
+# So, given an input tuple with 3rd-element type 'list[object]' one might expect 
+# the third element of the output tuple to be typed list[Augmentation_impl],
+# but this is not the case. The reason is because everything in python is an
+# instance of type object (including list[object]). This is another example where
+# two compatible 'overload'ed type signatures cause the type-checker to use the 
+# first and (quietly) ignore the second.
+#
+# What should we do? Probably alter the type of DatumMetadata to be less broad
+# (in practice, this means make it ANYTHING else besides object.)
