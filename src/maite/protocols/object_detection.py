@@ -31,6 +31,8 @@ class ArrayLike(Protocol):
 # be added by this approach because type subscripts are effectively invisible
 # at runtime. No additional static type-checking would occur either, but the
 # user would get useful type hints when cursoring over required inputs/outputs
+# This would also require python 3.11 unless a `from __future__` import were made
+# available for earlier versions (which are not available now.)
 @runtime_checkable
 class ObjDetectionOutput(Protocol):
     @property
@@ -162,9 +164,9 @@ MetadataBatchType = Sequence[object]
 ##    ...
 ##    ```
 ##
-##    This is also a relatively new language feature.
+##    This is also a relatively new language feature which was (only introduced in python 3.11 with PEP 646)
 ##    See https://mit-ll-ai-technology.github.io/maite/explanation/type_hints_for_API_design.html#on-using-annotations-to-write-legible-documentation
-##    or PEP 646 for more information.
+##    or https://peps.python.org/pep-0646/ for more information.
 
 Dataset = gen.Dataset[InputType, OutputType, MetadataType]
 DataLoader = gen.DataLoader[
