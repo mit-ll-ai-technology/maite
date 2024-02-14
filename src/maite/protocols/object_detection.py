@@ -5,13 +5,9 @@
 # import component generics from generic.py and specialize them for object detection
 # domain
 
-from typing import (
-    Protocol,
-    Sequence,
-    Any,
-    runtime_checkable,
-    Hashable,
-)
+from . import DatumMetadata
+
+from typing import Protocol, Sequence, Any, runtime_checkable, Hashable, TypeAlias
 
 import generic as gen
 
@@ -29,6 +25,8 @@ class ArrayLike(Protocol):
 # user would get useful type hints when cursoring over required inputs/outputs
 # This would also require python 3.11 unless a `from __future__` import were made
 # available for earlier versions (which are not available now.)
+
+
 @runtime_checkable
 class ObjDetectionOutput(Protocol):
     @property
@@ -46,13 +44,22 @@ class ObjDetectionOutput(Protocol):
         ...
 
 
-InputType = ArrayLike
-OutputType = ObjDetectionOutput
-MetadataType = object
+# TODO: remove typeAlias statements for more user readability (or figure out how to resolve TypeAliases
+#       to their targets for end-user.) Knowing a dataset returns a tuple of "InputType, OutputType, MetadataType"
+#       isn't helpful to implementors, however the aliasing *is* helpful to developers.
+#
+#       Perhaps the functionality I want is named parameters for generic, so developers can understand that
+#       e.g. generic.Dataset typevars are 'InputType', 'OutputType', and 'MetaDataType' and their values in
+#       concrete Dataset classes (like object_detection.Dataset) are ArrayLike, ObjDetectionOutput, class
+#       closer to named parameters for a generic, so cursoring over image
 
-InputBatchType = ArrayLike
-OutputBatchType = Sequence[OutputType]
-MetadataBatchType = Sequence[object]
+InputType: TypeAlias = ArrayLike  # shape [H, W, C]
+OutputType: TypeAlias = ObjDetectionOutput  # shape [Cl]
+MetadataType: TypeAlias = DatumMetadata
+
+InputBatchType: TypeAlias = ArrayLike  # shape [N, H, W, C]
+OutputBatchType: TypeAlias = Sequence[OutputType]  # length N
+MetadataBatchType: TypeAlias = Sequence[DatumMetadata]
 
 # TODO: Consider what pylance shows on cursoring over: "(type alias) Dataset: type[Dataset[ArrayLike, dict[Unknown, Unknown], object]]"
 # Can these type hints be made more intuitive? Perhaps given a name like type[Dataset[InputType = ArrayLike,...]]
@@ -166,7 +173,12 @@ MetadataBatchType = Sequence[object]
 
 Dataset = gen.Dataset[InputType, OutputType, MetadataType]
 DataLoader = gen.DataLoader[
-    InputType, OutputType, MetadataType, InputBatchType, OutputBatchType, MetadataType
+    InputType,
+    OutputType,
+    MetadataType,
+    InputBatchType,
+    OutputBatchType,
+    MetadataBatchType,
 ]
 Model = gen.Model[InputType, OutputType, InputBatchType, OutputBatchType]
 Metric = gen.Metric[OutputType, OutputBatchType]
@@ -209,29 +221,9 @@ class ObjDetectionOutput_impl:
     labels: np.ndarray = np.array([2, 5])  # shape [N]
     scores: np.ndarray = np.array([0, 1])  # shape [N]
 
-    # This is a prescribed method to go from type required by protocol
-    # to the narrower implementor type
-    @classmethod
-    def from_arraylike(cls, odo: ObjDetectionOutput) -> "ObjDetectionOutput_impl":
-        return ObjDetectionOutput_impl(
-            boxes=np.array(odo.boxes),
-            labels = np.array(odo.labels),
-            scores=np.array(odo.scores),
-        )
-
-
 @dataclass
 class DatumMetadata_impl:
-    id: int
-
-    # This is a prescribed method to go from type required by protocol
-    # to the narrower implementor type
-    @classmethod
-    def from_obj(cls, o: object) -> "DatumMetadata_impl":
-        if isinstance(o, cls):
-            return o
-        else:
-            return DatumMetadata_impl(id=-1)  # just assign an id=1
+    uuid: Hashable
 
 
 class DataSet_impl:
@@ -246,7 +238,7 @@ class DataSet_impl:
     ) -> Tuple[np.ndarray, ObjDetectionOutput_impl, DatumMetadata_impl]:
         input = np.arange(5 * 4 * 3).reshape(5, 4, 3)
         output = ObjDetectionOutput_impl()
-        metadata = DatumMetadata_impl(id=1)
+        metadata = DatumMetadata_impl(uuid=1)
 
         return (input, output, metadata)
 
@@ -260,7 +252,7 @@ class DataLoaderImpl:
     ) -> Tuple[ArrayLike, list[ObjDetectionOutput_impl], list[DatumMetadata_impl]]:
         input_batch = np.array([self._dataset[i] for i in range(6)])
         output_batch = [ObjDetectionOutput_impl() for _ in range(6)]
-        metadata_batch = [DatumMetadata_impl(i) for i in range(6)]
+        metadata_batch = [DatumMetadata_impl(uuid=i) for i in range(6)]
 
         return (input_batch, output_batch, metadata_batch)
 
@@ -317,7 +309,7 @@ class AugmentationImpl:
             input_batch_aug = np.array(_datum_or_datum_batch[0])
             output_batch_aug = [i for i in _datum_or_datum_batch[1]]
             metadata_batch_aug = [
-                DatumMetadata_impl.from_obj(i) for i in _datum_or_datum_batch[2]
+                DatumMetadata_impl(uuid=i) for i in _datum_or_datum_batch[2]
             ]
 
             # manipulate input_batch, output_batch, and metadata_batch
@@ -335,13 +327,12 @@ class AugmentationImpl:
 
             input_aug = np.array(_datum_or_datum_batch[0])
             output_batch_aug = _datum_or_datum_batch[1]
-            metadata_aug = DatumMetadata_impl.from_obj(_datum_or_datum_batch[2])
+            metadata_aug = DatumMetadata_impl(uuid=_datum_or_datum_batch[2].uuid)
 
             return (input_aug, output_batch_aug, metadata_aug)
 
 
 class Model_impl:
-
     @overload
     def __call__(
         self, _input: InputType | InputBatchType
@@ -416,20 +407,20 @@ for input_batch, output_batch, metadata_batch in dataloader:
     )
     assert not isinstance(output_batch_aug, OutputType)
     # This is onerous type-narrowing, because I can't run an isinstance check
-    # directly on parametrized generic types (e.g. 'list[OutputType]', which is 
+    # directly on parametrized generic types (e.g. 'list[OutputType]', which is
     # OutputBatchType). I have to use 'not isinstance' to rule out preds_batch
     # being an OutputType instead.
 
     preds_batch = model(input_batch_aug)
     assert not isinstance(preds_batch, OutputType)
-    #preds_batch = cast(OutputBatchType, preds_batch) # could do this instead
+    # preds_batch = cast(OutputBatchType, preds_batch) # could do this instead
 
     # Annoyingly, still need this type narrowing because type-checker can't
-    # predict the output type of Model.__call__ based on input type. (batch 
+    # predict the output type of Model.__call__ based on input type. (batch
     # input and singular inputs are both ArrayLike.) Perhaps we should explicitly
     # require that the InputType be different than a InputBatchType
 
-    # The fact that InputType and InputBatchType are the same in this file 
+    # The fact that InputType and InputBatchType are the same in this file
     # shows an interesting corner case for pyright. The static typechecker
     # seems to take the first matching signature from Model_impl to determine
     # the type of the returned variable. Thus, if multiple method overloads list
@@ -439,10 +430,10 @@ for input_batch, output_batch, metadata_batch in dataloader:
 
     # Tracing TypeAliases is problematic for usability, but it can be more convenient
     # for the developer to use them. The problem is that cursoring over an object
-    # with a TypeAliased type doesn't show the underlying type that would be 
+    # with a TypeAliased type doesn't show the underlying type that would be
     # more meaningful to the user. "OutputBatchType" might a TypeAlias of
     # "list[ObjDetectionOutput]" but the user can't figure that out without
-    # looking at source code. 
+    # looking at source code.
     preds.append(preds_batch)
 
     metric.update(preds_batch, output_batch_aug)

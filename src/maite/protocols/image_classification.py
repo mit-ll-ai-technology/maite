@@ -4,12 +4,15 @@
 
 # import component generics from generic.py and specialize them for image_classification
 
+from . import DatumMetadata
+
 from typing import (
     Protocol,
     Sequence,
     Any,
     runtime_checkable,
     Hashable,
+    TypeAlias,
 )
 
 import generic as gen
@@ -21,19 +24,27 @@ class ArrayLike(Protocol):
         ...
 
 
-InputType = ArrayLike  # shape [H, W, C]
-OutputType = ArrayLike  # shape [Cl], where Cl is "number of classes"
-MetadataType = object
+# In below, the dimension names/meanings used are:
+#
+# N  - image instance
+# H  - image height
+# W  - image width
+# C  - image channel
+# Cl - classification label (one-hot for ground-truth label, or pseudo-probabilities for predictions)
 
-InputBatchType = ArrayLike  # shape [N, H, W, C]
-OutputBatchType = ArrayLike  # shape [N, Cl]
-MetadataBatchType = Sequence[object]
+InputType: TypeAlias = ArrayLike  # shape [H, W, C]
+OutputType: TypeAlias = ArrayLike  # shape [Cl]
+MetadataType: TypeAlias = DatumMetadata
+
+InputBatchType: TypeAlias = ArrayLike  # shape [N, H, W, C]
+OutputBatchType: TypeAlias = ArrayLike  # shape [N, Cl]
+MetadataBatchType: TypeAlias = Sequence[MetadataType]
 
 # Initialize component classes based on generic and Input/Output/Metadata types
 
 Dataset = gen.Dataset[InputType, OutputType, MetadataType]
 DataLoader = gen.DataLoader[
-    InputType, OutputType, MetadataType, InputBatchType, OutputBatchType, MetadataType
+    InputType, OutputType, MetadataType, InputBatchType, OutputBatchType, MetadataBatchType
 ]
 Model = gen.Model[InputType, OutputType, InputBatchType, OutputBatchType]
 Metric = gen.Metric[OutputType, OutputBatchType]
@@ -78,19 +89,23 @@ N_CLASSES = 5  # how many distinct classes are we predicting between?
 
 @dataclass
 class DatumMetadata_impl:
-    id: int
+    uuid: int
 
     # This is a prescribed method to go from type required by protocol
-    # to the narrower implementor type
+    # to the narrower implementor type. Whenever this protocol is used
+    # as an input to some method (e.g. Augmentation protocol) this method
+    # can typenarrow from protocol type to implementor type.
+    # (This is what `__array__` does in any ArrayLike implementor to
+    # convert ArrayLike -> <specific type>.)
     @classmethod
     def from_obj(cls, o: object) -> "DatumMetadata_impl":
         if isinstance(o, cls):
             return o
         else:
-            return DatumMetadata_impl(id=-1)  # just assign an id=1
+            return DatumMetadata_impl(uuid=-1)  # just assign an id=1
 
 
-class DataSet_impl:
+class Dataset_impl:
     def __init__(self):
         ...
 
@@ -102,7 +117,7 @@ class DataSet_impl:
     ) -> Tuple[np.ndarray, np.ndarray, DatumMetadata_impl]:
         input = np.arange(5 * 4 * 3).reshape(5, 4, 3)
         output = np.arange(5 * 4 * 3).reshape(5, 4, 3)
-        metadata = DatumMetadata_impl(id=1)
+        metadata = DatumMetadata_impl(uuid=1)
 
         return (input, output, metadata)
 
@@ -116,7 +131,7 @@ class DataLoaderImpl:
     ) -> Tuple[ArrayLike, ArrayLike, list[DatumMetadata_impl]]:
         input_batch = np.array([self._dataset[i] for i in range(6)])
         output_batch = np.array([self._dataset[i] for i in range(6)])
-        metadata_batch = [DatumMetadata_impl(i) for i in range(6)]
+        metadata_batch = [DatumMetadata_impl(uuid=i) for i in range(6)]
 
         return (input_batch, output_batch, metadata_batch)
 
@@ -263,7 +278,7 @@ class Metric_impl:
 
 aug: Augmentation = AugmentationImpl()
 metric: Metric = Metric_impl()
-dataset: Dataset = DataSet_impl()
+dataset: Dataset = Dataset_impl()
 dataloader: DataLoader = DataLoaderImpl(d=dataset)
 model: Model = Model_impl()
 
@@ -284,23 +299,23 @@ for input_batch, output_batch, metadata_batch in dataloader:
 metric_scores = metric.compute()
 
 # Interesting "failure mode" for static type checking:
-# If you cursor over the type of metadata_batch that is returned from 
-# "aug" function in evaluate workflow, you'll see it isn't a 
+# If you cursor over the type of metadata_batch that is returned from
+# "aug" function in evaluate workflow, you'll see it isn't a
 # list[DatumMetadata_impl] as you might expect. The Augmentation
 # implementation class has two methods that each take a tuple:
 # The first method signature is:
 #
 #  (Tuple[ArrayLike, ArrayLike, object]) -> Tuple[np.array, np.array, Augmentation_impl]
-# 
+#
 # and the second is:
-#   
+#
 #  (Tuple[ArrayLike, ArrayLike, list[object]]) -> Tuple[np.array, np.array, list[Augmentation_impl]]
-# 
-# So, given an input tuple with 3rd-element type 'list[object]' one might expect 
+#
+# So, given an input tuple with 3rd-element type 'list[object]' one might expect
 # the third element of the output tuple to be typed list[Augmentation_impl],
 # but this is not the case. The reason is because everything in python is an
 # instance of type object (including list[object]). This is another example where
-# two compatible 'overload'ed type signatures cause the type-checker to use the 
+# two compatible 'overload'ed type signatures cause the type-checker to use the
 # first and (quietly) ignore the second.
 #
 # What should we do? Probably alter the type of DatumMetadata to be less broad
