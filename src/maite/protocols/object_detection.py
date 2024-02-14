@@ -209,17 +209,18 @@ Augmentation = gen.Augmentation[
 
 from typing import Hashable, Tuple, overload
 import numpy as np
+import numpy.typing as npt
 
 from dataclasses import dataclass
 
 
 @dataclass
 class ObjDetectionOutput_impl:
-    boxes: np.ndarray = np.array(
+    boxes: npt.NDArray = np.array(
         [[0, 0, 1, 1], [1, 1, 2, 2]]
     )  # shape [N, 4], format X0, Y0, X1, Y1 (document this somewhere?)
-    labels: np.ndarray = np.array([2, 5])  # shape [N]
-    scores: np.ndarray = np.array([0, 1])  # shape [N]
+    labels: npt.NDArray = np.array([2, 5])  # shape [N]
+    scores: npt.NDArray = np.array([0, 1])  # shape [N]
 
 @dataclass
 class DatumMetadata_impl:
@@ -235,7 +236,7 @@ class DataSet_impl:
 
     def __getitem__(
         self, h: Hashable
-    ) -> Tuple[np.ndarray, ObjDetectionOutput_impl, DatumMetadata_impl]:
+    ) -> Tuple[npt.NDArray, ObjDetectionOutput_impl, DatumMetadata_impl]:
         input = np.arange(5 * 4 * 3).reshape(5, 4, 3)
         output = ObjDetectionOutput_impl()
         metadata = DatumMetadata_impl(uuid=1)
@@ -267,13 +268,13 @@ class AugmentationImpl:
     @overload
     def __call__(
         self, _datum: Tuple[InputType, OutputType, MetadataType]
-    ) -> Tuple[np.ndarray, OutputType, DatumMetadata_impl]:
+    ) -> Tuple[npt.NDArray, OutputType, DatumMetadata_impl]:
         ...
 
     @overload
     def __call__(
         self, _datum_batch: Tuple[InputBatchType, OutputBatchType, MetadataBatchType]
-    ) -> Tuple[np.ndarray, OutputBatchType, list[DatumMetadata_impl]]:
+    ) -> Tuple[npt.NDArray, OutputBatchType, list[DatumMetadata_impl]]:
         ...
 
     def __call__(
@@ -281,8 +282,8 @@ class AugmentationImpl:
         _datum_or_datum_batch: Tuple[InputType, OutputType, MetadataType]
         | Tuple[InputBatchType, OutputBatchType, MetadataBatchType],
     ) -> (
-        Tuple[np.ndarray, OutputType, DatumMetadata_impl]
-        | Tuple[np.ndarray, OutputBatchType, list[DatumMetadata_impl]]
+        Tuple[npt.NDArray, OutputType, DatumMetadata_impl]
+        | Tuple[npt.NDArray, OutputBatchType, list[DatumMetadata_impl]]
     ):
         if isinstance(
             _datum_or_datum_batch[2], Sequence

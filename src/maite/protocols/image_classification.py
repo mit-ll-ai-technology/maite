@@ -80,6 +80,7 @@ Augmentation = gen.Augmentation[
 
 from typing import Hashable, Tuple, overload
 import numpy as np
+import numpy.typing as npt
 import random
 
 from dataclasses import dataclass
@@ -114,7 +115,7 @@ class Dataset_impl:
 
     def __getitem__(
         self, h: Hashable
-    ) -> Tuple[np.ndarray, np.ndarray, DatumMetadata_impl]:
+    ) -> Tuple[npt.NDArray, npt.NDArray, DatumMetadata_impl]:
         input = np.arange(5 * 4 * 3).reshape(5, 4, 3)
         output = np.arange(5 * 4 * 3).reshape(5, 4, 3)
         metadata = DatumMetadata_impl(uuid=1)
@@ -146,13 +147,13 @@ class AugmentationImpl:
     @overload
     def __call__(
         self, _datum: Tuple[InputType, OutputType, MetadataType]
-    ) -> Tuple[np.ndarray, np.ndarray, DatumMetadata_impl]:
+    ) -> Tuple[npt.NDArray, npt.NDArray, DatumMetadata_impl]:
         ...
 
     @overload
     def __call__(
         self, _datum_batch: Tuple[InputBatchType, OutputBatchType, MetadataBatchType]
-    ) -> Tuple[np.ndarray, np.ndarray, list[DatumMetadata_impl]]:
+    ) -> Tuple[npt.NDArray, npt.NDArray, list[DatumMetadata_impl]]:
         ...
 
     def __call__(
@@ -160,8 +161,8 @@ class AugmentationImpl:
         _datum_or_datum_batch: Tuple[InputType, OutputType, MetadataType]
         | Tuple[InputBatchType, OutputBatchType, MetadataBatchType],
     ) -> (
-        Tuple[np.ndarray, np.ndarray, DatumMetadata_impl]
-        | Tuple[np.ndarray, np.ndarray, list[DatumMetadata_impl]]
+        Tuple[npt.NDArray, npt.NDArray, DatumMetadata_impl]
+        | Tuple[npt.NDArray, npt.NDArray, list[DatumMetadata_impl]]
     ):
         if isinstance(
             _datum_or_datum_batch[-1], Sequence
@@ -210,19 +211,19 @@ class AugmentationImpl:
 
 
 class Model_impl:
-    @overload
-    def __call__(
-        self, _input: InputType | InputBatchType
-    ) -> OutputType | OutputBatchType:
-        ...
+    # @overload
+    # def __call__(
+    #     self, _input: InputType | InputBatchType
+    # ) -> OutputType | OutputBatchType:
+    #     ...
 
-    @overload
-    def __call__(self, _input: InputType) -> OutputType:
-        ...
+    # @overload
+    # def __call__(self, _input: InputType) -> OutputType:
+    #     ...
 
-    @overload
-    def __call__(self, _input: InputBatchType) -> OutputBatchType:
-        ...
+    # @overload
+    # def __call__(self, _input: InputBatchType) -> OutputBatchType:
+    #     ...
 
     def __call__(
         self,
@@ -287,9 +288,9 @@ for input_batch, output_batch, metadata_batch in dataloader:
     input_batch_aug, output_batch_aug, metadata_batch_aug = aug(
         (input_batch, output_batch, metadata_batch)
     )
-    assert not isinstance(output_batch_aug, OutputType)
 
     preds_batch = model(input_batch_aug)
+    assert isinstance(preds_batch, OutputBatchType)
 
     # appending predictions here could take into account their being numpy arrays
     preds.append(preds_batch)
