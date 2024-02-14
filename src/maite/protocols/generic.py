@@ -14,6 +14,24 @@ from typing import Tuple, TypeAlias, TypeVar, Protocol, Hashable, Generic, Any, 
 # is expected. This sacrifices some clarity in this file, but hopefully the classes can appear intuitive
 # from the perspective of the end-users that only interact with parameterized generics.
 
+# (3) Methods/signatures advertised by a protocol class *must* be mirrored by
+# compatible types in implementation. If overload decorator is present,
+# only the 'overload'-decorated methods are the source of these "promised" signatures
+# for the type checker. If more than one signature is advertised by a protocol, 
+# then implementors must use 'overload'-decorator to advertise compatible signatures.
+
+# In light of these rules, what should we do?
+#   - Including overload in protocol signatures is clear, but does require
+#     protocol implementors to leverage 'overload' decorator, which isn't quite 'beginner' level
+#   - Not inluding overload in protocol signatures makes it possible to implement
+#     protocols without helping type checker determine specific return types.
+#     this is more flexible for implementor, but will require more type narrowing
+#     on non-specific ("union") return types. (If typechecker can't determine return
+#     type from Model('BatchInputType') is a 'BatchOutputType' and not an OutputType,
+#     user has to type narrow.
+#   - Seems like overload decorator is the cost of handling multiple types of input arguments
+
+
 # create instance-level versions of all generic type vars
 InputType_co = TypeVar("InputType_co", covariant=True)
 OutputType_co = TypeVar("OutputType_co", covariant=True)
@@ -81,7 +99,7 @@ DatumMetadataBatchType_in = TypeVar(
 # Generic versions of all protocols
 class Dataset(Protocol, Generic[InputType_co, OutputType_co, DatumMetadataType_co]):
     def __getitem__(
-        self, _ind: Hashable
+        self, __ind: Hashable
     ) -> Tuple[InputType_co, OutputType_co, DatumMetadataType_co]:
         ...
 
@@ -96,26 +114,21 @@ class Model(
     
     @overload
     def __call__(
-        self, _single_input: InputType_cn
+        self, __single_input: InputType_cn
     ) -> OutputType_co:
         ...
 
     @overload
     def __call__(
-        self, _batch_input: InputBatchType_cn
+        self, __batch_input: InputBatchType_cn
     ) -> OutputBatchType_co:
         ...
 
-    @overload
-    def __call__(
-        self, _single_input_or_batch: InputType_cn | InputBatchType_cn
-    ) -> OutputType_co | OutputBatchType_co:
-        ...
-
-    def __call__(
-        self, _single_input_or_batch: InputType_cn | InputBatchType_cn
-    ) -> OutputType_co | OutputBatchType_co:
-        ...
+    # @overload
+    # def __call__(
+    #     self, __single_input_or_batch: InputType_cn | InputBatchType_cn
+    # ) -> OutputType_co | OutputBatchType_co:
+    #     ...
 
 
 class Metric(Protocol, Generic[OutputType_cn, OutputBatchType_cn]):
@@ -125,23 +138,16 @@ class Metric(Protocol, Generic[OutputType_cn, OutputBatchType_cn]):
     @overload
     def update(
         self,
-        _preds: OutputType_cn,
-        _targets: OutputType_cn,
+        __preds: OutputType_cn,
+        __targets: OutputType_cn,
     ) -> None:
         ...
 
     @overload
     def update(
         self,
-        _preds_batch: OutputBatchType_cn,
-        _targets_batch: OutputBatchType_cn,
-    ) -> None:
-        ...
-    
-    def update(
-        self,
-        _preds_or_preds_batch: OutputType_cn | OutputBatchType_cn,
-        _targets_or_targets_batch: OutputType_cn | OutputBatchType_cn,
+        __preds_batch: OutputBatchType_cn,
+        __targets_batch: OutputBatchType_cn,
     ) -> None:
         ...
 
@@ -170,25 +176,15 @@ class Augmentation(
 ):
     @overload
     def __call__(
-        self, _datum: Tuple[InputType_cn, OutputType_cn, DatumMetadataType_cn]
+        self, __datum: Tuple[InputType_cn, OutputType_cn, DatumMetadataType_cn]
     ) -> Tuple[InputType_co, OutputType_co, DatumMetadataType_co]:
         ...
 
     @overload
     def __call__(
         self,
-        _batch: Tuple[InputBatchType_cn, OutputBatchType_cn, DatumMetadataBatchType_cn],
+        __batch: Tuple[InputBatchType_cn, OutputBatchType_cn, DatumMetadataBatchType_cn],
     ) -> Tuple[InputBatchType_co, OutputBatchType_co, DatumMetadataBatchType_co]:
-        ...
-
-    def __call__(
-        self,
-        _datum_or_datum_batch: Tuple[InputType_cn, OutputType_cn, DatumMetadataType_cn]
-        | Tuple[InputBatchType_cn, OutputBatchType_cn, DatumMetadataBatchType_cn],
-    ) -> (
-        Tuple[InputType_co, OutputType_co, DatumMetadataType_co]
-        | Tuple[InputBatchType_co, OutputBatchType_co, DatumMetadataBatchType_co]
-    ):
         ...
 
 

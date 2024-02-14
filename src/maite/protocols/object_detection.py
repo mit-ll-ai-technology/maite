@@ -267,13 +267,13 @@ class AugmentationImpl:
 
     @overload
     def __call__(
-        self, _datum: Tuple[InputType, OutputType, MetadataType]
+        self, __datum: Tuple[InputType, OutputType, MetadataType]
     ) -> Tuple[npt.NDArray, OutputType, DatumMetadata_impl]:
         ...
 
     @overload
     def __call__(
-        self, _datum_batch: Tuple[InputBatchType, OutputBatchType, MetadataBatchType]
+        self, __datum_batch: Tuple[InputBatchType, OutputBatchType, MetadataBatchType]
     ) -> Tuple[npt.NDArray, OutputBatchType, list[DatumMetadata_impl]]:
         ...
 
@@ -336,16 +336,16 @@ class AugmentationImpl:
 class Model_impl:
     @overload
     def __call__(
-        self, _input: InputType | InputBatchType
+        self, __input: InputType | InputBatchType
     ) -> OutputType | OutputBatchType:
         ...
 
     @overload
-    def __call__(self, _input: InputType) -> OutputType:
+    def __call__(self, __input: InputType) -> OutputType:
         ...
 
     @overload
-    def __call__(self, _input: InputBatchType) -> OutputBatchType:
+    def __call__(self, __input: InputBatchType) -> OutputBatchType:
         ...
 
     def __call__(
@@ -373,12 +373,12 @@ class Metric_impl:
         ...
 
     @overload
-    def update(self, _pred: OutputType, _target: OutputType) -> None:
+    def update(self, __pred: OutputType, __target: OutputType) -> None:
         ...
 
     @overload
     def update(
-        self, _pred_batch: OutputBatchType, _target_batch: OutputBatchType
+        self, __pred_batch: OutputBatchType, __target_batch: OutputBatchType
     ) -> None:
         ...
 

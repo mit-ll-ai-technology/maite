@@ -90,7 +90,7 @@ N_CLASSES = 5  # how many distinct classes are we predicting between?
 
 @dataclass
 class DatumMetadata_impl:
-    uuid: int
+    uuid: Hashable
 
     # This is a prescribed method to go from type required by protocol
     # to the narrower implementor type. Whenever this protocol is used
@@ -98,12 +98,28 @@ class DatumMetadata_impl:
     # can typenarrow from protocol type to implementor type.
     # (This is what `__array__` does in any ArrayLike implementor to
     # convert ArrayLike -> <specific type>.)
+    
+    # TODO: consider whether we should take/return protocol types and
+    # how to best permit metadata updating without undermining promised
+    # types in augmentation.
+    #
+    # Motivating example:
+    # Something interesting happens if implementors want to require a 
+    # subtype of Hashable (like int) instead. Any method of an implementor
+    # component taking DatumMetadata needs to take object of the 
+    # protocol type or broader(because of contravariance wrt input arguments), 
+    # but that broader type might to be narrowed to an implementation
+    # class within the component. If that narrowing requires a loss in
+    # information (e.g. an augmentation received DatumMetadata of type 'str'
+    # and wanted to narrow to a type like 'int' for implementation, there is a
+    # problem).
     @classmethod
-    def from_obj(cls, o: object) -> "DatumMetadata_impl":
+    def from_protocol(cls, o: DatumMetadata) -> "DatumMetadata_impl":
         if isinstance(o, cls):
             return o
         else:
-            return DatumMetadata_impl(uuid=-1)  # just assign an id=1
+            return DatumMetadata_impl(uuid=-1)  # just assign an uuid=-1 
+                                                # This is actually a real
 
 
 class Dataset_impl:
@@ -146,13 +162,13 @@ class AugmentationImpl:
 
     @overload
     def __call__(
-        self, _datum: Tuple[InputType, OutputType, MetadataType]
+        self, __datum: Tuple[InputType, OutputType, MetadataType]
     ) -> Tuple[npt.NDArray, npt.NDArray, DatumMetadata_impl]:
         ...
 
     @overload
     def __call__(
-        self, _datum_batch: Tuple[InputBatchType, OutputBatchType, MetadataBatchType]
+        self, __datum_batch: Tuple[InputBatchType, OutputBatchType, MetadataBatchType]
     ) -> Tuple[npt.NDArray, npt.NDArray, list[DatumMetadata_impl]]:
         ...
 
@@ -187,7 +203,7 @@ class AugmentationImpl:
             input_batch_aug = np.array(_datum_or_datum_batch[0])
             output_batch_aug = np.array(_datum_or_datum_batch[1])
             metadata_batch_aug = [
-                DatumMetadata_impl.from_obj(i) for i in _datum_or_datum_batch[2]
+                DatumMetadata_impl.from_protocol(i) for i in _datum_or_datum_batch[2]
             ]
 
             # manipulate input_batch, output_batch, and metadata_batch
@@ -205,33 +221,33 @@ class AugmentationImpl:
 
             input_aug = np.array(_datum_or_datum_batch[0])
             output_batch_aug = np.array(_datum_or_datum_batch[1])
-            metadata_aug = DatumMetadata_impl.from_obj(_datum_or_datum_batch[2])
+            metadata_aug = DatumMetadata_impl(uuid=_datum_or_datum_batch[2].uuid)
 
             return (input_aug, output_batch_aug, metadata_aug)
 
 
 class Model_impl:
-    # @overload
-    # def __call__(
-    #     self, _input: InputType | InputBatchType
-    # ) -> OutputType | OutputBatchType:
-    #     ...
-
-    # @overload
-    # def __call__(self, _input: InputType) -> OutputType:
-    #     ...
-
-    # @overload
-    # def __call__(self, _input: InputBatchType) -> OutputBatchType:
-    #     ...
-
+    @overload
     def __call__(
-        self,
-        _input_or_input_batch: InputType | InputBatchType,
+        self, __input: InputType | InputBatchType
     ) -> OutputType | OutputBatchType:
         ...
 
-        arr_input = np.array(_input_or_input_batch)
+    @overload
+    def __call__(self, __input: InputType) -> OutputType:
+        ...
+
+    @overload
+    def __call__(self, __input: InputBatchType) -> OutputBatchType:
+        ...
+
+    def __call__(
+        self,
+        __input_or_input_batch: InputType | InputBatchType,
+    ) -> OutputType | OutputBatchType:
+        ...
+
+        arr_input = np.array(__input_or_input_batch)
         if arr_input.ndim == 4:
             # process batch
             N, H, W, C = arr_input.shape
@@ -255,12 +271,12 @@ class Metric_impl:
         ...
 
     @overload
-    def update(self, _pred: OutputType, _target: OutputType) -> None:
+    def update(self, __pred: OutputType, __target: OutputType) -> None:
         ...
 
     @overload
     def update(
-        self, _pred_batch: OutputBatchType, _target_batch: OutputBatchType
+        self, __pred_batch: OutputBatchType, __target_batch: OutputBatchType
     ) -> None:
         ...
 
