@@ -45,15 +45,6 @@ DatumMetadataBatchType_in = TypeVar(
     "DatumMetadataBatchType_in", covariant=False, contravariant=False
 )
 
-# Datum and DatumBatch TypeAlias objects still need subscripts when used. The fact
-# that we are using "{InputType,OutputType,DatumMetadataType}_co" instead of the
-# contravariant or invariant counterparts is irrelvant because Datum and
-# DatumBatch need 3 types when they are used, otherwise the types are inferred
-# as 'Any'
-Datum: TypeAlias = Tuple[InputType_co, OutputType_co, DatumMetadataType_co]
-DatumBatch: TypeAlias = Tuple[
-    InputBatchType_co, OutputBatchType_co, DatumMetadataBatchType_co
-]
 # TODO 0: add docstrings
 #
 # TODO 1: check type expected by pytorch getitem
@@ -179,24 +170,24 @@ class Augmentation(
 ):
     @overload
     def __call__(
-        self, _datum: Datum[InputType_cn, OutputType_cn, DatumMetadataType_cn]
-    ) -> Datum[InputType_co, OutputType_co, DatumMetadataType_co]:
+        self, _datum: Tuple[InputType_cn, OutputType_cn, DatumMetadataType_cn]
+    ) -> Tuple[InputType_co, OutputType_co, DatumMetadataType_co]:
         ...
 
     @overload
     def __call__(
         self,
-        _batch: DatumBatch[InputBatchType_cn, OutputBatchType_cn, DatumMetadataBatchType_cn],
-    ) -> DatumBatch[InputBatchType_co, OutputBatchType_co, DatumMetadataBatchType_co]:
+        _batch: Tuple[InputBatchType_cn, OutputBatchType_cn, DatumMetadataBatchType_cn],
+    ) -> Tuple[InputBatchType_co, OutputBatchType_co, DatumMetadataBatchType_co]:
         ...
 
     def __call__(
         self,
-        _datum_or_datum_batch: Datum[InputType_cn, OutputType_cn, DatumMetadataType_cn]
-        | DatumBatch[InputBatchType_cn, OutputBatchType_cn, DatumMetadataBatchType_cn],
+        _datum_or_datum_batch: Tuple[InputType_cn, OutputType_cn, DatumMetadataType_cn]
+        | Tuple[InputBatchType_cn, OutputBatchType_cn, DatumMetadataBatchType_cn],
     ) -> (
-        Datum[InputType_co, OutputType_co, DatumMetadataType_co]
-        | DatumBatch[InputBatchType_co, OutputBatchType_co, DatumMetadataBatchType_co]
+        Tuple[InputType_co, OutputType_co, DatumMetadataType_co]
+        | Tuple[InputBatchType_co, OutputBatchType_co, DatumMetadataBatchType_co]
     ):
         ...
 
@@ -221,7 +212,7 @@ class DataLoader(
 ):
     def __next__(
         self,
-    ) -> DatumBatch[InputBatchType_co, OutputBatchType_co, DatumMetadataBatchType_co]:
+    ) -> Tuple[InputBatchType_co, OutputBatchType_co, DatumMetadataBatchType_co]:
         ...
 
     def __iter__(self: T_DataLoader) -> T_DataLoader:
@@ -239,7 +230,7 @@ class DataLoader(
 
 # check we can make a DataSet implementor
 class DatasetImpl:
-    def __getitem__(self, _ind: Hashable) -> Datum[int, int, int]:
+    def __getitem__(self, _ind: Hashable) -> Tuple[int, int, int]:
         return 0, 0, 0
 
     def __len__(self) -> int:
