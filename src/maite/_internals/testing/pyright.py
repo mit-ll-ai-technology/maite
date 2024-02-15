@@ -419,36 +419,18 @@ def pyright_analyze(
     Here pyright will record an error when scan a function that attempts to add a
     string-annotated variable to an integer.
 
+    >>> from maite.testing.pyright import pyright_analyze
     >>> def f(x: str):
     ...     return 1 + x
     >>> pyright_analyze(f)[0]
-    {'version': '1.1.281',
-     'time': '1669686515154',
-     'generalDiagnostics': [{'file': 'source.py',
-       'severity': 'error',
-       'message': 'Operator "+" not supported for types "Literal[1]" and "str"\n\xa0\xa0Operator "+" not supported for types "Literal[1]" and "str"',
-       'range': {'start': {'line': 1, 'character': 11},
-        'end': {'line': 1, 'character': 16}},
-       'rule': 'reportGeneralTypeIssues'}],
-     'summary': {'filesAnalyzed': 20,
-      'errorCount': 1,
-      'warningCount': 0,
-      'informationCount': 0,
-      'timeInSec': 0.319}}
+    {'version': ..., 'time': ..., 'generalDiagnostics': [{'file': ..., 'severity': ..., 'message': 'Operator "+" not supported for types "Literal[1]" and "str"', 'range': {'start': {'line': ..., 'character': ...}, 'end': {'line': ..., 'character': ...}}, 'rule': ...}], 'summary': {'filesAnalyzed': ..., 'errorCount': 1, 'warningCount': 0, 'informationCount': 0, 'timeInSec': ...}}
 
     Whereas this function scans "clean".
 
     >>> def g(x: int) -> int:
     ...     return 1 + x
     >>> pyright_analyze(g)[0]
-    {'version': '1.1.281',
-     'time': '1669686578833',
-     'generalDiagnostics': [],
-     'summary': {'filesAnalyzed': 20,
-      'errorCount': 0,
-      'warningCount': 0,
-      'informationCount': 0,
-      'timeInSec': 0.29}}
+    {'version': ..., 'time': ..., 'generalDiagnostics': ..., 'summary': {'filesAnalyzed': ..., 'errorCount': 0, 'warningCount': 0, 'informationCount': 0, 'timeInSec': ...}}
 
     All imports must occur within the context of the scanned-object, or the imports can
     be specified in a preamble. For example, consider the following

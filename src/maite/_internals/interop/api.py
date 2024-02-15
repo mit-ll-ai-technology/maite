@@ -286,6 +286,15 @@ def load_model(
     --------
     >>> from maite import load_model
     >>> load_model(provider="huggingface", task="image-classification", model_name="microsoft/resnet-18")
+    HuggingFaceImageClassifier(
+      (model): ResNetForImageClassification(
+        (resnet): ResNetModel(
+          (embedder): ResNetEmbeddings(
+            (embedder): ResNetConvLayer(
+              (convolution): Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+              (normalization): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+              (activation): ReLU()
+            )...
     """
     if model_name in MODEL_REGISTRY:
         kwargs = {**MODEL_REGISTRY[model_name], **kwargs}
@@ -332,7 +341,8 @@ def list_metrics(
     Examples
     --------
     >>> from maite import list_metrics
-    >>> list_metrics(provider="torchmetrics")
+    >>> list_metrics(provider="torchmetrics") # doctest: +ELLIPSIS
+    ['Accuracy', 'AUROC', 'AveragePrecision', ...
     """
     if provider is None:
         return list(METRIC_REGISTRY.keys())

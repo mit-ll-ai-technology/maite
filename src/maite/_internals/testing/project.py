@@ -139,11 +139,7 @@ class ModuleScan:
     >>> scanner = ModuleScan()
     >>> results = scanner("maite")
     >>> results["summary"]
-    {'filesAnalyzed': 9,
-    'errorCount': 0,
-    'warningCount': 0,
-    'informationCount': 0,
-    'timeInSec': 0.662}
+    {'filesAnalyzed': ..., 'errorCount': ..., 'warningCount': ..., 'informationCount': ..., 'timeInSec': ...}
     >>> results["typeCompleteness"]["packageName"]
     'maite'
     >>> results["typeCompleteness"]["symbols"]
@@ -348,22 +344,7 @@ def get_public_symbols(
     Accessing symbols from the `docs` submodule.
 
     >>> get_public_symbols(results, submodule="maite.testing.docs")
-    [{'category': 'type alias',
-    'name': 'maite.testing.docs.NumpyDocErrorCode',
-    'referenceCount': 1,
-    'isExported': True,
-    'isTypeKnown': True,
-    'isTypeAmbiguous': False,
-    'diagnostics': []},
-    {'category': 'class',
-    'name': 'maite.testing.docs.NumPyDocResults',
-    'referenceCount': 1,
-    'isExported': True,
-    'isTypeKnown': True,
-    'isTypeAmbiguous': False,
-    'diagnostics': []},
-    ...
-    ]
+    [{'category': 'type alias', 'name': 'maite.testing.docs.NumpyDocErrorCode', 'referenceCount': 1, 'isExported': True, 'isTypeKnown': True, 'isTypeAmbiguous': False, 'diagnostics': []}, {'category': 'class', 'name': 'maite.testing.docs.NumPyDocResults', 'referenceCount': 1, 'isExported': True, 'isTypeKnown': True, 'isTypeAmbiguous': False, 'diagnostics'...
     """
     check_type("scan", scan, Mapping)
     check_type("submodule", submodule, str)

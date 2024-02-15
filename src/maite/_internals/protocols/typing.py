@@ -38,6 +38,7 @@ class ArrayLike(Protocol):
     with PyTorch and JAX tensors.
 
     >>> import numpy as np
+    >>> from maite.protocols import ArrayLike
     >>> array_like: ArrayLike = np.ones((3, 224, 224))
     >>> isinstance(array_like, ArrayLike)
     True
@@ -71,9 +72,9 @@ class DatumMetadata(Protocol):
     >>> from dataclasses import dataclass
     >>> from typing import Any
     >>> @dataclass
-    >>> class ImplImageClassificationDatum:
-    >>>     id: int
-    >>>     user_added_metadata: 'dict[str, Any]'
+    ... class ImplImageClassificationDatum:
+    ...     id: int
+    ...     user_added_metadata: 'dict[str, Any]'
 
     Then Users define a datum, id as an integer is hashable.
 
@@ -103,6 +104,7 @@ class HasDataImage(TypedDict):
 
     Create a fake image and add it to a dictionary.
 
+    >>> from maite.protocols import HasDataImage
     >>> import numpy as np
     >>> image = np.ones((3, 224, 224))
     >>> data: HasDataImage = {'image': image}
@@ -139,6 +141,7 @@ class HasDataLabel(TypedDict):
     --------
     Create a fake label and add it to a dictionary.
 
+    >>> from maite.protocols import HasDataLabel
     >>> import numpy as np
     >>> label = np.array(1)
     >>> data: HasDataLabel = {'label': label}
@@ -175,6 +178,7 @@ class HasDataBoxes(TypedDict):
     --------
     Create a fake boxes and add it to a dictionary.
 
+    >>> from maite.protocols import HasDataBoxes
     >>> import numpy as np
     >>> boxes = np.array([[0, 0, 1, 1]])
     >>> data: HasDataBoxes = {'boxes': boxes}
@@ -338,6 +342,7 @@ class SupportsImageClassification(HasDataImage, HasDataLabel, HasDataMetadata):
     --------
     Create a fake image and label and add them to a dictionary.
 
+    >>> from maite.protocols import SupportsImageClassification
     >>> import numpy as np
     >>> from typing import Any
     >>> image = np.zeros((3, 224, 224))
@@ -345,9 +350,9 @@ class SupportsImageClassification(HasDataImage, HasDataLabel, HasDataMetadata):
 
     >>> from dataclasses import dataclass
     >>> @dataclass
-    >>> class ImplImageClassificationDatum:
-    >>>     id: int
-    >>>     user_added_metadata: 'dict[str, Any]'  # dict needs quote in Python 3.8
+    ... class ImplImageClassificationDatum:
+    ...     id: int
+    ...     user_added_metadata: 'dict[str, Any]'  # dict needs quote in Python 3.8
 
     >>> id = 1
     >>> datum = ImplImageClassificationDatum(id=id, user_added_metadata={"user_metadata": {"image_gsd": 0.3}})
@@ -444,13 +449,14 @@ class VisionDataset(Dataset[SupportsImageClassification], Protocol):
     --------
     Create a fake dataset.
 
+    >>> from maite.protocols import SupportsImageClassification
     >>> import numpy as np
     >>> from dataclasses import dataclass
     >>> from typing import Any
     >>> @dataclass
-    >>> class ImplImageClassificationDatum:
-    >>>     id: int
-    >>>     user_added_metadata: 'dict[str, Any]'  # dict needs quote in Python 3.8
+    ... class ImplImageClassificationDatum:
+    ...     id: int
+    ...     user_added_metadata: 'dict[str, Any]'  # dict needs quote in Python 3.8
 
     >>> id = 1
     >>> datum = ImplImageClassificationDatum(id=id, user_added_metadata={"user_metadata": {"image_gsd": 0.3}})
@@ -463,6 +469,7 @@ class VisionDataset(Dataset[SupportsImageClassification], Protocol):
 
     Create a dataset with the fake data.
 
+    >>> from maite.protocols import VisionDataset
     >>> class FakeDataset:
     ...     def __len__(self) -> int:
     ...         return 1
@@ -489,7 +496,7 @@ class ObjectDetectionDataset(Dataset[SupportsObjectDetection], Protocol):
     --------
     Create a fake dataset.
 
-    >>> from maite.protocols import SupportsObjectDetection
+    >>> from maite.protocols import SupportsObjectDetection, ObjectDetectionDataset
     >>> import numpy as np
     >>> from dataclasses import dataclass
     >>> from typing import Any
@@ -676,6 +683,7 @@ class HasLogits(Protocol):
     --------
     Create a fake logits and add it to a dataclass.
 
+    >>> from maite.protocols import SupportsArray, HasLogits
     >>> import numpy as np
     >>> from dataclasses import dataclass
     >>> @dataclass
@@ -712,6 +720,7 @@ class HasProbs(Protocol):
 
     >>> import numpy as np
     >>> from dataclasses import dataclass
+    >>> from maite.protocols import SupportsArray, HasProbs
     >>> @dataclass
     ... class FakeData:
     ...     probs: SupportsArray
@@ -751,6 +760,7 @@ class HasScores(Protocol):
 
     >>> import numpy as np
     >>> from dataclasses import dataclass
+    >>> from maite.protocols import SupportsArray, HasScores
     >>> @dataclass
     ... class FakeData:
     ...     scores: SupportsArray
@@ -868,6 +878,7 @@ class HasDetectionPredictions(HasBoxes, HasScores, Protocol):
 
     >>> import numpy as np
     >>> from dataclasses import dataclass
+    >>> from maite.protocols import SupportsArray, HasDetectionPredictions
     >>> @dataclass
     ... class FakeData:
     ...     scores: SupportsArray
@@ -946,6 +957,7 @@ class Model(Protocol[P, T_co]):
 
     Here we define a model that takes in a numpy NDArray and returns a numpy NDArray.
 
+    >>> from maite.protocols import Model, HasLogits, HasProbs
     >>> from numpy.typing import NDArray
     >>> NDArrayModelType = Model[[NDArray], NDArray]
 
@@ -975,6 +987,7 @@ class Model(Protocol[P, T_co]):
     For example if we define our model as:
 
     >>> from dataclasses import dataclass
+    >>> from maite.protocols import SupportsArray
     >>> @dataclass
     ... class MyHasProbs:
     ...     probs: SupportsArray
@@ -987,7 +1000,7 @@ class Model(Protocol[P, T_co]):
 
     >>> from typing import Sequence
     >>> class MyModel:
-    >>>     metadata = ModelMetadataExample()
+    ...     metadata = ModelMetadataExample()
     ...     def __call__(self, data: NDArray) -> MyHasProbs:
     ...         return MyHasProbs(data)
     ...     def get_labels(self) -> Sequence[str]:
@@ -995,7 +1008,7 @@ class Model(Protocol[P, T_co]):
 
     >>> my_model = MyModel()
     >>> my_model.metadata
-    ModelMetadataExample(model_name='model_name', provider='provider_name', task='task_name')
+    ModelMetadataExample(model_name='model_name', provider='provider_name', task='task')
     >>> isinstance(my_model, Model)
     True
 
@@ -1044,6 +1057,7 @@ class ImageClassifier(Model[P, Union[HasLogits, HasProbs, HasScores]], Protocol[
     --------
     Create a fake logits and add it to a dataclass.
 
+    >>> from maite.protocols import SupportsArray, HasLogits
     >>> import numpy as np
     >>> from dataclasses import dataclass
     >>> @dataclass
@@ -1104,7 +1118,7 @@ class ObjectDetector(
     --------
     Create a fake logits and add it to a dataclass.
 
-    >>> from maite.protocols import SupportsArray, HasDetectionLogits
+    >>> from maite.protocols import SupportsArray, HasDetectionLogits, ObjectDetector
     >>> import numpy as np
     >>> from dataclasses import dataclass
     >>> @dataclass
@@ -1188,6 +1202,7 @@ class Metric(Protocol[P, T_co]):
     outputs.  For example, we can define a metric that takes in
     a numpy NDArray and returns a numpy NDArray.
 
+    >>> from maite.protocols import Metric, HasLogits, HasDataLabel, ArrayLike, Model, SupportsArray, HasProbs, DataLoader, SupportsImageClassification
     >>> from numpy.typing import NDArray
     >>> MyMetricProtocol = Metric[[NDArray], NDArray]
 
