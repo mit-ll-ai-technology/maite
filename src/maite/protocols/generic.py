@@ -5,7 +5,8 @@
 __all__ = []
 
 
-from typing import Tuple, TypeAlias, TypeVar, Protocol, Hashable, Generic, Any, overload
+from typing import Tuple, TypeVar, Protocol, Hashable, Generic, Any, overload
+from typing_extensions import TypeAlias
 
 # Note
 # (1) the use of each generic variable can differ in generic components
