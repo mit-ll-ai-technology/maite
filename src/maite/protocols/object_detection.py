@@ -7,7 +7,8 @@
 
 from . import DatumMetadata
 
-from typing import Protocol, Sequence, Any, runtime_checkable, Hashable, TypeAlias
+from typing import Protocol, Sequence, Any, runtime_checkable, Hashable
+from typing_extensions import TypeAlias
 
 import generic as gen
 

@@ -12,8 +12,9 @@ from typing import (
     Any,
     runtime_checkable,
     Hashable,
-    TypeAlias,
 )
+
+from typing_extensions import TypeAlias
 
 import generic as gen
 
