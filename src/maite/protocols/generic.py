@@ -237,7 +237,6 @@ class DatasetImpl:
 dataset_inst: Dataset[int, int, int] = DatasetImpl()
 
 a = dataset_inst.__getitem__(1)
-reveal_type(a)
 
 
 # check whether composing generics permits correct type variance relationship
