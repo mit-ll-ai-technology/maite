@@ -10,7 +10,7 @@ from . import DatumMetadata
 from typing import Protocol, Sequence, Any, runtime_checkable, Hashable
 from typing_extensions import TypeAlias
 
-import generic as gen
+from . import generic as gen
 
 
 @runtime_checkable
@@ -394,50 +394,51 @@ class Metric_impl:
         return {"metric1": "val1", "metric2": "val2"}
 
 
-# try to run through "evaluate" workflow
+if __name__ == '__main__':
+    # try to run through "evaluate" workflow
 
-aug: Augmentation = AugmentationImpl()
-metric: Metric = Metric_impl()
-dataset: Dataset = DataSet_impl()
-dataloader: DataLoader = DataLoaderImpl(d=dataset)
-model: Model = Model_impl()
+    aug: Augmentation = AugmentationImpl()
+    metric: Metric = Metric_impl()
+    dataset: Dataset = DataSet_impl()
+    dataloader: DataLoader = DataLoaderImpl(d=dataset)
+    model: Model = Model_impl()
 
-preds: list[OutputBatchType] = []
-for input_batch, output_batch, metadata_batch in dataloader:
-    input_batch_aug, output_batch_aug, metadata_batch_aug = aug(
-        (input_batch, output_batch, metadata_batch)
-    )
-    assert not isinstance(output_batch_aug, OutputType)
-    # This is onerous type-narrowing, because I can't run an isinstance check
-    # directly on parametrized generic types (e.g. 'list[OutputType]', which is
-    # OutputBatchType). I have to use 'not isinstance' to rule out preds_batch
-    # being an OutputType instead.
+    preds: list[OutputBatchType] = []
+    for input_batch, output_batch, metadata_batch in dataloader:
+        input_batch_aug, output_batch_aug, metadata_batch_aug = aug(
+            (input_batch, output_batch, metadata_batch)
+        )
+        assert not isinstance(output_batch_aug, OutputType)
+        # This is onerous type-narrowing, because I can't run an isinstance check
+        # directly on parametrized generic types (e.g. 'list[OutputType]', which is
+        # OutputBatchType). I have to use 'not isinstance' to rule out preds_batch
+        # being an OutputType instead.
 
-    preds_batch = model(input_batch_aug)
-    assert not isinstance(preds_batch, OutputType)
-    # preds_batch = cast(OutputBatchType, preds_batch) # could do this instead
+        preds_batch = model(input_batch_aug)
+        assert not isinstance(preds_batch, OutputType)
+        # preds_batch = cast(OutputBatchType, preds_batch) # could do this instead
 
-    # Annoyingly, still need this type narrowing because type-checker can't
-    # predict the output type of Model.__call__ based on input type. (batch
-    # input and singular inputs are both ArrayLike.) Perhaps we should explicitly
-    # require that the InputType be different than a InputBatchType
+        # Annoyingly, still need this type narrowing because type-checker can't
+        # predict the output type of Model.__call__ based on input type. (batch
+        # input and singular inputs are both ArrayLike.) Perhaps we should explicitly
+        # require that the InputType be different than a InputBatchType
 
-    # The fact that InputType and InputBatchType are the same in this file
-    # shows an interesting corner case for pyright. The static typechecker
-    # seems to take the first matching signature from Model_impl to determine
-    # the type of the returned variable. Thus, if multiple method overloads list
-    # the same input type and differing output types, only the first listed
-    # method will be considered. (Thus method ordering affects static type-correctness)
-    # This might be a reason to enforce InputType/InputBatchType to be different.
+        # The fact that InputType and InputBatchType are the same in this file
+        # shows an interesting corner case for pyright. The static typechecker
+        # seems to take the first matching signature from Model_impl to determine
+        # the type of the returned variable. Thus, if multiple method overloads list
+        # the same input type and differing output types, only the first listed
+        # method will be considered. (Thus method ordering affects static type-correctness)
+        # This might be a reason to enforce InputType/InputBatchType to be different.
 
-    # Tracing TypeAliases is problematic for usability, but it can be more convenient
-    # for the developer to use them. The problem is that cursoring over an object
-    # with a TypeAliased type doesn't show the underlying type that would be
-    # more meaningful to the user. "OutputBatchType" might a TypeAlias of
-    # "list[ObjDetectionOutput]" but the user can't figure that out without
-    # looking at source code.
-    preds.append(preds_batch)
+        # Tracing TypeAliases is problematic for usability, but it can be more convenient
+        # for the developer to use them. The problem is that cursoring over an object
+        # with a TypeAliased type doesn't show the underlying type that would be
+        # more meaningful to the user. "OutputBatchType" might a TypeAlias of
+        # "list[ObjDetectionOutput]" but the user can't figure that out without
+        # looking at source code.
+        preds.append(preds_batch)
 
-    metric.update(preds_batch, output_batch_aug)
+        metric.update(preds_batch, output_batch_aug)
 
-metric_scores = metric.compute()
+    metric_scores = metric.compute()

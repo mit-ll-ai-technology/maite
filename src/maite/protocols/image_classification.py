@@ -16,7 +16,7 @@ from typing import (
 
 from typing_extensions import TypeAlias
 
-import generic as gen
+from . import generic as gen
 
 
 @runtime_checkable
@@ -292,49 +292,50 @@ class Metric_impl:
         return {"metric1": "val1", "metric2": "val2"}
 
 
-# try to run through "evaluate" workflow
+if __name__ == '__main__':
+    # try to run through "evaluate" workflow
 
-aug: Augmentation = AugmentationImpl()
-metric: Metric = Metric_impl()
-dataset: Dataset = Dataset_impl()
-dataloader: DataLoader = DataLoaderImpl(d=dataset)
-model: Model = Model_impl()
+    aug: Augmentation = AugmentationImpl()
+    metric: Metric = Metric_impl()
+    dataset: Dataset = Dataset_impl()
+    dataloader: DataLoader = DataLoaderImpl(d=dataset)
+    model: Model = Model_impl()
 
-preds: list[OutputBatchType] = []
-for input_batch, output_batch, metadata_batch in dataloader:
-    input_batch_aug, output_batch_aug, metadata_batch_aug = aug(
-        (input_batch, output_batch, metadata_batch)
-    )
+    preds: list[OutputBatchType] = []
+    for input_batch, output_batch, metadata_batch in dataloader:
+        input_batch_aug, output_batch_aug, metadata_batch_aug = aug(
+            (input_batch, output_batch, metadata_batch)
+        )
 
-    preds_batch = model(input_batch_aug)
-    assert isinstance(preds_batch, OutputBatchType)
+        preds_batch = model(input_batch_aug)
+        assert isinstance(preds_batch, OutputBatchType)
 
-    # appending predictions here could take into account their being numpy arrays
-    preds.append(preds_batch)
+        # appending predictions here could take into account their being numpy arrays
+        preds.append(preds_batch)
 
-    metric.update(preds_batch, output_batch_aug)
+        metric.update(preds_batch, output_batch_aug)
 
-metric_scores = metric.compute()
+    metric_scores = metric.compute()
 
-# Interesting "failure mode" for static type checking:
-# If you cursor over the type of metadata_batch that is returned from
-# "aug" function in evaluate workflow, you'll see it isn't a
-# list[DatumMetadata_impl] as you might expect. The Augmentation
-# implementation class has two methods that each take a tuple:
-# The first method signature is:
-#
-#  (Tuple[ArrayLike, ArrayLike, object]) -> Tuple[np.array, np.array, Augmentation_impl]
-#
-# and the second is:
-#
-#  (Tuple[ArrayLike, ArrayLike, list[object]]) -> Tuple[np.array, np.array, list[Augmentation_impl]]
-#
-# So, given an input tuple with 3rd-element type 'list[object]' one might expect
-# the third element of the output tuple to be typed list[Augmentation_impl],
-# but this is not the case. The reason is because everything in python is an
-# instance of type object (including list[object]). This is another example where
-# two compatible 'overload'ed type signatures cause the type-checker to use the
-# first and (quietly) ignore the second.
-#
-# What should we do? Probably alter the type of DatumMetadata to be less broad
-# (in practice, this means make it ANYTHING else besides object.)
+    # Interesting "failure mode" for static type checking:
+    # If you cursor over the type of metadata_batch that is returned from
+    # "aug" function in evaluate workflow, you'll see it isn't a
+    # list[DatumMetadata_impl] as you might expect. The Augmentation
+    # implementation class has two methods that each take a tuple:
+    # The first method signature is:
+    #
+    #  (Tuple[ArrayLike, ArrayLike, object]) -> Tuple[np.array, np.array, Augmentation_impl]
+    #
+    # and the second is:
+    #
+    #  (Tuple[ArrayLike, ArrayLike, list[object]]) -> Tuple[np.array, np.array, list[Augmentation_impl]]
+    #
+    # So, given an input tuple with 3rd-element type 'list[object]' one might expect
+    # the third element of the output tuple to be typed list[Augmentation_impl],
+    # but this is not the case. The reason is because everything in python is an
+    # instance of type object (including list[object]). This is another example where
+    # two compatible 'overload'ed type signatures cause the type-checker to use the
+    # first and (quietly) ignore the second.
+    #
+    # What should we do? Probably alter the type of DatumMetadata to be less broad
+    # (in practice, this means make it ANYTHING else besides object.)
