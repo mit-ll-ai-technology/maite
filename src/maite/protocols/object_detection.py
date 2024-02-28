@@ -46,7 +46,7 @@ class ObjDetectionOutput(Protocol):
 
 # TODO: remove typeAlias statements for more user readability (or figure out how to resolve TypeAliases
 #       to their targets for end-user.) Knowing a dataset returns a tuple of "InputType, OutputType, MetadataType"
-#       isn't helpful to implementors, however the aliasing *is* helpful to developers.
+#       isn't helpful to implementers, however the aliasing *is* helpful to developers.
 #
 #       Perhaps the functionality I want is named parameters for generic, so developers can understand that
 #       e.g. generic.Dataset typevars are 'InputType', 'OutputType', and 'MetaDataType' and their values in
@@ -92,13 +92,13 @@ MetadataBatchType: TypeAlias = Sequence[DatumMetadata]
 #         attributes, classes using ObjDetectionOutput as return type covariant wrt read-only attributes,
 #         and classes using ObjDetectionOutput as method argument type contravariant wrt
 #         read-only attributes.) (Similar to TypedDict)
-#       - Permits additional fields to be added by component implementors
+#       - Permits additional fields to be added by component implementers
 #         and application developers (unlike TypedDicts)
-#       - Permits implementor use in covariant contexts without either explicit importing
+#       - Permits implementer use in covariant contexts without either explicit importing
 #         or redefining protocols locally (i.e. in Dataset/Dataloader/Model components can
 #         return structural subtype of ObjDetectionOutput, but not in Augmentation or Metric
 #         components) (like TypedDicts, but doesn't cap additional fields)
-#       - Application developers could import implementor classes and workflows
+#       - Application developers could import implementer classes and workflows
 #         and be assured that all protocol-compliant workflows would interoperate.
 
 #
@@ -138,7 +138,7 @@ MetadataBatchType: TypeAlias = Sequence[DatumMetadata]
 #     ObjDetectionOutput: TypeAlias = Tuple[float, float, float, float, int, float]
 #
 # 3) A named tuple -- This is very clear and using built-in Python, but this
-#    puts onus on implementor to return a named tuple since regular tuples with
+#    puts onus on implementer to return a named tuple since regular tuples with
 #    compatible sizes/types don't seem to support assignment to this named tuple type.
 #
 # class ObjDetectionNamedOutput(NamedTuple):

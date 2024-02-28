@@ -7,7 +7,7 @@ from typing import Any, Generic, Hashable, Protocol, Tuple, TypeVar, overload
 
 # Note
 # (1) the use of each generic variable can differ in generic components
-# (2) the use of a generic affects the statically-correct way to declare thta generic's type variance
+# (2) the use of a generic affects the statically-correct way to declare that generic's type variance
 # Because of (1) and (2), I can't use the same TypeVars in all places where an input/output/metadata object
 # is expected. This sacrifices some clarity in this file, but hopefully the classes can appear intuitive
 # from the perspective of the end-users that only interact with parameterized generics.
@@ -16,14 +16,14 @@ from typing import Any, Generic, Hashable, Protocol, Tuple, TypeVar, overload
 # compatible types in implementation. If overload decorator is present,
 # only the 'overload'-decorated methods are the source of these "promised" signatures
 # for the type checker. If more than one signature is advertised by a protocol,
-# then implementors must use 'overload'-decorator to advertise compatible signatures.
+# then implementers must use 'overload'-decorator to advertise compatible signatures.
 
 # In light of these rules, what should we do?
 #   - Including overload in protocol signatures is clear, but does require
-#     protocol implementors to leverage 'overload' decorator, which isn't quite 'beginner' level
-#   - Not inluding overload in protocol signatures makes it possible to implement
+#     protocol implementers to leverage 'overload' decorator, which isn't quite 'beginner' level
+#   - Not including overload in protocol signatures makes it possible to implement
 #     protocols without helping type checker determine specific return types.
-#     this is more flexible for implementor, but will require more type narrowing
+#     this is more flexible for implementer, but will require more type narrowing
 #     on non-specific ("union") return types. (If typechecker can't determine return
 #     type from Model('BatchInputType') is a 'BatchOutputType' and not an OutputType,
 #     user has to type narrow.
@@ -88,7 +88,7 @@ DatumMetadataBatchType_in = TypeVar(
 #       Methods/signatures advertised by a protocol class *must* be mirrored by
 #       compatible types in implementation. If overload decorator is present,
 #       only the overloaded methods are the source of these "promised" signatures.
-#       If more than one signature is advertised by a protocol, then implementors
+#       If more than one signature is advertised by a protocol, then implementers
 #       must use overload-decorator to advertise compatible signatures.
 
 
