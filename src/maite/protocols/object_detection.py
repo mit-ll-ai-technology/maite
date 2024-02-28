@@ -15,8 +15,7 @@ from . import generic as gen
 
 @runtime_checkable
 class ArrayLike(Protocol):
-    def __array__(self) -> Any:
-        ...
+    def __array__(self) -> Any: ...
 
 
 # We *could* make ArrayLike generic and rely on the subscripts for ArrayLike type
@@ -199,202 +198,185 @@ Augmentation = gen.Augmentation[
     MetadataBatchType,
 ]
 
+if __name__ == "__main__":
+    # test lightweight implementations
+    #
+    # pretend we have a model such that:
+    # InputType = np.array
+    # OutputType = ObjDetectionOutput
+    # MetadataType is an ordinary Python Class with integer-formatted 'id' field
 
-# test lightweight implementations
-#
-# pretend we have a model such that:
-# InputType = np.array
-# OutputType = ObjDetectionOutput
-# MetadataType is an ordinary Python Class with integer-formatted 'id' field
+    from typing import Hashable, Tuple, overload
+    import numpy as np
+    import numpy.typing as npt
 
+    from dataclasses import dataclass
 
-from typing import Hashable, Tuple, overload
-import numpy as np
-import numpy.typing as npt
+    @dataclass
+    class ObjDetectionOutput_impl:
+        boxes: npt.NDArray = np.array(
+            [[0, 0, 1, 1], [1, 1, 2, 2]]
+        )  # shape [N, 4], format X0, Y0, X1, Y1 (document this somewhere?)
+        labels: npt.NDArray = np.array([2, 5])  # shape [N]
+        scores: npt.NDArray = np.array([0, 1])  # shape [N]
 
-from dataclasses import dataclass
+    @dataclass
+    class DatumMetadata_impl:
+        uuid: Hashable
 
+    class DataSet_impl:
+        def __init__(self): ...
 
-@dataclass
-class ObjDetectionOutput_impl:
-    boxes: npt.NDArray = np.array(
-        [[0, 0, 1, 1], [1, 1, 2, 2]]
-    )  # shape [N, 4], format X0, Y0, X1, Y1 (document this somewhere?)
-    labels: npt.NDArray = np.array([2, 5])  # shape [N]
-    scores: npt.NDArray = np.array([0, 1])  # shape [N]
+        def __len__(self) -> int:
+            return 10
 
-@dataclass
-class DatumMetadata_impl:
-    uuid: Hashable
+        def __getitem__(
+            self, h: Hashable
+        ) -> Tuple[npt.NDArray, ObjDetectionOutput_impl, DatumMetadata_impl]:
+            input = np.arange(5 * 4 * 3).reshape(5, 4, 3)
+            output = ObjDetectionOutput_impl()
+            metadata = DatumMetadata_impl(uuid=1)
 
+            return (input, output, metadata)
 
-class DataSet_impl:
-    def __init__(self):
-        ...
+    class DataLoaderImpl:
+        def __init__(self, d: Dataset):
+            self._dataset = d
 
-    def __len__(self) -> int:
-        return 10
+        def __next__(
+            self,
+        ) -> Tuple[ArrayLike, list[ObjDetectionOutput_impl], list[DatumMetadata_impl]]:
+            input_batch = np.array([self._dataset[i] for i in range(6)])
+            output_batch = [ObjDetectionOutput_impl() for _ in range(6)]
+            metadata_batch = [DatumMetadata_impl(uuid=i) for i in range(6)]
 
-    def __getitem__(
-        self, h: Hashable
-    ) -> Tuple[npt.NDArray, ObjDetectionOutput_impl, DatumMetadata_impl]:
-        input = np.arange(5 * 4 * 3).reshape(5, 4, 3)
-        output = ObjDetectionOutput_impl()
-        metadata = DatumMetadata_impl(uuid=1)
+            return (input_batch, output_batch, metadata_batch)
 
-        return (input, output, metadata)
+        def __iter__(self) -> "DataLoaderImpl":
+            return self
 
+    class AugmentationImpl:
+        def __init__(self): ...
 
-class DataLoaderImpl:
-    def __init__(self, d: Dataset):
-        self._dataset = d
+        @overload
+        def __call__(
+            self, __datum: Tuple[InputType, OutputType, MetadataType]
+        ) -> Tuple[npt.NDArray, OutputType, DatumMetadata_impl]: ...
 
-    def __next__(
-        self,
-    ) -> Tuple[ArrayLike, list[ObjDetectionOutput_impl], list[DatumMetadata_impl]]:
-        input_batch = np.array([self._dataset[i] for i in range(6)])
-        output_batch = [ObjDetectionOutput_impl() for _ in range(6)]
-        metadata_batch = [DatumMetadata_impl(uuid=i) for i in range(6)]
+        @overload
+        def __call__(
+            self,
+            __datum_batch: Tuple[InputBatchType, OutputBatchType, MetadataBatchType],
+        ) -> Tuple[npt.NDArray, OutputBatchType, list[DatumMetadata_impl]]: ...
 
-        return (input_batch, output_batch, metadata_batch)
+        def __call__(
+            self,
+            _datum_or_datum_batch: (
+                Tuple[InputType, OutputType, MetadataType]
+                | Tuple[InputBatchType, OutputBatchType, MetadataBatchType]
+            ),
+        ) -> (
+            Tuple[npt.NDArray, OutputType, DatumMetadata_impl]
+            | Tuple[npt.NDArray, OutputBatchType, list[DatumMetadata_impl]]
+        ):
+            if isinstance(
+                _datum_or_datum_batch[2], Sequence
+            ):  # use second element's type to determine what input is
+                # -- assume we are processing batch --
 
-    def __iter__(self) -> "DataLoaderImpl":
-        return self
+                # type narrow for static typechecker
+                # (For this need to use functions like `isinstance`, `issubclass`, `type`, or user-defined typeguards)
+                # We convert from broad types with guaranteed fields into specific types
 
+                # Note: I'm not using parametrized information about generics because isinstance
+                # checks don't apply to generics. But using the unparametrized generic is
+                # good enough to type narrow for type-checker
+                assert (
+                    isinstance(_datum_or_datum_batch[0], InputBatchType)
+                    and isinstance(
+                        _datum_or_datum_batch[1], Sequence
+                    )  # Cant "isinstance check" against OutputBatchType directly
+                    and isinstance(
+                        _datum_or_datum_batch[2], Sequence
+                    )  # Cant "isinstance check" against MetadataBatchType directly
+                )
 
-class AugmentationImpl:
-    def __init__(self):
-        ...
+                input_batch_aug = np.array(_datum_or_datum_batch[0])
+                output_batch_aug = [i for i in _datum_or_datum_batch[1]]
+                metadata_batch_aug = [
+                    DatumMetadata_impl(uuid=i) for i in _datum_or_datum_batch[2]
+                ]
 
-    @overload
-    def __call__(
-        self, __datum: Tuple[InputType, OutputType, MetadataType]
-    ) -> Tuple[npt.NDArray, OutputType, DatumMetadata_impl]:
-        ...
+                # manipulate input_batch, output_batch, and metadata_batch
 
-    @overload
-    def __call__(
-        self, __datum_batch: Tuple[InputBatchType, OutputBatchType, MetadataBatchType]
-    ) -> Tuple[npt.NDArray, OutputBatchType, list[DatumMetadata_impl]]:
-        ...
+                return (input_batch_aug, output_batch_aug, metadata_batch_aug)
 
-    def __call__(
-        self,
-        _datum_or_datum_batch: Tuple[InputType, OutputType, MetadataType]
-        | Tuple[InputBatchType, OutputBatchType, MetadataBatchType],
-    ) -> (
-        Tuple[npt.NDArray, OutputType, DatumMetadata_impl]
-        | Tuple[npt.NDArray, OutputBatchType, list[DatumMetadata_impl]]
-    ):
-        if isinstance(
-            _datum_or_datum_batch[2], Sequence
-        ):  # use second element's type to determine what input is
-            # -- assume we are processing batch --
+            else:
+                # -- assume we are processing instance --
 
-            # type narrow for static typechecker
-            # (For this need to use functions like `isinstance`, `issubclass`, `type`, or user-defined typeguards)
-            # We convert from broad types with guaranteed fields into specific types
+                assert (
+                    isinstance(_datum_or_datum_batch[0], InputType)
+                    and isinstance(_datum_or_datum_batch[1], OutputType)
+                    and isinstance(_datum_or_datum_batch[2], MetadataType)
+                )
 
-            # Note: I'm not using parametrized information about generics because isinstance
-            # checks don't apply to generics. But using the unparametrized generic is
-            # good enough to type narrow for type-checker
-            assert (
-                isinstance(_datum_or_datum_batch[0], InputBatchType)
-                and isinstance(
-                    _datum_or_datum_batch[1], Sequence
-                )  # Cant "isinstance check" against OutputBatchType directly
-                and isinstance(
-                    _datum_or_datum_batch[2], Sequence
-                )  # Cant "isinstance check" against MetadataBatchType directly
-            )
+                input_aug = np.array(_datum_or_datum_batch[0])
+                output_batch_aug = _datum_or_datum_batch[1]
+                metadata_aug = DatumMetadata_impl(uuid=_datum_or_datum_batch[2].uuid)
 
-            input_batch_aug = np.array(_datum_or_datum_batch[0])
-            output_batch_aug = [i for i in _datum_or_datum_batch[1]]
-            metadata_batch_aug = [
-                DatumMetadata_impl(uuid=i) for i in _datum_or_datum_batch[2]
-            ]
+                return (input_aug, output_batch_aug, metadata_aug)
 
-            # manipulate input_batch, output_batch, and metadata_batch
+    class Model_impl:
+        @overload
+        def __call__(
+            self, __input: InputType | InputBatchType
+        ) -> OutputType | OutputBatchType: ...
 
-            return (input_batch_aug, output_batch_aug, metadata_batch_aug)
+        @overload
+        def __call__(self, __input: InputType) -> OutputType: ...
 
-        else:
-            # -- assume we are processing instance --
+        @overload
+        def __call__(self, __input: InputBatchType) -> OutputBatchType: ...
 
-            assert (
-                isinstance(_datum_or_datum_batch[0], InputType)
-                and isinstance(_datum_or_datum_batch[1], OutputType)
-                and isinstance(_datum_or_datum_batch[2], MetadataType)
-            )
+        def __call__(
+            self,
+            _input_or_input_batch: InputType | InputBatchType,
+        ) -> OutputType | OutputBatchType:
+            ...
 
-            input_aug = np.array(_datum_or_datum_batch[0])
-            output_batch_aug = _datum_or_datum_batch[1]
-            metadata_aug = DatumMetadata_impl(uuid=_datum_or_datum_batch[2].uuid)
+            arr_input = np.array(_input_or_input_batch)
+            if arr_input.ndim == 4:
+                # process batch
 
-            return (input_aug, output_batch_aug, metadata_aug)
+                return [ObjDetectionOutput_impl() for _ in range(10)]
 
+            else:
+                # process instance
+                return ObjDetectionOutput_impl()
 
-class Model_impl:
-    @overload
-    def __call__(
-        self, __input: InputType | InputBatchType
-    ) -> OutputType | OutputBatchType:
-        ...
+    class Metric_impl:
+        def __init__(self): ...
 
-    @overload
-    def __call__(self, __input: InputType) -> OutputType:
-        ...
+        def reset(self) -> None: ...
 
-    @overload
-    def __call__(self, __input: InputBatchType) -> OutputBatchType:
-        ...
+        @overload
+        def update(self, __pred: OutputType, __target: OutputType) -> None: ...
 
-    def __call__(
-        self,
-        _input_or_input_batch: InputType | InputBatchType,
-    ) -> OutputType | OutputBatchType:
-        ...
+        @overload
+        def update(
+            self, __pred_batch: OutputBatchType, __target_batch: OutputBatchType
+        ) -> None: ...
 
-        arr_input = np.array(_input_or_input_batch)
-        if arr_input.ndim == 4:
-            # process batch
+        def update(
+            self,
+            _preds: OutputType | OutputBatchType,
+            _targets: OutputType | OutputBatchType,
+        ) -> None:
+            return None
 
-            return [ObjDetectionOutput_impl() for _ in range(10)]
+        def compute(self) -> dict[str, Any]:
+            return {"metric1": "val1", "metric2": "val2"}
 
-        else:
-            # process instance
-            return ObjDetectionOutput_impl()
-
-
-class Metric_impl:
-    def __init__(self):
-        ...
-
-    def reset(self) -> None:
-        ...
-
-    @overload
-    def update(self, __pred: OutputType, __target: OutputType) -> None:
-        ...
-
-    @overload
-    def update(
-        self, __pred_batch: OutputBatchType, __target_batch: OutputBatchType
-    ) -> None:
-        ...
-
-    def update(
-        self,
-        _preds: OutputType | OutputBatchType,
-        _targets: OutputType | OutputBatchType,
-    ) -> None:
-        return None
-
-    def compute(self) -> dict[str, Any]:
-        return {"metric1": "val1", "metric2": "val2"}
-
-
-if __name__ == '__main__':
     # try to run through "evaluate" workflow
 
     aug: Augmentation = AugmentationImpl()
