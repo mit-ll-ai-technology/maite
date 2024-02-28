@@ -77,40 +77,40 @@ MetadataBatchType: TypeAlias = Sequence[DatumMetadata]
 # TODO: Consider potential strategies for defining OutputType
 #
 # Some potential solutions:
-## 0) A protocol class with named/typed fields like the following:
-##
-##      class ObjDetectionOutput(Protocol):
-##          x0: float
-##          y0: float
-##          x1: float
-##          x2: float
-##          label: int
-##          score: float
-##
-##    This has the following advantages:
-##       - Follows structural subtype class variance rules (ObjDetectionOutput covariant wrt read-only
-##         attributes, classes using ObjDetectionOutput as return type covariant wrt read-only attributes,
-##         and classes using ObjDetectionOutput as method argument type contravariant wrt
-##         read-only attributes.) (Similar to TypedDict)
-##       - Permits additional fields to be added by component implementors
-##         and application developers (unlike TypedDicts)
-##       - Permits implementor use in covariant contexts without either explicit importing
-##         or redefining protocols locally (i.e. in Dataset/Dataloader/Model components can
-##         return structural subtype of ObjDetectionOutput, but not in Augmentation or Metric
-##         components) (like TypedDicts, but doesn't cap additional fields)
-##       - Application developers could import implementor classes and workflows
-##         and be assured that all protocol-compliant workflows would interoperate.
+# 0) A protocol class with named/typed fields like the following:
+#
+#      class ObjDetectionOutput(Protocol):
+#          x0: float
+#          y0: float
+#          x1: float
+#          x2: float
+#          label: int
+#          score: float
+#
+#    This has the following advantages:
+#       - Follows structural subtype class variance rules (ObjDetectionOutput covariant wrt read-only
+#         attributes, classes using ObjDetectionOutput as return type covariant wrt read-only attributes,
+#         and classes using ObjDetectionOutput as method argument type contravariant wrt
+#         read-only attributes.) (Similar to TypedDict)
+#       - Permits additional fields to be added by component implementors
+#         and application developers (unlike TypedDicts)
+#       - Permits implementor use in covariant contexts without either explicit importing
+#         or redefining protocols locally (i.e. in Dataset/Dataloader/Model components can
+#         return structural subtype of ObjDetectionOutput, but not in Augmentation or Metric
+#         components) (like TypedDicts, but doesn't cap additional fields)
+#       - Application developers could import implementor classes and workflows
+#         and be assured that all protocol-compliant workflows would interoperate.
 
-##
-## 1) A Typed Dict -- This type is self-documenting and would permit users to simply populate
-##    regular dictionaries in their implementations. The dictionary type is also
-##    familiar to users of TorchMetrics and TorchVision as an output type for object
-##    detection. Containing classes returning this object would be covariant
-##    in the types of the dictionary keys. Containing classes taking this type as an
-##    input argument would be contravariant wrt the types of the dictionary keys.
-##
-##    Using TypedDicts in this style ("as protocols", so to speak) does admit some challenges.
-##    Users would be unable to add any fields to their objects, and
+#
+# 1) A Typed Dict -- This type is self-documenting and would permit users to simply populate
+#    regular dictionaries in their implementations. The dictionary type is also
+#    familiar to users of TorchMetrics and TorchVision as an output type for object
+#    detection. Containing classes returning this object would be covariant
+#    in the types of the dictionary keys. Containing classes taking this type as an
+#    input argument would be contravariant wrt the types of the dictionary keys.
+#
+#    Using TypedDicts in this style ("as protocols", so to speak) does admit some challenges.
+#    Users would be unable to add any fields to their objects, and
 #
 # class ObjDetectionTypedDict(TypedDict)):
 #     x0: float
@@ -132,14 +132,14 @@ MetadataBatchType: TypeAlias = Sequence[DatumMetadata]
 #          to complain about incompatible types
 #       4) Not annotate -- this is not a good answer
 #
-## 2) A typed 6-tuple -- this type clear about what the fields correspond to, but
-##    leverages a ubiquitous python class.
+# 2) A typed 6-tuple -- this type clear about what the fields correspond to, but
+#    leverages a ubiquitous python class.
 #
 #     ObjDetectionOutput: TypeAlias = Tuple[float, float, float, float, int, float]
 #
-## 3) A named tuple -- This is very clear and using built-in Python, but this
-##    puts onus on implementor to return a named tuple since regular tuples with
-##    compatible sizes/types don't seem to support assignment to this named tuple type.
+# 3) A named tuple -- This is very clear and using built-in Python, but this
+#    puts onus on implementor to return a named tuple since regular tuples with
+#    compatible sizes/types don't seem to support assignment to this named tuple type.
 #
 # class ObjDetectionNamedOutput(NamedTuple):
 #     x0: float
@@ -149,27 +149,27 @@ MetadataBatchType: TypeAlias = Sequence[DatumMetadata]
 #     label: int
 #     score: float
 #
-## 4) Variadic generics -- this type hint could specifies the purpose of
-##    each entry in a returned tuple, but using the type of each entry
-##    to denote its meaning masks potentially useful information about its
-##    real type. From the user's perspective, if a dimension is of type 'x0', what type is it?
+# 4) Variadic generics -- this type hint could specifies the purpose of
+#    each entry in a returned tuple, but using the type of each entry
+#    to denote its meaning masks potentially useful information about its
+#    real type. From the user's perspective, if a dimension is of type 'x0', what type is it?
 #
-##    The more obvious use case would be to denote size of Tensors/Arrays as below.
-##
-##    #An example of using type annotations to communicate shape information:
-##
-##    ```
-##    H: TypeAlias = int
-##    W: TypeAlias = int
-##    C: TypeAlias = int
-##
-##    def get_some_data() -> Tensor[H,W,C]:
-##    ...
-##    ```
-##
-##    This is also a relatively new language feature which was (only introduced in python 3.11 with PEP 646)
-##    See https://mit-ll-ai-technology.github.io/maite/explanation/type_hints_for_API_design.html#on-using-annotations-to-write-legible-documentation
-##    or https://peps.python.org/pep-0646/ for more information.
+#    The more obvious use case would be to denote size of Tensors/Arrays as below.
+#
+#    #An example of using type annotations to communicate shape information:
+#
+#    ```
+#    H: TypeAlias = int
+#    W: TypeAlias = int
+#    C: TypeAlias = int
+#
+#    def get_some_data() -> Tensor[H,W,C]:
+#    ...
+#    ```
+#
+#    This is also a relatively new language feature which was (only introduced in python 3.11 with PEP 646)
+#    See https://mit-ll-ai-technology.github.io/maite/explanation/type_hints_for_API_design.html#on-using-annotations-to-write-legible-documentation
+#    or https://peps.python.org/pep-0646/ for more information.
 
 Dataset = gen.Dataset[InputType, OutputType, MetadataType]
 DataLoader = gen.DataLoader[
