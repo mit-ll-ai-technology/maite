@@ -1,9 +1,7 @@
 # Copyright 2023, MASSACHUSETTS INSTITUTE OF TECHNOLOGY
 # Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).
 # SPDX-License-Identifier: MIT
-
-__all__ = []
-
+from __future__ import annotations
 
 from typing import Tuple, TypeVar, Protocol, Hashable, Generic, Any, overload
 from typing_extensions import TypeAlias
