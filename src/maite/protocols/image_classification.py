@@ -4,24 +4,17 @@
 
 # import component generics from generic.py and specialize them for image_classification
 
-from . import DatumMetadata
-
-from typing import (
-    Protocol,
-    Sequence,
-    Any,
-    runtime_checkable,
-    Hashable,
-)
+from typing import Any, Protocol, Sequence, runtime_checkable
 
 from typing_extensions import TypeAlias
 
-from . import generic as gen
+from . import DatumMetadata, generic as gen
 
 
 @runtime_checkable
 class ArrayLike(Protocol):
-    def __array__(self) -> Any: ...
+    def __array__(self) -> Any:
+        ...
 
 
 # In below, the dimension names/meanings used are:

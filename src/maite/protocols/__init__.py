@@ -1,4 +1,4 @@
-from typing import Protocol, Hashable, runtime_checkable
+from typing import Hashable, Protocol, runtime_checkable
 
 
 # define minimal DatumMetadata protocol class

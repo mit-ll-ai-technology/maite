@@ -5,17 +5,17 @@
 # import component generics from generic.py and specialize them for object detection
 # domain
 
-from . import DatumMetadata
+from typing import Any, Protocol, Sequence, runtime_checkable
 
-from typing import Protocol, Sequence, Any, runtime_checkable, Hashable
 from typing_extensions import TypeAlias
 
-from . import generic as gen
+from . import DatumMetadata, generic as gen
 
 
 @runtime_checkable
 class ArrayLike(Protocol):
-    def __array__(self) -> Any: ...
+    def __array__(self) -> Any:
+        ...
 
 
 # We *could* make ArrayLike generic and rely on the subscripts for ArrayLike type

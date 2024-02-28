@@ -3,7 +3,8 @@
 # SPDX-License-Identifier: MIT
 from __future__ import annotations
 
-from typing import Tuple, TypeVar, Protocol, Hashable, Generic, Any, overload
+from typing import Any, Generic, Hashable, Protocol, Tuple, TypeVar, overload
+
 from typing_extensions import TypeAlias
 
 # Note
@@ -16,7 +17,7 @@ from typing_extensions import TypeAlias
 # (3) Methods/signatures advertised by a protocol class *must* be mirrored by
 # compatible types in implementation. If overload decorator is present,
 # only the 'overload'-decorated methods are the source of these "promised" signatures
-# for the type checker. If more than one signature is advertised by a protocol, 
+# for the type checker. If more than one signature is advertised by a protocol,
 # then implementors must use 'overload'-decorator to advertise compatible signatures.
 
 # In light of these rules, what should we do?
@@ -86,13 +87,11 @@ DatumMetadataBatchType_in = TypeVar(
 # TODO 6: Add AugmentationMetadata
 #
 # TODO 7: Verify use of 'overload' decorator in protocol definition
-#       Methods/signatures advertised by a protocol class *must* be mirrored by 
+#       Methods/signatures advertised by a protocol class *must* be mirrored by
 #       compatible types in implementation. If overload decorator is present,
 #       only the overloaded methods are the source of these "promised" signatures.
 #       If more than one signature is advertised by a protocol, then implementors
 #       must use overload-decorator to advertise compatible signatures.
-
-
 
 
 # Generic versions of all protocols
@@ -110,17 +109,12 @@ class Model(
     Protocol,
     Generic[InputType_cn, OutputType_co, InputBatchType_cn, OutputBatchType_co],
 ):
-    
     @overload
-    def __call__(
-        self, __single_input: InputType_cn
-    ) -> OutputType_co:
+    def __call__(self, __single_input: InputType_cn) -> OutputType_co:
         ...
 
     @overload
-    def __call__(
-        self, __batch_input: InputBatchType_cn
-    ) -> OutputBatchType_co:
+    def __call__(self, __batch_input: InputBatchType_cn) -> OutputBatchType_co:
         ...
 
     # @overload
@@ -182,7 +176,9 @@ class Augmentation(
     @overload
     def __call__(
         self,
-        __batch: Tuple[InputBatchType_cn, OutputBatchType_cn, DatumMetadataBatchType_cn],
+        __batch: Tuple[
+            InputBatchType_cn, OutputBatchType_cn, DatumMetadataBatchType_cn
+        ],
     ) -> Tuple[InputBatchType_co, OutputBatchType_co, DatumMetadataBatchType_co]:
         ...
 
