@@ -5,8 +5,6 @@ from __future__ import annotations
 
 from typing import Any, Generic, Hashable, Protocol, Tuple, TypeVar, overload
 
-from typing_extensions import TypeAlias
-
 # Note
 # (1) the use of each generic variable can differ in generic components
 # (2) the use of a generic affects the statically-correct way to declare thta generic's type variance
