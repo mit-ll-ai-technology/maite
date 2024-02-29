@@ -35,25 +35,15 @@ MetadataBatchType: TypeAlias = Sequence[MetadataType]
 
 # Initialize component classes based on generic and Input/Output/Metadata types
 
-Dataset = gen.Dataset[InputType, OutputType, MetadataType]
 DataLoader = gen.DataLoader[
-    InputType,
-    OutputType,
-    MetadataType,
     InputBatchType,
     OutputBatchType,
     MetadataBatchType,
 ]
-Model = gen.Model[InputType, OutputType, InputBatchType, OutputBatchType]
-Metric = gen.Metric[OutputType, OutputBatchType]
+Model = gen.Model[InputBatchType, OutputBatchType]
+Metric = gen.Metric[OutputBatchType]
 
 Augmentation = gen.Augmentation[
-    InputType,
-    OutputType,
-    MetadataType,
-    InputType,
-    OutputType,
-    MetadataType,
     InputBatchType,
     OutputBatchType,
     MetadataBatchType,

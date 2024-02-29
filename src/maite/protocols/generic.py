@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 from __future__ import annotations
 
-from typing import Any, Generic, Hashable, Protocol, Tuple, TypeVar, overload
+from typing import Any, Generic, Hashable, Protocol, Tuple, TypeVar, overload, Iterator
 
 # Note
 # (1) the use of each generic variable can differ in generic components
@@ -93,70 +93,40 @@ DatumMetadataBatchType_in = TypeVar(
 
 
 # Generic versions of all protocols
-class Dataset(Protocol, Generic[InputType_co, OutputType_co, DatumMetadataType_co]):
-    def __getitem__(
-        self, __ind: Hashable
-    ) -> Tuple[InputType_co, OutputType_co, DatumMetadataType_co]:
-        ...
 
-    def __len__(self) -> int:
-        ...
-
+# no dataset protocol, since all components natively expect batches
+class DataLoader(Protocol, Generic[InputType_co, OutputType_co, DatumMetadataType_co]):
+    def __iter__(
+        self,
+    ) -> Iterator[Tuple[InputType_co, OutputType_co, DatumMetadataType_co]]: ... 
+    # no longer having Dataloader operate as the Iterator, just using it as an iterable
+    # so it doesn't need to return itself from the __iter__ method nor have a __next__ method
 
 class Model(
     Protocol,
-    Generic[InputType_cn, OutputType_co, InputBatchType_cn, OutputBatchType_co],
+    Generic[InputBatchType_cn, OutputBatchType_co],
 ):
-    @overload
-    def __call__(self, __single_input: InputType_cn) -> OutputType_co:
-        ...
-
-    @overload
-    def __call__(self, __batch_input: InputBatchType_cn) -> OutputBatchType_co:
-        ...
-
-    # @overload
-    # def __call__(
-    #     self, __single_input_or_batch: InputType_cn | InputBatchType_cn
-    # ) -> OutputType_co | OutputBatchType_co:
-    #     ...
+    def __call__(self, __batch_input: InputBatchType_cn) -> OutputBatchType_co: ...
 
 
-class Metric(Protocol, Generic[OutputType_cn, OutputBatchType_cn]):
-    def reset(self) -> None:
-        ...
+class Metric(Protocol, Generic[OutputBatchType_cn]):
+    def reset(self) -> None: ...
 
-    @overload
-    def update(
-        self,
-        __preds: OutputType_cn,
-        __targets: OutputType_cn,
-    ) -> None:
-        ...
-
-    @overload
     def update(
         self,
         __preds_batch: OutputBatchType_cn,
         __targets_batch: OutputBatchType_cn,
-    ) -> None:
-        ...
+    ) -> None: ...
 
-    def compute(self) -> dict[str, Any]:
-        ...
+    def compute(self) -> dict[str, Any]: ...
 
     # don't believe Metric needs to guarantee a 'to' method exists
+    # if all inputs to update are on GPU, operation should happen in framework specific way
 
 
 class Augmentation(
     Protocol,
     Generic[
-        InputType_co,
-        OutputType_co,
-        DatumMetadataType_co,
-        InputType_cn,
-        OutputType_cn,
-        DatumMetadataType_cn,
         InputBatchType_co,
         OutputBatchType_co,
         DatumMetadataBatchType_co,
@@ -165,50 +135,9 @@ class Augmentation(
         DatumMetadataBatchType_cn,
     ],
 ):
-    @overload
-    def __call__(
-        self, __datum: Tuple[InputType_cn, OutputType_cn, DatumMetadataType_cn]
-    ) -> Tuple[InputType_co, OutputType_co, DatumMetadataType_co]:
-        ...
-
-    @overload
     def __call__(
         self,
         __batch: Tuple[
             InputBatchType_cn, OutputBatchType_cn, DatumMetadataBatchType_cn
         ],
-    ) -> Tuple[InputBatchType_co, OutputBatchType_co, DatumMetadataBatchType_co]:
-        ...
-
-
-# We need the __iter__ method to return an instance of the same type as the object
-# on which we are calling the method. Instead of using typing.Self, which was
-# introduced in Python 3.11 (PEP 673), we can use a bound TypeVar as clunkier method
-# toward the same ends (see https://peps.python.org/pep-0673/)
-T_DataLoader = TypeVar("T_DataLoader", bound="DataLoader")
-
-
-class DataLoader(
-    Protocol,
-    Generic[
-        InputType_co,
-        OutputType_co,
-        DatumMetadataType_co,
-        InputBatchType_co,
-        OutputBatchType_co,
-        DatumMetadataBatchType_co,
-    ],
-):
-    def __next__(
-        self,
-    ) -> Tuple[InputBatchType_co, OutputBatchType_co, DatumMetadataBatchType_co]:
-        ...
-
-    def __iter__(self: T_DataLoader) -> T_DataLoader:
-        ...
-
-    @property
-    def _dataset(
-        self,
-    ) -> Dataset[InputBatchType_co, OutputType_co, DatumMetadataType_co]:
-        ...
+    ) -> Tuple[InputBatchType_co, OutputBatchType_co, DatumMetadataBatchType_co]: ...

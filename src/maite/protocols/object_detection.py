@@ -171,25 +171,15 @@ MetadataBatchType: TypeAlias = Sequence[DatumMetadata]
 #    See https://mit-ll-ai-technology.github.io/maite/explanation/type_hints_for_API_design.html#on-using-annotations-to-write-legible-documentation
 #    or https://peps.python.org/pep-0646/ for more information.
 
-Dataset = gen.Dataset[InputType, OutputType, MetadataType]
 DataLoader = gen.DataLoader[
-    InputType,
-    OutputType,
-    MetadataType,
     InputBatchType,
     OutputBatchType,
     MetadataBatchType,
 ]
-Model = gen.Model[InputType, OutputType, InputBatchType, OutputBatchType]
-Metric = gen.Metric[OutputType, OutputBatchType]
+Model = gen.Model[InputBatchType, OutputBatchType]
+Metric = gen.Metric[OutputBatchType]
 
 Augmentation = gen.Augmentation[
-    InputType,
-    OutputType,
-    MetadataType,
-    InputType,
-    OutputType,
-    MetadataType,
     InputBatchType,
     OutputBatchType,
     MetadataBatchType,
