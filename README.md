@@ -13,6 +13,28 @@
     <img src="https://img.shields.io/badge/hypothesis-tested-brightgreen.svg" alt="Tested with Hypothesis" />
   </a>
   </p>
+
+:warning: :warning: :warning:
+
+**WARNING:** MAITE is currently undergoing heavy revision.
+
+The dev branch will initially be slimmed down to contain just core protocols and workflows. Interop-related functionality (e.g., providers) will be temporarily removed. Eventually, functionality will be brought back and updated with respect to the revised protocols.
+
+To install MAITE from dev,
+```
+git clone git@gitlab.jatic.net:jatic/cdao/maite.git
+cd maite
+git checkout dev
+
+# install in "editable" mode if doing development
+# - along with PyTorch, Torchvision, and Jupyter if desired
+pip install -e . typing torch torchvision jupyter
+```
+
+:warning: :warning: :warning:
+
+---
+
   <p align="center">
     A toolbox of common types, protocols, and tooling to support AI test and evaluation workflows.
   </p>
