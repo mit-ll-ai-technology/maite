@@ -1,4 +1,4 @@
-from maite.protocols.generic import (
+from maite._internals.protocols.generic import (
     Dataset,
     InputType_co,
     InputType_cn,
@@ -13,7 +13,8 @@ from maite.protocols.generic import (
     DatumMetadataBatchType_cn,
     DatumMetadataBatchType_in,
 )
-from typing import Hashable, Tuple, Protocol, Generic, TypeAlias, TypeVar
+from typing import Hashable, Tuple, Protocol, Generic, TypeVar
+from typing_extensions import TypeAlias
 
 
 # check we can make a DataSet implementor

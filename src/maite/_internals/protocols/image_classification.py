@@ -8,14 +8,7 @@ from typing import Any, Protocol, Sequence, runtime_checkable
 
 from typing_extensions import TypeAlias
 
-from . import DatumMetadata, generic as gen
-
-
-@runtime_checkable
-class ArrayLike(Protocol):
-    def __array__(self) -> Any:
-        ...
-
+from . import DatumMetadata, generic as gen, ArrayLike
 
 # In below, the dimension names/meanings used are:
 #
