@@ -5,12 +5,13 @@
 # import component generics from generic.py and specialize them for object detection
 # domain
 
+from __future__ import annotations
+
 from typing import Any, Protocol, Sequence, runtime_checkable
 
-from typing_extensions import TypeAlias
+from typing_extensions import TypeAlias, Dict
 
-from . import DatumMetadata, generic as gen, ArrayLike
-
+from . import ArrayLike, DatumMetadata, generic as gen
 
 # We *could* make ArrayLike generic and rely on the subscripts for ArrayLike type
 # annotations to hint to the user the appropriate shape. No runtime safety would

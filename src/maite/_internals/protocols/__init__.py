@@ -2,7 +2,8 @@
 # Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).
 # SPDX-License-Identifier: MIT
 
-from typing import Hashable, Protocol, runtime_checkable, Any
+from typing import Any, Hashable, Protocol, runtime_checkable
+
 
 # define ArrayLike protocol
 @runtime_checkable

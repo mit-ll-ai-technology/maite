@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 from __future__ import annotations
 
-from typing import Any, Generic, Hashable, Protocol, Tuple, TypeVar, overload, Iterator
+from typing import Any, Generic, Hashable, Iterator, Protocol, Tuple, TypeVar, overload
 
 # Note
 # (1) the use of each generic variable can differ in generic components
@@ -94,31 +94,39 @@ DatumMetadataBatchType_in = TypeVar(
 
 # Generic versions of all protocols
 
+
 # no dataset protocol, since all components natively expect batches
 class DataLoader(Protocol, Generic[InputType_co, OutputType_co, DatumMetadataType_co]):
     def __iter__(
         self,
-    ) -> Iterator[Tuple[InputType_co, OutputType_co, DatumMetadataType_co]]: ... 
+    ) -> Iterator[Tuple[InputType_co, OutputType_co, DatumMetadataType_co]]:
+        ...
+
     # no longer having Dataloader operate as the Iterator, just using it as an iterable
     # so it doesn't need to return itself from the __iter__ method nor have a __next__ method
+
 
 class Model(
     Protocol,
     Generic[InputBatchType_cn, OutputBatchType_co],
 ):
-    def __call__(self, __batch_input: InputBatchType_cn) -> OutputBatchType_co: ...
+    def __call__(self, __batch_input: InputBatchType_cn) -> OutputBatchType_co:
+        ...
 
 
 class Metric(Protocol, Generic[OutputBatchType_cn]):
-    def reset(self) -> None: ...
+    def reset(self) -> None:
+        ...
 
     def update(
         self,
         __preds_batch: OutputBatchType_cn,
         __targets_batch: OutputBatchType_cn,
-    ) -> None: ...
+    ) -> None:
+        ...
 
-    def compute(self) -> dict[str, Any]: ...
+    def compute(self) -> dict[str, Any]:
+        ...
 
     # don't believe Metric needs to guarantee a 'to' method exists
     # if all inputs to update are on GPU, operation should happen in framework specific way
@@ -140,4 +148,5 @@ class Augmentation(
         __batch: Tuple[
             InputBatchType_cn, OutputBatchType_cn, DatumMetadataBatchType_cn
         ],
-    ) -> Tuple[InputBatchType_co, OutputBatchType_co, DatumMetadataBatchType_co]: ...
+    ) -> Tuple[InputBatchType_co, OutputBatchType_co, DatumMetadataBatchType_co]:
+        ...
