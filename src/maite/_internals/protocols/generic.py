@@ -94,8 +94,13 @@ DatumMetadataBatchType_in = TypeVar(
 
 # Generic versions of all protocols
 
+class Dataset(Protocol, Generic[InputType_co, OutputType_co, DatumMetadataType_co]):
+    def __iter__(
+            self
+    )-> Iterator[Tuple[InputType_co, OutputType_co, DatumMetadataType_co]]:
+        ...
 
-# no dataset protocol, since all components natively expect batches
+
 class DataLoader(Protocol, Generic[InputType_co, OutputType_co, DatumMetadataType_co]):
     def __iter__(
         self,

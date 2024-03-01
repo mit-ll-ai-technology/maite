@@ -29,6 +29,8 @@ MetadataBatchType: TypeAlias = Sequence[MetadataType]
 
 # Initialize component classes based on generic and Input/Output/Metadata types
 
+Dataset = gen.Dataset[InputType, OutputType, MetadataType]
+
 DataLoader = gen.DataLoader[
     InputBatchType,
     OutputBatchType,
