@@ -21,7 +21,7 @@ from . import ArrayLike, DatumMetadata, generic as gen
 
 InputType: TypeAlias = ArrayLike  # shape [H, W, C]
 OutputType: TypeAlias = ArrayLike  # shape [Cl]
-MetadataType: TypeAlias = DatumMetadata
+MetadataType: TypeAlias = Dict[str, Any]
 
 InputBatchType: TypeAlias = ArrayLike  # shape [N, H, W, C]
 OutputBatchType: TypeAlias = ArrayLike  # shape [N, Cl]

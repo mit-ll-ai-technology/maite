@@ -50,7 +50,7 @@ class ObjectDetectionOutput(Protocol):
 
 InputType: TypeAlias = ArrayLike  # shape [H, W, C]
 OutputType: TypeAlias = ObjectDetectionOutput  # shape [Cl]
-MetadataType: TypeAlias = DatumMetadata
+MetadataType: TypeAlias = Dict[str, Any]
 
 InputBatchType: TypeAlias = ArrayLike  # shape [N, H, W, C]
 OutputBatchType: TypeAlias = Sequence[OutputType]  # length N

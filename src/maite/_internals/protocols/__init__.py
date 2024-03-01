@@ -16,5 +16,5 @@ class ArrayLike(Protocol):
 @runtime_checkable
 class DatumMetadata(Protocol):
     @property
-    def uuid(self) -> Hashable:
+    def uuid(self) -> int:
         ...
