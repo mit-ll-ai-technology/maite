@@ -23,7 +23,7 @@ from . import ArrayLike, DatumMetadata, generic as gen
 
 
 @runtime_checkable
-class ObjDetectionOutput(Protocol):
+class ObjectDetectionOutput(Protocol):
     @property
     def boxes(
         self,
@@ -49,7 +49,7 @@ class ObjDetectionOutput(Protocol):
 #       closer to named parameters for a generic, so cursoring over image
 
 InputType: TypeAlias = ArrayLike  # shape [H, W, C]
-OutputType: TypeAlias = ObjDetectionOutput  # shape [Cl]
+OutputType: TypeAlias = ObjectDetectionOutput  # shape [Cl]
 MetadataType: TypeAlias = DatumMetadata
 
 InputBatchType: TypeAlias = ArrayLike  # shape [N, H, W, C]

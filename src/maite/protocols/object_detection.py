@@ -13,7 +13,7 @@ from maite._internals.protocols.object_detection import (
     MetadataType,
     Metric,
     Model,
-    ObjDetectionOutput,
+    ObjectDetectionOutput,
     OutputBatchType,
     OutputType,
 )
@@ -21,7 +21,7 @@ from maite._internals.protocols.object_detection import (
 __all__ = [
     "ArrayLike",
     "DatumMetadata",
-    "ObjDetectionOutput",
+    "ObjectDetectionOutput",
     "InputType",
     "OutputType",
     "MetadataType",
