@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from maite._internals.protocols.object_detection import (
+    Dataset,
     ArrayLike,
     Augmentation,
     DataLoader,
