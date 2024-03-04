@@ -5,11 +5,11 @@
 # import component generics from generic.py and specialize them for image_classification
 from __future__ import annotations
 
-from typing import Any, Protocol, Sequence, runtime_checkable, Dict
+from typing import Any, Dict, Sequence
 
 from typing_extensions import TypeAlias
 
-from . import ArrayLike, DatumMetadata, generic as gen
+from . import ArrayLike, generic as gen
 
 # In below, the dimension names/meanings used are:
 #

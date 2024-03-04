@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import Any, Protocol, Sequence, runtime_checkable
 
-from typing_extensions import TypeAlias, Dict
+from typing_extensions import Dict, TypeAlias
 
 from . import ArrayLike, DatumMetadata, generic as gen
 
