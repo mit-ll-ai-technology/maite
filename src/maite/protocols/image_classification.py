@@ -20,16 +20,16 @@ from maite._internals.protocols.image_classification import (
 
 __all__ = [
     "ArrayLike",
+    "Augmentation",
+    "DataLoader",
     "Dataset",
     "DatumMetadata",
-    "InputType",
-    "OutputType",
-    "MetadataType",
     "InputBatchType",
-    "OutputBatchType",
+    "InputType",
     "MetadataBatchType",
-    "DataLoader",
-    "Model",
+    "MetadataType",
     "Metric",
-    "Augmentation",
+    "Model",
+    "OutputBatchType",
+    "OutputType",
 ]

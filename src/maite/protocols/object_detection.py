@@ -3,10 +3,10 @@
 # SPDX-License-Identifier: MIT
 
 from maite._internals.protocols.object_detection import (
-    Dataset,
     ArrayLike,
     Augmentation,
     DataLoader,
+    Dataset,
     DatumMetadata,
     InputBatchType,
     InputType,
@@ -21,16 +21,17 @@ from maite._internals.protocols.object_detection import (
 
 __all__ = [
     "ArrayLike",
-    "DatumMetadata",
-    "ObjectDetectionOutput",
-    "InputType",
-    "OutputType",
-    "MetadataType",
-    "InputBatchType",
-    "OutputBatchType",
-    "MetadataBatchType",
-    "DataLoader",
-    "Model",
-    "Metric",
     "Augmentation",
+    "DataLoader",
+    "Dataset",
+    "DatumMetadata",
+    "InputBatchType",
+    "InputType",
+    "MetadataBatchType",
+    "MetadataType",
+    "Metric",
+    "Model",
+    "ObjectDetectionOutput",
+    "OutputBatchType",
+    "OutputType",
 ]
