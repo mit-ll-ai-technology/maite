@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 from __future__ import annotations
 
-from typing import Any, Generic, Hashable, Iterator, Protocol, Tuple, TypeVar, overload
+from typing import Any, Generic, Iterator, Protocol, Tuple, TypeVar
 
 # Note
 # (1) the use of each generic variable can differ in generic components
@@ -94,10 +94,23 @@ DatumMetadataBatchType_in = TypeVar(
 
 # Generic versions of all protocols
 
+# myee: this version of Dataset was identical to DataLoader so both redundant
+# - and made it hard to distinguish between the two classes
+
+# class Dataset(Protocol, Generic[InputType_co, OutputType_co, DatumMetadataType_co]):
+#     def __iter__(
+#             self
+#     )-> Iterator[Tuple[InputType_co, OutputType_co, DatumMetadataType_co]]:
+#         ...
+
+
 class Dataset(Protocol, Generic[InputType_co, OutputType_co, DatumMetadataType_co]):
-    def __iter__(
-            self
-    )-> Iterator[Tuple[InputType_co, OutputType_co, DatumMetadataType_co]]:
+    def __getitem__(
+        self, __ind: int
+    ) -> Tuple[InputType_co, OutputType_co, DatumMetadataType_co]:
+        ...
+
+    def __len__(self) -> int:
         ...
 
 
