@@ -115,9 +115,13 @@ from maite.protocols.image_classification import Augmentation
 #     protocols.
 
 
-# --- Define a protocol that is satisfied by a broad set of attacks ---
-# (Not strictly necessary, but helpful for extensibility, classes that
-# take instances of this type will be able to handle any implementer.)
+# --- Define an protocol whose implementers can represent a broad set of attacks ---
+
+
+# (This isn't strictly necessary, but helpful for extensibility, classes that
+# take instances of this type (structural subtypes) will be able to handle
+# any implementer; so implementations of attacks can be modified/rewritten
+# without modifying classes that are expected to use those objects.)
 class ImageClassifierAttack(Protocol):
     """
     Protocol defining an interface that might be satisfied by an attack on an
