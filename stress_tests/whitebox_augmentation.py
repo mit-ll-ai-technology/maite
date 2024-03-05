@@ -3,8 +3,12 @@
 
 from __future__ import annotations
 
-from typing import Any, Sequence
+import copy
+import random
+from dataclasses import dataclass
+from typing import Any, Protocol, Sequence, Tuple
 
+import numpy as np
 import torch
 from torch import nn
 
@@ -14,6 +18,9 @@ from maite.protocols.image_classification import Augmentation
 # make dummy model that takes Nx5 inputs and produces a onehot
 # vector of pseudoprobabilities
 BATCH_SIZE = 5
+H_IMG = 6
+W_IMG = 7
+
 dummy_model = nn.Sequential(nn.Linear(BATCH_SIZE, 5), nn.ReLU(), nn.Softmax())
 
 # create single batch of inputs, ground-truth outputs, and metadata
@@ -123,50 +130,133 @@ preds = dummy_model(input_batch)
 #     protocols.
 
 
-# Augmentation
-class WhiteboxAugmentation:
-    def __init__(self, model: torch.nn.Module, attack_eps: float = 1e-3):
-        # store torch model as an attribute specific to this augmentation
-        self._torchmodel = model
-        self.attack_eps = attack_eps
+class ImageClassifierAttack(Protocol):
+    """
+    Protocol defining an interface that might be satisfied by an attack on an
+    image classifier.
+    """
 
-    def set_model_gradient(self, gradient: torch.Tensor):
-        # set model gradient
-        self.model_gradient_wrt_inputs = gradient
+    def __call__(
+        self,
+        model: torch.nn.Module,
+        input_batch: torch.Tensor,
+        target_batch: torch.Tensor,
+    ) -> torch.Tensor:
+        ...
+
+    @property
+    def name(self) -> str:
+        ...
+
+
+@dataclass
+class DumbAttack:
+    name: str
+
+    def __call__(
+        self,
+        model: torch.nn.Module,
+        input_batch: torch.Tensor,
+        target_batch: torch.Tensor,
+    ) -> torch.Tensor:
+        """
+        Given a torch model, a model input batch, and a model target batch
+        (i.e. ground truth) calculate an adversarial perturbation that can be
+        added to the input tensor to form an adversarial input.
+        """
+
+        # interact with input/target or model to inform an attack,
+        # we just do something silly for demonstration
+
+        return torch.Tensor(input_batch * 0.1)
+
+
+# TODO: Try to demonstrate a standard approach to implement protocols that permit
+#       structural subclass checks at that class object level (i.e. using
+#       "issubclass(SomeUserClass, SomeProtocol)" and dont require instantiation.
+#       (i.e. isinstance(SomeUserClass(...), SomeProtocol). Otherwise, introspection
+#       and inference tools wont be able to verify protocol compatibility without
+#       instantiating. This inferrence ability is a huge potential gain.
+
+attack: ImageClassifierAttack = DumbAttack(
+    name="silly_example"
+)  # passes static type-checking
+# both objects (i.e. class and function) have a __call__ method with appropriate
+# type signature
+
+
+# Create an Augmentation that takes anything satisfying this ImageClassifierAttack
+# object in its constructor and uses it within its __call__ method. After it is
+# constructed, the user can treat it like any other implementer of the Augmentation
+# protocol.
+class WhiteboxAugmentation:
+    """
+    Apply an image classifier attack
+    """
+
+    def __init__(self, model: torch.nn.Module, attack: ImageClassifierAttack):
+        # store torch model as an attribute specific to this augmentation
+        self.attack = attack
+        self.model = model
 
     def __call__(
         self, datum: tuple[ArrayLike, ArrayLike, Sequence[dict[str, Any]]]
-    ) -> tuple[torch.Tensor, ArrayLike, Sequence[dict[str, Any]]]:
+    ) -> tuple[torch.Tensor, torch.Tensor, Sequence[dict[str, Any]]]:
         # unpack tuple input
         input_batch, target_batch, metadata_batch = datum
 
-        # ensure inputs are of type tensor
+        # type-narrow inputs to type tensor
         input_batch_tn = torch.as_tensor(input_batch)
-        input_batch_tn.requires_grad = True
 
-        # (one could convert output types to a tensor, but
-        # passing through as as an ArrayLike is ok too)
+        # type-narrow outputs to type tensor
+        target_batch_tn = torch.as_tensor(target_batch)
 
-        # convert outputs to type tensor to fulfill promised return type
-        # output_batch_tn = torch.as_tensor(output_batch_gt)
-        # input_batch_tn.requires_grad = False
+        attack_perturbation = self.attack(self.model, input_batch_tn, target_batch_tn)
+        input_batch_aug = input_batch_tn + attack_perturbation
 
-        # calculate loss and use gradient information to inform augmentation
-        output_preds_batch = self._torchmodel(input_batch_tn)
-        loss = torch.nn.CrossEntropyLoss()
-        loss(output_preds_batch, target_batch)
+        metadata_batch_aug = copy.deepcopy(metadata_batch)
+        for datum_metadata in metadata_batch_aug:
+            if "aug_applied" not in datum_metadata.keys():
+                datum_metadata["augs_applied"] = list()
 
-        assert (
-            input_batch_tn.grad is not None
-        ), "gradient wrt model inputs must be calculated"
+            rand_val = random.random()  # We can log datum-specific values in metadata
+            datum_metadata["augs_applied"].append(
+                {"name": attack.name, "rand_val": rand_val}
+            )
 
-        input_batch_aug = (
-            input_batch + input_batch_tn.grad * self.attack_eps * self.attack_eps
-        )
-
-        return (input_batch_aug, target_batch, metadata_batch)
+        return (input_batch_aug, target_batch_tn, metadata_batch_aug)
 
 
-wb: Augmentation = WhiteboxAugmentation(model=dummy_model, attack_eps=0.1)
+wb_aug: Augmentation = WhiteboxAugmentation(model=dummy_model, attack=attack)
 
-# apply Whitebox augmentation to outputs of a dataloader
+# apply Whitebox augmentation to a batch
+
+datum_batch: Tuple[torch.Tensor, torch.Tensor, Sequence[dict[str, Any]]] = (
+    torch.tensor(
+        np.arange(BATCH_SIZE * H_IMG * W_IMG).reshape(BATCH_SIZE, H_IMG, W_IMG)
+    ),
+    torch.tensor(
+        np.arange(BATCH_SIZE * H_IMG * W_IMG).reshape(BATCH_SIZE, H_IMG, W_IMG)
+    ),
+    [dict() for _ in range(BATCH_SIZE)],
+)
+
+datum_batch_aug = wb_aug(datum_batch)
+
+# unpack datums
+# TODO: consider whether tuple of iterables or iterable of tuples is more convenient
+#       as a batch format. Tuple of iterables seems to require below unpacking
+model_input_batch_aug, model_output_batch_aug, md_batch_aug = datum_batch_aug
+model_input_batch, model_output_batch, md_batch = datum_batch
+
+for model_input_aug, model_output_aug, md_aug, model_input, model_output, md in zip(
+    model_input_batch_aug,
+    model_output_batch_aug,
+    md_batch_aug,
+    model_input_batch,
+    model_output_batch,
+    md_batch,
+):
+    print(f"{model_input}")
+    print(f"{model_input_aug}")
+    print(f"{md_aug}")
