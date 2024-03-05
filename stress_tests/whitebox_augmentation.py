@@ -142,6 +142,8 @@ class ImageClassifierAttack(Protocol):
 
 
 # --- Define a simple implementer of the above Protocol ---
+
+
 @dataclass
 class DumbAttack:
     """
@@ -174,6 +176,7 @@ class DumbAttack:
 #       (i.e. isinstance(SomeUserClass(...), SomeProtocol). Otherwise, introspection
 #       and inference tools wont be able to verify protocol compatibility without
 #       instantiating. This inferrence ability is a huge potential gain.
+
 
 # --- Create a "whitebox" augmentation that stores framework specific model ---
 # --- and attack while still satisfying Augmentation Protocol
@@ -221,13 +224,14 @@ class WhiteboxAugmentation:
         return (input_batch_aug, target_batch_tn, metadata_batch_aug)
 
 
-# --- Create dummy torch module ---
+# --- Create dummy torch module and batch of input/output/metadata ---
+
 
 # make dummy model that takes Nx5 inputs and produces a onehot
 # vector of pseudoprobabilities
-BATCH_SIZE = 5
-H_IMG = 6
-W_IMG = 7
+BATCH_SIZE = 4
+H_IMG = 3
+W_IMG = 2
 
 dummy_model = nn.Sequential(nn.Linear(BATCH_SIZE, 5), nn.ReLU(), nn.Softmax())
 
@@ -236,7 +240,8 @@ input_batch = torch.rand([BATCH_SIZE, 5])
 output_batch_gt = torch.tensor([10] * BATCH_SIZE)
 metadata_batch = [dict() for _ in range(BATCH_SIZE)]
 
-# --- Apply Whitebox augmentation to a batch ---
+# --- Apply this whitebox augmentation to a batch ---
+
 
 # create instance of WhiteboxAugmentation class
 wb_aug: Augmentation = WhiteboxAugmentation(
@@ -259,12 +264,15 @@ datum_batch_aug = wb_aug(datum_batch)
 
 # --- Print result of augmentation ---
 
+
 # unpack datums
 # TODO: consider whether tuple of iterables or iterable of tuples is more convenient
 #       as a batch format. Tuple of iterables seems to require below unpacking
+
 model_input_batch_aug, model_output_batch_aug, md_batch_aug = datum_batch_aug
 model_input_batch, model_output_batch, md_batch = datum_batch
 
+print("Results of augmentation (by datum)")
 for model_input_aug, model_output_aug, md_aug, model_input, model_output, md in zip(
     model_input_batch_aug,
     model_output_batch_aug,
@@ -273,6 +281,7 @@ for model_input_aug, model_output_aug, md_aug, model_input, model_output, md in 
     model_output_batch,
     md_batch,
 ):
-    print(f"{model_input}")
-    print(f"{model_input_aug}")
-    print(f"{md_aug}")
+    print(f"model input:\n {model_input}")
+    print(f"model input (augmented):\n {model_input_aug}")
+    print(f"datum metadata:\n {md_aug}")
+    print("\n")
