@@ -15,21 +15,6 @@ from torch import nn
 from maite.protocols import ArrayLike
 from maite.protocols.image_classification import Augmentation
 
-# make dummy model that takes Nx5 inputs and produces a onehot
-# vector of pseudoprobabilities
-BATCH_SIZE = 5
-H_IMG = 6
-W_IMG = 7
-
-dummy_model = nn.Sequential(nn.Linear(BATCH_SIZE, 5), nn.ReLU(), nn.Softmax())
-
-# create single batch of inputs, ground-truth outputs, and metadata
-input_batch = torch.rand([BATCH_SIZE, 5])
-output_batch_gt = torch.tensor([10] * BATCH_SIZE)
-metadata_batch = [dict() for _ in range(BATCH_SIZE)]
-
-preds = dummy_model(input_batch)
-
 # Potential methods to leverage model gradient information in augmentation
 # __call__ method within maite-compliant implementers.
 #
@@ -130,6 +115,9 @@ preds = dummy_model(input_batch)
 #     protocols.
 
 
+# --- Define a protocol that is satisfied by a broad set of attacks ---
+# (Not strictly necessary, but helpful for extensibility, classes that
+# take instances of this type will be able to handle any implementer.)
 class ImageClassifierAttack(Protocol):
     """
     Protocol defining an interface that might be satisfied by an attack on an
@@ -149,8 +137,13 @@ class ImageClassifierAttack(Protocol):
         ...
 
 
+# --- Define a simple implementer of the above Protocol ---
 @dataclass
 class DumbAttack:
+    """
+    Very basic implementer of above ImageClassifierAttack protocol
+    """
+
     name: str
 
     def __call__(
@@ -178,11 +171,8 @@ class DumbAttack:
 #       and inference tools wont be able to verify protocol compatibility without
 #       instantiating. This inferrence ability is a huge potential gain.
 
-attack: ImageClassifierAttack = DumbAttack(
-    name="silly_example"
-)  # passes static type-checking
-# both objects (i.e. class and function) have a __call__ method with appropriate
-# type signature
+# --- Create a "whitebox" augmentation that stores framework specific model ---
+# --- and attack while still satisfying Augmentation Protocol
 
 
 # Create an Augmentation that takes anything satisfying this ImageClassifierAttack
@@ -221,16 +211,35 @@ class WhiteboxAugmentation:
 
             rand_val = random.random()  # We can log datum-specific values in metadata
             datum_metadata["augs_applied"].append(
-                {"name": attack.name, "rand_val": rand_val}
+                {"name": self.attack.name, "rand_val": rand_val}
             )
 
         return (input_batch_aug, target_batch_tn, metadata_batch_aug)
 
 
-wb_aug: Augmentation = WhiteboxAugmentation(model=dummy_model, attack=attack)
+# --- Create dummy torch module ---
 
-# apply Whitebox augmentation to a batch
+# make dummy model that takes Nx5 inputs and produces a onehot
+# vector of pseudoprobabilities
+BATCH_SIZE = 5
+H_IMG = 6
+W_IMG = 7
 
+dummy_model = nn.Sequential(nn.Linear(BATCH_SIZE, 5), nn.ReLU(), nn.Softmax())
+
+# create single batch of inputs, ground-truth outputs, and metadata
+input_batch = torch.rand([BATCH_SIZE, 5])
+output_batch_gt = torch.tensor([10] * BATCH_SIZE)
+metadata_batch = [dict() for _ in range(BATCH_SIZE)]
+
+# --- Apply Whitebox augmentation to a batch ---
+
+# create instance of WhiteboxAugmentation class
+wb_aug: Augmentation = WhiteboxAugmentation(
+    model=dummy_model, attack=DumbAttack(name="silly_attack")
+)
+
+# create a 'dummy' datum batch
 datum_batch: Tuple[torch.Tensor, torch.Tensor, Sequence[dict[str, Any]]] = (
     torch.tensor(
         np.arange(BATCH_SIZE * H_IMG * W_IMG).reshape(BATCH_SIZE, H_IMG, W_IMG)
@@ -241,7 +250,10 @@ datum_batch: Tuple[torch.Tensor, torch.Tensor, Sequence[dict[str, Any]]] = (
     [dict() for _ in range(BATCH_SIZE)],
 )
 
+# apply augmentation
 datum_batch_aug = wb_aug(datum_batch)
+
+# --- Print result of augmentation ---
 
 # unpack datums
 # TODO: consider whether tuple of iterables or iterable of tuples is more convenient
