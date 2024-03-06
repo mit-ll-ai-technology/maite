@@ -1,20 +1,233 @@
-# Show we can create a pytorch model and modify its weights within
-# an Augmentation implementer. Consider image classification example
-
-from __future__ import annotations
+# %% [markdown]
+# ## Whitebox augmentation demo
+#
+# We use a MAITE image-classification `Augmentation` to represent a simple
+# adversarial attack on model input data. Because the attack depends on
+# gradient information that is not guaranteed to be available for MAITE
+# `Model` objects, we must get the information in an application-specific
+# way. In this case, we write the `Augmentation` implementer class such that
+# it has access to the underlying (framework-specific) model. This way, the
+# `Augmentation` implementer can access model gradients internally within its
+# `__call__` method and after construction the implementer can be treated as
+# any other implementer of `Augmentation`.
+#
+# In this example, we consider the image classification domain
+# where input and outputs from the a prediction model are both tensors.
+# %% [markdown]
+# ## Setup
+# %%
+from __future__ import (  # permit use of tuple/dict as generic typehints in 3.8
+    annotations,
+)
 
 import copy
-import random
 from dataclasses import dataclass
 from typing import Any, Protocol, Sequence, Tuple
 
-import numpy as np
 import torch
 from torch import nn
 
 from maite.protocols import ArrayLike
 from maite.protocols.image_classification import Augmentation
 
+
+# %% [markdown]
+# ## Define a simple protocol for a broad set of attacks
+# This isn't strictly necessary, but helpful for extensibility.
+#
+# Any interface expecting an instance of this protocol class will be
+# able to handle any implementer (structural subtype), so implementations
+# of attacks can be modified/rewritten without modifying classes
+# that are expected to use those objects.
+# %%
+class ImageClassifierAttack(Protocol):
+    """
+    Protocol defining an interface that might be satisfied by an attack on an
+    image classifier.
+    """
+
+    def __call__(
+        self,
+        model: torch.nn.Module,
+        input_batch: torch.Tensor,
+        target_batch: torch.Tensor,
+    ) -> torch.Tensor:
+        ...
+
+    @property
+    def name(self) -> str:
+        ...
+
+
+# %% [markdown]
+# ## Define a simple implementer of above protocol class
+# %%
+@dataclass
+class DumbAttack:
+    """
+    Very basic implementer of above ImageClassifierAttack protocol
+    """
+
+    name: str
+
+    def __call__(
+        self,
+        model: torch.nn.Module,
+        input_batch: ArrayLike,
+        target_batch: ArrayLike,
+    ) -> torch.Tensor:
+        """
+        Given a torch model, a model input batch, and a model target batch
+        (i.e. ground truth) calculate an adversarial perturbation that can be
+        added to the input tensor to form an adversarial input.
+        """
+
+        # type-narrow inputs to type tensor
+        input_batch_tn = torch.as_tensor(input_batch)
+        input_batch_tn.requires_grad = True
+
+        # type-narrow outputs to type tensor
+        target_batch_tn = torch.as_tensor(target_batch)
+
+        preds = model(input_batch_tn)
+
+        # calculate some simple loss
+        loss = torch.sum(
+            torch.nn.functional.binary_cross_entropy(preds, target_batch_tn)
+        )
+        loss.backward()
+
+        assert input_batch_tn.grad is not None
+
+        return input_batch_tn.grad * 1e-4
+
+
+# TODO: Try to demonstrate a standard approach to implement protocols that permit
+#       structural subclass checks at that class object level (i.e. using
+#       "issubclass(SomeUserClass, SomeProtocol)" and dont require instantiation.
+#       (i.e. isinstance(SomeUserClass(...), SomeProtocol). Otherwise, introspection
+#       and inference tools wont be able to verify protocol compatibility without
+#       instantiating. This inferrence ability is a huge potential gain.
+
+
+# %% [markdown]
+# ## Define a "whitebox augmentation" class
+# The class will store framework-specific model while implementing MAITE
+# `Augmentation` protocol
+
+
+# %%
+# Create an Augmentation that takes anything satisfying this ImageClassifierAttack
+# object in its constructor and uses it within its __call__ method. After it is
+# constructed, the user can treat it like any other implementer of the Augmentation
+# protocol.
+class WhiteboxAugmentation:
+    """
+    Apply an image classifier attack
+    """
+
+    def __init__(self, model: torch.nn.Module, attack: ImageClassifierAttack):
+        # store torch model as an attribute specific to this augmentation
+        self.attack = attack
+        self.model = model
+
+    def __call__(
+        self, datum: tuple[ArrayLike, ArrayLike, Sequence[dict[str, Any]]]
+    ) -> tuple[torch.Tensor, torch.Tensor, Sequence[dict[str, Any]]]:
+        # unpack tuple input
+        input_batch, target_batch, metadata_batch = datum
+
+        # type-narrow inputs to type tensor
+        input_batch_tn = torch.as_tensor(input_batch)
+
+        # type-narrow outputs to type tensor
+        target_batch_tn = torch.as_tensor(target_batch)
+
+        attack_perturbation = self.attack(self.model, input_batch_tn, target_batch_tn)
+        input_batch_aug = input_batch_tn + attack_perturbation
+
+        # Modify returned metadata object to record any important
+        # aspects of this augmentation
+        metadata_batch_aug = copy.deepcopy(metadata_batch)
+        for i, datum_metadata in enumerate(metadata_batch_aug):
+            if "aug_applied" not in datum_metadata.keys():
+                datum_metadata["augs_applied"] = list()
+
+                datum_metadata["augs_applied"].append(
+                    {
+                        "name": self.attack.name,
+                        "mean_perturbation": torch.mean(attack_perturbation[i]).numpy(),
+                    }
+                )
+
+        return (input_batch_aug, target_batch_tn, metadata_batch_aug)
+
+
+# %% [markdown]
+# ## Test the augmentation
+# Create dummy torch module and batch of input/output/metadata
+
+# %%
+# make dummy model that takes Nx5 inputs and produces a onehot
+# vector of pseudoprobabilities
+BATCH_SIZE = 4
+H_IMG = 32
+W_IMG = 32
+C_IMG = 3
+N_CLASSES = 5
+
+dummy_model = nn.Sequential(
+    nn.Flatten(), nn.Linear(H_IMG * W_IMG * C_IMG, N_CLASSES), nn.ReLU(), nn.Softmax()
+)
+
+# %%
+# Apply a WhiteboxAugmentation to a batch
+
+
+# create instance of WhiteboxAugmentation class
+wb_aug: Augmentation = WhiteboxAugmentation(
+    model=dummy_model, attack=DumbAttack(name="silly_attack")
+)
+
+# create a 'dummy' datum batch
+datum_batch: Tuple[torch.Tensor, torch.Tensor, Sequence[dict[str, Any]]] = (
+    torch.rand((BATCH_SIZE, C_IMG, H_IMG, W_IMG)),
+    torch.eye(BATCH_SIZE, N_CLASSES),
+    [dict() for _ in range(BATCH_SIZE)],
+)
+
+# apply augmentation
+datum_batch_aug = wb_aug(datum_batch)
+
+# %% [markdown]
+# ## Print result of augmentation
+
+# %%
+# unpack datums
+# TODO: consider whether tuple of iterables or iterable of tuples is more convenient
+#       as a batch format. Tuple of iterables seems to require below unpacking
+
+model_input_batch_aug, model_output_batch_aug, md_batch_aug = datum_batch_aug
+model_input_batch, model_output_batch, md_batch = datum_batch
+
+print("Results of augmentation (by datum)")
+for model_input_aug, model_output_aug, md_aug, model_input, model_output, md in zip(
+    model_input_batch_aug,
+    model_output_batch_aug,
+    md_batch_aug,
+    model_input_batch,
+    model_output_batch,
+    md_batch,
+):
+    print(f"model input:\n {model_input}")
+    print(f"model input (augmented):\n {model_input_aug}")
+    print(f"datum metadata:\n {md_aug}")
+    print("\n")
+
+# %% [markdown]
+#
+# ## Some Design Considerations:
+#
 # Potential methods to leverage model gradient information in augmentation
 # __call__ method within maite-compliant implementers.
 #
@@ -113,175 +326,3 @@ from maite.protocols.image_classification import Augmentation
 #     interact with framework-specific model/data anyway. So there isn't as much benefit.
 #   - This requires MAITE architects to standardize more types and probably make heavier
 #     protocols.
-
-
-# --- Define an protocol whose implementers can represent a broad set of attacks ---
-
-
-# (This isn't strictly necessary, but helpful for extensibility, classes that
-# take instances of this type (structural subtypes) will be able to handle
-# any implementer; so implementations of attacks can be modified/rewritten
-# without modifying classes that are expected to use those objects.)
-class ImageClassifierAttack(Protocol):
-    """
-    Protocol defining an interface that might be satisfied by an attack on an
-    image classifier.
-    """
-
-    def __call__(
-        self,
-        model: torch.nn.Module,
-        input_batch: torch.Tensor,
-        target_batch: torch.Tensor,
-    ) -> torch.Tensor:
-        ...
-
-    @property
-    def name(self) -> str:
-        ...
-
-
-# --- Define a simple implementer of the above Protocol ---
-
-
-@dataclass
-class DumbAttack:
-    """
-    Very basic implementer of above ImageClassifierAttack protocol
-    """
-
-    name: str
-
-    def __call__(
-        self,
-        model: torch.nn.Module,
-        input_batch: torch.Tensor,
-        target_batch: torch.Tensor,
-    ) -> torch.Tensor:
-        """
-        Given a torch model, a model input batch, and a model target batch
-        (i.e. ground truth) calculate an adversarial perturbation that can be
-        added to the input tensor to form an adversarial input.
-        """
-
-        # interact with input/target or model to inform an attack,
-        # we just do something silly for demonstration
-
-        return torch.Tensor(input_batch * 0.1)
-
-
-# TODO: Try to demonstrate a standard approach to implement protocols that permit
-#       structural subclass checks at that class object level (i.e. using
-#       "issubclass(SomeUserClass, SomeProtocol)" and dont require instantiation.
-#       (i.e. isinstance(SomeUserClass(...), SomeProtocol). Otherwise, introspection
-#       and inference tools wont be able to verify protocol compatibility without
-#       instantiating. This inferrence ability is a huge potential gain.
-
-
-# --- Create a "whitebox" augmentation that stores framework specific model ---
-# --- and attack while still satisfying Augmentation Protocol
-
-
-# Create an Augmentation that takes anything satisfying this ImageClassifierAttack
-# object in its constructor and uses it within its __call__ method. After it is
-# constructed, the user can treat it like any other implementer of the Augmentation
-# protocol.
-class WhiteboxAugmentation:
-    """
-    Apply an image classifier attack
-    """
-
-    def __init__(self, model: torch.nn.Module, attack: ImageClassifierAttack):
-        # store torch model as an attribute specific to this augmentation
-        self.attack = attack
-        self.model = model
-
-    def __call__(
-        self, datum: tuple[ArrayLike, ArrayLike, Sequence[dict[str, Any]]]
-    ) -> tuple[torch.Tensor, torch.Tensor, Sequence[dict[str, Any]]]:
-        # unpack tuple input
-        input_batch, target_batch, metadata_batch = datum
-
-        # type-narrow inputs to type tensor
-        input_batch_tn = torch.as_tensor(input_batch)
-
-        # type-narrow outputs to type tensor
-        target_batch_tn = torch.as_tensor(target_batch)
-
-        attack_perturbation = self.attack(self.model, input_batch_tn, target_batch_tn)
-        input_batch_aug = input_batch_tn + attack_perturbation
-
-        metadata_batch_aug = copy.deepcopy(metadata_batch)
-        for datum_metadata in metadata_batch_aug:
-            if "aug_applied" not in datum_metadata.keys():
-                datum_metadata["augs_applied"] = list()
-
-            rand_val = random.random()  # We can log datum-specific values in metadata
-            datum_metadata["augs_applied"].append(
-                {"name": self.attack.name, "rand_val": rand_val}
-            )
-
-        return (input_batch_aug, target_batch_tn, metadata_batch_aug)
-
-
-# --- Create dummy torch module and batch of input/output/metadata ---
-
-
-# make dummy model that takes Nx5 inputs and produces a onehot
-# vector of pseudoprobabilities
-BATCH_SIZE = 4
-H_IMG = 3
-W_IMG = 2
-
-dummy_model = nn.Sequential(nn.Linear(BATCH_SIZE, 5), nn.ReLU(), nn.Softmax())
-
-# create single batch of inputs, ground-truth outputs, and metadata
-input_batch = torch.rand([BATCH_SIZE, 5])
-output_batch_gt = torch.tensor([10] * BATCH_SIZE)
-metadata_batch = [dict() for _ in range(BATCH_SIZE)]
-
-# --- Apply this whitebox augmentation to a batch ---
-
-
-# create instance of WhiteboxAugmentation class
-wb_aug: Augmentation = WhiteboxAugmentation(
-    model=dummy_model, attack=DumbAttack(name="silly_attack")
-)
-
-# create a 'dummy' datum batch
-datum_batch: Tuple[torch.Tensor, torch.Tensor, Sequence[dict[str, Any]]] = (
-    torch.tensor(
-        np.arange(BATCH_SIZE * H_IMG * W_IMG).reshape(BATCH_SIZE, H_IMG, W_IMG)
-    ),
-    torch.tensor(
-        np.arange(BATCH_SIZE * H_IMG * W_IMG).reshape(BATCH_SIZE, H_IMG, W_IMG)
-    ),
-    [dict() for _ in range(BATCH_SIZE)],
-)
-
-# apply augmentation
-datum_batch_aug = wb_aug(datum_batch)
-
-# --- Print result of augmentation ---
-
-
-# unpack datums
-# TODO: consider whether tuple of iterables or iterable of tuples is more convenient
-#       as a batch format. Tuple of iterables seems to require below unpacking
-
-model_input_batch_aug, model_output_batch_aug, md_batch_aug = datum_batch_aug
-model_input_batch, model_output_batch, md_batch = datum_batch
-
-print("Results of augmentation (by datum)")
-for model_input_aug, model_output_aug, md_aug, model_input, model_output, md in zip(
-    model_input_batch_aug,
-    model_output_batch_aug,
-    md_batch_aug,
-    model_input_batch,
-    model_output_batch,
-    md_batch,
-):
-    print(f"model input:\n {model_input}")
-    print(f"model input (augmented):\n {model_input_aug}")
-    print(f"datum metadata:\n {md_aug}")
-    print("\n")
