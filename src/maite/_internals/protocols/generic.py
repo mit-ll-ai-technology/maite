@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 from __future__ import annotations
 
-from typing import Any, Generic, Iterator, Protocol, Tuple, TypeVar
+from typing import Any, Dict, Generic, Iterator, Protocol, Tuple, TypeVar
 
 # Note
 # (1) the use of each generic variable can differ in generic components
@@ -60,6 +60,8 @@ OutputBatchType_in = TypeVar("OutputBatchType_in", covariant=False, contravarian
 DatumMetadataBatchType_in = TypeVar(
     "DatumMetadataBatchType_in", covariant=False, contravariant=False
 )
+
+MetricComputeReturnType = Dict[str, Any]
 
 # TODO 0: add docstrings
 #
@@ -143,7 +145,7 @@ class Metric(Protocol, Generic[OutputBatchType_cn]):
     ) -> None:
         ...
 
-    def compute(self) -> dict[str, Any]:
+    def compute(self) -> MetricComputeReturnType:
         ...
 
     # don't believe Metric needs to guarantee a 'to' method exists
