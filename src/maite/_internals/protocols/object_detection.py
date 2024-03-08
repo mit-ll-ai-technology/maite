@@ -49,7 +49,7 @@ class ObjectDetectionOutput(Protocol):
 #       closer to named parameters for a generic, so cursoring over image
 
 InputType: TypeAlias = ArrayLike  # shape [H, W, C]
-OutputType: TypeAlias = ObjectDetectionOutput  # shape [Cl]
+OutputType: TypeAlias = ObjectDetectionOutput
 MetadataType: TypeAlias = Dict[str, Any]
 
 InputBatchType: TypeAlias = ArrayLike  # shape [N, H, W, C]
