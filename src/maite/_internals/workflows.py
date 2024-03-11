@@ -243,7 +243,7 @@ def evaluate(
 # in this implementation.
 
 
-def evaluate(
+def _evaluate(
     *,
     model: Model,
     metric: Optional[Metric] = None,
@@ -341,6 +341,34 @@ def evaluate(
     return metric_results, preds, aug_data
 
 
+def evaluate(
+    *,
+    model: Model,
+    metric: Optional[Metric] = None,
+    dataloader: Optional[DataLoader] = None,
+    dataset: Optional[Dataset] = None,
+    batch_size: Optional[int] = None,
+    augmentation: Optional[Augmentation] = None,
+    return_augmented_data=False,
+    return_preds=False,
+) -> Tuple[MetricComputeReturnType, Sequence[Any], Sequence[Tuple[Any, Any, Any]],]:
+    # Pass to untyped internal _evaluate
+    # (We are relying on overload type signatures to statically validate
+    # input arguments and relying on individual components to ensure outputs
+    # are of the types promised by compatible overload-decorated evaluate signature
+
+    return _evaluate(
+        model=model,
+        metric=metric,
+        dataloader=dataloader,
+        dataset=dataset,
+        batch_size=batch_size,
+        augmentation=augmentation,
+        return_augmented_data=return_augmented_data,
+        return_preds=return_preds,
+    )
+
+
 @overload
 def predict(
     *,
@@ -379,11 +407,11 @@ def predict(
 
 def predict(
     *,
-    model: Model,
-    dataloader: Optional[DataLoader] = None,
-    dataset: Optional[Dataset] = None,
+    model: Model[Any, Any],
+    dataloader: Optional[DataLoader[Any, Any, Any]] = None,
+    dataset: Optional[Dataset[Any, Any, Any]] = None,
 ) -> Any:
-    metric_results, preds, aug_data = evaluate(
+    metric_results, preds, aug_data = _evaluate(
         model=model, dataloader=dataloader, dataset=dataset
     )
 
