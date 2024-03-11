@@ -9,9 +9,31 @@ from maite._internals.protocols.generic import (
 )
 from maite.protocols import image_classification as ic, object_detection as od
 
-# Purely generic version of evaluate, should only be called from
-# within problem-specific versions of evaluate that have already
-# verified types
+# TODO: populate evaluate overloads to expose simpler API
+# @overload
+# def evaluate(...):
+#     ...
+
+# (above todo has 2 subtask TODOs:)
+# TODO: Write evaluate implementation to take a superset of all
+# possible arguments in overloads and perform short-circuits where needed
+#
+# Function implementation should take:
+# - preds (as iterable[TargetBatchType] or iterable[TargetType])
+#    - The latter requires that we can use iterable[TargetType] to create
+#      iterable[TargetBatchType] (this is what pytorch calls collation)
+# - either (dataset and batch_size) or a dataloader
+#   - Prior requires a procedure to convert Input/Target/DatumMetadata from instance->batch
+#     (In the pytorch world, this would be accomplished via a collation function.
+#      collation is necessary to concatenate ArrayLikes before being fed to the model
+#      rather than just feeding each input sequentially to the model.)
+
+# TODO: Permit returned predictions to be of type tuple[InputDataType, TargetDataType, MetadataType].
+#       This seems much more natural as it is independent of batch_size.
+#   - This would require we use some method to iterate over "Batch-types" to get individual types
+#     and package individual predictions into an iterable. batch objects are iterable and then
+#     checking that the type of object returned from the iterable is ArrayLike.)
+
 
 # TODO: add overload-decorated versions that preserve typing information for
 # each problem subtype. Contents of implementation should be the same, but
@@ -20,7 +42,7 @@ from maite.protocols import image_classification as ic, object_detection as od
 
 
 @overload
-def _evaluate(
+def evaluate(
     *,
     model: ic.Model,
     metric: ic.Metric,
@@ -37,7 +59,7 @@ def _evaluate(
 
 
 @overload
-def _evaluate(
+def evaluate(
     *,
     model: od.Model,
     metric: od.Metric,
@@ -56,7 +78,7 @@ def _evaluate(
 # TODO: Narrow return types to be a union of accepted return types,
 # 'Any' is too liberal and forgoes any potentially useful type-checking
 # in this implementation
-def _evaluate(
+def evaluate(
     model: Model,
     metric: Metric,
     dataloader: DataLoader,
@@ -121,3 +143,13 @@ def _evaluate(
     metric_results = metric.compute()
 
     return metric_results, preds, aug_data
+
+
+# TODO: populate predict and use overloads for broader api
+# def predict(
+#     model: Model,
+#     metric: Metric,
+#     dataloader: Optional[DataLoader],
+#     dataset: Optional[Dataset],
+# ):
+#     ...
