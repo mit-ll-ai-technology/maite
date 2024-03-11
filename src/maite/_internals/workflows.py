@@ -276,7 +276,7 @@ def _evaluate(
 
     if dataset is not None and batch_size is None:
         # user provided a dataset and not a batch_size
-        raise InvalidArgument("If dataset is provided, batch_size is also required")
+        batch_size = 1
 
     if dataloader is None:
         assert dataset is not None  # should never trigger due to previous checks
@@ -374,7 +374,11 @@ def predict(
     *,
     model: ic.Model,
     dataset: ic.Dataset,
-) -> ic.OutputBatchType:
+    augmentation: Optional[ic.Augmentation] = None,
+) -> Tuple[
+    Sequence[ic.OutputBatchType],
+    Sequence[Tuple[ic.InputBatchType, ic.OutputBatchType, ic.MetadataType]],
+]:
     ...
 
 
@@ -383,7 +387,11 @@ def predict(
     *,
     model: ic.Model,
     dataloader: ic.DataLoader,
-) -> ic.OutputBatchType:
+    augmentation: Optional[ic.Augmentation] = None,
+) -> Tuple[
+    Sequence[ic.OutputBatchType],
+    Sequence[Tuple[ic.InputBatchType, ic.OutputBatchType, ic.MetadataType]],
+]:
     ...
 
 
@@ -392,7 +400,11 @@ def predict(
     *,
     model: od.Model,
     dataset: od.Dataset,
-) -> od.OutputBatchType:
+    augmentation: Optional[od.Augmentation] = None,
+) -> Tuple[
+    Sequence[od.OutputBatchType],
+    Sequence[Tuple[od.InputBatchType, od.OutputBatchType, od.MetadataType]],
+]:
     ...
 
 
@@ -401,7 +413,11 @@ def predict(
     *,
     model: od.Model,
     dataloader: od.DataLoader,
-) -> od.OutputBatchType:
+    augmentation: Optional[od.Augmentation] = None,
+) -> Tuple[
+    Sequence[od.OutputBatchType],
+    Sequence[Tuple[od.InputBatchType, od.OutputBatchType, od.MetadataType]],
+]:
     ...
 
 
@@ -410,9 +426,15 @@ def predict(
     model: Model[Any, Any],
     dataloader: Optional[DataLoader[Any, Any, Any]] = None,
     dataset: Optional[Dataset[Any, Any, Any]] = None,
+    augmentation: Optional[Augmentation[Any, Any, Any, Any, Any, Any]] = None,
 ) -> Any:
     metric_results, preds, aug_data = _evaluate(
-        model=model, dataloader=dataloader, dataset=dataset
+        model=model,
+        dataloader=dataloader,
+        dataset=dataset,
+        augmentation=augmentation,
+        return_augmented_data=True,
+        return_preds=True,
     )
 
-    return preds
+    return preds, aug_data
