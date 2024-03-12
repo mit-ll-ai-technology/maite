@@ -13,8 +13,8 @@ from maite._internals.protocols.image_classification import (
     MetadataType,
     Metric,
     Model,
-    OutputBatchType,
-    OutputType,
+    TargetBatchType,
+    TargetType,
 )
 
 __all__ = [
@@ -28,6 +28,6 @@ __all__ = [
     "MetadataType",
     "Metric",
     "Model",
-    "OutputBatchType",
-    "OutputType",
+    "TargetBatchType",
+    "TargetType",
 ]

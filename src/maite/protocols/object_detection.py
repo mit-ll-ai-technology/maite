@@ -14,9 +14,9 @@ from maite._internals.protocols.object_detection import (
     MetadataType,
     Metric,
     Model,
-    ObjectDetectionOutput,
-    OutputBatchType,
-    OutputType,
+    ObjectDetectionTarget,
+    TargetBatchType,
+    TargetType,
 )
 
 __all__ = [
@@ -31,7 +31,7 @@ __all__ = [
     "MetadataType",
     "Metric",
     "Model",
-    "ObjectDetectionOutput",
-    "OutputBatchType",
-    "OutputType",
+    "ObjectDetectionTarget",
+    "TargetBatchType",
+    "TargetType",
 ]

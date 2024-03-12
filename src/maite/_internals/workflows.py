@@ -72,7 +72,7 @@ def basic_collate_fn(batch):
         ),  # collate sequence of inputs (into single tensor)
         default_collate(
             [t[1] for t in batch]
-        ),  # collate sequence of outputs (into single tensor)
+        ),  # collate sequence of targets (into single tensor)
         [t[2] for t in batch],  # leave as sequence of dicts
     )
 
@@ -97,44 +97,10 @@ class SimpleTorchDataLoader:
 
 
 # begin all overloads for evaluate function
-# (one per ML domain and call signature)
+# (one per ML domain/supported call signature)
 
 
-@overload
-def evaluate(
-    *,
-    model: ic.Model,
-    metric: ic.Metric,
-    dataloader: ic.DataLoader,
-    augmentation: Optional[ic.Augmentation] = None,
-    return_augmented_data=False,
-    return_preds=False,
-) -> Tuple[
-    MetricComputeReturnType,
-    Sequence[ic.OutputBatchType],
-    Sequence[Tuple[ic.InputBatchType, ic.OutputBatchType, ic.MetadataBatchType]],
-]:
-    ...
-
-
-@overload
-def evaluate(
-    *,
-    model: ic.Model,
-    metric: ic.Metric,
-    dataset: ic.Dataset,
-    batch_size: int,
-    augmentation: Optional[ic.Augmentation] = None,
-    return_augmented_data=False,
-    return_preds=False,
-) -> Tuple[
-    MetricComputeReturnType,
-    Sequence[ic.OutputBatchType],
-    Sequence[Tuple[ic.InputBatchType, ic.OutputBatchType, ic.MetadataBatchType]],
-]:
-    ...
-
-
+# make predictions and calculate metrics over a dataloader (image_classification)
 @overload
 def evaluate(
     *,
@@ -146,64 +112,32 @@ def evaluate(
     return_preds=False,
 ) -> Tuple[
     MetricComputeReturnType,
-    Sequence[ic.OutputBatchType],
-    Sequence[Tuple[ic.InputBatchType, ic.OutputBatchType, ic.MetadataBatchType]],
+    Sequence[ic.TargetBatchType],
+    Sequence[Tuple[ic.InputBatchType, ic.TargetBatchType, ic.MetadataBatchType]],
 ]:
     ...
 
 
+# make predictions and calculate metrics over a dataset (img. classification)
 @overload
 def evaluate(
     *,
     model: ic.Model,
     dataset: ic.Dataset,
+    batch_size: int = 1,
     metric: Optional[ic.Metric] = None,
     augmentation: Optional[ic.Augmentation] = None,
     return_augmented_data=False,
     return_preds=False,
 ) -> Tuple[
     MetricComputeReturnType,
-    Sequence[ic.OutputBatchType],
-    Sequence[Tuple[ic.InputBatchType, ic.OutputBatchType, ic.MetadataBatchType]],
+    Sequence[ic.TargetBatchType],
+    Sequence[Tuple[ic.InputBatchType, ic.TargetBatchType, ic.MetadataBatchType]],
 ]:
     ...
 
 
-@overload
-def evaluate(
-    *,
-    model: od.Model,
-    metric: od.Metric,
-    dataloader: od.DataLoader,
-    augmentation: Optional[od.Augmentation] = None,
-    return_augmented_data=False,
-    return_preds=False,
-) -> Tuple[
-    MetricComputeReturnType,
-    Sequence[od.OutputBatchType],
-    Sequence[Tuple[od.InputBatchType, od.OutputBatchType, od.MetadataBatchType]],
-]:
-    ...
-
-
-@overload
-def evaluate(
-    *,
-    model: od.Model,
-    metric: od.Metric,
-    dataset: od.Dataset,
-    batch_size: int,
-    augmentation: Optional[od.Augmentation] = None,
-    return_augmented_data=False,
-    return_preds=False,
-) -> Tuple[
-    MetricComputeReturnType,
-    Sequence[od.OutputBatchType],
-    Sequence[Tuple[od.InputBatchType, od.OutputBatchType, od.MetadataBatchType]],
-]:
-    ...
-
-
+# make predictions and calculate metrics over a dataloader (obj. detection)
 @overload
 def evaluate(
     *,
@@ -215,25 +149,27 @@ def evaluate(
     return_preds=False,
 ) -> Tuple[
     MetricComputeReturnType,
-    Sequence[od.OutputBatchType],
-    Sequence[Tuple[od.InputBatchType, od.OutputBatchType, od.MetadataBatchType]],
+    Sequence[od.TargetBatchType],
+    Sequence[Tuple[od.InputBatchType, od.TargetBatchType, od.MetadataBatchType]],
 ]:
     ...
 
 
+# make predictions and calculate metrics over a dataset (obj. detection)
 @overload
 def evaluate(
     *,
     model: od.Model,
     dataset: od.Dataset,
+    batch_size: int = 1,
     metric: Optional[od.Metric] = None,
     augmentation: Optional[od.Augmentation] = None,
     return_augmented_data=False,
     return_preds=False,
 ) -> Tuple[
     MetricComputeReturnType,
-    Sequence[od.OutputBatchType],
-    Sequence[Tuple[od.InputBatchType, od.OutputBatchType, od.MetadataBatchType]],
+    Sequence[od.TargetBatchType],
+    Sequence[Tuple[od.InputBatchType, od.TargetBatchType, od.MetadataBatchType]],
 ]:
     ...
 
@@ -329,8 +265,8 @@ def _evaluate(
     # to a sequence of InputType/TargetType/MetadataType.
 
     # We don't currently guarantee that by iterating over a
-    # <Input|Output|Metadata>BatchType that one will get individual instances
-    # of <Input|Output|Metadata> type
+    # <Input|Target|Metadata>BatchType that one will get individual instances
+    # of <Input|Target|Metadata> type
     # ArrayLike protocol does not guarantee any iteration support, (although
     # we could convert to a numpy array and iterate on it.)
 
@@ -345,9 +281,9 @@ def evaluate(
     *,
     model: Model,
     metric: Optional[Metric] = None,
-    dataloader: Optional[DataLoader] = None,
     dataset: Optional[Dataset] = None,
-    batch_size: Optional[int] = None,
+    batch_size: int = 1,
+    dataloader: Optional[DataLoader] = None,
     augmentation: Optional[Augmentation] = None,
     return_augmented_data=False,
     return_preds=False,
@@ -374,10 +310,11 @@ def predict(
     *,
     model: ic.Model,
     dataset: ic.Dataset,
+    batch_size=1,
     augmentation: Optional[ic.Augmentation] = None,
 ) -> Tuple[
-    Sequence[ic.OutputBatchType],
-    Sequence[Tuple[ic.InputBatchType, ic.OutputBatchType, ic.MetadataType]],
+    Sequence[ic.TargetBatchType],
+    Sequence[Tuple[ic.InputBatchType, ic.TargetBatchType, ic.MetadataType]],
 ]:
     ...
 
@@ -389,8 +326,8 @@ def predict(
     dataloader: ic.DataLoader,
     augmentation: Optional[ic.Augmentation] = None,
 ) -> Tuple[
-    Sequence[ic.OutputBatchType],
-    Sequence[Tuple[ic.InputBatchType, ic.OutputBatchType, ic.MetadataType]],
+    Sequence[ic.TargetBatchType],
+    Sequence[Tuple[ic.InputBatchType, ic.TargetBatchType, ic.MetadataType]],
 ]:
     ...
 
@@ -400,10 +337,11 @@ def predict(
     *,
     model: od.Model,
     dataset: od.Dataset,
+    batch_size: int = 1,
     augmentation: Optional[od.Augmentation] = None,
 ) -> Tuple[
-    Sequence[od.OutputBatchType],
-    Sequence[Tuple[od.InputBatchType, od.OutputBatchType, od.MetadataType]],
+    Sequence[od.TargetBatchType],
+    Sequence[Tuple[od.InputBatchType, od.TargetBatchType, od.MetadataType]],
 ]:
     ...
 
@@ -415,8 +353,8 @@ def predict(
     dataloader: od.DataLoader,
     augmentation: Optional[od.Augmentation] = None,
 ) -> Tuple[
-    Sequence[od.OutputBatchType],
-    Sequence[Tuple[od.InputBatchType, od.OutputBatchType, od.MetadataType]],
+    Sequence[od.TargetBatchType],
+    Sequence[Tuple[od.InputBatchType, od.TargetBatchType, od.MetadataType]],
 ]:
     ...
 
@@ -426,6 +364,7 @@ def predict(
     model: Model[Any, Any],
     dataloader: Optional[DataLoader[Any, Any, Any]] = None,
     dataset: Optional[Dataset[Any, Any, Any]] = None,
+    batch_size: int = 1,
     augmentation: Optional[Augmentation[Any, Any, Any, Any, Any, Any]] = None,
 ) -> Any:
     metric_results, preds, aug_data = _evaluate(
@@ -433,6 +372,7 @@ def predict(
         dataloader=dataloader,
         dataset=dataset,
         augmentation=augmentation,
+        batch_size=batch_size,
         return_augmented_data=True,
         return_preds=True,
     )

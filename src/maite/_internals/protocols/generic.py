@@ -8,7 +8,7 @@ from typing import Any, Dict, Generic, Iterator, Protocol, Tuple, TypeVar
 # Note
 # (1) the use of each generic variable can differ in generic components
 # (2) the use of a generic affects the statically-correct way to declare that generic's type variance
-# Because of (1) and (2), I can't use the same TypeVars in all places where an input/output/metadata object
+# Because of (1) and (2), I can't use the same TypeVars in all places where an input/target/metadata object
 # is expected. This sacrifices some clarity in this file, but hopefully the classes can appear intuitive
 # from the perspective of the end-users that only interact with parameterized generics.
 
@@ -25,22 +25,22 @@ from typing import Any, Dict, Generic, Iterator, Protocol, Tuple, TypeVar
 #     protocols without helping type checker determine specific return types.
 #     this is more flexible for implementer, but will require more type narrowing
 #     on non-specific ("union") return types. (If typechecker can't determine return
-#     type from Model('BatchInputType') is a 'BatchOutputType' and not an OutputType,
+#     type from Model('BatchInputType') is a 'BatchTargetType' and not an TargetType,
 #     user has to type narrow.
 #   - Seems like overload decorator is the cost of handling multiple types of input arguments
 
 
 # create instance-level versions of all generic type vars
 InputType_co = TypeVar("InputType_co", covariant=True)
-OutputType_co = TypeVar("OutputType_co", covariant=True)
+TargetType_co = TypeVar("TargetType_co", covariant=True)
 DatumMetadataType_co = TypeVar("DatumMetadataType_co", covariant=True)
 
 InputType_cn = TypeVar("InputType_cn", contravariant=True)
-OutputType_cn = TypeVar("OutputType_cn", contravariant=True)
+TargetType_cn = TypeVar("TargetType_cn", contravariant=True)
 DatumMetadataType_cn = TypeVar("DatumMetadataType_cn", contravariant=True)
 
 InputType_in = TypeVar("InputType_in", contravariant=False, covariant=False)
-OutputType_in = TypeVar("OutputType_in", contravariant=False, covariant=False)
+TargetType_in = TypeVar("TargetType_in", contravariant=False, covariant=False)
 DatumMetadataType_in = TypeVar(
     "DatumMetadataType_in", contravariant=False, covariant=False
 )
@@ -48,15 +48,15 @@ DatumMetadataType_in = TypeVar(
 
 # create batch "versions" of all type vars
 InputBatchType_co = TypeVar("InputBatchType_co", covariant=True)
-OutputBatchType_co = TypeVar("OutputBatchType_co", covariant=True)
+TargetBatchType_co = TypeVar("TargetBatchType_co", covariant=True)
 DatumMetadataBatchType_co = TypeVar("DatumMetadataBatchType_co", covariant=True)
 
 InputBatchType_cn = TypeVar("InputBatchType_cn", contravariant=True)
-OutputBatchType_cn = TypeVar("OutputBatchType_cn", contravariant=True)
+TargetBatchType_cn = TypeVar("TargetBatchType_cn", contravariant=True)
 DatumMetadataBatchType_cn = TypeVar("DatumMetadataBatchType_cn", contravariant=True)
 
 InputBatchType_in = TypeVar("InputBatchType_in", contravariant=False, covariant=False)
-OutputBatchType_in = TypeVar("OutputBatchType_in", covariant=False, contravariant=False)
+TargetBatchType_in = TypeVar("TargetBatchType_in", covariant=False, contravariant=False)
 DatumMetadataBatchType_in = TypeVar(
     "DatumMetadataBatchType_in", covariant=False, contravariant=False
 )
@@ -77,7 +77,7 @@ MetricComputeReturnType = Dict[str, Any]
 #         It seems we just need 3 typevars in the TypeAlias assignment and the TypeVar
 #         type variance is completely inconsequential (because they are substituted for
 #         when the TypeAlias is used (as 'Any' or as the provided bracketed types.) We
-#         could also define a 4th version of Input/Output/Metadata types, but this also
+#         could also define a 4th version of Input/Target/Metadata types, but this also
 #         seems confusing.
 # TODO 5: Consider how easily and usefully variadic generics (which sound a bit scary)
 #         could be used to helpfully represent the shape of an expected array.
@@ -99,27 +99,27 @@ MetricComputeReturnType = Dict[str, Any]
 # myee: this version of Dataset was identical to DataLoader so both redundant
 # - and made it hard to distinguish between the two classes
 
-# class Dataset(Protocol, Generic[InputType_co, OutputType_co, DatumMetadataType_co]):
+# class Dataset(Protocol, Generic[InputType_co, TargetType_co, DatumMetadataType_co]):
 #     def __iter__(
 #             self
-#     )-> Iterator[Tuple[InputType_co, OutputType_co, DatumMetadataType_co]]:
+#     )-> Iterator[Tuple[InputType_co, TargetType_co, DatumMetadataType_co]]:
 #         ...
 
 
-class Dataset(Protocol, Generic[InputType_co, OutputType_co, DatumMetadataType_co]):
+class Dataset(Protocol, Generic[InputType_co, TargetType_co, DatumMetadataType_co]):
     def __getitem__(
         self, __ind: int
-    ) -> Tuple[InputType_co, OutputType_co, DatumMetadataType_co]:
+    ) -> Tuple[InputType_co, TargetType_co, DatumMetadataType_co]:
         ...
 
     def __len__(self) -> int:
         ...
 
 
-class DataLoader(Protocol, Generic[InputType_co, OutputType_co, DatumMetadataType_co]):
+class DataLoader(Protocol, Generic[InputType_co, TargetType_co, DatumMetadataType_co]):
     def __iter__(
         self,
-    ) -> Iterator[Tuple[InputType_co, OutputType_co, DatumMetadataType_co]]:
+    ) -> Iterator[Tuple[InputType_co, TargetType_co, DatumMetadataType_co]]:
         ...
 
     # no longer having Dataloader operate as the Iterator, just using it as an iterable
@@ -128,20 +128,20 @@ class DataLoader(Protocol, Generic[InputType_co, OutputType_co, DatumMetadataTyp
 
 class Model(
     Protocol,
-    Generic[InputBatchType_cn, OutputBatchType_co],
+    Generic[InputBatchType_cn, TargetBatchType_co],
 ):
-    def __call__(self, __batch_input: InputBatchType_cn) -> OutputBatchType_co:
+    def __call__(self, __batch_input: InputBatchType_cn) -> TargetBatchType_co:
         ...
 
 
-class Metric(Protocol, Generic[OutputBatchType_cn]):
+class Metric(Protocol, Generic[TargetBatchType_cn]):
     def reset(self) -> None:
         ...
 
     def update(
         self,
-        __preds_batch: OutputBatchType_cn,
-        __targets_batch: OutputBatchType_cn,
+        __preds_batch: TargetBatchType_cn,
+        __targets_batch: TargetBatchType_cn,
     ) -> None:
         ...
 
@@ -156,17 +156,17 @@ class Augmentation(
     Protocol,
     Generic[
         InputBatchType_co,
-        OutputBatchType_co,
+        TargetBatchType_co,
         DatumMetadataBatchType_co,
         InputBatchType_cn,
-        OutputBatchType_cn,
+        TargetBatchType_cn,
         DatumMetadataBatchType_cn,
     ],
 ):
     def __call__(
         self,
         __batch: Tuple[
-            InputBatchType_cn, OutputBatchType_cn, DatumMetadataBatchType_cn
+            InputBatchType_cn, TargetBatchType_cn, DatumMetadataBatchType_cn
         ],
-    ) -> Tuple[InputBatchType_co, OutputBatchType_co, DatumMetadataBatchType_co]:
+    ) -> Tuple[InputBatchType_co, TargetBatchType_co, DatumMetadataBatchType_co]:
         ...

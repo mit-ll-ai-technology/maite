@@ -12,7 +12,7 @@
 # any other implementer of `Augmentation`.
 #
 # In this example, we consider the image classification domain
-# where input and outputs from the a prediction model are both tensors.
+# where input and targets from the a prediction model are both tensors.
 # %% [markdown]
 # ## Setup
 # %%
@@ -86,7 +86,7 @@ class DumbAttack:
         input_batch_tn = torch.as_tensor(input_batch)
         input_batch_tn.requires_grad = True
 
-        # type-narrow outputs to type tensor
+        # type-narrow targets to type tensor
         target_batch_tn = torch.as_tensor(target_batch)
 
         preds = model(input_batch_tn)
@@ -140,7 +140,7 @@ class WhiteboxAugmentation:
         # type-narrow inputs to type tensor
         input_batch_tn = torch.as_tensor(input_batch)
 
-        # type-narrow outputs to type tensor
+        # type-narrow targets to type tensor
         target_batch_tn = torch.as_tensor(target_batch)
 
         attack_perturbation = self.attack(self.model, input_batch_tn, target_batch_tn)
@@ -165,7 +165,7 @@ class WhiteboxAugmentation:
 
 # %% [markdown]
 # ## Test the augmentation
-# Create dummy torch module and batch of input/output/metadata
+# Create dummy torch module and batch of input/target/metadata
 
 # %%
 # make dummy model that takes Nx5 inputs and produces a onehot
@@ -207,16 +207,16 @@ datum_batch_aug = wb_aug(datum_batch)
 # TODO: consider whether tuple of iterables or iterable of tuples is more convenient
 #       as a batch format. Tuple of iterables seems to require below unpacking
 
-model_input_batch_aug, model_output_batch_aug, md_batch_aug = datum_batch_aug
-model_input_batch, model_output_batch, md_batch = datum_batch
+model_input_batch_aug, model_target_batch_aug, md_batch_aug = datum_batch_aug
+model_input_batch, model_target_batch, md_batch = datum_batch
 
 print("Results of augmentation (by datum)")
-for model_input_aug, model_output_aug, md_aug, model_input, model_output, md in zip(
+for model_input_aug, model_target_aug, md_aug, model_input, model_target, md in zip(
     model_input_batch_aug,
-    model_output_batch_aug,
+    model_target_batch_aug,
     md_batch_aug,
     model_input_batch,
-    model_output_batch,
+    model_target_batch,
     md_batch,
 ):
     print(f"model input:\n {model_input}")

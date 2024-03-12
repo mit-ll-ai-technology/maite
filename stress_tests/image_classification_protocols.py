@@ -1,39 +1,38 @@
-from maite.protocols.image_classification import (
-    DatumMetadata,
-    ArrayLike,
-    InputType,
-    OutputType,
-    MetadataType,
-    InputBatchType,
-    OutputBatchType,
-    MetadataBatchType,
-    Augmentation,
-    Metric,
-    Dataset,
-    DataLoader,
-    Model
-)
+import random
+from dataclasses import dataclass
+from typing import Any, Hashable, Sequence, Tuple, overload
 
-from typing import Sequence, Any
+import numpy as np
+import numpy.typing as npt
+
+from maite.protocols.image_classification import (
+    ArrayLike,
+    Augmentation,
+    DataLoader,
+    Dataset,
+    DatumMetadata,
+    InputBatchType,
+    InputType,
+    MetadataBatchType,
+    MetadataType,
+    Metric,
+    Model,
+    TargetBatchType,
+    TargetType,
+)
 
 # test lightweight implementations
 #
 # pretend we have a set of components such that:
 #
 # InputType = np.array of shape [H, W, C]
-# OutputType = np.array of shape [Cl]
+# TargetType = np.array of shape [Cl]
 # MetadataType is an ordinary Python Class with integer-formatted 'id' field
 #
 # InputBatchType = np.array of shape [N, H, W, C]
-# OutputBatchType = np.array of shape [N, Cl]
+# TargetBatchType = np.array of shape [N, Cl]
 # MetadataBatchType is an ordinary Python Class with integer-formatted 'id' field
 
-from typing import Hashable, Tuple, overload
-import numpy as np
-import numpy.typing as npt
-import random
-
-from dataclasses import dataclass
 
 N_CLASSES = 5  # how many distinct classes are we predicting between?
 
@@ -73,7 +72,8 @@ class DatumMetadata_impl:
 
 
 class Dataset_impl:
-    def __init__(self): ...
+    def __init__(self):
+        ...
 
     def __len__(self) -> int:
         return 10
@@ -82,10 +82,10 @@ class Dataset_impl:
         self, h: Hashable
     ) -> Tuple[npt.NDArray, npt.NDArray, DatumMetadata_impl]:
         input = np.arange(5 * 4 * 3).reshape(5, 4, 3)
-        output = np.arange(5 * 4 * 3).reshape(5, 4, 3)
+        target = np.arange(5 * 4 * 3).reshape(5, 4, 3)
         metadata = DatumMetadata_impl(uuid=1)
 
-        return (input, output, metadata)
+        return (input, target, metadata)
 
 
 class DataLoaderImpl:
@@ -96,34 +96,37 @@ class DataLoaderImpl:
         self,
     ) -> Tuple[ArrayLike, ArrayLike, list[DatumMetadata_impl]]:
         input_batch = np.array([self._dataset[i] for i in range(6)])
-        output_batch = np.array([self._dataset[i] for i in range(6)])
+        target_batch = np.array([self._dataset[i] for i in range(6)])
         metadata_batch = [DatumMetadata_impl(uuid=i) for i in range(6)]
 
-        return (input_batch, output_batch, metadata_batch)
+        return (input_batch, target_batch, metadata_batch)
 
     def __iter__(self) -> "DataLoaderImpl":
         return self
 
 
 class AugmentationImpl:
-    def __init__(self): ...
+    def __init__(self):
+        ...
 
     @overload
     def __call__(
-        self, __datum: Tuple[InputType, OutputType, MetadataType]
-    ) -> Tuple[npt.NDArray, npt.NDArray, DatumMetadata_impl]: ...
+        self, __datum: Tuple[InputType, TargetType, MetadataType]
+    ) -> Tuple[npt.NDArray, npt.NDArray, DatumMetadata_impl]:
+        ...
 
     @overload
     def __call__(
         self,
-        __datum_batch: Tuple[InputBatchType, OutputBatchType, MetadataBatchType],
-    ) -> Tuple[npt.NDArray, npt.NDArray, list[DatumMetadata_impl]]: ...
+        __datum_batch: Tuple[InputBatchType, TargetBatchType, MetadataBatchType],
+    ) -> Tuple[npt.NDArray, npt.NDArray, list[DatumMetadata_impl]]:
+        ...
 
     def __call__(
         self,
         _datum_or_datum_batch: (
-            Tuple[InputType, OutputType, MetadataType]
-            | Tuple[InputBatchType, OutputBatchType, MetadataBatchType]
+            Tuple[InputType, TargetType, MetadataType]
+            | Tuple[InputBatchType, TargetBatchType, MetadataBatchType]
         ),
     ) -> (
         Tuple[npt.NDArray, npt.NDArray, DatumMetadata_impl]
@@ -143,89 +146,96 @@ class AugmentationImpl:
             # good enough to type narrow between batch/individual
             assert (
                 isinstance(_datum_or_datum_batch[0], InputBatchType)
-                and isinstance(_datum_or_datum_batch[1], OutputBatchType)
+                and isinstance(_datum_or_datum_batch[1], TargetBatchType)
                 and isinstance(
                     _datum_or_datum_batch[2], Sequence
                 )  # Cant "isinstance check" against MetadataBatchType directly
             )
 
             input_batch_aug = np.array(_datum_or_datum_batch[0])
-            output_batch_aug = np.array(_datum_or_datum_batch[1])
+            target_batch_aug = np.array(_datum_or_datum_batch[1])
             metadata_batch_aug = [
                 DatumMetadata_impl.from_protocol(i) for i in _datum_or_datum_batch[2]
             ]
 
-            # manipulate input_batch, output_batch, and metadata_batch
+            # manipulate input_batch, target_batch, and metadata_batch
 
-            return (input_batch_aug, output_batch_aug, metadata_batch_aug)
+            return (input_batch_aug, target_batch_aug, metadata_batch_aug)
 
         else:
             # -- proceed with handling instance --
 
             assert (
                 isinstance(_datum_or_datum_batch[0], InputType)
-                and isinstance(_datum_or_datum_batch[1], OutputType)
+                and isinstance(_datum_or_datum_batch[1], TargetType)
                 and isinstance(_datum_or_datum_batch[2], MetadataType)
             )
 
             input_aug = np.array(_datum_or_datum_batch[0])
-            output_batch_aug = np.array(_datum_or_datum_batch[1])
+            target_batch_aug = np.array(_datum_or_datum_batch[1])
             metadata_aug = DatumMetadata_impl(uuid=_datum_or_datum_batch[2].uuid)
 
-            return (input_aug, output_batch_aug, metadata_aug)
+            return (input_aug, target_batch_aug, metadata_aug)
 
 
 class Model_impl:
     @overload
     def __call__(
         self, __input: InputType | InputBatchType
-    ) -> OutputType | OutputBatchType: ...
+    ) -> TargetType | TargetBatchType:
+        ...
 
     @overload
-    def __call__(self, __input: InputType) -> OutputType: ...
+    def __call__(self, __input: InputType) -> TargetType:
+        ...
 
     @overload
-    def __call__(self, __input: InputBatchType) -> OutputBatchType: ...
+    def __call__(self, __input: InputBatchType) -> TargetBatchType:
+        ...
 
     def __call__(
         self,
         __input_or_input_batch: InputType | InputBatchType,
-    ) -> OutputType | OutputBatchType:
+    ) -> TargetType | TargetBatchType:
         ...
 
         arr_input = np.array(__input_or_input_batch)
         if arr_input.ndim == 4:
             # process batch
             N, H, W, C = arr_input.shape
-            batch_output = np.zeros((N, N_CLASSES))
-            batch_output[np.arange(N, random.randint(1, N_CLASSES))] = 1
-            return batch_output
+            batch_target = np.zeros((N, N_CLASSES))
+            batch_target[np.arange(N, random.randint(1, N_CLASSES))] = 1
+            return batch_target
 
         else:
             # process instance
             H, W, C = arr_input.shape
-            single_output = np.zeros((N_CLASSES,))
-            single_output[random.randint(1, N_CLASSES)] = 1
-            return single_output
+            single_target = np.zeros((N_CLASSES,))
+            single_target[random.randint(1, N_CLASSES)] = 1
+            return single_target
 
 
 class Metric_impl:
-    def __init__(self): ...
+    def __init__(self):
+        ...
 
-    def reset(self) -> None: ...
+    def reset(self) -> None:
+        ...
 
     @overload
-    def update(self, __pred: OutputType, __target: OutputType) -> None: ...
+    def update(self, __pred: TargetType, __target: TargetType) -> None:
+        ...
 
     @overload
     def update(
-        self, __pred_batch: OutputBatchType, __target_batch: OutputBatchType
-    ) -> None: ...
+        self, __pred_batch: TargetBatchType, __target_batch: TargetBatchType
+    ) -> None:
+        ...
 
     def update(
         self,
-        _preds: OutputType | OutputBatchType,
-        _targets: OutputType | OutputBatchType,
+        _preds: TargetType | TargetBatchType,
+        _targets: TargetType | TargetBatchType,
     ) -> None:
         return None
 
@@ -241,19 +251,19 @@ dataset: Dataset = Dataset_impl()
 dataloader: DataLoader = DataLoaderImpl(d=dataset)
 model: Model = Model_impl()
 
-preds: list[OutputBatchType] = []
-for input_batch, output_batch, metadata_batch in dataloader:
-    input_batch_aug, output_batch_aug, metadata_batch_aug = aug(
-        (input_batch, output_batch, metadata_batch)
+preds: list[TargetBatchType] = []
+for input_batch, target_batch, metadata_batch in dataloader:
+    input_batch_aug, target_batch_aug, metadata_batch_aug = aug(
+        (input_batch, target_batch, metadata_batch)
     )
 
     preds_batch = model(input_batch_aug)
-    assert isinstance(preds_batch, OutputBatchType)
+    assert isinstance(preds_batch, TargetBatchType)
 
     # appending predictions here could take into account their being numpy arrays
     preds.append(preds_batch)
 
-    metric.update(preds_batch, output_batch_aug)
+    metric.update(preds_batch, target_batch_aug)
 
 metric_scores = metric.compute()
 
@@ -271,7 +281,7 @@ metric_scores = metric.compute()
 #  (Tuple[ArrayLike, ArrayLike, list[object]]) -> Tuple[np.array, np.array, list[Augmentation_impl]]
 #
 # So, given an input tuple with 3rd-element type 'list[object]' one might expect
-# the third element of the output tuple to be typed list[Augmentation_impl],
+# the third element of the target tuple to be typed list[Augmentation_impl],
 # but this is not the case. The reason is because everything in python is an
 # instance of type object (including list[object]). This is another example where
 # two compatible 'overload'ed type signatures cause the type-checker to use the

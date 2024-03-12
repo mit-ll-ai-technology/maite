@@ -17,13 +17,13 @@ from . import ArrayLike, DatumMetadata, generic as gen
 # annotations to hint to the user the appropriate shape. No runtime safety would
 # be added by this approach because type subscripts are effectively invisible
 # at runtime. No additional static type-checking would occur either, but the
-# user would get useful type hints when cursoring over required inputs/outputs
+# user would get useful type hints when cursoring over required inputs/targets
 # This would also require python 3.11 unless a `from __future__` import were made
 # available for earlier versions (which are not available now.)
 
 
 @runtime_checkable
-class ObjectDetectionOutput(Protocol):
+class ObjectDetectionTarget(Protocol):
     @property
     def boxes(
         self,
@@ -40,20 +40,20 @@ class ObjectDetectionOutput(Protocol):
 
 
 # TODO: remove typeAlias statements for more user readability (or figure out how to resolve TypeAliases
-#       to their targets for end-user.) Knowing a dataset returns a tuple of "InputType, OutputType, MetadataType"
+#       to their targets for end-user.) Knowing a dataset returns a tuple of "InputType, TargetType, MetadataType"
 #       isn't helpful to implementers, however the aliasing *is* helpful to developers.
 #
 #       Perhaps the functionality I want is named parameters for generic, so developers can understand that
-#       e.g. generic.Dataset typevars are 'InputType', 'OutputType', and 'MetaDataType' and their values in
-#       concrete Dataset classes (like object_detection.Dataset) are ArrayLike, ObjDetectionOutput, class
+#       e.g. generic.Dataset typevars are 'InputType', 'TargetType', and 'MetaDataType' and their values in
+#       concrete Dataset classes (like object_detection.Dataset) are ArrayLike, ObjectDetectionTarget, class
 #       closer to named parameters for a generic, so cursoring over image
 
 InputType: TypeAlias = ArrayLike  # shape [H, W, C]
-OutputType: TypeAlias = ObjectDetectionOutput
+TargetType: TypeAlias = ObjectDetectionTarget
 MetadataType: TypeAlias = Dict[str, Any]
 
 InputBatchType: TypeAlias = ArrayLike  # shape [N, H, W, C]
-OutputBatchType: TypeAlias = Sequence[OutputType]  # length N
+TargetBatchType: TypeAlias = Sequence[TargetType]  # length N
 MetadataBatchType: TypeAlias = Sequence[DatumMetadata]
 
 # TODO: Consider what pylance shows on cursoring over: "(type alias) Dataset: type[Dataset[ArrayLike, dict[Unknown, Unknown], object]]"
@@ -69,12 +69,12 @@ MetadataBatchType: TypeAlias = Sequence[DatumMetadata]
 #       In this case, typechecker seems to use the first matching method signature to
 #       determine type of output.
 
-# TODO: Consider potential strategies for defining OutputType
+# TODO: Consider potential strategies for defining TargetType
 #
 # Some potential solutions:
 # 0) A protocol class with named/typed fields like the following:
 #
-#      class ObjDetectionOutput(Protocol):
+#      class ObjectDetectionTarget(Protocol):
 #          x0: float
 #          y0: float
 #          x1: float
@@ -83,15 +83,15 @@ MetadataBatchType: TypeAlias = Sequence[DatumMetadata]
 #          score: float
 #
 #    This has the following advantages:
-#       - Follows structural subtype class variance rules (ObjDetectionOutput covariant wrt read-only
-#         attributes, classes using ObjDetectionOutput as return type covariant wrt read-only attributes,
-#         and classes using ObjDetectionOutput as method argument type contravariant wrt
+#       - Follows structural subtype class variance rules (ObjectDetectionTarget covariant wrt read-only
+#         attributes, classes using ObjectDetectionTarget as return type covariant wrt read-only attributes,
+#         and classes using ObjectDetectionTarget as method argument type contravariant wrt
 #         read-only attributes.) (Similar to TypedDict)
 #       - Permits additional fields to be added by component implementers
 #         and application developers (unlike TypedDicts)
 #       - Permits implementer use in covariant contexts without either explicit importing
 #         or redefining protocols locally (i.e. in Dataset/Dataloader/Model components can
-#         return structural subtype of ObjDetectionOutput, but not in Augmentation or Metric
+#         return structural subtype of ObjectDetectionTarget, but not in Augmentation or Metric
 #         components) (like TypedDicts, but doesn't cap additional fields)
 #       - Application developers could import implementer classes and workflows
 #         and be assured that all protocol-compliant workflows would interoperate.
@@ -130,13 +130,13 @@ MetadataBatchType: TypeAlias = Sequence[DatumMetadata]
 # 2) A typed 6-tuple -- this type clear about what the fields correspond to, but
 #    leverages a ubiquitous python class.
 #
-#     ObjDetectionOutput: TypeAlias = Tuple[float, float, float, float, int, float]
+#     ObjectDetectionTarget: TypeAlias = Tuple[float, float, float, float, int, float]
 #
 # 3) A named tuple -- This is very clear and using built-in Python, but this
 #    puts onus on implementer to return a named tuple since regular tuples with
 #    compatible sizes/types don't seem to support assignment to this named tuple type.
 #
-# class ObjDetectionNamedOutput(NamedTuple):
+# class ObjDetectionNamedTarget(NamedTuple):
 #     x0: float
 #     x1: float
 #     y0: float
@@ -166,21 +166,21 @@ MetadataBatchType: TypeAlias = Sequence[DatumMetadata]
 #    See https://mit-ll-ai-technology.github.io/maite/explanation/type_hints_for_API_design.html#on-using-annotations-to-write-legible-documentation
 #    or https://peps.python.org/pep-0646/ for more information.
 
-Dataset = gen.Dataset[InputType, OutputType, MetadataType]
+Dataset = gen.Dataset[InputType, TargetType, MetadataType]
 
 DataLoader = gen.DataLoader[
     InputBatchType,
-    OutputBatchType,
+    TargetBatchType,
     MetadataBatchType,
 ]
-Model = gen.Model[InputBatchType, OutputBatchType]
-Metric = gen.Metric[OutputBatchType]
+Model = gen.Model[InputBatchType, TargetBatchType]
+Metric = gen.Metric[TargetBatchType]
 
 Augmentation = gen.Augmentation[
     InputBatchType,
-    OutputBatchType,
+    TargetBatchType,
     MetadataBatchType,
     InputBatchType,
-    OutputBatchType,
+    TargetBatchType,
     MetadataBatchType,
 ]

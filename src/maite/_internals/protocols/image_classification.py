@@ -20,30 +20,30 @@ from . import ArrayLike, generic as gen
 # Cl - classification label (one-hot for ground-truth label, or pseudo-probabilities for predictions)
 
 InputType: TypeAlias = ArrayLike  # shape [H, W, C]
-OutputType: TypeAlias = ArrayLike  # shape [Cl]
+TargetType: TypeAlias = ArrayLike  # shape [Cl]
 MetadataType: TypeAlias = Dict[str, Any]
 
 InputBatchType: TypeAlias = ArrayLike  # shape [N, H, W, C]
-OutputBatchType: TypeAlias = ArrayLike  # shape [N, Cl]
+TargetBatchType: TypeAlias = ArrayLike  # shape [N, Cl]
 MetadataBatchType: TypeAlias = Sequence[MetadataType]
 
-# Initialize component classes based on generic and Input/Output/Metadata types
+# Initialize component classes based on generic and Input/Target/Metadata types
 
-Dataset = gen.Dataset[InputType, OutputType, MetadataType]
+Dataset = gen.Dataset[InputType, TargetType, MetadataType]
 
 DataLoader = gen.DataLoader[
     InputBatchType,
-    OutputBatchType,
+    TargetBatchType,
     MetadataBatchType,
 ]
-Model = gen.Model[InputBatchType, OutputBatchType]
-Metric = gen.Metric[OutputBatchType]
+Model = gen.Model[InputBatchType, TargetBatchType]
+Metric = gen.Metric[TargetBatchType]
 
 Augmentation = gen.Augmentation[
     InputBatchType,
-    OutputBatchType,
+    TargetBatchType,
     MetadataBatchType,
     InputBatchType,
-    OutputBatchType,
+    TargetBatchType,
     MetadataBatchType,
 ]
