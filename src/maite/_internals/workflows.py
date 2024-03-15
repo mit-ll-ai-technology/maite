@@ -209,8 +209,8 @@ def evaluate(
     batch_size: int = 1,
     metric: Optional[od.Metric] = None,
     augmentation: Optional[od.Augmentation] = None,
-    return_augmented_data=False,
-    return_preds=False,
+    return_augmented_data: bool = False,
+    return_preds: bool = False,
 ) -> Tuple[
     MetricComputeReturnType,
     Sequence[od.TargetBatchType],
@@ -232,8 +232,8 @@ def _evaluate(
     dataset: Optional[Dataset] = None,
     batch_size: Optional[int] = None,
     augmentation: Optional[Augmentation] = None,
-    return_augmented_data=False,
-    return_preds=False,
+    return_augmented_data: bool = False,
+    return_preds: bool = False,
 ) -> Tuple[MetricComputeReturnType, Sequence[Any], Sequence[Tuple[Any, Any, Any]],]:
     # Validate potential input combinations
     # user needs to provide ONE of either (a) dataloader (iterable over
@@ -404,7 +404,7 @@ def predict(
     *,
     model: ic.Model,
     dataset: ic.Dataset,
-    batch_size=1,
+    batch_size: int = 1,
     augmentation: Optional[ic.Augmentation] = None,
 ) -> Tuple[
     Sequence[ic.TargetBatchType],
