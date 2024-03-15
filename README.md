@@ -40,7 +40,7 @@ pip install -e . typing torch torchvision jupyter
   </p>
 </p>
 
-MAITE is a library of common types, protocols (a.k.a. structural subtypes), and utilities for test and evaluation of supervised machine learning models. It is being developed under the [Joint AI T&E Infrastructure Capability (JATIC)](https://gitlab.jatic.net/home/) program. Its goal is to streamline the development of JATIC Python projects by ensuring seamless, synergistic workflows when working with MAITE-conforming Python packages for different test and evaluation tasks. To this end, MAITE seeks to eliminate redundancies that would otherwise be shared across – and burden – separate efforts in machine learning test and evalution. MAITE is designed to be a low-dependency, frequently-improved Python package that is installed by JATIC projects. The following is a brief overview of the current state of its submodules.
+MAITE is a library of common types, protocols (a.k.a. structural subtypes), and utilities for test and evaluation of supervised machine learning models. It is being developed under the [Joint AI T&E Infrastructure Capability (JATIC)](https://gitlab.jatic.net/home/) program. Its goal is to streamline the development of JATIC Python projects by ensuring seamless, synergistic workflows when working with MAITE-conforming Python packages for different test and evaluation tasks. To this end, MAITE seeks to eliminate redundancies that would otherwise be shared across – and burden – separate efforts in machine learning test and evaluation. MAITE is designed to be a low-dependency, frequently-improved Python package that is installed by JATIC projects. The following is a brief overview of the current state of its submodules.
 
 ## Installation
 
