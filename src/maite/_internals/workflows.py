@@ -339,8 +339,7 @@ def evaluate(
 ]:
     # doc-ignore: EX01
     """
-    Evaluate a model's performance on data according to some metric with
-    optional augmentation.
+    Evaluate a model's performance on data according to some metric with optional augmentation.
 
     Some data source (either a dataloader or a dataset) must be provided
     or an InvalidArgument exception is raised.
@@ -467,7 +466,7 @@ def predict(
 ]:
     # doc-ignore: EX01
     """
-    Make predictions for a given model & data source with optional augmentation
+    Make predictions for a given model & data source with optional augmentation.
 
     Some data source (either a dataloader or a dataset) must be provided
     or an InvalidArgument exception is raised.
@@ -477,14 +476,14 @@ def predict(
     model : SomeModel
         Maite Model object.
 
+    dataloader : Optional[SomeDataloader], (default=None)
+        Compatible maite dataloader.
+
     dataset : Optional[SomeDataset], (default=None)
         Compatible maite dataset.
 
     batch_size : int, (default=1)
         Batch size for use with dataset (ignored if dataset=None).
-
-    dataloader : Optional[SomeDataloader], (default=None)
-        Compatible maite dataloader.
 
     augmentation : Optional[SomeAugmentation], (default=None)
         Compatible maite augmentation.
@@ -493,7 +492,7 @@ def predict(
     -------
     Tuple[Sequence[SomeTargetBatchType], Sequence[Tuple[SomeInputBatchType, SomeTargetBatchType, SomeMetadataBatchType]],
         A tuple of the predictions (as a sequence fo batches) and a sequence
-        of tuples containing the information associated with each batch
+        of tuples containing the information associated with each batch.
     """
 
     metric_results, preds, aug_data = _evaluate(
