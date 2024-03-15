@@ -153,8 +153,8 @@ def evaluate(
     dataloader: ic.DataLoader,
     metric: Optional[ic.Metric] = None,
     augmentation: Optional[ic.Augmentation] = None,
-    return_augmented_data=False,
-    return_preds=False,
+    return_augmented_data: bool = False,
+    return_preds: bool = False,
 ) -> Tuple[
     MetricComputeReturnType,
     Sequence[ic.TargetBatchType],
@@ -172,8 +172,8 @@ def evaluate(
     batch_size: int = 1,
     metric: Optional[ic.Metric] = None,
     augmentation: Optional[ic.Augmentation] = None,
-    return_augmented_data=False,
-    return_preds=False,
+    return_augmented_data: bool = False,
+    return_preds: bool = False,
 ) -> Tuple[
     MetricComputeReturnType,
     Sequence[ic.TargetBatchType],
@@ -190,8 +190,8 @@ def evaluate(
     dataloader: od.DataLoader,
     metric: Optional[od.Metric] = None,
     augmentation: Optional[od.Augmentation] = None,
-    return_augmented_data=False,
-    return_preds=False,
+    return_augmented_data: bool = False,
+    return_preds: bool = False,
 ) -> Tuple[
     MetricComputeReturnType,
     Sequence[od.TargetBatchType],
