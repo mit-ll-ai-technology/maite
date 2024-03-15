@@ -63,7 +63,7 @@ class DummyMetric(Metric):
         return dict()
 
 
-def basic_collate_fn(batch):
+def basic_collate_fn_image_classification(batch):
     from torch.utils.data import default_collate
 
     return (
@@ -75,6 +75,36 @@ def basic_collate_fn(batch):
         ),  # collate sequence of targets (into single tensor)
         [t[2] for t in batch],  # leave as sequence of dicts
     )
+
+
+def basic_collate_fn(batch):
+    from torch.utils.data import default_collate
+
+    # if batch types for image classification (ic) or object detection (od)
+    # are sequences (vs something like ArrayLike's with batch dimension)
+    # then need to override default collate behavior
+    # each original item in batch is 3-tuple of (input, target, metadata)
+    first_tuple = batch[0]
+    assert len(first_tuple) == 3
+
+    # inputs: collate sequence of inputs (into single tensor)
+    inputs = default_collate([t[0] for t in batch])
+
+    # targets
+    # - image classification: collate sequence of targets (into single tensor)
+    # - object detection: leave as sequence of ObjectDetectionTarget
+    assert isinstance(first_tuple[1], ic.TargetType) or isinstance(
+        first_tuple[1], od.TargetType
+    )
+    if isinstance(first_tuple[1], ic.TargetType):
+        targets = default_collate([t[1] for t in batch])
+    else:
+        targets = [t[1] for t in batch]
+
+    # metadata: leave as sequence of dicts
+    metadata = [t[2] for t in batch]
+
+    return inputs, targets, metadata
 
 
 class SimpleTorchDataLoader:
