@@ -491,7 +491,7 @@ def predict(
     Returns
     -------
     Tuple[Sequence[SomeTargetBatchType], Sequence[Tuple[SomeInputBatchType, SomeTargetBatchType, SomeMetadataBatchType]],
-        A tuple of the predictions (as a sequence fo batches) and a sequence
+        A tuple of the predictions (as a sequence of batches) and a sequence
         of tuples containing the information associated with each batch.
     """
 
