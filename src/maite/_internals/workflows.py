@@ -1,6 +1,7 @@
-from typing import Any, Optional, Sequence, Tuple, overload
+from typing import Any, Optional, Sequence, Tuple, Union, overload
 
 import torch.utils.data
+from typing_extensions import TypeAlias
 
 from maite._internals.protocols.generic import (
     Augmentation,
@@ -12,6 +13,20 @@ from maite._internals.protocols.generic import (
 )
 from maite.errors import InvalidArgument
 from maite.protocols import image_classification as ic, object_detection as od
+
+SomeModel: TypeAlias = Union[ic.Model, od.Model]
+SomeMetric: TypeAlias = Union[ic.Metric, od.Metric]
+SomeDataset: TypeAlias = Union[ic.Dataset, od.Dataset]
+SomeDataLoader: TypeAlias = Union[ic.DataLoader, od.DataLoader]
+SomeAugmentation: TypeAlias = Union[ic.Augmentation, od.Augmentation]
+
+SomeTargetBatchType: TypeAlias = Union[ic.TargetBatchType, od.TargetBatchType]
+SomeInputBatchType: TypeAlias = Union[ic.InputBatchType, od.InputBatchType]
+SomeMetadataBatchType: TypeAlias = Union[ic.MetadataBatchType, od.MetadataBatchType]
+
+SomeInputType: TypeAlias = Union[ic.InputType, od.InputType]
+SomeTargetType: TypeAlias = Union[ic.TargetType, od.TargetType]
+SomeMetadataType: TypeAlias = Union[ic.MetadataType, od.MetadataType]
 
 # TODO: populate evaluate overloads to expose simpler API
 # @overload
@@ -309,15 +324,65 @@ def _evaluate(
 
 def evaluate(
     *,
-    model: Model,
-    metric: Optional[Metric] = None,
-    dataset: Optional[Dataset] = None,
+    model: SomeModel,
+    metric: Optional[SomeMetric] = None,
+    dataset: Optional[SomeDataset] = None,
     batch_size: int = 1,
-    dataloader: Optional[DataLoader] = None,
-    augmentation: Optional[Augmentation] = None,
-    return_augmented_data=False,
-    return_preds=False,
-) -> Tuple[MetricComputeReturnType, Sequence[Any], Sequence[Tuple[Any, Any, Any]],]:
+    dataloader: Optional[SomeDataLoader] = None,
+    augmentation: Optional[SomeAugmentation] = None,
+    return_augmented_data: bool = False,
+    return_preds: bool = False,
+) -> Tuple[
+    MetricComputeReturnType,
+    Sequence[SomeTargetBatchType],
+    Sequence[Tuple[SomeInputBatchType, SomeTargetBatchType, SomeMetadataBatchType]],
+]:
+    # doc-ignore: EX01
+    """
+    Evaluate a model's performance on data according to some metric with
+    optional augmentation.
+
+    Some data source (either a dataloader or a dataset) must be provided
+    or an InvalidArgument exception is raised.
+
+    Parameters
+    ----------
+    model : SomeModel
+        Maite Model object.
+
+    metric : Optional[SomeMetric], (default=None)
+        Compatible maite Metric.
+
+    dataset : Optional[SomeDataset], (default=None)
+        Compatible maite dataset.
+
+    batch_size : int, (default=1)
+        Batch size for use with dataset (ignored if dataset=None).
+
+    dataloader : Optional[SomeDataloader], (default=None)
+        Compatible maite dataloader.
+
+    augmentation : Optional[SomeAugmentation], (default=None)
+        Compatible maite augmentation.
+
+    return_augmented_data : bool, (default=False)
+        Set to True to return post-augmentation data as a function output.
+
+    return_preds : bool, (default=False)
+        Set to True to return raw predictions as function output.
+
+    Returns
+    -------
+    Tuple[Dict[str, Any], Sequence[TargetType], Sequence[Tuple[InputType, TargetType, MetadataType]]]
+        Tuple of returned metric value, sequence of model predictions, and
+        sequence of data tuples fed to the model during inference. The actual
+        types represented by InputType, TargetType, and MetadataType will vary
+        by the domain of the components provided as input arguments (e.g. image
+        classification or object detection.)
+        Note that the second and third return arguments will be empty if
+        return_augmented_data is False or return_preds is False, respectively.
+    """
+
     # Pass to untyped internal _evaluate
     # (We are relying on overload type signatures to statically validate
     # input arguments and relying on individual components to ensure outputs
@@ -344,7 +409,7 @@ def predict(
     augmentation: Optional[ic.Augmentation] = None,
 ) -> Tuple[
     Sequence[ic.TargetBatchType],
-    Sequence[Tuple[ic.InputBatchType, ic.TargetBatchType, ic.MetadataType]],
+    Sequence[Tuple[ic.InputBatchType, ic.TargetBatchType, ic.MetadataBatchType]],
 ]:
     ...
 
@@ -357,7 +422,7 @@ def predict(
     augmentation: Optional[ic.Augmentation] = None,
 ) -> Tuple[
     Sequence[ic.TargetBatchType],
-    Sequence[Tuple[ic.InputBatchType, ic.TargetBatchType, ic.MetadataType]],
+    Sequence[Tuple[ic.InputBatchType, ic.TargetBatchType, ic.MetadataBatchType]],
 ]:
     ...
 
@@ -371,7 +436,7 @@ def predict(
     augmentation: Optional[od.Augmentation] = None,
 ) -> Tuple[
     Sequence[od.TargetBatchType],
-    Sequence[Tuple[od.InputBatchType, od.TargetBatchType, od.MetadataType]],
+    Sequence[Tuple[od.InputBatchType, od.TargetBatchType, od.MetadataBatchType]],
 ]:
     ...
 
@@ -384,19 +449,53 @@ def predict(
     augmentation: Optional[od.Augmentation] = None,
 ) -> Tuple[
     Sequence[od.TargetBatchType],
-    Sequence[Tuple[od.InputBatchType, od.TargetBatchType, od.MetadataType]],
+    Sequence[Tuple[od.InputBatchType, od.TargetBatchType, od.MetadataBatchType]],
 ]:
     ...
 
 
 def predict(
     *,
-    model: Model[Any, Any],
-    dataloader: Optional[DataLoader[Any, Any, Any]] = None,
-    dataset: Optional[Dataset[Any, Any, Any]] = None,
+    model: SomeModel,
+    dataloader: Optional[SomeDataLoader] = None,
+    dataset: Optional[SomeDataset] = None,
     batch_size: int = 1,
-    augmentation: Optional[Augmentation[Any, Any, Any, Any, Any, Any]] = None,
-) -> Any:
+    augmentation: Optional[SomeAugmentation] = None,
+) -> Tuple[
+    Sequence[SomeTargetBatchType],
+    Sequence[Tuple[SomeInputBatchType, SomeTargetBatchType, SomeMetadataBatchType]],
+]:
+    # doc-ignore: EX01
+    """
+    Make predictions for a given model & data source with optional augmentation
+
+    Some data source (either a dataloader or a dataset) must be provided
+    or an InvalidArgument exception is raised.
+
+    Parameters
+    ----------
+    model : SomeModel
+        Maite Model object.
+
+    dataset : Optional[SomeDataset], (default=None)
+        Compatible maite dataset.
+
+    batch_size : int, (default=1)
+        Batch size for use with dataset (ignored if dataset=None).
+
+    dataloader : Optional[SomeDataloader], (default=None)
+        Compatible maite dataloader.
+
+    augmentation : Optional[SomeAugmentation], (default=None)
+        Compatible maite augmentation.
+
+    Returns
+    -------
+    Tuple[Sequence[SomeTargetBatchType], Sequence[Tuple[SomeInputBatchType, SomeTargetBatchType, SomeMetadataBatchType]],
+        A tuple of the predictions (as a sequence fo batches) and a sequence
+        of tuples containing the information associated with each batch
+    """
+
     metric_results, preds, aug_data = _evaluate(
         model=model,
         dataloader=dataloader,
