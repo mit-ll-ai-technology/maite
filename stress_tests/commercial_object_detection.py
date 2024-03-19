@@ -1,5 +1,5 @@
 # %% [markdown]
-### Object Detection
+# # Object Detection Tutorial
 #
 # We obtain a HuggingFace model ("devonho/detr-resnet-50_finetuned_cppe5"),
 # dataset (cppe5), metric and wrap each as MAITE-compliant implementers.
@@ -11,9 +11,9 @@
 
 # required installs include transformers, torchmetrics, pycocotools
 
-from datasets import DatasetDict, load_dataset
-from torchmetrics.detection.iou import IntersectionOverUnion
+from datasets import load_dataset, DatasetDict
 from transformers import AutoImageProcessor, AutoModelForObjectDetection
+from torchmetrics.detection.iou import IntersectionOverUnion
 
 # import albumentations
 
@@ -66,19 +66,17 @@ image_processor = AutoImageProcessor.from_pretrained(checkpoint)
 # ## Setup for maite wrapping
 # %%
 
+# maite-specific imports
+from maite.protocols import ArrayLike
+from maite.protocols.object_detection import TargetBatchType, ObjectDetectionTarget
+
 # standard library imports
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Literal, Optional, Sequence, Tuple
+from typing import Tuple, Dict, Any, Sequence, List, Callable, Literal, Optional
 
 # common 3rd party imports
 import numpy as np
 import torch
-
-import maite.protocols.object_detection as od
-
-# maite-specific imports
-from maite.protocols import ArrayLike
-from maite.protocols.object_detection import ObjectDetectionTarget, TargetBatchType
 
 # %% [markdown]
 # ## Wrap model
@@ -93,7 +91,7 @@ class Cppe5_ObjectDetectionTarget:
     labels: torch.Tensor  # shape (N,)
 
 
-class MaiteCppe5_OD:
+class MaiteCppe5_OD_Model:
     def __init__(self):
         ...
 
@@ -318,7 +316,7 @@ from maite.workflows import evaluate
 MAX_LEN = 10
 
 metric_output, preds, aug_data = evaluate(
-    model=Cppe5_OD_Model_HF,
+    model=MaiteCppe5_OD_Model(),
     dataset=Maite_Cppe5_Dataset(
         cppe5_dataset=cppe5, partition="train", max_len=MAX_LEN
     ),
@@ -336,9 +334,8 @@ pp(metric_output)
 # ## Visualize evaluate results
 # %%
 from random import randint
-
-import matplotlib.patches as patches
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 
 ind = randint(0, len(aug_data) - 1)
 
@@ -367,7 +364,7 @@ def plot_example(
             edgecolor="r",
             facecolor="none",
         )
-        text = ax.text(box[0], box[3], id2label[label], color="red")
+        text = ax.text(box[0], box[3], id2label[int(label)], color="red")
         ax.add_patch(gt_rect)
 
     # Draw a green rectangle for each bounding box in predicted labels
