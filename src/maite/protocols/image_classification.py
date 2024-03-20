@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MIT
 
 from maite._internals.protocols.image_classification import (
-    ArrayLike,
     Augmentation,
     DataLoader,
     Dataset,
@@ -18,7 +17,6 @@ from maite._internals.protocols.image_classification import (
 )
 
 __all__ = [
-    "ArrayLike",
     "Augmentation",
     "DataLoader",
     "Dataset",

@@ -11,7 +11,8 @@ from typing import Any, Protocol, Sequence, runtime_checkable
 
 from typing_extensions import Dict, TypeAlias
 
-from . import ArrayLike, DatumMetadata, generic as gen
+from maite._internals.protocols import generic as gen
+from maite.protocols import ArrayLike
 
 # We *could* make ArrayLike generic and rely on the subscripts for ArrayLike type
 # annotations to hint to the user the appropriate shape. No runtime safety would
@@ -72,11 +73,11 @@ class ObjectDetectionTarget(Protocol):
 
 InputType: TypeAlias = ArrayLike  # shape [H, W, C]
 TargetType: TypeAlias = ObjectDetectionTarget
-MetadataType: TypeAlias = Dict[str, Any]
+DatumMetadataType: TypeAlias = Dict[str, Any]
 
 InputBatchType: TypeAlias = ArrayLike  # shape [N, H, W, C]
 TargetBatchType: TypeAlias = Sequence[TargetType]  # length N
-MetadataBatchType: TypeAlias = Sequence[DatumMetadata]
+DatumMetadataBatchType: TypeAlias = Sequence[DatumMetadataType]
 
 # TODO: Consider what pylance shows on cursoring over: "(type alias) Dataset: type[Dataset[ArrayLike, Dict[Unknown, Unknown], object]]"
 # Can these type hints be made more intuitive? Perhaps given a name like type[Dataset[InputType = ArrayLike,...]]
@@ -94,7 +95,7 @@ MetadataBatchType: TypeAlias = Sequence[DatumMetadata]
 #
 
 
-class Dataset(gen.Dataset[InputType, TargetType, MetadataType], Protocol):
+class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
     """
     A dataset protocol for object detection ML subproblem providing datum-level
     data access.
@@ -128,7 +129,7 @@ class DataLoader(
     gen.DataLoader[
         InputBatchType,
         TargetBatchType,
-        MetadataBatchType,
+        DatumMetadataBatchType,
     ],
     Protocol,
 ):
@@ -205,10 +206,10 @@ class Augmentation(
     gen.Augmentation[
         InputBatchType,
         TargetBatchType,
-        MetadataBatchType,
+        DatumMetadataBatchType,
         InputBatchType,
         TargetBatchType,
-        MetadataBatchType,
+        DatumMetadataBatchType,
     ],
     Protocol,
 ):

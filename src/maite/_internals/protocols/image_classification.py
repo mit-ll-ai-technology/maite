@@ -9,7 +9,8 @@ from typing import Any, Dict, Protocol, Sequence
 
 from typing_extensions import TypeAlias
 
-from . import ArrayLike, generic as gen
+from maite._internals.protocols import generic as gen
+from maite.protocols import ArrayLike
 
 # In below, the dimension names/meanings used are:
 #
@@ -21,16 +22,16 @@ from . import ArrayLike, generic as gen
 
 InputType: TypeAlias = ArrayLike  # shape [H, W, C]
 TargetType: TypeAlias = ArrayLike  # shape [Cl]
-MetadataType: TypeAlias = Dict[str, Any]
+DatumMetadataType: TypeAlias = Dict[str, Any]
 
 InputBatchType: TypeAlias = ArrayLike  # shape [N, H, W, C]
 TargetBatchType: TypeAlias = ArrayLike  # shape [N, Cl]
-MetadataBatchType: TypeAlias = Sequence[MetadataType]
+DatumMetadataBatchType: TypeAlias = Sequence[DatumMetadataType]
 
 # Initialize component classes based on generic and Input/Target/Metadata types
 
 
-class Dataset(gen.Dataset[InputType, TargetType, MetadataType], Protocol):
+class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
     """
     A dataset protocol for image classification ML subproblem providing datum-level
     data access.
@@ -61,7 +62,7 @@ class Dataset(gen.Dataset[InputType, TargetType, MetadataType], Protocol):
 
 
 class DataLoader(
-    gen.DataLoader[InputBatchType, TargetBatchType, MetadataBatchType], Protocol
+    gen.DataLoader[InputBatchType, TargetBatchType, DatumMetadataBatchType], Protocol
 ):
     """
     A dataloader protocol for the image classification ML subproblem providing
@@ -133,10 +134,10 @@ class Augmentation(
     gen.Augmentation[
         InputBatchType,
         TargetBatchType,
-        MetadataBatchType,
+        DatumMetadataBatchType,
         InputBatchType,
         TargetBatchType,
-        MetadataBatchType,
+        DatumMetadataBatchType,
     ],
     Protocol,
 ):
