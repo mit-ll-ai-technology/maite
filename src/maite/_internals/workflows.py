@@ -22,11 +22,13 @@ SomeAugmentation: TypeAlias = Union[ic.Augmentation, od.Augmentation]
 
 SomeTargetBatchType: TypeAlias = Union[ic.TargetBatchType, od.TargetBatchType]
 SomeInputBatchType: TypeAlias = Union[ic.InputBatchType, od.InputBatchType]
-SomeMetadataBatchType: TypeAlias = Union[ic.MetadataBatchType, od.MetadataBatchType]
+SomeMetadataBatchType: TypeAlias = Union[
+    ic.DatumMetadataBatchType, od.DatumMetadataBatchType
+]
 
 SomeInputType: TypeAlias = Union[ic.InputType, od.InputType]
 SomeTargetType: TypeAlias = Union[ic.TargetType, od.TargetType]
-SomeMetadataType: TypeAlias = Union[ic.MetadataType, od.MetadataType]
+SomeMetadataType: TypeAlias = Union[ic.DatumMetadataType, od.DatumMetadataType]
 
 # TODO: populate evaluate overloads to expose simpler API
 # @overload
@@ -47,7 +49,7 @@ SomeMetadataType: TypeAlias = Union[ic.MetadataType, od.MetadataType]
 #      collation is necessary to concatenate ArrayLikes before being fed to the model
 #      rather than just feeding each input sequentially to the model.)
 
-# TODO: Permit returned predictions to be of type tuple[InputDataType, TargetDataType, MetadataType].
+# TODO: Permit returned predictions to be of type tuple[InputDataType, TargetDataType, DatumMetadataType].
 #       This seems much more natural as it is independent of batch_size.
 #   - This would require we use some method to iterate over "Batch-types" to get individual types
 #     and package individual predictions into an iterable. batch objects are iterable and then
@@ -158,7 +160,7 @@ def evaluate(
 ) -> Tuple[
     MetricComputeReturnType,
     Sequence[ic.TargetBatchType],
-    Sequence[Tuple[ic.InputBatchType, ic.TargetBatchType, ic.MetadataBatchType]],
+    Sequence[Tuple[ic.InputBatchType, ic.TargetBatchType, ic.DatumMetadataBatchType]],
 ]:
     ...
 
@@ -177,7 +179,7 @@ def evaluate(
 ) -> Tuple[
     MetricComputeReturnType,
     Sequence[ic.TargetBatchType],
-    Sequence[Tuple[ic.InputBatchType, ic.TargetBatchType, ic.MetadataBatchType]],
+    Sequence[Tuple[ic.InputBatchType, ic.TargetBatchType, ic.DatumMetadataBatchType]],
 ]:
     ...
 
@@ -195,7 +197,7 @@ def evaluate(
 ) -> Tuple[
     MetricComputeReturnType,
     Sequence[od.TargetBatchType],
-    Sequence[Tuple[od.InputBatchType, od.TargetBatchType, od.MetadataBatchType]],
+    Sequence[Tuple[od.InputBatchType, od.TargetBatchType, od.DatumMetadataBatchType]],
 ]:
     ...
 
@@ -214,7 +216,7 @@ def evaluate(
 ) -> Tuple[
     MetricComputeReturnType,
     Sequence[od.TargetBatchType],
-    Sequence[Tuple[od.InputBatchType, od.TargetBatchType, od.MetadataBatchType]],
+    Sequence[Tuple[od.InputBatchType, od.TargetBatchType, od.DatumMetadataBatchType]],
 ]:
     ...
 
@@ -306,12 +308,12 @@ def _evaluate(
     # more a detail of the forward pass.
     #
     # There should be problem-specific way to go from a
-    # sequence of tuples of InputBatchType/TargetBatchType/MetadataBatchType
-    # to a sequence of InputType/TargetType/MetadataType.
+    # sequence of tuples of InputBatchType/TargetBatchType/DatumMetadataBatchType
+    # to a sequence of InputType/TargetType/DatumMetadataType.
 
     # We don't currently guarantee that by iterating over a
-    # <Input|Target|Metadata>BatchType that one will get individual instances
-    # of <Input|Target|Metadata> type
+    # <Input|Target|DatumMetadata>BatchType that one will get individual instances
+    # of <Input|Target|DatumMetadata> type
     # ArrayLike protocol does not guarantee any iteration support, (although
     # we could convert to a numpy array and iterate on it.)
 
@@ -372,10 +374,10 @@ def evaluate(
 
     Returns
     -------
-    Tuple[Dict[str, Any], Sequence[TargetType], Sequence[Tuple[InputType, TargetType, MetadataType]]]
+    Tuple[Dict[str, Any], Sequence[TargetType], Sequence[Tuple[InputType, TargetType, DatumMetadataType]]]
         Tuple of returned metric value, sequence of model predictions, and
         sequence of data tuples fed to the model during inference. The actual
-        types represented by InputType, TargetType, and MetadataType will vary
+        types represented by InputType, TargetType, and DatumMetadataType will vary
         by the domain of the components provided as input arguments (e.g. image
         classification or object detection.)
         Note that the second and third return arguments will be empty if
@@ -408,7 +410,7 @@ def predict(
     augmentation: Optional[ic.Augmentation] = None,
 ) -> Tuple[
     Sequence[ic.TargetBatchType],
-    Sequence[Tuple[ic.InputBatchType, ic.TargetBatchType, ic.MetadataBatchType]],
+    Sequence[Tuple[ic.InputBatchType, ic.TargetBatchType, ic.DatumMetadataBatchType]],
 ]:
     ...
 
@@ -421,7 +423,7 @@ def predict(
     augmentation: Optional[ic.Augmentation] = None,
 ) -> Tuple[
     Sequence[ic.TargetBatchType],
-    Sequence[Tuple[ic.InputBatchType, ic.TargetBatchType, ic.MetadataBatchType]],
+    Sequence[Tuple[ic.InputBatchType, ic.TargetBatchType, ic.DatumMetadataBatchType]],
 ]:
     ...
 
@@ -435,7 +437,7 @@ def predict(
     augmentation: Optional[od.Augmentation] = None,
 ) -> Tuple[
     Sequence[od.TargetBatchType],
-    Sequence[Tuple[od.InputBatchType, od.TargetBatchType, od.MetadataBatchType]],
+    Sequence[Tuple[od.InputBatchType, od.TargetBatchType, od.DatumMetadataBatchType]],
 ]:
     ...
 
@@ -448,7 +450,7 @@ def predict(
     augmentation: Optional[od.Augmentation] = None,
 ) -> Tuple[
     Sequence[od.TargetBatchType],
-    Sequence[Tuple[od.InputBatchType, od.TargetBatchType, od.MetadataBatchType]],
+    Sequence[Tuple[od.InputBatchType, od.TargetBatchType, od.DatumMetadataBatchType]],
 ]:
     ...
 

@@ -20,12 +20,12 @@ from maite.protocols import ArrayLike
 # C  - image channel
 # Cl - classification label (one-hot for ground-truth label, or pseudo-probabilities for predictions)
 
-InputType: TypeAlias = ArrayLike  # shape [H, W, C]
-TargetType: TypeAlias = ArrayLike  # shape [Cl]
+InputType: TypeAlias = ArrayLike  # shape (C, H, W)
+TargetType: TypeAlias = ArrayLike  # shape (Cl,)
 DatumMetadataType: TypeAlias = Dict[str, Any]
 
-InputBatchType: TypeAlias = ArrayLike  # shape [N, H, W, C]
-TargetBatchType: TypeAlias = ArrayLike  # shape [N, Cl]
+InputBatchType: TypeAlias = ArrayLike  # shape (N, C, H, W)
+TargetBatchType: TypeAlias = ArrayLike  # shape (N, Cl)
 DatumMetadataBatchType: TypeAlias = Sequence[DatumMetadataType]
 
 # Initialize component classes based on generic and Input/Target/Metadata types
@@ -82,7 +82,7 @@ class DataLoader(
     __iter__->Iterator[tuple[ArrayLike, ArrayLike, Sequence[Dict[str, Any]]]]
         Return an iterator over batches of data, where each batch contains a tuple of
         of model input batch (as an `ArrayLike`), model target batch (as
-        `Sequence[ObjectDetectionTarget]`), and batched datum-level metadata
+        an `ArrayLike`), and batched datum-level metadata
         (as `Sequence[Dict[str,Any]]`), respectively.
 
     """
@@ -99,9 +99,9 @@ class Model(gen.Model[InputBatchType, TargetBatchType], Protocol):
     Methods
     -------
 
-    __call__(input_batch: ArrayLike)->Sequence[ObjectDetectionTarget]
+    __call__(input_batch: ArrayLike)->ArrayLike
         Make a model prediction for inputs in input batch. Input batch is expected in
-        the shape [N, C, H, W].
+        the shape `(N, C, H, W)`.
     """
 
 
@@ -115,7 +115,7 @@ class Metric(gen.Metric[TargetBatchType], Protocol):
     Methods
     -------
 
-    update(preds: ArrayLike, targets: Sequence[ObjectDetectionTarget])->None
+    update(preds: ArrayLike, targets: ArrayLike)->None
         Add predictions and targets to metric's cache for later calculation. Both
         preds and targets are expected to be of shape `(N, Cl)`.
 

@@ -50,20 +50,20 @@ class ObjectDetectionTarget(Protocol):
     @property
     def boxes(
         self,
-    ) -> ArrayLike:  # shape [N, 4], format X0, Y0, X1, Y1 (document this somewhere?)
+    ) -> ArrayLike:  # shape (N, 4), format X0, Y0, X1, Y1
         ...
 
     @property
-    def labels(self) -> ArrayLike:  # label for each shape [N]
+    def labels(self) -> ArrayLike:  # label for each box, shape (N,)
         ...
 
     @property
-    def scores(self) -> ArrayLike:  # shape [N]
+    def scores(self) -> ArrayLike:  # shape (N,)
         ...
 
 
 # TODO: remove typeAlias statements for more user readability (or figure out how to resolve TypeAliases
-#       to their targets for end-user.) Knowing a dataset returns a tuple of "InputType, TargetType, MetadataType"
+#       to their targets for end-user.) Knowing a dataset returns a tuple of "InputType, TargetType, DatumMetadataType"
 #       isn't helpful to implementers, however the aliasing *is* helpful to developers.
 #
 #       Perhaps the functionality I want is named TypeVars for generic, so developers can understand that
@@ -71,11 +71,11 @@ class ObjectDetectionTarget(Protocol):
 #       concrete Dataset classes (like object_detection.Dataset) are ArrayLike, ObjectDetectionTarget, Dict[str,Any]
 #       so users can see an expected return type of Tuple[ArrayLike, ObjectDetectionTarget, Dict[str,Any]]
 
-InputType: TypeAlias = ArrayLike  # shape [H, W, C]
+InputType: TypeAlias = ArrayLike  # shape (C, H, W)
 TargetType: TypeAlias = ObjectDetectionTarget
 DatumMetadataType: TypeAlias = Dict[str, Any]
 
-InputBatchType: TypeAlias = ArrayLike  # shape [N, H, W, C]
+InputBatchType: TypeAlias = ArrayLike  # shape (N, C, H, W)
 TargetBatchType: TypeAlias = Sequence[TargetType]  # length N
 DatumMetadataBatchType: TypeAlias = Sequence[DatumMetadataType]
 
