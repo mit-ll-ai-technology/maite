@@ -202,7 +202,8 @@ MetadataBatchType: TypeAlias = Sequence[DatumMetadata]
 
 class Dataset(gen.Dataset[InputType, TargetType, MetadataType], Protocol):
     """
-    An object detection dataset protocol for datum-level access.
+    A dataset protocol for object detection ML subproblem providing datum-level
+    data access.
 
     Implementers must provide index lookup (via `__getitem__(ind: int)` method) and
     support `len` (via `__len__()` method). Data elements looked up this way correspond to
@@ -238,24 +239,25 @@ class DataLoader(
     Protocol,
 ):
     """
-    An object detection dataloader protocol for batch-level access.
+    A dataloader protocol for the object detection ML subproblem providing
+    batch-level data access.
 
     Implementers must provide an iterable object (returning an iterator via the
     `__iter__` method) that yields tuples containing batches of data. These tuples
-    contain types ArrayLike, Sequence[ObjectDetectionTarget],
-    Sequence[Dict[str, Any]], which correspond to model input batch, model target
-    type batch, and datum-specific metadata.
+    contain types `ArrayLike` (shape `(N, C, H, W)`), `Sequence[ObjectDetectionTarget]`,
+    `Sequence[Dict[str, Any]]`, which correspond to model input batch, model target
+    type batch, and datum metadata batch.
 
-    Note: Unlike Dataset, this type does not require indexing support, only iterating.
+    Note: Unlike Dataset, this protocol does not require indexing support, only iterating.
 
     Methods
     -------
 
     __iter__->Iterator[tuple[ArrayLike, Sequence[ObjectDetectionTarget], Sequence[Dict[str, Any]]]]
         Return an iterator over batches of data, where each batch contains a tuple of
-        of model input batch (as an ArrayLike), model target batch (as
-        Sequence[ObjectDetectionTarget]), and batch metadata (as Sequence[Dict[str,Any]]),
-        respectively.
+        of model input batch (as an `ArrayLike`), model target batch (as
+        `Sequence[ObjectDetectionTarget]`), and batched datum-level metadata
+        (as `Sequence[Dict[str,Any]]`), respectively.
 
     """
 
@@ -264,7 +266,7 @@ class DataLoader(
 
 class Model(gen.Model[InputBatchType, TargetBatchType], Protocol):
     """
-    An object detection model protocol.
+    A model protocol for the image classification ML subproblem.
 
     Implementers must provide a `__call__` method that operates on a batch of model inputs
     (as ArrayLikes) and returns a batch of model targets (implementers of
@@ -283,23 +285,23 @@ class Model(gen.Model[InputBatchType, TargetBatchType], Protocol):
 
 class Metric(gen.Metric[TargetBatchType], Protocol):
     """
-    An object detection metric protocol.
+    A metric protocol for the object detection ML subproblem.
 
-    A metric in this sense is expected to measure the level of agreement between model
-    predictions and ground-truth labels.
+     A metric in this sense is expected to measure the level of agreement between model
+     predictions and ground-truth labels.
 
-    Methods
-    -------
+     Methods
+     -------
 
-    update(preds: Sequence[ObjectDetectionTarget], targets: Sequence[ObjectDetectionTarget])->None
-        Add predictions and targets to metric's cache for later calculation.
+     update(preds: Sequence[ObjectDetectionTarget], targets: Sequence[ObjectDetectionTarget])->None
+         Add predictions and targets to metric's cache for later calculation.
 
-    compute()->Dict[str, Any]
-        Compute metric value(s) for currently cached predictions and targets, returned as
-        a dictionary.
+     compute()->Dict[str, Any]
+         Compute metric value(s) for currently cached predictions and targets, returned as
+         a dictionary.
 
-    clear()->None
-        Clear contents of current metric's cache of predictions and targets.
+     clear()->None
+         Clear contents of current metric's cache of predictions and targets.
     """
 
     ...
@@ -317,7 +319,7 @@ class Augmentation(
     Protocol,
 ):
     """
-    An object detection augmentation protocol.
+    An augmentation protocol for the object detection subproblem.
 
     An augmentation is expected to take a batch of data and return a modified version of
     that batch. Implementers must provide a single method that takes and returns a
@@ -331,9 +333,9 @@ class Augmentation(
     __call__(datum: Tuple[ArrayLike, ObjectDetectionTarget, dict[str, Any]])->
                 Tuple[ArrayLike, ObjectDetectionTarget, dict[str, Any]]
         Return a modified version of original data batch. A data batch is represented
-        by a tuple of model input batch (as an ArrayLike), model target batch (as
-        Sequence[ObjectDetectionTarget]), and batch metadata (as Sequence[Dict[str,Any]]),
-        respectively.
+        by a tuple of model input batch (as an `ArrayLike` of shape `(N, C, H, W)`),
+        model target batch (as `Sequence[ObjectDetectionTarget]`), and batch metadata
+        (as `Sequence[Dict[str,Any]]`), respectively.
     """
 
     ...
