@@ -92,112 +92,6 @@ MetadataBatchType: TypeAlias = Sequence[DatumMetadata]
 #       determine type of output. -> we can handle this problem by considering only
 #       batches as the required handled types for model, augmentation, and metric objects
 #
-# TODO: Consider other potential strategies for defining TargetType
-
-# Some potential solutions:
-# 0) A protocol class with named/typed fields like the following:
-#
-#      class ObjectDetectionTarget(Protocol):
-#          x0: float
-#          y0: float
-#          x1: float
-#          x2: float
-#          label: int
-#          score: float
-#
-#    This has the following advantages:
-#       - Follows structural subtype class variance rules (ObjectDetectionTarget covariant wrt read-only
-#         attributes, classes using ObjectDetectionTarget as return type covariant wrt read-only attributes,
-#         and classes using ObjectDetectionTarget as method argument type contravariant wrt
-#         read-only attributes.) (Similar to TypedDict)
-#       - Permits additional fields to be added by component implementers
-#         and application developers (unlike TypedDicts)
-#       - Permits implementer use in covariant contexts without either explicit importing
-#         or redefining protocols locally (i.e. in Dataset/Dataloader/Model components can
-#         return structural subtype of ObjectDetectionTarget, but not in Augmentation or Metric
-#         components) (like TypedDicts, but doesn't cap additional fields)
-#       - Application developers could import implementer classes and workflows
-#         and be assured that all protocol-compliant workflows would interoperate.
-#
-#
-# 1) A Typed Dict -- This type is self-documenting and would permit users to simply populate
-#    regular dictionaries in their implementations. The dictionary type is also
-#    familiar to users of TorchMetrics and TorchVision as an output type for object
-#    detection. Containing classes returning this object would be covariant
-#    in the types of the dictionary keys. Containing classes taking this type as an
-#    input argument would be contravariant wrt the types of the dictionary keys.
-#
-#    Using TypedDicts in this style ("as protocols", so to speak) does admit some challenges.
-#    Most notably, users would be unable to add any application-specific data-attributes or methods
-#    to their objects.
-#
-# class ObjDetectionTypedDict(TypedDict)):
-#     x0: float
-#     x1: float
-#     y0: float
-#     y1: float
-#     label: int
-#     score: float
-#
-#     - For a user to pass static type checking in their own component or
-#       workflow implementations, we need to permit them to use this type
-#       as both an input (in Metric and Augmentation components) and an
-#       output (for Dataset, DataLoader, and Model components).
-#       Using a TypedDict as though it were a protocol has drawbacks
-#
-#       1) Import this particular TypedDict from MAITE
-#       2) Redefine a 'compatible' TypedDict
-#       3) "Under-annotate" to simply 'Dict[str, Any]' and rely on MAITE utilities
-#          to complain about incompatible types
-#       4) Not annotate -- this is not a good answer
-#
-# 2) A typed 6-tuple -- this type clear about what the fields correspond to, but
-#    leverages a ubiquitous python class.
-#
-#     ObjectDetectionTarget: TypeAlias = Tuple[float, float, float, float, int, float]
-#
-# 3) A named tuple -- This is very clear and using built-in Python, but this
-#    puts onus on implementer to return a named tuple since regular tuples with
-#    compatible sizes/types don't seem to support assignment to this named tuple type.
-#
-# class ObjDetectionNamedTarget(NamedTuple):
-#     x0: float
-#     x1: float
-#     y0: float
-#     y1: float
-#     label: int
-#     score: float
-#
-# 4) Variadic generics -- this type hint could specifies the purpose of
-#    each entry in a returned tuple, but using the type of each entry
-#    to denote its meaning masks potentially useful information about its
-#    real type. From the user's perspective, if a dimension is of type 'x0', what type is it?
-#
-#    The more obvious use case would be to denote size of Tensors/Arrays as below.
-#
-#    ```
-#    #An example of using type annotations to communicate shape information:
-#
-#    H: TypeAlias = int
-#    W: TypeAlias = int
-#    C: TypeAlias = int
-#
-#    def get_some_data() -> Tensor[H,W,C]:
-#    ...
-#    ```
-#
-#    This is also a relatively new language feature which was (only introduced in python 3.11 with PEP 646)
-#    See https://mit-ll-ai-technology.github.io/maite/explanation/type_hints_for_API_design.html#on-using-annotations-to-write-legible-documentation
-#    or https://peps.python.org/pep-0646/ for more information.
-#
-# 5) Generic dict (e.g. Dict[str, Union[ArrayLike, str]]--this is expandable by the user,
-#    (unlike TypedDicts), but does not prescribe key names (which would need to be checked
-#    dynamically. This requirement for dynamic checking is a substantial disadvantage when
-#    writing a protocol library because users could only see incompatibilities in their
-#    implementations after running. The purpose of protocols would be to permit
-#    statically valid implementers to provide some assurance of performance.
-#    (Note: perfect assurance isn't currently possible because e.g. shape of an array is
-#    not checkable statically, and could create runtime exceptions.)
 
 
 class Dataset(gen.Dataset[InputType, TargetType, MetadataType], Protocol):
@@ -269,15 +163,15 @@ class Model(gen.Model[InputBatchType, TargetBatchType], Protocol):
     A model protocol for the image classification ML subproblem.
 
     Implementers must provide a `__call__` method that operates on a batch of model inputs
-    (as ArrayLikes) and returns a batch of model targets (implementers of
-    Sequence[ObjectDetectionTarget])
+    (as `ArrayLike`s) and returns a batch of model targets (as
+    `Sequence[ObjectDetectionTarget]`)
 
     Methods
     -------
 
     __call__(input_batch: ArrayLike)->Sequence[ObjectDetectionTarget]
         Make a model prediction for inputs in input batch. Input batch is expected in
-        the shape [N, C, H, W].
+        the shape `(N, C, H, W)`.
     """
 
     ...
