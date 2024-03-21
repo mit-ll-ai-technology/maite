@@ -161,7 +161,7 @@ class DataLoader(
 
 class Model(gen.Model[InputBatchType, TargetBatchType], Protocol):
     """
-    A model protocol for the image classification ML subproblem.
+    A model protocol for the object detection ML subproblem.
 
     Implementers must provide a `__call__` method that operates on a batch of model inputs
     (as `ArrayLike`s) and returns a batch of model targets (as
