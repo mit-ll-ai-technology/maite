@@ -123,7 +123,7 @@ class Metric(gen.Metric[TargetBatchType], Protocol):
         Compute metric value(s) for currently cached predictions and targets, returned as
         a dictionary.
 
-    clear()->None
+    reset()->None
         Clear contents of current metric's cache of predictions and targets.
     """
 
