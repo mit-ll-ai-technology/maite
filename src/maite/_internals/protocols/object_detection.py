@@ -219,8 +219,9 @@ class Augmentation(
     An augmentation is expected to take a batch of data and return a modified version of
     that batch. Implementers must provide a single method that takes and returns a
     labeled data batch, where a labeled data batch is represented by a tuple of types
-    `ArrayLike`, `Sequence[ObjectDetectionTarget]`, and `Sequence[Dict[str,Any]]`. These correspond to the model
-    input type, model target type, and datum-specific metadata, respectively.
+    `ArrayLike`, `Sequence[ObjectDetectionTarget]`, and `Sequence[Dict[str,Any]]`. These
+    correspond to the model input batch type, model target batch type, and datum-level
+    metadata batch type, respectively.
 
     Methods
     -------
