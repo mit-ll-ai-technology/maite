@@ -370,14 +370,14 @@ def evaluate(
         Set to True to return post-augmentation data as a function output.
 
     return_preds : bool, (default=False)
-        Set to True to return raw predictions as function output.
+        Set to True to return raw predictions as a function output.
 
     Returns
     -------
-    Tuple[Dict[str, Any], Sequence[TargetType], Sequence[Tuple[InputType, TargetType, DatumMetadataType]]]
+    Tuple[Dict[str, Any], Sequence[TargetType], Sequence[Tuple[InputBatchType, TargetBatchType, DatumMetadataBatchType]]]
         Tuple of returned metric value, sequence of model predictions, and
-        sequence of data tuples fed to the model during inference. The actual
-        types represented by InputType, TargetType, and DatumMetadataType will vary
+        sequence of data batch tuples fed to the model during inference. The actual
+        types represented by InputBatchType, TargetBatchType, and DatumMetadataBatchType will vary
         by the domain of the components provided as input arguments (e.g. image
         classification or object detection.)
         Note that the second and third return arguments will be empty if
