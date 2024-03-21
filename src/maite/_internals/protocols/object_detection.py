@@ -219,14 +219,14 @@ class Augmentation(
     An augmentation is expected to take a batch of data and return a modified version of
     that batch. Implementers must provide a single method that takes and returns a
     labeled data batch, where a labeled data batch is represented by a tuple of types
-    `ArrayLike`, `ObjectDetectionTarget`, and `Dict[str,Any]`. These correspond to the model
+    `ArrayLike`, `Sequence[ObjectDetectionTarget]`, and `Sequence[Dict[str,Any]]`. These correspond to the model
     input type, model target type, and datum-specific metadata, respectively.
 
     Methods
     -------
 
-    __call__(datum: Tuple[ArrayLike, ObjectDetectionTarget, dict[str, Any]])->
-                Tuple[ArrayLike, ObjectDetectionTarget, dict[str, Any]]
+    __call__(datum: Tuple[ArrayLike, Sequence[ObjectDetectionTarget, dict[str, Any]]])->
+                Tuple[ArrayLike, Sequence[ObjectDetectionTarget], Sequence[dict[str, Any]]]
         Return a modified version of original data batch. A data batch is represented
         by a tuple of model input batch (as an `ArrayLike` of shape `(N, C, H, W)`),
         model target batch (as `Sequence[ObjectDetectionTarget]`), and batch metadata

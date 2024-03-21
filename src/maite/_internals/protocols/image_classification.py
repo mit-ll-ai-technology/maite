@@ -148,14 +148,14 @@ class Augmentation(
     that batch. Implementers must provide a single method that takes and returns a
     labeled data batch, where a labeled data batch is represented by a tuple of types
     `ArrayLike` (of shape `(N, C, H, W)`), `ArrayLike` (of shape `(N, Cl)`), and
-    `Dict[str,Any]`. These correspond to the model input type, model target type, and
+    `Sequence[Dict[str,Any]]`. These correspond to the model input type, model target type, and
     datum-specific metadata, respectively.
 
     Methods
     -------
 
-    __call__(datum: Tuple[ArrayLike, ArrayLike, dict[str, Any]])->
-                Tuple[ArrayLike, ArrayLike, dict[str, Any]]
+    __call__(datum: Tuple[ArrayLike, ArrayLike, Sequence[dict[str, Any]]])->
+                Tuple[ArrayLike, ArrayLike, Sequence[dict[str, Any]]]
         Return a modified version of original data batch. A data batch is represented
         by a tuple of model input batch (as an `ArrayLike` of shape `(N, C, H, W)`),
         model target batch (as an `ArrayLike` of shape `(N, Cl)`), and batch metadata (as
