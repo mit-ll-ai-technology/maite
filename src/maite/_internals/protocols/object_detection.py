@@ -226,7 +226,7 @@ class Augmentation(
     Methods
     -------
 
-    __call__(datum: Tuple[ArrayLike, Sequence[ObjectDetectionTarget, dict[str, Any]]])->
+    __call__(datum: Tuple[ArrayLike, Sequence[ObjectDetectionTarget], Sequence[dict[str, Any]]])->
                 Tuple[ArrayLike, Sequence[ObjectDetectionTarget], Sequence[dict[str, Any]]]
         Return a modified version of original data batch. A data batch is represented
         by a tuple of model input batch (as an `ArrayLike` of shape `(N, C, H, W)`),
