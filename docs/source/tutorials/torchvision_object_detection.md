@@ -27,13 +27,13 @@ This tutorial uses MAITE, PyTorch, Torchvision, Torchmetrics, Kornia, and Matplo
 ```
 conda create --name torchvision_obj_det python=3.10
 conda activate torchvision_obj_det
-pip install maite typing jupyter torch torchvision torchmetrics pycocotools kornia
+pip install maite jupyter torch torchvision torchmetrics pycocotools kornia
 ```
 
 Note that the notebook was tested with these exact versions:
 
 ```
-pip install maite typing==3.7.4.3 jupyter==1.0.0 torch==2.2.1 torchvision==0.17.1 torchmetrics==1.3.2 pycocotools==2.0.7 kornia==0.7.2
+pip install maite jupyter==1.0.0 torch==2.2.1 torchvision==0.17.1 torchmetrics==1.3.2 pycocotools==2.0.7 kornia==0.7.2
 ```
 
 Now that we've created an environment, we import the necessary libraries:
@@ -102,10 +102,10 @@ coco_subset_json = json.load(open(ann_subset_file, "r"))
 download_images(coco_subset_json, root=COCO_ROOT)
 ```
 
-    skipping http://images.cocodataset.org/val2017/000000397133.jpg
-    skipping http://images.cocodataset.org/val2017/000000037777.jpg
-    skipping http://images.cocodataset.org/val2017/000000252219.jpg
-    skipping http://images.cocodataset.org/val2017/000000087038.jpg
+    saving http://images.cocodataset.org/val2017/000000397133.jpg to coco_val2017_subset/000000397133.jpg ... done
+    saving http://images.cocodataset.org/val2017/000000037777.jpg to coco_val2017_subset/000000037777.jpg ... done
+    saving http://images.cocodataset.org/val2017/000000252219.jpg to coco_val2017_subset/000000252219.jpg ... done
+    saving http://images.cocodataset.org/val2017/000000087038.jpg to coco_val2017_subset/000000087038.jpg ... done
 
 
 Next we create the Torchvision dataset and verify that its reduced length is 4:
@@ -560,7 +560,7 @@ results["map_50"]
 
 
 
-    tensor(0.2771)
+    tensor(0.2165)
 
 
 

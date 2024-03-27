@@ -8,6 +8,22 @@ from typing import Any, Protocol, runtime_checkable
 # define ArrayLike protocol
 @runtime_checkable
 class ArrayLike(Protocol):
+    """
+    A protocol for an array-like object.
+
+    Examples
+    --------
+
+    Arrays like NumPy NDArray objects are `ArrayLike` along
+    with PyTorch and JAX tensors.
+
+    >>> import numpy as np
+    >>> from maite.protocols import ArrayLike
+    >>> array_like: ArrayLike = np.ones((3, 224, 224))
+    >>> isinstance(array_like, ArrayLike)
+    True
+    """
+
     def __array__(self) -> Any:
         ...
 

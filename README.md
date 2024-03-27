@@ -64,7 +64,7 @@ about the details of the specific implementation. With an `ArrayLike` protocol, 
 operate on arrays without JATIC defining the specific implementation of arrays to use.
 
 ```python
-from maite.protocols import ArrayLilke
+from maite.protocols import ArrayLike
 
 # ArrayLike requires objects to implement `__array__`
 assert not isinstance([1, 2, 3], ArrayLike)
