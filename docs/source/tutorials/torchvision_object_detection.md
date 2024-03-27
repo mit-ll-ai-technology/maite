@@ -6,7 +6,7 @@
 
 The MAITE library provides interfaces for AI components such as datasets, models, metrics, and augmentations to make their use more consistent across test and evaluation (T&E) tools and workflows.
 
-In this tutorial, you will use MAITE in conjuction with a set of common libraries to:
+In this tutorial, you will use MAITE in conjunction with a set of common libraries to:
 * Wrap an object detection dataset from Torchvision (COCO),
 * Wrap an object detection model from Torchvision (Faster RCNN),
 * Wrap a metric from Torchmetrics (mean average precision),
