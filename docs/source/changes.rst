@@ -8,6 +8,41 @@ Changelog
 This is a record of all past maite releases and what went into them, in reverse 
 chronological order.
 
+.. _v0.5.0:
+
+---------------------
+0.5.0 - 2024-03-27
+---------------------
+
+This is a large change to protocols based on experiences of our growing userbase.
+These updated protocols should enable a wider variety of use cases, but do contain backward-compatibility breaking changes.
+
+High-level overview:
+
+- A tutorial has been added to show use of core protocols in object detection domain `here <https://github.com/mit-ll-ai-technology/maite/blob/main/examples/torchvision_object_detection/torchvision_object_detection.ipynb>`_
+- An overview of updated core protocols has been provided `here <https://github.com/mit-ll-ai-technology/maite/blob/main/examples/protocol_overview.ipynb>`_
+
+More details:
+
+- Class structure of core component protocols is now ML subproblem agnostic -- e.g. `Model`s must all implement the same named methods.
+- Type signatures of core component protocols are specific to ML subproblem domain, permitting subproblem specific component implementers to know more about their expected inputs/outputs.
+- Within an ML subproblem, the model input type, model target type, datum metadata type (and the 3 respective batched versions of these types) are prescribed. 
+- Core protocols (with the exception of `Dataset`) are only required to handle data in batched form (this may change)
+- `evaluate` and `predict` functions now exist under `maite.workflows` to separate them from core protocols
+- `evaluate` function takes ML components from either image processing or object detection domain (component domain compatibility enforced statically)
+- `predict` function permits running model inference without evaluate
+- "Interop" functionality (i.e. ability to load maite-wrapped versions of components originating from some third parties) has been rolled back temporarily as core architecture changed.
+
+.. _v0.4.0:
+
+---------------------
+0.4.0 - 2024-01-22
+---------------------
+
+- bugfix: update maite exception naming and fix typo in import
+- feature: added GitHub workflow to build and publish public documentation
+- feature: added the use of DatumMetadata in tutorial basic_evaluation.ipynb
+
 
 .. _v0.3.6:
 
