@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 import copy
-from typing import Any, Dict, Iterator, List, Tuple
+from typing import Any, Dict, Iterator, List, Sequence, Tuple
 
 import numpy as np
 
@@ -106,7 +106,7 @@ def test_evaluate_ic():
             __datum_batch: Tuple[
                 InputBatchType, TargetBatchType, DatumMetadataBatchType
             ],
-        ) -> Tuple[np.ndarray, np.ndarray, List[Dict[str, Any]]]:
+        ) -> Tuple[np.ndarray, np.ndarray, Sequence[Dict[str, Any]]]:
             input_batch_aug = np.array(__datum_batch[0])
             target_batch_aug = np.array(__datum_batch[1])
             metadata_batch_aug = copy.deepcopy(__datum_batch[2])

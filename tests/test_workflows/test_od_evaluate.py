@@ -230,6 +230,3 @@ def test_evaluate_od():
 
     evaluate(model=model, dataloader=dataloader, metric=metric, augmentation=aug)
     evaluate(model=model, dataset=dataset, metric=metric, augmentation=aug)
-
-
-# pyright check of above code? just verifies that evaluate will complain exactly when we expect it to
