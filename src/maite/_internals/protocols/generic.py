@@ -3,7 +3,16 @@
 # SPDX-License-Identifier: MIT
 from __future__ import annotations
 
-from typing import Any, Dict, Generic, Iterator, Protocol, Tuple, TypeVar
+from typing import (
+    Any,
+    Dict,
+    Generic,
+    Iterator,
+    Protocol,
+    Tuple,
+    TypeVar,
+    runtime_checkable,
+)
 
 # Note
 # (1) the use of each generic variable can differ in generic components
@@ -106,6 +115,7 @@ MetricComputeReturnType = Dict[str, Any]
 #         ...
 
 
+@runtime_checkable
 class Dataset(Protocol, Generic[InputType_co, TargetType_co, DatumMetadataType_co]):
     def __getitem__(
         self, __ind: int
@@ -116,6 +126,7 @@ class Dataset(Protocol, Generic[InputType_co, TargetType_co, DatumMetadataType_c
         ...
 
 
+@runtime_checkable
 class DataLoader(Protocol, Generic[InputType_co, TargetType_co, DatumMetadataType_co]):
     def __iter__(
         self,
@@ -126,6 +137,7 @@ class DataLoader(Protocol, Generic[InputType_co, TargetType_co, DatumMetadataTyp
     # so it doesn't need to return itself from the __iter__ method nor have a __next__ method
 
 
+@runtime_checkable
 class Model(
     Protocol,
     Generic[InputBatchType_cn, TargetBatchType_co],
@@ -134,6 +146,7 @@ class Model(
         ...
 
 
+@runtime_checkable
 class Metric(Protocol, Generic[TargetBatchType_cn]):
     def reset(self) -> None:
         ...
@@ -152,6 +165,7 @@ class Metric(Protocol, Generic[TargetBatchType_cn]):
     # if all inputs to update are on GPU, operation should happen in framework specific way
 
 
+@runtime_checkable
 class Augmentation(
     Protocol,
     Generic[

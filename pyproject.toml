@@ -56,7 +56,8 @@ test = [
   "pyright >= 1.1.280",
   "pytest >= 7.0.0",
   "hypothesis >= 6.61.0",
-  "pytest-mock >= 3.10.0"
+  "pytest-mock >= 3.10.0",
+  "torch>=1.7,!=1.12.0",
 ]
 
 pillow = ["pillow >= 9.4.0"]
