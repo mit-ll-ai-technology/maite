@@ -1,3 +1,7 @@
+# Copyright 2023, MASSACHUSETTS INSTITUTE OF TECHNOLOGY
+# Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).
+# SPDX-License-Identifier: MIT
+
 import copy
 from typing import Any, Dict, Iterator, List, Tuple
 
@@ -26,7 +30,7 @@ from maite.workflows import evaluate
 #
 # InputBatchType = np.array of shape [N, C, H, W]
 # TargetBatchType = np.array of shape [N, Cl]
-# DatumMetadataBatchType is a list[Dict[str, Any]]
+# DatumMetadataBatchType = list[Dict[str, Any]]
 
 
 N_CLASSES = 5  # how many classes
@@ -105,7 +109,7 @@ def test_evaluate_ic():
         ) -> Tuple[np.ndarray, np.ndarray, List[Dict[str, Any]]]:
             input_batch_aug = np.array(__datum_batch[0])
             target_batch_aug = np.array(__datum_batch[1])
-            metadata_batch_aug = [copy.deepcopy(md) for md in __datum_batch[2]]
+            metadata_batch_aug = copy.deepcopy(__datum_batch[2])
 
             # -- manipulate input_batch, target_batch, and metadata_batch --
 
