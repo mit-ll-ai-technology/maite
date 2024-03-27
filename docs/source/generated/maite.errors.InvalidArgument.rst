@@ -1,5 +1,5 @@
-maite.errors.InvalidArgument
-=====================================
+﻿maite.errors.InvalidArgument
+============================
 
 .. currentmodule:: maite.errors
 

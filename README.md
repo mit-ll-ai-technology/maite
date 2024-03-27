@@ -1,6 +1,5 @@
 # MAITE (Modular AI Trustworthy Engineering)
 
-
 <p align="center">
   <a>
     <img src="https://img.shields.io/badge/python-3.8%20&#8208;%203.10-blue.svg" alt="Python version support" />
@@ -13,25 +12,32 @@
     <img src="https://img.shields.io/badge/hypothesis-tested-brightgreen.svg" alt="Tested with Hypothesis" />
   </a>
   </p>
+
   <p align="center">
     A toolbox of common types, protocols, and tooling to support AI test and evaluation workflows.
   </p>
+
+  <p align="center">
+    Check out the <a href="https://mit-ll-ai-technology.github.io/maite/">documentation</a> and 
+    <a href="https://github.com/mit-ll-ai-technology/maite/tree/main/examples">examples</a> for more information.
+  </p>
 </p>
 
-MAITE is a library of common types, protocols (a.k.a. structural subtypes), and utilities for test and evaluation of supervised machine learning models. It is being developed under the [Joint AI T&E Infrastructure Capability (JATIC)](https://gitlab.jatic.net/home/) program. Its goal is to streamline the development of JATIC Python projects by ensuring seamless, synergistic workflows when working with MAITE-conforming Python packages for different test and evaluation tasks. To this end, MAITE seeks to eliminate redundancies that would otherwise be shared across – and burden – separate efforts in machine learning test and evalution. MAITE is designed to be a low-dependency, frequently-improved Python package that is installed by JATIC projects. The following is a brief overview of the current state of its submodules.
+MAITE is a library of common types, protocols (a.k.a. structural subtypes), and utilities for the test and evaluation (T&E) of supervised machine learning models. It is being developed under the [Joint AI T&E Infrastructure Capability (JATIC)](https://gitlab.jatic.net/home/) program. Its goal is to streamline the development of JATIC Python projects by ensuring seamless, synergistic workflows when working with MAITE-conforming Python packages for different T&E tasks. To this end, MAITE seeks to eliminate redundancies that would otherwise be shared across – and burden – separate efforts in machine learning test and evaluation. MAITE is designed to be a low-dependency, frequently-improved Python package that is installed by JATIC projects. The following is a brief overview of the current state of its submodules.
 
 ## Installation
 
-### From Python Packaging Index (PyPI)
-To install from the python packaging index (PyPI), run:
+### From Python Package Index (PyPI)
+To install from the Python Package Index (PyPI), run:
+
 ```console
 pip install maite
 ```
 
-> :information_source: You can install MAITE for a given release tag, e.g. `v0.3.0`, by running:
+> :information_source: You can install MAITE for a given release tag, e.g. `v0.4.0`, by running:
 >
 >```console
->$ pip install git+ssh://git@github.com/mit-ll-ai-technology/maite.git@v0.3.0
+>$ pip install git+ssh://git@github.com/mit-ll-ai-technology/maite.git@v0.4.0
 >```
 
 ### From Source
@@ -58,20 +64,22 @@ about the details of the specific implementation. With an `ArrayLike` protocol, 
 operate on arrays without JATIC defining the specific implementation of arrays to use.
 
 ```python
-import maite.protocols as pr
+from maite.protocols import ArrayLike
 
-# ArrayLike requires objects that implement `__array__` or `__array_interface__`.
-assert not isinstance([1, 2, 3], pr.ArrayLike)
+# ArrayLike requires objects to implement `__array__`
+assert not isinstance([1, 2, 3], ArrayLike)
 
+# NumPy ndarray objects satisfy protocol
 import numpy as np
 np_array = np.zeros((10, 10, 3), dtype=np.uint8)
-assert isinstance(np_array, pr.ArrayLike)
+assert isinstance(np_array, ArrayLike)
 
+# PyTorch Tensor objects satisfy protocol 
 import torch as tr
 array = tr.as_tensor(np_array)
-assert isinstance(array, pr.ArrayLike)
-
+assert isinstance(array, ArrayLike)
 ```
+
 ## maite.testing
 
 *Support for rigorous software testing*
@@ -103,24 +111,6 @@ The `testing` subpackage is designed to help developers create a rigorous automa
   'timeInSec': 0.319}}
 ```
 
-## maite.interop
-
-*MAITE-compatible wrappers for popular 3rd-party libraries*
-
-The interop subpackage provides wrappers and functions that allow use of popular 3rd party libraries and frameworks in ways that are compatible with MAITE protocols. For example, this module can be used to wrap the image classification datasets provided by Torchvision so that they adhere to the MAITE protocols for datasets.
-
-```python
->>> from maite import load_dataset
->>> dataset = load_dataset(
-...     provider="torchvision",
-...     dataset_name="CIFAR10",
-...     task="image-classification",
-...     split="test",
-...     root="~/data",
-...     download=True
-... )
-```
-
 ## maite.utils
 
 *General utilities*
@@ -129,12 +119,11 @@ The interop subpackage provides wrappers and functions that allow use of popular
 - Specialized PyTorch utilities to help facilitate safe and ergonomic code patterns for manipulating stateful torch objects
 - Other quality assurance and convenience functions that may be widely useful across projects
 
-
 ## Disclaimer
 
 DISTRIBUTION STATEMENT A. Approved for public release. Distribution is unlimited.
 
-© 2023 MASSACHUSETTS INSTITUTE OF TECHNOLOGY
+© 2024 MASSACHUSETTS INSTITUTE OF TECHNOLOGY
 
 * Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014)
 * SPDX-License-Identifier: MIT

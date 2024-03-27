@@ -29,19 +29,6 @@ the latest pre-release of MAITE with:
 
    $ pip install --pre maite
 
-The MAITE library also contains APIs and helper utilities to provide interoperability with
-various other open-source libraries such as
-`HuggingFace <https://huggingface.co/datasets>`_,
-`TorchVision <https://pytorch.org/vision/stable/datasets.html>`_, and
-`TorchMetrics <https://github.com/Lightning-AI/torchmetrics>`_.
-To leverage these capabilities, run the following command to install maite
-along with these other dependencies:
-
-.. code:: console
-
-   $ pip install maite[all_interop]
-
-
 Learning about MAITE
 ============================
 

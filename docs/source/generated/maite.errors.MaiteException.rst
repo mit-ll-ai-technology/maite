@@ -1,5 +1,5 @@
-maite.errors.MaiteException
-======================================
+﻿maite.errors.MaiteException
+===========================
 
 .. currentmodule:: maite.errors
 

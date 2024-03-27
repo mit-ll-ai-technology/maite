@@ -15,7 +15,8 @@ readme = "README.md"
 requires-python = ">=3.8"
 dependencies = [
   "typing-extensions >= 4.5,!= 4.6",
-  "numpy >= 1.17"
+  "numpy >= 1.17",
+  "torch>=1.7,!=1.12.0"
 ]
 
 license = { file = "LICENSE.txt" }
@@ -56,33 +57,7 @@ test = [
   "pyright >= 1.1.280",
   "pytest >= 7.0.0",
   "hypothesis >= 6.61.0",
-  "pytest-mock >= 3.10.0"
-]
-
-pillow = ["pillow >= 9.4.0"]
-torch=["torch>=1.7,!=1.12.0"]
-torchvision = ["torchvision >= 0.14.1"]
-huggingface_hub = ["huggingface-hub >= 0.11.1"]
-datasets = ["datasets >= 2.7.1"]
-transformers = ["transformers >= 4.25.1"]
-timm = ["timm >= 0.6.12"]
-torchmetrics = ["torchmetrics >= 0.11"]
-torcheval = ["torcheval >= 0.0.6"]
-tqdm = ["tqdm>=4.62.1"]
-
-
-all_interop = [
-  "numpy >= 1.17",
-  "torch>=1.7,!=1.12.0",
-  "torchvision >= 0.14.1",
-  "datasets >= 2.7.1",
-  "huggingface-hub >= 0.11.1",
-  "transformers >= 4.25.1",
-  "timm >= 0.6.12",
-  "torchmetrics >= 0.11",
-  "torcheval >= 0.0.6",
-  "tqdm>=4.62.1",
-  "pycocotools"
+  "pytest-mock >= 3.10.0",
 ]
 
 # dependencies required to build all documentation with sphinx

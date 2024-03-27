@@ -130,3 +130,6 @@ dmypy.json
 
 # setuptools_scm
 **/_version.py
+
+# "desktop services store" on Mac
+**/.DS_Store
