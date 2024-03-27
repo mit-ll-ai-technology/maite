@@ -1,5 +1,5 @@
-maite.testing.pytest.cleandir
-======================================
+﻿maite.testing.pytest.cleandir
+=============================
 
 .. currentmodule:: maite.testing.pytest
 

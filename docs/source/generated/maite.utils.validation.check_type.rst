@@ -1,5 +1,5 @@
-maite.utils.validation.check\_type
-===========================================
+﻿maite.utils.validation.check\_type
+==================================
 
 .. currentmodule:: maite.utils.validation
 

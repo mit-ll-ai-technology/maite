@@ -1,5 +1,5 @@
-maite.utils.validation.check\_one\_of
-==============================================
+﻿maite.utils.validation.check\_one\_of
+=====================================
 
 .. currentmodule:: maite.utils.validation
 
