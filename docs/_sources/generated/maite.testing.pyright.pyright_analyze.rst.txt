@@ -1,5 +1,5 @@
-maite.testing.pyright.pyright\_analyze
-===============================================
+﻿maite.testing.pyright.pyright\_analyze
+======================================
 
 .. currentmodule:: maite.testing.pyright
 

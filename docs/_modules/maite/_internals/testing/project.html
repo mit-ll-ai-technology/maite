@@ -8,7 +8,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>maite._internals.testing.project &#8212; maite 0.4.0 documentation</title>
+    <title>maite._internals.testing.project &#8212; maite 0.5.0 documentation</title>
   
   
   
@@ -109,7 +109,7 @@
   
   
   
-    <p class="title logo__title">maite 0.4.0 documentation</p>
+    <p class="title logo__title">maite 0.5.0 documentation</p>
   
 </a></div>
     
@@ -488,11 +488,7 @@ document.write(`
 <span class="sd">    &gt;&gt;&gt; scanner = ModuleScan()</span>
 <span class="sd">    &gt;&gt;&gt; results = scanner(&quot;maite&quot;)</span>
 <span class="sd">    &gt;&gt;&gt; results[&quot;summary&quot;]</span>
-<span class="sd">    {&#39;filesAnalyzed&#39;: 9,</span>
-<span class="sd">    &#39;errorCount&#39;: 0,</span>
-<span class="sd">    &#39;warningCount&#39;: 0,</span>
-<span class="sd">    &#39;informationCount&#39;: 0,</span>
-<span class="sd">    &#39;timeInSec&#39;: 0.662}</span>
+<span class="sd">    {&#39;filesAnalyzed&#39;: ..., &#39;errorCount&#39;: ..., &#39;warningCount&#39;: ..., &#39;informationCount&#39;: ..., &#39;timeInSec&#39;: ...}</span>
 <span class="sd">    &gt;&gt;&gt; results[&quot;typeCompleteness&quot;][&quot;packageName&quot;]</span>
 <span class="sd">    &#39;maite&#39;</span>
 <span class="sd">    &gt;&gt;&gt; results[&quot;typeCompleteness&quot;][&quot;symbols&quot;]</span>
@@ -513,12 +509,12 @@ document.write(`
 <span class="sd">    ...</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="ModuleScan.__init__"><a class="viewcode-back" href="../../../../generated/maite.testing.project.ModuleScan.html#maite.testing.project.ModuleScan.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cached_scan</span> <span class="o">=</span> <span class="n">lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">typed</span><span class="o">=</span><span class="kc">False</span><span class="p">)(</span>
             <span class="n">_pyright_type_completeness</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
 
-<div class="viewcode-block" id="ModuleScan.__call__"><a class="viewcode-back" href="../../../../generated/maite.testing.project.ModuleScan.html#maite.testing.project.ModuleScan.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">module_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
@@ -592,13 +588,13 @@ document.write(`
                 <span class="sa">f</span><span class="s2">&quot;there may be a typo in the name.&quot;</span>
             <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">out</span><span class="p">)</span> <span class="k">if</span> <span class="n">cached</span> <span class="k">else</span> <span class="n">out</span></div>
+        <span class="k">return</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">out</span><span class="p">)</span> <span class="k">if</span> <span class="n">cached</span> <span class="k">else</span> <span class="n">out</span>
 
-<div class="viewcode-block" id="ModuleScan.clear_cache"><a class="viewcode-back" href="../../../../generated/maite.testing.project.ModuleScan.html#maite.testing.project.ModuleScan.clear_cache">[docs]</a>    <span class="k">def</span> <span class="nf">clear_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">clear_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># doc-ignore: GL08</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cached_scan</span><span class="o">.</span><span class="n">cache_clear</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cached_scan</span><span class="o">.</span><span class="n">cache_clear</span><span class="p">()</span>
 
-<div class="viewcode-block" id="ModuleScan.cache_info"><a class="viewcode-back" href="../../../../generated/maite.testing.project.ModuleScan.html#maite.testing.project.ModuleScan.cache_info">[docs]</a>    <span class="k">def</span> <span class="nf">cache_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CacheInfo</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">cache_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CacheInfo</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Access the scanner instance&#39;s cache stats.</span>
 
@@ -612,7 +608,7 @@ document.write(`
 <span class="sd">            - currsize</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># doc-ignore: NOQA</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_scan</span><span class="o">.</span><span class="n">cache_info</span><span class="p">()</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_scan</span><span class="o">.</span><span class="n">cache_info</span><span class="p">()</span></div>
 
 
 <span class="k">def</span> <span class="nf">_is_dunder</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -697,22 +693,7 @@ document.write(`
 <span class="sd">    Accessing symbols from the `docs` submodule.</span>
 
 <span class="sd">    &gt;&gt;&gt; get_public_symbols(results, submodule=&quot;maite.testing.docs&quot;)</span>
-<span class="sd">    [{&#39;category&#39;: &#39;type alias&#39;,</span>
-<span class="sd">    &#39;name&#39;: &#39;maite.testing.docs.NumpyDocErrorCode&#39;,</span>
-<span class="sd">    &#39;referenceCount&#39;: 1,</span>
-<span class="sd">    &#39;isExported&#39;: True,</span>
-<span class="sd">    &#39;isTypeKnown&#39;: True,</span>
-<span class="sd">    &#39;isTypeAmbiguous&#39;: False,</span>
-<span class="sd">    &#39;diagnostics&#39;: []},</span>
-<span class="sd">    {&#39;category&#39;: &#39;class&#39;,</span>
-<span class="sd">    &#39;name&#39;: &#39;maite.testing.docs.NumPyDocResults&#39;,</span>
-<span class="sd">    &#39;referenceCount&#39;: 1,</span>
-<span class="sd">    &#39;isExported&#39;: True,</span>
-<span class="sd">    &#39;isTypeKnown&#39;: True,</span>
-<span class="sd">    &#39;isTypeAmbiguous&#39;: False,</span>
-<span class="sd">    &#39;diagnostics&#39;: []},</span>
-<span class="sd">    ...</span>
-<span class="sd">    ]</span>
+<span class="sd">    [{&#39;category&#39;: &#39;type alias&#39;, &#39;name&#39;: &#39;maite.testing.docs.NumpyDocErrorCode&#39;, &#39;referenceCount&#39;: 1, &#39;isExported&#39;: True, &#39;isTypeKnown&#39;: True, &#39;isTypeAmbiguous&#39;: False, &#39;diagnostics&#39;: []}, {&#39;category&#39;: &#39;class&#39;, &#39;name&#39;: &#39;maite.testing.docs.NumPyDocResults&#39;, &#39;referenceCount&#39;: 1, &#39;isExported&#39;: True, &#39;isTypeKnown&#39;: True, &#39;isTypeAmbiguous&#39;: False, &#39;diagnostics&#39;...</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">check_type</span><span class="p">(</span><span class="s2">&quot;scan&quot;</span><span class="p">,</span> <span class="n">scan</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">)</span>
     <span class="n">check_type</span><span class="p">(</span><span class="s2">&quot;submodule&quot;</span><span class="p">,</span> <span class="n">submodule</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>

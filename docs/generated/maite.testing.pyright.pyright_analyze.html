@@ -5,7 +5,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.19: https://docutils.sourceforge.io/" name="generator"/>
-<title>maite.testing.pyright.pyright_analyze — maite 0.4.0 documentation</title>
+<title>maite.testing.pyright.pyright_analyze — maite 0.5.0 documentation</title>
 <script data-cfasync="false">
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
@@ -64,7 +64,7 @@
 <div class="navbar-header-items__start">
 <div class="navbar-item">
 <a class="navbar-brand logo" href="../index.html">
-<p class="title logo__title">maite 0.4.0 documentation</p>
+<p class="title logo__title">maite 0.5.0 documentation</p>
 </a></div>
 </div>
 <div class="col-lg-9 navbar-header-items">
@@ -194,48 +194,27 @@ document.write(`
 <p aria-level="1" class="bd-links__title" role="heading">Section Navigation</p>
 <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="maite.protocols.ArrayLike.html">maite.protocols.ArrayLike</a></li>
-<li class="toctree-l1"><a class="reference internal" href="maite.protocols.SupportsArray.html">maite.protocols.SupportsArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.image_classification.Dataset.html">maite.protocols.image_classification.Dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.image_classification.DataLoader.html">maite.protocols.image_classification.DataLoader</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.object_detection.ObjectDetectionTarget.html">maite.protocols.object_detection.ObjectDetectionTarget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.object_detection.Dataset.html">maite.protocols.object_detection.Dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.object_detection.DataLoader.html">maite.protocols.object_detection.DataLoader</a></li>
 </ul>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="maite.protocols.HasDataBoxes.html">maite.protocols.HasDataBoxes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="maite.protocols.HasDataBoxesLabels.html">maite.protocols.HasDataBoxesLabels</a></li>
-<li class="toctree-l1"><a class="reference internal" href="maite.protocols.HasDataImage.html">maite.protocols.HasDataImage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="maite.protocols.HasDataLabel.html">maite.protocols.HasDataLabel</a></li>
-<li class="toctree-l1"><a class="reference internal" href="maite.protocols.HasDataObjects.html">maite.protocols.HasDataObjects</a></li>
-<li class="toctree-l1"><a class="reference internal" href="maite.protocols.SupportsImageClassification.html">maite.protocols.SupportsImageClassification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="maite.protocols.SupportsObjectDetection.html">maite.protocols.SupportsObjectDetection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.image_classification.Model.html">maite.protocols.image_classification.Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.object_detection.Model.html">maite.protocols.object_detection.Model</a></li>
 </ul>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="maite.protocols.Dataset.html">maite.protocols.Dataset</a></li>
-<li class="toctree-l1"><a class="reference internal" href="maite.protocols.VisionDataset.html">maite.protocols.VisionDataset</a></li>
-<li class="toctree-l1"><a class="reference internal" href="maite.protocols.ObjectDetectionDataset.html">maite.protocols.ObjectDetectionDataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.image_classification.Augmentation.html">maite.protocols.image_classification.Augmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.object_detection.Augmentation.html">maite.protocols.object_detection.Augmentation</a></li>
 </ul>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="maite.protocols.HasLogits.html">maite.protocols.HasLogits</a></li>
-<li class="toctree-l1"><a class="reference internal" href="maite.protocols.HasProbs.html">maite.protocols.HasProbs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="maite.protocols.HasScores.html">maite.protocols.HasScores</a></li>
-<li class="toctree-l1"><a class="reference internal" href="maite.protocols.HasDetectionLogits.html">maite.protocols.HasDetectionLogits</a></li>
-<li class="toctree-l1"><a class="reference internal" href="maite.protocols.HasDetectionPredictions.html">maite.protocols.HasDetectionPredictions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="maite.protocols.HasDetectionProbs.html">maite.protocols.HasDetectionProbs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.image_classification.Metric.html">maite.protocols.image_classification.Metric</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.object_detection.Metric.html">maite.protocols.object_detection.Metric</a></li>
 </ul>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="maite.protocols.Model.html">maite.protocols.Model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="maite.protocols.ImageClassifier.html">maite.protocols.ImageClassifier</a></li>
-<li class="toctree-l1"><a class="reference internal" href="maite.protocols.ObjectDetector.html">maite.protocols.ObjectDetector</a></li>
-</ul>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="maite.protocols.Metric.html">maite.protocols.Metric</a></li>
-</ul>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="maite.list_datasets.html">maite.list_datasets</a></li>
-<li class="toctree-l1"><a class="reference internal" href="maite.load_dataset.html">maite.load_dataset</a></li>
-<li class="toctree-l1"><a class="reference internal" href="maite.list_models.html">maite.list_models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="maite.load_model.html">maite.load_model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="maite.list_metrics.html">maite.list_metrics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="maite.load_metric.html">maite.load_metric</a></li>
-</ul>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="maite.evaluate.html">maite.evaluate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.workflows.evaluate.html">maite.workflows.evaluate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.workflows.predict.html">maite.workflows.predict</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="maite.utils.validation.check_type.html">maite.utils.validation.check_type</a></li>
@@ -400,36 +379,18 @@ error. Defaults to ‘basic’.</p>
 <p class="rubric">Examples</p>
 <p>Here pyright will record an error when scan a function that attempts to add a
 string-annotated variable to an integer.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">):</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">maite.testing.pyright</span> <span class="kn">import</span> <a class="sphinx-codeautolink-a" href="../generated/maite.testing.pyright.pyright_analyze.html#maite.testing.pyright.pyright_analyze" title="maite.testing.pyright.pyright_analyze"><span class="n">pyright_analyze</span></a>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">):</span>
 <span class="gp">... </span>    <span class="k">return</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">x</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">pyright_analyze</span><span class="p">(</span><span class="n">f</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-<span class="go">{'version': '1.1.281',</span>
-<span class="go"> 'time': '1669686515154',</span>
-<span class="go"> 'generalDiagnostics': [{'file': 'source.py',</span>
-<span class="go">   'severity': 'error',</span>
-<span class="go">   'message': 'Operator "+" not supported for types "Literal[1]" and "str"\n\xa0\xa0Operator "+" not supported for types "Literal[1]" and "str"',</span>
-<span class="go">   'range': {'start': {'line': 1, 'character': 11},</span>
-<span class="go">    'end': {'line': 1, 'character': 16}},</span>
-<span class="go">   'rule': 'reportGeneralTypeIssues'}],</span>
-<span class="go"> 'summary': {'filesAnalyzed': 20,</span>
-<span class="go">  'errorCount': 1,</span>
-<span class="go">  'warningCount': 0,</span>
-<span class="go">  'informationCount': 0,</span>
-<span class="go">  'timeInSec': 0.319}}</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../generated/maite.testing.pyright.pyright_analyze.html#maite.testing.pyright.pyright_analyze" title="maite.testing.pyright.pyright_analyze"><span class="n">pyright_analyze</span></a><span class="p">(</span><span class="n">f</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="go">{'version': ..., 'time': ..., 'generalDiagnostics': [{'file': ..., 'severity': ..., 'message': 'Operator "+" not supported for types "Literal[1]" and "str"', 'range': {'start': {'line': ..., 'character': ...}, 'end': {'line': ..., 'character': ...}}, 'rule': ...}], 'summary': {'filesAnalyzed': ..., 'errorCount': 1, 'warningCount': 0, 'informationCount': 0, 'timeInSec': ...}}</span>
 </pre></div>
 </div>
 <p>Whereas this function scans “clean”.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">g</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">)</span> <span class="o">-&gt;</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">:</span>
 <span class="gp">... </span>    <span class="k">return</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">x</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pyright_analyze</span><span class="p">(</span><span class="n">g</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-<span class="go">{'version': '1.1.281',</span>
-<span class="go"> 'time': '1669686578833',</span>
-<span class="go"> 'generalDiagnostics': [],</span>
-<span class="go"> 'summary': {'filesAnalyzed': 20,</span>
-<span class="go">  'errorCount': 0,</span>
-<span class="go">  'warningCount': 0,</span>
-<span class="go">  'informationCount': 0,</span>
-<span class="go">  'timeInSec': 0.29}}</span>
+<span class="go">{'version': ..., 'time': ..., 'generalDiagnostics': ..., 'summary': {'filesAnalyzed': ..., 'errorCount': 0, 'warningCount': 0, 'informationCount': 0, 'timeInSec': ...}}</span>
 </pre></div>
 </div>
 <p>All imports must occur within the context of the scanned-object, or the imports can

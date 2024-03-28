@@ -10,7 +10,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 <meta content="The changelog for maite, including what's new." name="description" />
 
-    <title>Changelog &#8212; maite 0.4.0 documentation</title>
+    <title>Changelog &#8212; maite 0.5.0 documentation</title>
   
   
   
@@ -112,7 +112,7 @@
   
   
   
-    <p class="title logo__title">maite 0.4.0 documentation</p>
+    <p class="title logo__title">maite 0.5.0 documentation</p>
   
 </a></div>
     
@@ -354,16 +354,37 @@ document.write(`
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this heading">#</a></h1>
 <p>This is a record of all past maite releases and what went into them, in reverse
 chronological order.</p>
-<section id="v0-4-0">
-<span id="id0"></span><h2>0.4.0 - 2024-01-22<a class="headerlink" href="#v0-4-0" title="Permalink to this heading">#</a></h2>
+<section id="v0-5-0">
+<span id="id1"></span><h2>0.5.0 - 2024-03-28<a class="headerlink" href="#v0-5-0" title="Permalink to this heading">#</a></h2>
+<p>This is a large change to protocols based on experiences of our growing userbase.
+These updated protocols should enable a wider variety of use cases, but do contain backward-compatibility breaking changes.</p>
+<p>High-level overview:</p>
 <ul class="simple">
-<li><p>bugfix: update maite exception naming and fix typo in import
+<li><p>A tutorial has been added to show use of core protocols in object detection domain <a class="reference external" href="https://github.com/mit-ll-ai-technology/maite/blob/main/examples/torchvision_object_detection/torchvision_object_detection.ipynb">here</a></p></li>
+<li><p>An overview of updated core protocols has been provided <a class="reference external" href="https://github.com/mit-ll-ai-technology/maite/blob/main/examples/protocol_overview.ipynb">here</a></p></li>
+</ul>
+<p>More details:</p>
+<ul class="simple">
+<li><p>Class structure of core component protocols is now ML subproblem agnostic – e.g. <a href="#id3"><span class="problematic" id="id4">`</span></a>Model`s must all implement the same named methods.</p></li>
+<li><p>Type signatures of core component protocols are specific to ML subproblem domain, permitting subproblem specific component implementers to know more about their expected inputs/outputs.</p></li>
+<li><p>Within an ML subproblem, the model input type, model target type, datum metadata type (and the 3 respective batched versions of these types) are prescribed.</p></li>
+<li><p>Core protocols (with the exception of <code class="xref py py-obj docutils literal notranslate"><span class="pre">Dataset</span></code>) are only required to handle data in batched form (this may change)</p></li>
+<li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code> functions now exist under <code class="xref py py-obj docutils literal notranslate"><span class="pre">maite.workflows</span></code> to separate them from core protocols</p></li>
+<li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate</span></code> function takes ML components from either image processing or object detection domain (component domain compatibility enforced statically)</p></li>
+<li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code> function permits running model inference without evaluate</p></li>
+<li><p>“Interop” functionality (i.e. ability to load maite-wrapped versions of components originating from some third parties) has been rolled back temporarily as core architecture changed.</p></li>
+</ul>
+</section>
+<section id="v0-4-0">
+<span id="id5"></span><h2>0.4.0 - 2024-01-22<a class="headerlink" href="#v0-4-0" title="Permalink to this heading">#</a></h2>
+<ul class="simple">
+<li><p>bugfix: update maite exception naming and fix typo in import</p></li>
 <li><p>feature: added GitHub workflow to build and publish public documentation</p></li>
 <li><p>feature: added the use of DatumMetadata in tutorial basic_evaluation.ipynb</p></li>
 </ul>
 </section>
 <section id="v0-3-6">
-<span id="id1"></span><h2>0.3.6 - 2024-01-17<a class="headerlink" href="#v0-3-6" title="Permalink to this heading">#</a></h2>
+<span id="id6"></span><h2>0.3.6 - 2024-01-17<a class="headerlink" href="#v0-3-6" title="Permalink to this heading">#</a></h2>
 <p>This release includes the following changes:</p>
 <ul class="simple">
 <li><p>Fix issue with loading datasets from huggingface hub (e.g., cifar10) (bugfix)</p></li>
@@ -372,7 +393,7 @@ chronological order.</p>
 </ul>
 </section>
 <section id="v0-3-5">
-<span id="id2"></span><h2>0.3.5 - 2024-01-05<a class="headerlink" href="#v0-3-5" title="Permalink to this heading">#</a></h2>
+<span id="id7"></span><h2>0.3.5 - 2024-01-05<a class="headerlink" href="#v0-3-5" title="Permalink to this heading">#</a></h2>
 <p>This release includes two new features:</p>
 <ul class="simple">
 <li><p>Add dataset and datum level metadata</p></li>
@@ -380,19 +401,19 @@ chronological order.</p>
 </ul>
 </section>
 <section id="v0-3-4">
-<span id="id3"></span><h2>0.3.4 - 2023-12-21<a class="headerlink" href="#v0-3-4" title="Permalink to this heading">#</a></h2>
+<span id="id8"></span><h2>0.3.4 - 2023-12-21<a class="headerlink" href="#v0-3-4" title="Permalink to this heading">#</a></h2>
 <p>Publish to pypi.org</p>
 </section>
 <section id="v0-3-3">
-<span id="id4"></span><h2>0.3.3 - 2023-12-21<a class="headerlink" href="#v0-3-3" title="Permalink to this heading">#</a></h2>
+<span id="id9"></span><h2>0.3.3 - 2023-12-21<a class="headerlink" href="#v0-3-3" title="Permalink to this heading">#</a></h2>
 <p>Modifying pyproject.toml to obtain better author display representation on pypi</p>
 </section>
 <section id="v0-3-2">
-<span id="id5"></span><h2>0.3.2 - 2023-12-21<a class="headerlink" href="#v0-3-2" title="Permalink to this heading">#</a></h2>
+<span id="id10"></span><h2>0.3.2 - 2023-12-21<a class="headerlink" href="#v0-3-2" title="Permalink to this heading">#</a></h2>
 <p>Updated README and pyproject.toml in preparation for pypi publishing (Note: we are still publishing to test.pypi)</p>
 </section>
 <section id="v0-3-1">
-<span id="id6"></span><h2>0.3.1 - 2023-12-21<a class="headerlink" href="#v0-3-1" title="Permalink to this heading">#</a></h2>
+<span id="id11"></span><h2>0.3.1 - 2023-12-21<a class="headerlink" href="#v0-3-1" title="Permalink to this heading">#</a></h2>
 <p>Updated docs</p>
 <ul class="simple">
 <li><dl class="simple">
@@ -407,7 +428,7 @@ chronological order.</p>
 </ul>
 </section>
 <section id="v0-3-0">
-<span id="id7"></span><h2>0.3.0 - 2023-12-20<a class="headerlink" href="#v0-3-0" title="Permalink to this heading">#</a></h2>
+<span id="id12"></span><h2>0.3.0 - 2023-12-20<a class="headerlink" href="#v0-3-0" title="Permalink to this heading">#</a></h2>
 <p>This release is the first release after renaming to maite, the changes are follows</p>
 <ul class="simple">
 <li><p>The major change is the rename jatic-toolbox to maite</p></li>
@@ -416,7 +437,7 @@ chronological order.</p>
 </ul>
 </section>
 <section id="v0-2-0">
-<span id="id8"></span><h2>0.2.0 - 2023-07-28<a class="headerlink" href="#v0-2-0" title="Permalink to this heading">#</a></h2>
+<span id="id13"></span><h2>0.2.0 - 2023-07-28<a class="headerlink" href="#v0-2-0" title="Permalink to this heading">#</a></h2>
 <p>This release provides a number of updates for usability and stability.</p>
 <section id="protocols">
 <h3>Protocols<a class="headerlink" href="#protocols" title="Permalink to this heading">#</a></h3>
@@ -438,8 +459,8 @@ See <a class="reference external" href="https://jatic.pages.jatic.net/cdao/maite
 to a single or collection of arrays.  This is more consistent with model inference APIs utilized
 in most deep learning frameworks.</p>
 <ul class="simple">
-<li><p>See image classification model definition: <a class="reference internal" href="generated/maite.protocols.ImageClassifier.html#maite.protocols.ImageClassifier" title="maite.protocols.ImageClassifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">maite.protocols.ImageClassifier</span></code></a></p></li>
-<li><p>See object detection model definition: <a class="reference internal" href="generated/maite.protocols.ObjectDetector.html#maite.protocols.ObjectDetector" title="maite.protocols.ObjectDetector"><code class="xref py py-class docutils literal notranslate"><span class="pre">maite.protocols.ObjectDetector</span></code></a></p></li>
+<li><p>See image classification model definition: <code class="xref py py-class docutils literal notranslate"><span class="pre">maite.protocols.ImageClassifier</span></code></p></li>
+<li><p>See object detection model definition: <code class="xref py py-class docutils literal notranslate"><span class="pre">maite.protocols.ObjectDetector</span></code></p></li>
 </ul>
 <p>Additionally, the use of pre-processors and post-processors is kept internal to model inference
 rather than explicitly requiring users to manage these steps.  Integration with augmentations and
@@ -458,7 +479,7 @@ perturbations is still in development.</p>
 </section>
 </section>
 <section id="v0-1-0">
-<span id="id9"></span><h2>0.1.0 - 2023-05-12<a class="headerlink" href="#v0-1-0" title="Permalink to this heading">#</a></h2>
+<span id="id14"></span><h2>0.1.0 - 2023-05-12<a class="headerlink" href="#v0-1-0" title="Permalink to this heading">#</a></h2>
 <p>This marks the first release of the maite.  We are not yet at a stable <code class="xref py py-obj docutils literal notranslate"><span class="pre">v1.0.0</span></code>.  Future release will aim to improving testing and stability of the software for general use.</p>
 </section>
 </section>
@@ -501,6 +522,7 @@ perturbations is still in development.</p>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-5-0">0.5.0 - 2024-03-28</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-4-0">0.4.0 - 2024-01-22</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-3-6">0.3.6 - 2024-01-17</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-3-5">0.3.5 - 2024-01-05</a></li>

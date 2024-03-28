@@ -1,5 +1,5 @@
-maite.testing.project.get\_public\_symbols
-===================================================
+﻿maite.testing.project.get\_public\_symbols
+==========================================
 
 .. currentmodule:: maite.testing.project
 

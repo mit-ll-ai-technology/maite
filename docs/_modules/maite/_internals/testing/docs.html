@@ -8,7 +8,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>maite._internals.testing.docs &#8212; maite 0.4.0 documentation</title>
+    <title>maite._internals.testing.docs &#8212; maite 0.5.0 documentation</title>
   
   
   
@@ -109,7 +109,7 @@
   
   
   
-    <p class="title logo__title">maite 0.4.0 documentation</p>
+    <p class="title logo__title">maite 0.5.0 documentation</p>
   
 </a></div>
     
@@ -472,6 +472,31 @@ document.write(`
     <span class="k">return</span> <span class="n">ERRORCODES</span> <span class="o">&amp;</span> <span class="n">joined_tags</span>
 
 
+<span class="k">def</span> <span class="nf">person</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">age</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enter person ID info.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        The person&#39;s first name.</span>
+<span class="sd">    age : int</span>
+<span class="sd">        The person&#39;s age.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    None</span>
+<span class="sd">        Nothing.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from maite.testing.documentation.documentation_dependencies import person</span>
+<span class="sd">    &gt;&gt;&gt; person(&#39;Brad&#39;, 22)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span>
+
+
 <span class="nd">@overload</span>
 <span class="k">def</span> <span class="nf">validate_docstring</span><span class="p">(</span>
     <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
@@ -609,39 +634,13 @@ document.write(`
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; def person(name: str, age: int):</span>
-<span class="sd">    ...     &#39;&#39;&#39;</span>
-<span class="sd">    ...     Enter person ID info.</span>
-<span class="sd">    ...     </span>
-<span class="sd">    ...     Parameters</span>
-<span class="sd">    ...     ----------</span>
-<span class="sd">    ...     name : str</span>
-<span class="sd">    ...         The person&#39;s first name.</span>
-<span class="sd">    ...     </span>
-<span class="sd">    ...     age : int</span>
-<span class="sd">    ...         The person&#39;s age.</span>
-<span class="sd">    ...     </span>
-<span class="sd">    ...     Returns</span>
-<span class="sd">    ...     -------</span>
-<span class="sd">    ...     None</span>
-<span class="sd">    ...         Nothing.</span>
-<span class="sd">    ...     </span>
-<span class="sd">    ...     Examples</span>
-<span class="sd">    ...     --------</span>
-<span class="sd">    ...     person(&#39;Brad&#39;, 22)</span>
-<span class="sd">    ...     &#39;&#39;&#39;</span>
-<span class="sd">    ...     return</span>
-<span class="sd">    ...</span>
-
+<span class="sd">    &gt;&gt;&gt; from maite.testing.docs import validate_docstring, person</span>
+<span class="sd">    &gt;&gt;&gt; from maite.testing.documentation.documentation_dependencies import person</span>
+<span class="sd">    </span>
 <span class="sd">    Let&#39;s ignore the need for an Extended Summary and a See Also section.</span>
 
-<span class="sd">    &gt;&gt;&gt; out = validate_docstring(person, ignore=(&#39;ES01&#39;, &#39;SA01&#39;))</span>
-<span class="sd">    {&#39;error_count&#39;: 0,</span>
-<span class="sd">     &#39;errors&#39;: {},</span>
-<span class="sd">     &#39;ignored_errors&#39;: {&#39;ES01&#39;: [&#39;No extended summary found&#39;],</span>
-<span class="sd">      &#39;SA01&#39;: [&#39;See Also section not found&#39;]},</span>
-<span class="sd">     &#39;file&#39;: &#39;home/scratch.py&#39;,</span>
-<span class="sd">     &#39;file_line&#39;: 1}</span>
+<span class="sd">    &gt;&gt;&gt; validate_docstring(person, ignore=(&#39;ES01&#39;, &#39;SA01&#39;), include_ignored_errors=True) # doctest: +ELLIPSIS</span>
+<span class="sd">    {&#39;error_count&#39;: 0, &#39;errors&#39;: {},...&#39;ignored_errors&#39;: {&#39;ES01&#39;: [&#39;No extended summary found&#39;], &#39;SA01&#39;: [&#39;See Also section not found&#39;]}...</span>
 <span class="sd">    </span>
 <span class="sd">    Using comments to skip validation.</span>
 
@@ -649,15 +648,9 @@ document.write(`
 <span class="sd">    ...     # doc-ignore: GL08</span>
 <span class="sd">    ...     return</span>
 <span class="sd">    &gt;&gt;&gt; validate_docstring(f)</span>
-<span class="sd">    {&#39;error_count&#39;: 0,</span>
-<span class="sd">     &#39;errors&#39;: {},</span>
-<span class="sd">     &#39;file&#39;: &#39;foo.py&#39;,</span>
-<span class="sd">     &#39;file_line&#39;: 3}</span>
+<span class="sd">    {&#39;error_count&#39;: 0, &#39;errors&#39;: {}, &#39;file&#39;: None, &#39;file_line&#39;: 1}</span>
 <span class="sd">    &gt;&gt;&gt; validate_docstring(f, ignore_via_comments_allowed=False)</span>
-<span class="sd">    {&#39;error_count&#39;: 1,</span>
-<span class="sd">     &#39;errors&#39;: {&#39;GL08&#39;: [&#39;The object does not have a docstring&#39;]},</span>
-<span class="sd">     &#39;file&#39;: &#39;foo.py&#39;,</span>
-<span class="sd">     &#39;file_line&#39;: 3}</span>
+<span class="sd">    {&#39;error_count&#39;: 1, &#39;errors&#39;: {&#39;GL08&#39;: [&#39;The object does not have a docstring&#39;]}, &#39;file&#39;: None, &#39;file_line&#39;: 1}</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># fmt: on</span>
     <span class="k">try</span><span class="p">:</span>

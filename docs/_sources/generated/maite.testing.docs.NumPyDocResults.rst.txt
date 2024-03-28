@@ -1,5 +1,5 @@
-maite.testing.docs.NumPyDocResults
-===========================================
+﻿maite.testing.docs.NumPyDocResults
+==================================
 
 .. currentmodule:: maite.testing.docs
 

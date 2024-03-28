@@ -1,5 +1,5 @@
-maite.testing.pyright.PyrightOutput
-============================================
+﻿maite.testing.pyright.PyrightOutput
+===================================
 
 .. currentmodule:: maite.testing.pyright
 

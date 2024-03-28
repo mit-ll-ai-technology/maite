@@ -8,7 +8,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>maite._internals.testing.pyright &#8212; maite 0.4.0 documentation</title>
+    <title>maite._internals.testing.pyright &#8212; maite 0.5.0 documentation</title>
   
   
   
@@ -109,7 +109,7 @@
   
   
   
-    <p class="title logo__title">maite 0.4.0 documentation</p>
+    <p class="title logo__title">maite 0.5.0 documentation</p>
   
 </a></div>
     
@@ -768,36 +768,18 @@ document.write(`
 <span class="sd">    Here pyright will record an error when scan a function that attempts to add a</span>
 <span class="sd">    string-annotated variable to an integer.</span>
 
+<span class="sd">    &gt;&gt;&gt; from maite.testing.pyright import pyright_analyze</span>
 <span class="sd">    &gt;&gt;&gt; def f(x: str):</span>
 <span class="sd">    ...     return 1 + x</span>
 <span class="sd">    &gt;&gt;&gt; pyright_analyze(f)[0]</span>
-<span class="sd">    {&#39;version&#39;: &#39;1.1.281&#39;,</span>
-<span class="sd">     &#39;time&#39;: &#39;1669686515154&#39;,</span>
-<span class="sd">     &#39;generalDiagnostics&#39;: [{&#39;file&#39;: &#39;source.py&#39;,</span>
-<span class="sd">       &#39;severity&#39;: &#39;error&#39;,</span>
-<span class="sd">       &#39;message&#39;: &#39;Operator &quot;+&quot; not supported for types &quot;Literal[1]&quot; and &quot;str&quot;\n\xa0\xa0Operator &quot;+&quot; not supported for types &quot;Literal[1]&quot; and &quot;str&quot;&#39;,</span>
-<span class="sd">       &#39;range&#39;: {&#39;start&#39;: {&#39;line&#39;: 1, &#39;character&#39;: 11},</span>
-<span class="sd">        &#39;end&#39;: {&#39;line&#39;: 1, &#39;character&#39;: 16}},</span>
-<span class="sd">       &#39;rule&#39;: &#39;reportGeneralTypeIssues&#39;}],</span>
-<span class="sd">     &#39;summary&#39;: {&#39;filesAnalyzed&#39;: 20,</span>
-<span class="sd">      &#39;errorCount&#39;: 1,</span>
-<span class="sd">      &#39;warningCount&#39;: 0,</span>
-<span class="sd">      &#39;informationCount&#39;: 0,</span>
-<span class="sd">      &#39;timeInSec&#39;: 0.319}}</span>
+<span class="sd">    {&#39;version&#39;: ..., &#39;time&#39;: ..., &#39;generalDiagnostics&#39;: [{&#39;file&#39;: ..., &#39;severity&#39;: ..., &#39;message&#39;: &#39;Operator &quot;+&quot; not supported for types &quot;Literal[1]&quot; and &quot;str&quot;&#39;, &#39;range&#39;: {&#39;start&#39;: {&#39;line&#39;: ..., &#39;character&#39;: ...}, &#39;end&#39;: {&#39;line&#39;: ..., &#39;character&#39;: ...}}, &#39;rule&#39;: ...}], &#39;summary&#39;: {&#39;filesAnalyzed&#39;: ..., &#39;errorCount&#39;: 1, &#39;warningCount&#39;: 0, &#39;informationCount&#39;: 0, &#39;timeInSec&#39;: ...}}</span>
 
 <span class="sd">    Whereas this function scans &quot;clean&quot;.</span>
 
 <span class="sd">    &gt;&gt;&gt; def g(x: int) -&gt; int:</span>
 <span class="sd">    ...     return 1 + x</span>
 <span class="sd">    &gt;&gt;&gt; pyright_analyze(g)[0]</span>
-<span class="sd">    {&#39;version&#39;: &#39;1.1.281&#39;,</span>
-<span class="sd">     &#39;time&#39;: &#39;1669686578833&#39;,</span>
-<span class="sd">     &#39;generalDiagnostics&#39;: [],</span>
-<span class="sd">     &#39;summary&#39;: {&#39;filesAnalyzed&#39;: 20,</span>
-<span class="sd">      &#39;errorCount&#39;: 0,</span>
-<span class="sd">      &#39;warningCount&#39;: 0,</span>
-<span class="sd">      &#39;informationCount&#39;: 0,</span>
-<span class="sd">      &#39;timeInSec&#39;: 0.29}}</span>
+<span class="sd">    {&#39;version&#39;: ..., &#39;time&#39;: ..., &#39;generalDiagnostics&#39;: ..., &#39;summary&#39;: {&#39;filesAnalyzed&#39;: ..., &#39;errorCount&#39;: 0, &#39;warningCount&#39;: 0, &#39;informationCount&#39;: 0, &#39;timeInSec&#39;: ...}}</span>
 
 <span class="sd">    All imports must occur within the context of the scanned-object, or the imports can</span>
 <span class="sd">    be specified in a preamble. For example, consider the following</span>

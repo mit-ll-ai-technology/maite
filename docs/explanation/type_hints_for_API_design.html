@@ -5,7 +5,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.19: https://docutils.sourceforge.io/" name="generator"/>
-<title>A Primer on Python Typing: Relevant Language Features, Methods, and Tools for the T&amp;E Framework — maite 0.4.0 documentation</title>
+<title>A Primer on Python Typing: Relevant Language Features, Methods, and Tools for the T&amp;E Framework — maite 0.5.0 documentation</title>
 <script data-cfasync="false">
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
@@ -37,7 +37,7 @@
 <link href="../genindex.html" rel="index" title="Index"/>
 <link href="../search.html" rel="search" title="Search"/>
 <link href="../api_reference.html" rel="next" title="Reference"/>
-<link href="../explanation.html" rel="prev" title="Explanation"/>
+<link href="protocol_overview.html" rel="prev" title="Overview of MAITE Protocols"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
 <meta content="en" name="docsearch:language"/>
 </head>
@@ -64,7 +64,7 @@
 <div class="navbar-header-items__start">
 <div class="navbar-item">
 <a class="navbar-brand logo" href="../index.html">
-<p class="title logo__title">maite 0.4.0 documentation</p>
+<p class="title logo__title">maite 0.5.0 documentation</p>
 </a></div>
 </div>
 <div class="col-lg-9 navbar-header-items">
@@ -194,6 +194,7 @@ document.write(`
 <p aria-level="1" class="bd-links__title" role="heading">Section Navigation</p>
 <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="protocol_overview.html">Overview of MAITE Protocols</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">A Primer on Python Typing: Relevant Language Features, Methods, and Tools for the T&amp;E Framework</a></li>
 </ul>
 </div>
@@ -583,18 +584,18 @@ It is also worthwhile to note that these static type checkers are designed to ma
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#module-typing" title="typing"><span class="nn">typing</span></a> <span class="kn">import</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Any" title="typing.Any"><span class="n">Any</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="typing.Dict"><span class="n">Dict</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="typing.Sequence"><span class="n">Sequence</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="typing.Tuple"><span class="n">Tuple</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Protocol" title="typing.Protocol"><span class="n">Protocol</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.runtime_checkable" title="typing.runtime_checkable"><span class="n">runtime_checkable</span></a>
 
 <span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
-<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">TypeAlias</span><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.runtime_checkable" title="typing.runtime_checkable"><span class="n">runtime_checkable</span></a>
+<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">TypeAlias</span><span class="p">,</span> <span class="n">runtime_checkable</span>
 
 <span class="n">ClassScores</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="typing.Dict"><span class="n">Dict</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Any" title="typing.Any"><span class="n">Any</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#float" title="float"><span class="nb">float</span></a><span class="p">]</span>
 
-<a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.runtime_checkable" title="typing.runtime_checkable"><span class="nd">@runtime_checkable</span></a>
+<span class="nd">@runtime_checkable</span>
 <span class="k">class</span> <span class="nc">BoundingBox</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Protocol" title="typing.Protocol"><span class="n">Protocol</span></a><span class="p">):</span>
     <span class="n">left</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#float" title="float"><span class="nb">float</span></a>
     <span class="n">top</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#float" title="float"><span class="nb">float</span></a>
     <span class="n">right</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#float" title="float"><span class="nb">float</span></a>
     <span class="n">bottom</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#float" title="float"><span class="nb">float</span></a>
 
-<a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.runtime_checkable" title="typing.runtime_checkable"><span class="nd">@runtime_checkable</span></a>  <span class="c1"># &lt;-- enables `isinstance` checks to look for necessary structure [1]</span>
+<span class="nd">@runtime_checkable</span>  <span class="c1"># &lt;-- enables `isinstance` checks to look for necessary structure [1]</span>
 <span class="k">class</span> <span class="nc">OurDetectorAPI</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Protocol" title="typing.Protocol"><span class="n">Protocol</span></a><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="typing.Sequence"><span class="n">Sequence</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="typing.Tuple"><span class="n">Tuple</span></a><span class="p">[</span><span class="n">BoundingBox</span><span class="p">,</span> <span class="n">ClassScores</span><span class="p">]]:</span>
         <span class="o">...</span>
@@ -1003,11 +1004,11 @@ es type annotations worthwhile! In effect, type annotations are the only languag
 <div class="footer-article-items footer-article__inner">
 <div class="footer-article-item"><!-- Previous / next buttons -->
 <div class="prev-next-area">
-<a class="left-prev" href="../explanation.html" title="previous page">
+<a class="left-prev" href="protocol_overview.html" title="previous page">
 <i class="fa-solid fa-angle-left"></i>
 <div class="prev-next-info">
 <p class="prev-next-subtitle">previous</p>
-<p class="prev-next-title">Explanation</p>
+<p class="prev-next-title">Overview of MAITE Protocols</p>
 </div>
 </a>
 <a class="right-next" href="../api_reference.html" title="next page">

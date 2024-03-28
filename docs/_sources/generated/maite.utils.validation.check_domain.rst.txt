@@ -1,5 +1,5 @@
-maite.utils.validation.check\_domain
-=============================================
+﻿maite.utils.validation.check\_domain
+====================================
 
 .. currentmodule:: maite.utils.validation
 

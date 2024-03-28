@@ -1,5 +1,5 @@
-maite.testing.docs.validate\_docstring
-===============================================
+﻿maite.testing.docs.validate\_docstring
+======================================
 
 .. currentmodule:: maite.testing.docs
 

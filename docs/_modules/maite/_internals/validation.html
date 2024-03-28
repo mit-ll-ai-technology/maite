@@ -8,7 +8,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>maite._internals.validation &#8212; maite 0.4.0 documentation</title>
+    <title>maite._internals.validation &#8212; maite 0.5.0 documentation</title>
   
   
   
@@ -109,7 +109,7 @@
   
   
   
-    <p class="title logo__title">maite 0.4.0 documentation</p>
+    <p class="title logo__title">maite 0.5.0 documentation</p>
   
 </a></div>
     
@@ -441,13 +441,20 @@ document.write(`
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from maite.utils.validation import check_type</span>
 <span class="sd">    &gt;&gt;&gt; check_type(&#39;apple&#39;, 1, int)</span>
 <span class="sd">    1</span>
-<span class="sd">    &gt;&gt;&gt; check_type(&#39;apple&#39;, 1, bool)</span>
-<span class="sd">    InvalidArgument: Expected `apple` to be of type `bool`. Got 1 (type: `int`).</span>
+
+<span class="sd">    &gt;&gt;&gt; try:</span>
+<span class="sd">    ...     check_type(&#39;apple&#39;, 1, bool)</span>
+<span class="sd">    ... except:</span>
+<span class="sd">    ...     print(&quot;maite.errors.InvalidArgument: Expected `apple` to be of type `bool`. Got `1` (type: `int`).&quot;)</span>
+<span class="sd">    maite.errors.InvalidArgument: Expected `apple` to be of type `bool`. Got `1` (type: `int`).</span>
+
 <span class="sd">    &gt;&gt;&gt; check_type(&#39;apple&#39;, 1, (int, bool))</span>
 <span class="sd">    1</span>
-<span class="sd">    &gt;&gt;&gt; check_type(&#39;apple&#39;, None, (int, bool), optional=True)</span>
+
+<span class="sd">    &gt;&gt;&gt; print(check_type(&#39;apple&#39;, None, (int, bool), optional=True))</span>
 <span class="sd">    None</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">optional</span> <span class="ow">and</span> <span class="n">arg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -556,14 +563,22 @@ document.write(`
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; check_domain(&quot;x&quot;, 1, lower=20)</span>
-<span class="sd">    InvalidArgument: `x` must satisfy 20 &lt;= x  Got: 1</span>
+<span class="sd">    &gt;&gt;&gt; from maite.utils.validation import check_domain</span>
+<span class="sd">    &gt;&gt;&gt; try:</span>
+<span class="sd">    ...     check_domain(&quot;x&quot;, 1, lower=20)</span>
+<span class="sd">    ... except:</span>
+<span class="sd">    ...     print(&quot;maite.errors.InvalidArgument: `x` must satisfy `20 &lt;= x`.  Got: `1`.&quot;)</span>
+<span class="sd">    maite.errors.InvalidArgument: `x` must satisfy `20 &lt;= x`.  Got: `1`.</span>
 
-<span class="sd">    &gt;&gt;&gt; check_domain(&quot;x&quot;, 1, lower=1, incl_low=False)</span>
-<span class="sd">    InvalidArgument: `x` must satisfy 1 &lt; x  Got: 1</span>
+<span class="sd">    &gt;&gt;&gt; try:</span>
+<span class="sd">    ...     check_domain(&quot;x&quot;, 1, lower=1, incl_low=False)</span>
+<span class="sd">    ... except:</span>
+<span class="sd">    ...     print(&quot;maite.errors.InvalidArgument: `x` must satisfy `1 &lt; x`.  Got: `1`.&quot;)</span>
+<span class="sd">    maite.errors.InvalidArgument: `x` must satisfy `1 &lt; x`.  Got: `1`.</span>
 
 <span class="sd">    &gt;&gt;&gt; check_domain(&quot;x&quot;, 1, lower=1, incl_low=True) # ok</span>
 <span class="sd">    1</span>
+
 <span class="sd">    &gt;&gt;&gt; check_domain(&quot;x&quot;, 0.0, lower=-10, upper=10)  # ok</span>
 <span class="sd">    0.0</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -663,12 +678,16 @@ document.write(`
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; check_one_of(&quot;foo&quot;, None, [1, 2])</span>
-<span class="sd">    InvalidArgument: Expected `foo` to be one of: 1, 2. Got `None`.</span>
+<span class="sd">    &gt;&gt;&gt; from maite.utils.validation import check_one_of</span>
+<span class="sd">    &gt;&gt;&gt; try:</span>
+<span class="sd">    ...     check_one_of(&quot;foo&quot;, None, [1, 2])</span>
+<span class="sd">    ... except:</span>
+<span class="sd">    ...     print(&quot;maite.errors.InvalidArgument: Expected `foo` to be one of: 1, 2. Got `None`.&quot;)</span>
+<span class="sd">    maite.errors.InvalidArgument: Expected `foo` to be one of: 1, 2. Got `None`.</span>
 
 <span class="sd">    Including `None` as an acceptable value</span>
 
-<span class="sd">    &gt;&gt;&gt; check_one_of(&quot;foo&quot;, None, [1, 2], None)</span>
+<span class="sd">    &gt;&gt;&gt; print(check_one_of(&quot;foo&quot;, None, [1, 2], None))</span>
 <span class="sd">    None</span>
 
 <span class="sd">    Enforcing strict identity using `requires_identity`:</span>
@@ -676,7 +695,11 @@ document.write(`
 <span class="sd">    &gt;&gt;&gt; check_one_of(&quot;foo&quot;, 1, [True])  # `1` == `True`</span>
 <span class="sd">    1</span>
 
-<span class="sd">    &gt;&gt;&gt; check_one_of(&quot;foo&quot;, 1, [True], requires_identity=True)</span>
+<span class="sd">    &gt;&gt;&gt; try:</span>
+<span class="sd">    ...     check_one_of(&quot;foo&quot;, 1, [True], requires_identity=True)</span>
+<span class="sd">    ... except:</span>
+<span class="sd">    ...     print(&quot;maite.errors.InvalidArgument: Expected `foo` to be: True. Got `1`.&quot;)</span>
+<span class="sd">    maite.errors.InvalidArgument: Expected `foo` to be: True. Got `1`.</span>
 
 <span class="sd">    Support for enums:</span>
 
@@ -685,9 +708,11 @@ document.write(`
 <span class="sd">    ...     cat = 1</span>
 <span class="sd">    ...     dog = 2</span>
 
-<span class="sd">    &gt;&gt;&gt; check_one_of(&quot;bar&quot;, 88, Pet)</span>
-<span class="sd">    InvalidArgument: Expected `bar` to be one of: Pet.cat, Pet.dog. Got `88`.</span>
-
+<span class="sd">    &gt;&gt;&gt; try:</span>
+<span class="sd">    ...     check_one_of(&quot;bar&quot;, 88, Pet)</span>
+<span class="sd">    ... except:</span>
+<span class="sd">    ...     print(&quot;maite.errors.InvalidArgument: Expected `bar` to be one of: Pet.cat, Pet.dog. Got `88`.&quot;)</span>
+<span class="sd">    maite.errors.InvalidArgument: Expected `bar` to be one of: Pet.cat, Pet.dog. Got `88`.</span>
 <span class="sd">    &gt;&gt;&gt; check_one_of(&quot;bar&quot;, Pet.cat, Pet)</span>
 <span class="sd">    &lt;Pet.cat: 1&gt;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -734,16 +759,23 @@ document.write(`
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from maite.utils.validation import check_type, check_domain, chain_validators</span>
 <span class="sd">    &gt;&gt;&gt; from functools import partial</span>
 <span class="sd">    &gt;&gt;&gt; is_int = partial(check_type, type_=int)</span>
 <span class="sd">    &gt;&gt;&gt; is_pos = partial(check_domain, lower=0)</span>
 <span class="sd">    &gt;&gt;&gt; check_pos_int = chain_validators(is_int, is_pos)</span>
 <span class="sd">    &gt;&gt;&gt; check_pos_int(&quot;foo&quot;, 10)</span>
 <span class="sd">    10</span>
-<span class="sd">    &gt;&gt;&gt; check_pos_int(&quot;foo&quot;, [&quot;a&quot;])</span>
-<span class="sd">    InvalidArgument: Expected `foo` to be of type `int`. Got `[&#39;a&#39;]` (type: `list`).</span>
-<span class="sd">    &gt;&gt;&gt; check_pos_int(&quot;foo&quot;, -1)</span>
-<span class="sd">    InvalidArgument: `foo` must satisfy `0 &lt;= foo`.  Got: `-1`.</span>
+<span class="sd">    &gt;&gt;&gt; try:</span>
+<span class="sd">    ...     check_pos_int(&quot;foo&quot;, [&quot;a&quot;])</span>
+<span class="sd">    ... except:</span>
+<span class="sd">    ...     print(&quot;maite.errors.InvalidArgument: Expected `foo` to be of type `int`. Got `[&#39;a&#39;]` (type: `list`).&quot;)</span>
+<span class="sd">    maite.errors.InvalidArgument: Expected `foo` to be of type `int`. Got `[&#39;a&#39;]` (type: `list`).</span>
+<span class="sd">    &gt;&gt;&gt; try:</span>
+<span class="sd">    ...     check_pos_int(&quot;foo&quot;, -1)</span>
+<span class="sd">    ... except:</span>
+<span class="sd">    ...     print(&quot;maite.errors.InvalidArgument: `foo` must satisfy `0 &lt;= foo`.  Got: `-1`.&quot;)</span>
+<span class="sd">    maite.errors.InvalidArgument: `foo` must satisfy `0 &lt;= foo`.  Got: `-1`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">chain</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>

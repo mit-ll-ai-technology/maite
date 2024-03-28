@@ -1,5 +1,5 @@
-maite.protocols.ArrayLike
-==================================
+﻿maite.protocols.ArrayLike
+=========================
 
 .. currentmodule:: maite.protocols
 

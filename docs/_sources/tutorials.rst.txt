@@ -13,7 +13,7 @@ MAITE library. They require no prior experience with these tools.
    :maxdepth: 1
    :caption: Contents:
 
-   tutorials/basic_evaluation
+   tutorials/torchvision_object_detection
 
 
 Tutorials only focus on practical steps towards concrete outcomes, 
