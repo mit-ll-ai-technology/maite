@@ -5,7 +5,7 @@
     <img src="https://img.shields.io/badge/python-3.8%20&#8208;%203.10-blue.svg" alt="Python version support" />
   </a>
   <a>
-    <img src="https://img.shields.io/badge/coverage-100%25-green.svg" alt="Code Coverage" />
+    <img src="https://img.shields.io/badge/coverage-%3E90%25-green.svg" alt="Code Coverage" />
   <a href="https://github.com/microsoft/pyright/blob/92b4028cd5fd483efcf3f1cdb8597b2d4edd8866/docs/typed-libraries.md#verifying-type-completeness">
     <img src="https://img.shields.io/badge/type%20completeness-100%25-green.svg" alt="Type-Completeness Score" />
   <a href="https://hypothesis.readthedocs.io/">
