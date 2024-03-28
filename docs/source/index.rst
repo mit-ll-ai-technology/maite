@@ -15,8 +15,7 @@ support core evaluation use cases, and allow composition of T&E tools into custo
 Installation
 ============
 
-The core of MAITE is lightweight: its only dependencies are ``typing-extensions`` and ``numpy``. 
-To install it, run:
+MAITE is a lightweight library that can be installed by running:
 
 .. code:: console
 
