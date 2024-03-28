@@ -11,7 +11,7 @@ chronological order.
 .. _v0.5.0:
 
 ---------------------
-0.5.0 - 2024-03-27
+0.5.0 - 2024-03-28
 ---------------------
 
 This is a large change to protocols based on experiences of our growing userbase.
