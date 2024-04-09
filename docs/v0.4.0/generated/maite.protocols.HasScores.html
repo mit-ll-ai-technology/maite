@@ -1,0 +1,411 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.19: https://docutils.sourceforge.io/" name="generator"/>
+<title>maite.protocols.HasScores — maite 0.4.0 documentation</title>
+<script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+<!-- Loaded before other Sphinx assets -->
+<link href="../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet"/>
+<link href="../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet"/>
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet"/>
+<link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet"/>
+<link as="font" crossorigin="" href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" rel="preload" type="font/woff2"/>
+<link as="font" crossorigin="" href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" rel="preload" type="font/woff2"/>
+<link as="font" crossorigin="" href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" rel="preload" type="font/woff2"/>
+<link href="../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/copybutton.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" rel="stylesheet" type="text/css"/>
+<!-- Pre-loaded scripts that we'll load fully later -->
+<link as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" rel="preload"/>
+<link as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" rel="preload"/>
+<script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+<script src="../_static/doctools.js"></script>
+<script src="../_static/sphinx_highlight.js"></script>
+<script src="../_static/clipboard.min.js"></script>
+<script src="../_static/copybutton.js"></script>
+<script async="async" src="https://www.googletagmanager.com/gtag/js?id=UA-115029372-2"></script>
+<script src="../_static/gtag.js"></script>
+<script src="../_static/design-tabs.js"></script>
+<script>DOCUMENTATION_OPTIONS.pagename = 'generated/maite.protocols.HasScores';</script>
+<link href="../genindex.html" rel="index" title="Index"/>
+<link href="../search.html" rel="search" title="Search"/>
+<link href="maite.protocols.HasDetectionLogits.html" rel="next" title="maite.protocols.HasDetectionLogits"/>
+<link href="maite.protocols.HasProbs.html" rel="prev" title="maite.protocols.HasProbs"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="en" name="docsearch:language"/>
+</head>
+<body data-bs-root-margin="0px 0px -60%" data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-default-mode="" data-offset="180">
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<input class="sidebar-toggle" id="__primary" name="__primary" type="checkbox"/>
+<label class="overlay overlay-primary" for="__primary"></label>
+<input class="sidebar-toggle" id="__secondary" name="__secondary" type="checkbox"/>
+<label class="overlay overlay-secondary" for="__secondary"></label>
+<div class="search-button__wrapper">
+<div class="search-button__overlay"></div>
+<div class="search-button__search-container">
+<form action="../search.html" class="bd-search d-flex align-items-center" method="get">
+<i class="fa-solid fa-magnifying-glass"></i>
+<input aria-label="Search the docs ..." autocapitalize="off" autocomplete="off" autocorrect="off" class="form-control" id="search-input" name="q" placeholder="Search the docs ..." spellcheck="false" type="search"/>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+</div>
+<nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+<label class="sidebar-toggle primary-toggle" for="__primary">
+<span class="fa-solid fa-bars"></span>
+</label>
+<div class="navbar-header-items__start">
+<div class="navbar-item">
+<a class="navbar-brand logo" href="../index.html">
+<p class="title logo__title">maite 0.4.0 documentation</p>
+</a></div>
+</div>
+<div class="col-lg-9 navbar-header-items">
+<div class="me-auto navbar-header-items__center">
+<div class="navbar-item"><nav class="navbar-nav">
+<p aria-label="Site Navigation" aria-level="1" class="sidebar-header-items__title" role="heading">
+    Site Navigation
+  </p>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../tutorials.html">
+                        Tutorials
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../how_tos.html">
+                        How-To Guides
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../explanation.html">
+                        Explanation
+                      </a>
+</li>
+<li class="nav-item current active">
+<a class="nav-link nav-internal" href="../api_reference.html">
+                        Reference
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../changes.html">
+                        Changelog
+                      </a>
+</li>
+</ul>
+</nav></div>
+</div>
+<div class="navbar-header-items__end">
+<div class="navbar-item navbar-persistent--container">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+</div>
+<div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+</div>
+</div>
+<div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+</div>
+<label class="sidebar-toggle secondary-toggle" for="__secondary">
+<span class="fa-solid fa-outdent"></span>
+</label>
+</div>
+</nav>
+<div class="bd-container">
+<div class="bd-container__inner bd-page-width">
+<div class="bd-sidebar-primary bd-sidebar">
+<div class="sidebar-header-items sidebar-primary__section">
+<div class="sidebar-header-items__center">
+<div class="navbar-item"><nav class="navbar-nav">
+<p aria-label="Site Navigation" aria-level="1" class="sidebar-header-items__title" role="heading">
+    Site Navigation
+  </p>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../tutorials.html">
+                        Tutorials
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../how_tos.html">
+                        How-To Guides
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../explanation.html">
+                        Explanation
+                      </a>
+</li>
+<li class="nav-item current active">
+<a class="nav-link nav-internal" href="../api_reference.html">
+                        Reference
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../changes.html">
+                        Changelog
+                      </a>
+</li>
+</ul>
+</nav></div>
+</div>
+<div class="sidebar-header-items__end">
+<div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+</div>
+</div>
+<div class="sidebar-primary-items__start sidebar-primary__section">
+<div class="sidebar-primary-item"><nav aria-label="Section Navigation" class="bd-docs-nav bd-links">
+<p aria-level="1" class="bd-links__title" role="heading">Section Navigation</p>
+<div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.ArrayLike.html">maite.protocols.ArrayLike</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.SupportsArray.html">maite.protocols.SupportsArray</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.HasDataBoxes.html">maite.protocols.HasDataBoxes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.HasDataBoxesLabels.html">maite.protocols.HasDataBoxesLabels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.HasDataImage.html">maite.protocols.HasDataImage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.HasDataLabel.html">maite.protocols.HasDataLabel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.HasDataObjects.html">maite.protocols.HasDataObjects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.SupportsImageClassification.html">maite.protocols.SupportsImageClassification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.SupportsObjectDetection.html">maite.protocols.SupportsObjectDetection</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.Dataset.html">maite.protocols.Dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.VisionDataset.html">maite.protocols.VisionDataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.ObjectDetectionDataset.html">maite.protocols.ObjectDetectionDataset</a></li>
+</ul>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.HasLogits.html">maite.protocols.HasLogits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.HasProbs.html">maite.protocols.HasProbs</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">maite.protocols.HasScores</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.HasDetectionLogits.html">maite.protocols.HasDetectionLogits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.HasDetectionPredictions.html">maite.protocols.HasDetectionPredictions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.HasDetectionProbs.html">maite.protocols.HasDetectionProbs</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.Model.html">maite.protocols.Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.ImageClassifier.html">maite.protocols.ImageClassifier</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.ObjectDetector.html">maite.protocols.ObjectDetector</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.Metric.html">maite.protocols.Metric</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.list_datasets.html">maite.list_datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.load_dataset.html">maite.load_dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.list_models.html">maite.list_models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.load_model.html">maite.load_model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.list_metrics.html">maite.list_metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.load_metric.html">maite.load_metric</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.evaluate.html">maite.evaluate</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.utils.validation.check_type.html">maite.utils.validation.check_type</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.utils.validation.check_domain.html">maite.utils.validation.check_domain</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.utils.validation.check_one_of.html">maite.utils.validation.check_one_of</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.utils.validation.chain_validators.html">maite.utils.validation.chain_validators</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.errors.MaiteException.html">maite.errors.MaiteException</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.errors.InvalidArgument.html">maite.errors.InvalidArgument</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.docs.validate_docstring.html">maite.testing.docs.validate_docstring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.docs.NumpyDocErrorCode.html">maite.testing.docs.NumpyDocErrorCode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.docs.NumPyDocResults.html">maite.testing.docs.NumPyDocResults</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.pyright.pyright_analyze.html">maite.testing.pyright.pyright_analyze</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.pyright.PyrightOutput.html">maite.testing.pyright.PyrightOutput</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.pyright.list_error_messages.html">maite.testing.pyright.list_error_messages</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.pytest.cleandir.html">maite.testing.pytest.cleandir</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.project.ModuleScan.html">maite.testing.project.ModuleScan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.project.get_public_symbols.html">maite.testing.project.get_public_symbols</a></li>
+</ul>
+</div>
+</nav></div>
+</div>
+<div class="sidebar-primary-items__end sidebar-primary__section">
+</div>
+<div id="rtd-footer-container"></div>
+</div>
+<main class="bd-main" id="main-content">
+<div class="bd-content">
+<div class="bd-article-container">
+<div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+<div class="header-article-items__start">
+<div class="header-article-item">
+<nav aria-label="Breadcrumbs">
+<ul aria-label="Breadcrumb" class="bd-breadcrumbs" role="navigation">
+<li class="breadcrumb-item breadcrumb-home">
+<a aria-label="Home" class="nav-link" href="../index.html">
+<i class="fa-solid fa-home"></i>
+</a>
+</li>
+<li class="breadcrumb-item"><a class="nav-link" href="../api_reference.html">Reference</a></li>
+<li aria-current="page" class="breadcrumb-item active">maite.protocols.HasScores</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+</div>
+<div id="searchbox"></div>
+<article class="bd-article" role="main">
+<section id="maite-protocols-hasscores">
+<h1>maite.protocols.HasScores<a class="headerlink" href="#maite-protocols-hasscores" title="Permalink to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="maite.protocols.HasScores">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">maite.protocols.</span></span><span class="sig-name descname"><span class="pre">HasScores</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/maite/_internals/protocols/typing.html#HasScores"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#maite.protocols.HasScores" title="Permalink to this definition">#</a></dt>
+<dd><p>Scores are predictions for either an image or detection box.</p>
+<p class="rubric">Examples</p>
+<p>Create fake scores and labels and add them to a dataclass.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="https://numpy.org/doc/stable/reference/index.html#module-numpy" title="numpy"><span class="nn">numpy</span></a> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/dataclasses.html#module-dataclasses" title="dataclasses"><span class="nn">dataclasses</span></a> <span class="kn">import</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/dataclasses.html#dataclasses.dataclass" title="dataclasses.dataclass"><span class="n">dataclass</span></a>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/dataclasses.html#dataclasses.dataclass" title="dataclasses.dataclass"><span class="nd">@dataclass</span></a>
+<span class="gp">... </span><span class="k">class</span> <span class="nc">FakeData</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">scores</span><span class="p">:</span> <span class="n">SupportsArray</span>
+<span class="gp">... </span>    <span class="n">labels</span><span class="p">:</span> <span class="n">SupportsArray</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">FakeData</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="https://numpy.org/doc/stable/reference/generated/numpy.array.html#numpy.array" title="numpy.array"><span class="n">np</span><span class="o">.</span><span class="n">array</span></a><span class="p">([</span><span class="mf">0.5</span><span class="p">]),</span> <a class="sphinx-codeautolink-a" href="https://numpy.org/doc/stable/reference/generated/numpy.array.html#numpy.array" title="numpy.array"><span class="n">np</span><span class="o">.</span><span class="n">array</span></a><span class="p">([</span><span class="mi">1</span><span class="p">]))</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#isinstance" title="isinstance"><span class="nb">isinstance</span></a><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">HasScores</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">isinstance</span></code> check is the same as doing the following:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#hasattr" title="hasattr"><span class="nb">hasattr</span></a><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">"scores"</span><span class="p">)</span> <span class="ow">and</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#hasattr" title="hasattr"><span class="nb">hasattr</span></a><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">"labels"</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>scores</strong><span class="classifier">SupportsArray</span></dt><dd><p>Scores are predictions for a single class. For example, in binary classification,
+scores are the probability of the positive class.</p>
+</dd>
+<dt><strong>labels</strong><span class="classifier">SupportsArray</span></dt><dd><p>Labels are predicted label for each score. For example, in binary classification,
+labels are either 0 or 1.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+</section>
+</article>
+<footer class="bd-footer-article">
+<div class="footer-article-items footer-article__inner">
+<div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+<a class="left-prev" href="maite.protocols.HasProbs.html" title="previous page">
+<i class="fa-solid fa-angle-left"></i>
+<div class="prev-next-info">
+<p class="prev-next-subtitle">previous</p>
+<p class="prev-next-title">maite.protocols.HasProbs</p>
+</div>
+</a>
+<a class="right-next" href="maite.protocols.HasDetectionLogits.html" title="next page">
+<div class="prev-next-info">
+<p class="prev-next-subtitle">next</p>
+<p class="prev-next-title">maite.protocols.HasDetectionLogits</p>
+</div>
+<i class="fa-solid fa-angle-right"></i>
+</a>
+</div></div>
+</div>
+</footer>
+</div>
+<div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+<div class="sidebar-secondary-item">
+<div class="page-toc tocsection onthispage">
+<i class="fa-solid fa-list"></i> On this page
+  </div>
+<nav class="bd-toc-nav page-toc">
+<ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#maite.protocols.HasScores"><code class="docutils literal notranslate"><span class="pre">HasScores</span></code></a></li>
+</ul>
+</nav></div>
+<div class="sidebar-secondary-item">
+<div class="tocsection sourcelink">
+<a href="../_sources/generated/maite.protocols.HasScores.rst.txt">
+<i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+</div>
+</div>
+</div></div>
+</div>
+<footer class="bd-footer-content">
+</footer>
+</main>
+</div>
+</div>
+<!-- Scripts loaded after <body> so the DOM is not blocked -->
+<script src="../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+<footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+<div class="footer-items__start">
+<div class="footer-item">
+<p class="copyright">
+    
+      © Copyright 2024 Massachusetts Institute of Technology.
+      <br/>
+</p>
+</div>
+<div class="footer-item">
+<p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.2.1.
+    <br/>
+</p>
+</div>
+</div>
+<div class="footer-items__end">
+<div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+</p></div>
+</div>
+</div>
+</footer>
+</body>
+</html>
