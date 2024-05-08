@@ -46,7 +46,8 @@ for obj, scan in zip(
 
 @pytest.mark.parametrize("obj, scan", PYRIGHT_SCAN_RESULTS)
 def test_docstrings_scan_clean_via_pyright(obj, scan):
-    assert scan["summary"]["errorCount"] == 0, list_error_messages(scan)
+    if scan["summary"]["errorCount"] != 0:
+        raise ValueError("\n" + "\n".join(list_error_messages(scan)))
 
 
 @pytest.mark.parametrize("obj", all_funcs_and_classes)
