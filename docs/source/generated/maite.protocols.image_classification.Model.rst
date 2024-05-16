@@ -3,4 +3,7 @@
 
 .. currentmodule:: maite.protocols.image_classification
 
-.. autoclass:: Model   
+.. autoclass:: Model
+   
+   
+   

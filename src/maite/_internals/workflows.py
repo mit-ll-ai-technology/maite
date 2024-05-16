@@ -1,7 +1,6 @@
-from typing import Any, Optional, Sequence, Tuple, Union, overload
+from typing import Any, Optional, Sequence, Tuple, overload
 
 import torch.utils.data
-from typing_extensions import TypeAlias
 
 from maite._internals.protocols.generic import (
     Augmentation,
@@ -11,24 +10,18 @@ from maite._internals.protocols.generic import (
     MetricComputeReturnType,
     Model,
 )
+from maite._internals.protocols.task_aliases import (
+    SomeAugmentation,
+    SomeDataLoader,
+    SomeDataset,
+    SomeInputBatchType,
+    SomeMetadataBatchType,
+    SomeMetric,
+    SomeModel,
+    SomeTargetBatchType,
+)
 from maite.errors import InvalidArgument
 from maite.protocols import image_classification as ic, object_detection as od
-
-SomeModel: TypeAlias = Union[ic.Model, od.Model]
-SomeMetric: TypeAlias = Union[ic.Metric, od.Metric]
-SomeDataset: TypeAlias = Union[ic.Dataset, od.Dataset]
-SomeDataLoader: TypeAlias = Union[ic.DataLoader, od.DataLoader]
-SomeAugmentation: TypeAlias = Union[ic.Augmentation, od.Augmentation]
-
-SomeTargetBatchType: TypeAlias = Union[ic.TargetBatchType, od.TargetBatchType]
-SomeInputBatchType: TypeAlias = Union[ic.InputBatchType, od.InputBatchType]
-SomeMetadataBatchType: TypeAlias = Union[
-    ic.DatumMetadataBatchType, od.DatumMetadataBatchType
-]
-
-SomeInputType: TypeAlias = Union[ic.InputType, od.InputType]
-SomeTargetType: TypeAlias = Union[ic.TargetType, od.TargetType]
-SomeMetadataType: TypeAlias = Union[ic.DatumMetadataType, od.DatumMetadataType]
 
 # TODO: populate evaluate overloads to expose simpler API
 # @overload

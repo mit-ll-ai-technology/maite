@@ -4,3 +4,6 @@
 .. currentmodule:: maite.testing.project
 
 .. autoclass:: ModuleScan
+   
+   
+   

@@ -1,4 +1,4 @@
-# Copyright 2023, MASSACHUSETTS INSTITUTE OF TECHNOLOGY
+# Copyright 2024, MASSACHUSETTS INSTITUTE OF TECHNOLOGY
 # Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).
 # SPDX-License-Identifier: MIT
 
@@ -121,31 +121,6 @@ def _get_numpy_tags(obj: Any) -> Set[NumpyDocErrorCode]:
     joined_tags = ",".join([x.strip() for x in re.findall(doc_ignore_re, src)])
     joined_tags = set(x.strip() for x in re.split(_comma_or_whitespace, joined_tags))
     return ERRORCODES & joined_tags
-
-
-def person(name: str, age: int) -> None:
-    """
-    Enter person ID info.
-
-    Parameters
-    ----------
-    name : str
-        The person's first name.
-    age : int
-        The person's age.
-
-    Returns
-    -------
-    None
-        Nothing.
-
-    Examples
-    --------
-    >>> from maite.testing.documentation.documentation_dependencies import person
-    >>> person('Brad', 22)
-    """
-
-    return
 
 
 @overload
@@ -285,13 +260,13 @@ def validate_docstring(
 
     Examples
     --------
-    >>> from maite.testing.docs import validate_docstring, person
+    >>> from maite.testing.docs import validate_docstring
     >>> from maite.testing.documentation.documentation_dependencies import person
     
     Let's ignore the need for an Extended Summary and a See Also section.
 
-    >>> validate_docstring(person, ignore=('ES01', 'SA01'), include_ignored_errors=True) # doctest: +ELLIPSIS
-    {'error_count': 0, 'errors': {},...'ignored_errors': {'ES01': ['No extended summary found'], 'SA01': ['See Also section not found']}...
+    >>> validate_docstring(person, ignore=('ES01', 'SA01'), include_ignored_errors=True)
+    {'error_count': 0, 'errors': {}, ...'ignored_errors': {'ES01': ['No extended summary found'], 'SA01': ['See Also section not found']}...
     
     Using comments to skip validation.
 

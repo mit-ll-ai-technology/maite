@@ -50,8 +50,13 @@ extensions = [
     "sphinx.ext.doctest",
 ]
 
+# set autosummary_generate to True to repopulate autosummary-generated rst files
+# (needed only after either (1) adding new objects (e.g. classes/functions) under
+# 'autosummary' directives in 'api_reference.rst' or (2) otherwise modifying a
+# docstring in the source and regenerating api-reference documentation.
 autosummary_generate = False
 numpydoc_show_inherited_class_members = False
+numpydoc_class_members_toctree = False
 
 # Strip input prompts:
 # https://sphinx-copybutton.readthedocs.io/en/latest/#strip-and-configure-input-prompts-for-code-cells

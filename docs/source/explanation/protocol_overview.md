@@ -87,14 +87,17 @@ These type aliases along with the versions of the various component protocols th
 
 
 ```python
+# import protocol classes
 from maite.protocols.image_classification import (
-    # - protocol classes -
     Dataset,
     DataLoader,
     Model,
     Augmentation,
-    Metric,
-    # - type aliases -
+    Metric
+)
+
+# import type aliases
+from maite.protocols.image_classification import (
     InputType,
     TargetType,
     DatumMetadataType,

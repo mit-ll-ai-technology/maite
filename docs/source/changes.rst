@@ -19,12 +19,12 @@ These updated protocols should enable a wider variety of use cases, but do conta
 
 High-level overview:
 
-- A tutorial has been added to show use of core protocols in object detection domain `here <https://github.com/mit-ll-ai-technology/maite/blob/main/examples/torchvision_object_detection/torchvision_object_detection.ipynb>`_
-- An overview of updated core protocols has been provided `here <https://github.com/mit-ll-ai-technology/maite/blob/main/examples/protocol_overview.ipynb>`_
+- A tutorial has been added to show `use of core protocols in object detection domain <https://github.com/mit-ll-ai-technology/maite/blob/main/examples/torchvision_object_detection/torchvision_object_detection.ipynb>`_
+- An `overview of updated core protocols <https://github.com/mit-ll-ai-technology/maite/blob/main/examples/protocol_overview.ipynb>`_ has been provided 
 
 More details:
 
-- Class structure of core component protocols is now ML subproblem agnostic -- e.g. `Model`s must all implement the same named methods.
+- Class structure of core component protocols is now ML subproblem agnostic -- e.g. `Model` objects must all implement the same named methods.
 - Type signatures of core component protocols are specific to ML subproblem domain, permitting subproblem specific component implementers to know more about their expected inputs/outputs.
 - Within an ML subproblem, the model input type, model target type, datum metadata type (and the 3 respective batched versions of these types) are prescribed. 
 - Core protocols (with the exception of `Dataset`) are only required to handle data in batched form (this may change)

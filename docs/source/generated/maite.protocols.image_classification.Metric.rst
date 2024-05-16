@@ -4,3 +4,6 @@
 .. currentmodule:: maite.protocols.image_classification
 
 .. autoclass:: Metric
+   
+   
+   

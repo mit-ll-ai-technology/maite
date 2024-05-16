@@ -4,3 +4,6 @@
 .. currentmodule:: maite.protocols.object_detection
 
 .. autoclass:: Augmentation
+   
+   
+   
