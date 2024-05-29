@@ -66,7 +66,7 @@ def test_evaluate_ic():
 
         def __iter__(
             self,
-        ) -> Iterator[Tuple[np.ndarray, np.ndarray, List[Dict[str, Any]]]]:
+        ) -> Iterator[Tuple[List[np.ndarray], List[np.ndarray], List[Dict[str, Any]]]]:
             # calculate number of batches
             n_batches = len(self._dataset) // self._batch_size
 
@@ -92,10 +92,7 @@ def test_evaluate_ic():
                     batch_targets.append(np.array(batch_tup[1]))
                     batch_mds.append(batch_tup[2])
 
-                input_batch = np.concatenate(batch_inputs, 0)
-                target_batch = np.concatenate(batch_targets, 0)
-
-                yield (input_batch, target_batch, batch_mds)
+                yield (batch_inputs, batch_targets, batch_mds)
 
     class AugmentationImpl:
         def __init__(self):
@@ -106,9 +103,13 @@ def test_evaluate_ic():
             __datum_batch: Tuple[
                 InputBatchType, TargetBatchType, DatumMetadataBatchType
             ],
-        ) -> Tuple[np.ndarray, np.ndarray, Sequence[Dict[str, Any]]]:
-            input_batch_aug = np.array(__datum_batch[0])
-            target_batch_aug = np.array(__datum_batch[1])
+        ) -> Tuple[List[np.ndarray], List[np.ndarray], Sequence[Dict[str, Any]]]:
+            input_batch_aug = copy.deepcopy(
+                [np.array(elem) for elem in __datum_batch[0]]
+            )
+            target_batch_aug = copy.deepcopy(
+                [np.array(elem) for elem in __datum_batch[1]]
+            )
             metadata_batch_aug = copy.deepcopy(__datum_batch[2])
 
             # -- manipulate input_batch, target_batch, and metadata_batch --
@@ -121,20 +122,22 @@ def test_evaluate_ic():
                 md["new_key"] = "new_val"
 
             # modify input batch
-            input_batch_aug += 1
+            for inp_batch_elem in input_batch_aug:
+                inp_batch_elem += 1
 
             # modify target batch
-            target_batch_aug = np.mod(target_batch_aug + 1, N_CLASSES)
+            for tgt_batch_elem in target_batch_aug:
+                tgt_batch_elem = np.mod(tgt_batch_elem + 1, N_CLASSES)
 
             return (input_batch_aug, target_batch_aug, metadata_batch_aug)
 
     class Model_impl:
-        def __call__(self, __input_batch: InputBatchType) -> np.ndarray:
+        def __call__(self, __input_batch: InputBatchType) -> List[np.ndarray]:
             target_batch = np.zeros((N_DATAPOINTS, N_CLASSES))
             for i, target_instance in enumerate(target_batch):
                 target_instance[i % N_CLASSES] = 1
 
-            return target_batch
+            return [i for i in target_batch]
 
     class Metric_impl:
         def __init__(self):

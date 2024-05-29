@@ -7,7 +7,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Protocol, Sequence, runtime_checkable
+from typing import Any, Callable, Iterable, Protocol, Sequence, Tuple, runtime_checkable
 
 from typing_extensions import Dict, TypeAlias
 
@@ -75,24 +75,19 @@ InputType: TypeAlias = ArrayLike  # shape (C, H, W)
 TargetType: TypeAlias = ObjectDetectionTarget
 DatumMetadataType: TypeAlias = Dict[str, Any]
 
-InputBatchType: TypeAlias = ArrayLike  # shape (N, C, H, W)
-TargetBatchType: TypeAlias = Sequence[TargetType]  # length N
+InputBatchType: TypeAlias = Sequence[
+    ArrayLike
+]  # sequence of N ArrayLikes of shape (C, H, W)
+TargetBatchType: TypeAlias = Sequence[TargetType]  # sequence of N TargetType instances
 DatumMetadataBatchType: TypeAlias = Sequence[DatumMetadataType]
 
-# TODO: Consider what pylance shows on cursoring over: "(type alias) Dataset: type[Dataset[ArrayLike, Dict[Unknown, Unknown], object]]"
-# Can these type hints be made more intuitive? Perhaps given a name like type[Dataset[InputType = ArrayLike,...]]
-# - This will likely involve eliminating some TypeAlias uses.
+Datum: TypeAlias = Tuple[InputType, TargetType, DatumMetadataType]
+DatumBatch: TypeAlias = Tuple[InputBatchType, TargetBatchType, DatumMetadataBatchType]
 
-# TODO: Determine whether I should/can parameterize on the Datum TypeAlias.
-# This could make the pylance messages more intuitive?
-
-# TODO: Consider how we should help type-checker infer method return type when argument type
-#       matches more than one method signature. For example: Model.__call__ takes an
-#       ArrayLike in two separate method signatures, but the return type differs.
-#       In this case, typechecker seems to use the first matching method signature to
-#       determine type of output. -> we can handle this problem by considering only
-#       batches as the required handled types for model, augmentation, and metric objects
-#
+CollateFn: TypeAlias = Callable[
+    [Iterable[Datum]],
+    DatumBatch,
+]
 
 
 class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
@@ -112,12 +107,12 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
     Methods
     -------
 
-    __getitem__(ind: int)->Tuple[ArrayLike, ObjectDetectionTarget, Dict[str, Any]]
+    __getitem__(ind: int) -> Tuple[ArrayLike, ObjectDetectionTarget, Dict[str, Any]]
         Provide mapping-style access to dataset elements. Returned tuple elements
         correspond to model input type, model target type, and datum-specific metadata,
         respectively.
 
-    __len__()->int
+    __len__() -> int
         Return the number of data elements in the dataset.
 
     """
@@ -139,18 +134,19 @@ class DataLoader(
 
     Implementers must provide an iterable object (returning an iterator via the
     `__iter__` method) that yields tuples containing batches of data. These tuples
-    contain types `ArrayLike` (shape `(N, C, H, W)`), `Sequence[ObjectDetectionTarget]`,
-    `Sequence[Dict[str, Any]]`, which correspond to model input batch, model target
-    type batch, and datum metadata batch.
+    contain types `Sequence[ArrayLike]` (elements of shape `(C, H, W)`),
+    `Sequence[ObjectDetectionTarget]`, and `Sequence[Dict[str, Any]]`,
+    which correspond to model input batch, model target batch, and a datum metadata batch.
 
     Note: Unlike Dataset, this protocol does not require indexing support, only iterating.
+
 
     Methods
     -------
 
-    __iter__->Iterator[tuple[ArrayLike, Sequence[ObjectDetectionTarget], Sequence[Dict[str, Any]]]]
+    __iter__ -> Iterator[tuple[Sequence[ArrayLike], Sequence[ObjectDetectionTarget], Sequence[Dict[str, Any]]]]
         Return an iterator over batches of data, where each batch contains a tuple of
-        of model input batch (as an `ArrayLike`), model target batch (as
+        of model input batch (as `Sequence[ArrayLike]`), model target batch (as
         `Sequence[ObjectDetectionTarget]`), and batched datum-level metadata
         (as `Sequence[Dict[str,Any]]`), respectively.
 
@@ -164,15 +160,15 @@ class Model(gen.Model[InputBatchType, TargetBatchType], Protocol):
     A model protocol for the object detection ML subproblem.
 
     Implementers must provide a `__call__` method that operates on a batch of model inputs
-    (as `ArrayLike`s) and returns a batch of model targets (as
+    (as `Sequence[ArrayLike]`s) and returns a batch of model targets (as
     `Sequence[ObjectDetectionTarget]`)
 
     Methods
     -------
 
-    __call__(input_batch: ArrayLike)->Sequence[ObjectDetectionTarget]
-        Make a model prediction for inputs in input batch. Input batch is expected in
-        the shape `(N, C, H, W)`.
+    __call__(input_batch: Sequence[ArrayLike]) -> Sequence[ObjectDetectionTarget]
+        Make a model prediction for inputs in input batch. Elements of input batch
+        are expected in the shape `(C, H, W)`.
     """
 
     ...
@@ -188,14 +184,14 @@ class Metric(gen.Metric[TargetBatchType], Protocol):
      Methods
      -------
 
-     update(preds: Sequence[ObjectDetectionTarget], targets: Sequence[ObjectDetectionTarget])->None
+     update(preds: Sequence[ObjectDetectionTarget], targets: Sequence[ObjectDetectionTarget]) -> None
          Add predictions and targets to metric's cache for later calculation.
 
-     compute()->Dict[str, Any]
+     compute() -> Dict[str, Any]
          Compute metric value(s) for currently cached predictions and targets, returned as
          a dictionary.
 
-     reset()->None
+     reset() -> None
          Clear contents of current metric's cache of predictions and targets.
     """
 
@@ -219,19 +215,19 @@ class Augmentation(
     An augmentation is expected to take a batch of data and return a modified version of
     that batch. Implementers must provide a single method that takes and returns a
     labeled data batch, where a labeled data batch is represented by a tuple of types
-    `ArrayLike`, `Sequence[ObjectDetectionTarget]`, and `Sequence[Dict[str,Any]]`. These
-    correspond to the model input batch type, model target batch type, and datum-level
+    `Sequence[ArrayLike]`, `Sequence[ObjectDetectionTarget]`, and `Sequence[Dict[str,Any]]`.
+    These correspond to the model input batch type, model target batch type, and datum-level
     metadata batch type, respectively.
 
     Methods
     -------
 
-    __call__(datum: Tuple[ArrayLike, Sequence[ObjectDetectionTarget], Sequence[dict[str, Any]]])->
-                Tuple[ArrayLike, Sequence[ObjectDetectionTarget], Sequence[dict[str, Any]]]
+    __call__(datum: Tuple[Sequence[ArrayLike], Sequence[ObjectDetectionTarget], Sequence[dict[str, Any]]]) ->\
+          Tuple[Sequence[ArrayLike], Sequence[ObjectDetectionTarget], Sequence[dict[str, Any]]]
         Return a modified version of original data batch. A data batch is represented
-        by a tuple of model input batch (as an `ArrayLike` of shape `(N, C, H, W)`),
-        model target batch (as `Sequence[ObjectDetectionTarget]`), and batch metadata
-        (as `Sequence[Dict[str,Any]]`), respectively.
+        by a tuple of model input batch (as `Sequence ArrayLike` with elements of shape
+        `(C, H, W)`), model target batch (as `Sequence[ObjectDetectionTarget]`), and
+        batch metadata (as `Sequence[Dict[str,Any]]`), respectively.
     """
 
     ...

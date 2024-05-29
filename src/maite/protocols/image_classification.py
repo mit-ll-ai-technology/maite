@@ -2,30 +2,32 @@
 # Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).
 # SPDX-License-Identifier: MIT
 
-from maite._internals.protocols.image_classification import (
+from maite._internals.protocols.image_classification import (  # isort:skip
+    InputType,
+    TargetType,
+    DatumMetadataType,
+    InputBatchType,
+    TargetBatchType,
+    DatumMetadataBatchType,
+    CollateFn,
     Augmentation,
     DataLoader,
     Dataset,
-    DatumMetadataBatchType,
-    DatumMetadataType,
-    InputBatchType,
-    InputType,
     Metric,
     Model,
-    TargetBatchType,
-    TargetType,
 )
 
 __all__ = [
+    "InputType",
+    "TargetType",
+    "DatumMetadataType",
+    "InputBatchType",
+    "TargetBatchType",
+    "DatumMetadataBatchType",
+    "CollateFn",
     "Augmentation",
     "DataLoader",
     "Dataset",
-    "InputBatchType",
-    "InputType",
-    "DatumMetadataBatchType",
-    "DatumMetadataType",
     "Metric",
     "Model",
-    "TargetBatchType",
-    "TargetType",
 ]

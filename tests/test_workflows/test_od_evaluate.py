@@ -105,7 +105,9 @@ def test_evaluate_od():
         def __iter__(
             self,
         ) -> Iterator[
-            Tuple[np.ndarray, List[ObjectDetectionTargetImpl], List[Dict[str, Any]]]
+            Tuple[
+                List[np.ndarray], List[ObjectDetectionTargetImpl], List[Dict[str, Any]]
+            ]
         ]:
             # calculate number of batches
             n_batches = len(self._dataset) // self._batch_size
@@ -132,9 +134,7 @@ def test_evaluate_od():
                     batch_targets.append(batch_tup[1])
                     batch_mds.append(batch_tup[2])
 
-                input_batch = np.concatenate(batch_inputs, 0)
-
-                yield (input_batch, batch_targets, batch_mds)
+                yield (batch_inputs, batch_targets, batch_mds)
 
     class AugmentationImpl:
         def __init__(self):
@@ -146,9 +146,11 @@ def test_evaluate_od():
                 InputBatchType, TargetBatchType, DatumMetadataBatchType
             ],
         ) -> Tuple[
-            np.ndarray, List[ObjectDetectionTargetImpl], Sequence[Dict[str, Any]]
+            List[np.ndarray], List[ObjectDetectionTargetImpl], Sequence[Dict[str, Any]]
         ]:
-            input_batch_aug = np.array(__datum_batch[0])
+            input_batch_aug = copy.deepcopy(
+                [np.array(elem) for elem in __datum_batch[0]]
+            )
             target_batch_aug = copy.deepcopy(
                 [ObjectDetectionTargetImpl.from_protocol(i) for i in __datum_batch[1]]
             )
@@ -164,7 +166,8 @@ def test_evaluate_od():
                 md["new_key"] = "new_val"
 
             # modify input batch
-            input_batch_aug += 1
+            for in_batch_elem in input_batch_aug:
+                in_batch_elem += 1
 
             # modify target batch
             for target in target_batch_aug:
@@ -194,7 +197,7 @@ def test_evaluate_od():
                     scores=np.linspace(0, 1, OBJ_PER_MODEL_PRED),
                     labels=np.array([i % N_CLASSES for i in range(OBJ_PER_MODEL_PRED)]),
                 )
-                for _ in range(np.array(__input_batch).shape[0])
+                for _ in range(len(__input_batch))
             ]
 
             return target_batch

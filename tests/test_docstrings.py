@@ -53,4 +53,9 @@ def test_docstrings_scan_clean_via_pyright(obj, scan):
 @pytest.mark.parametrize("obj", all_funcs_and_classes)
 def test_docstrings_adhere_to_numpydoc(obj):
     results = validate_docstring(obj, ignore=("SA01", "ES01"))
-    assert results["error_count"] == 0, results["errors"]
+
+    if results["error_count"] > 0:
+        errs = []
+        for err_key, err_val in results["errors"].items():
+            errs.append(f"{err_key}: {err_val}")
+        raise AssertionError("\n" + "\n".join(errs))

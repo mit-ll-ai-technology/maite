@@ -5,14 +5,19 @@ from __future__ import annotations
 
 from typing import (
     Any,
+    Callable,
     Dict,
     Generic,
+    Iterable,
     Iterator,
     Protocol,
+    Sequence,
     Tuple,
     TypeVar,
     runtime_checkable,
 )
+
+from typing_extensions import TypeAlias
 
 # Note
 # (1) the use of each generic variable can differ in generic components
@@ -111,7 +116,7 @@ MetricComputeReturnType = Dict[str, Any]
 # class Dataset(Protocol, Generic[InputType_co, TargetType_co, DatumMetadataType_co]):
 #     def __iter__(
 #             self
-#     )-> Iterator[Tuple[InputType_co, TargetType_co, DatumMetadataType_co]]:
+#     ) -> Iterator[Tuple[InputType_co, TargetType_co, DatumMetadataType_co]]:
 #         ...
 
 
@@ -184,3 +189,13 @@ class Augmentation(
         ],
     ) -> Tuple[InputBatchType_co, TargetBatchType_co, DatumMetadataBatchType_co]:
         ...
+
+
+T_in = TypeVar("T_in")
+T_tgt = TypeVar("T_tgt")
+T_md = TypeVar("T_md")
+
+CollateFn: TypeAlias = Callable[
+    [Iterable[Tuple[T_in, T_tgt, T_md]]],
+    Tuple[Sequence[T_in], Sequence[T_tgt], Sequence[T_md]],
+]

@@ -229,7 +229,7 @@ For users performing larger-scale numerical experiments, numpy-arrays fall victi
 ...                  [1.01, .91]])
 
 # good: Using an xarray to explicitly name dimensions and label coordinates
-#       for a heterogenous array of data
+#       for a heterogeneous array of data
 >>> dims = ["data_collect", "sensor_type"]
 >>> coords = {"data_collect": ["Morning", "Noon", "Night"],
 ...           "sensor_type": ["EO", "IR"]}

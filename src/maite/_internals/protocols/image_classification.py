@@ -5,7 +5,7 @@
 # import component generics from generic.py and specialize them for image_classification
 from __future__ import annotations
 
-from typing import Any, Dict, Protocol, Sequence
+from typing import Any, Callable, Dict, Iterable, Protocol, Sequence, Tuple
 
 from typing_extensions import TypeAlias
 
@@ -24,9 +24,19 @@ InputType: TypeAlias = ArrayLike  # shape (C, H, W)
 TargetType: TypeAlias = ArrayLike  # shape (Cl,)
 DatumMetadataType: TypeAlias = Dict[str, Any]
 
-InputBatchType: TypeAlias = ArrayLike  # shape (N, C, H, W)
-TargetBatchType: TypeAlias = ArrayLike  # shape (N, Cl)
+InputBatchType: TypeAlias = Sequence[
+    InputType
+]  # sequence of N ArrayLikes of shape (C, H, W)
+TargetBatchType: TypeAlias = Sequence[TargetType]  # sequence of N TargetType instances
 DatumMetadataBatchType: TypeAlias = Sequence[DatumMetadataType]
+
+Datum: TypeAlias = Tuple[InputType, TargetType, DatumMetadataType]
+DatumBatch: TypeAlias = Tuple[InputBatchType, TargetBatchType, DatumMetadataBatchType]
+
+CollateFn: TypeAlias = Callable[
+    [Iterable[Datum]],
+    DatumBatch,
+]
 
 # Initialize component classes based on generic and Input/Target/Metadata types
 
@@ -37,22 +47,23 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
     data access.
 
     Implementers must provide index lookup (via `__getitem__(ind: int)` method) and
-    support `len` (via `__len__()` method). Data elements looked up this way correspond to
-    individual examples (as opposed to batches).
+    support `len` (via `__len__()` method). Data elements looked up this way correspond
+    to individual examples (as opposed to batches).
 
-    Indexing into or iterating over the an image_classification dataset returns a `Tuple` of
-    types `ArrayLike`, `ArrayLike`, and `Dict[str, Any]`. These correspond to
-    the model input type, model target type, and datum-level metadata type, respectively.
+    Indexing into or iterating over the an image_classification dataset returns a
+    `Tuple` of types `ArrayLike`, `ArrayLike`, and `Dict[str,Any]`.
+    These correspond to the model input type, model target type, and datum-level
+    metadata, respectively.
 
     Methods
     -------
 
-    __getitem__(ind: int)->Tuple[ArrayLike, ArrayLike, Dict[str, Any]]
+    __getitem__(ind: int) -> Tuple[ArrayLike, ArrayLike, Dict[str, Any]]
         Provide map-style access to dataset elements. Returned tuple elements
         correspond to model input type, model target type, and datum-specific metadata type,
         respectively.
 
-    __len__()->int
+    __len__() -> int
         Return the number of data elements in the dataset.
 
     Examples
@@ -85,7 +96,7 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
     ...         self.images = images
     ...         self.targets = targets
     ...         self.metadata = metadata
-    ...     def __len__(self)->int:
+    ...     def __len__(self) -> int:
     ...         return len(images)
     ...     def __getitem__(self, ind: int) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
     ...         return self.images[ind], self.targets[ind], self.metadata[ind]
@@ -114,19 +125,19 @@ class DataLoader(
 
     Implementers must provide an iterable object (returning an iterator via the
     `__iter__` method) that yields tuples containing batches of data. These tuples
-    contain types `ArrayLike` (shape `(N, C, H, W)`), `ArrayLike` (shape `(N, Cl)`),
-    and `Sequence[Dict[str, Any]]`, which correspond to model input batch, model target
-    type batch, and a datum metadata batch.
+    contain types `Sequence[ArrayLike]` (elements of shape `(C, H, W)`),
+    `Sequence[ArrayLike]` (elements shape `(Cl, )`), and `Sequence[Dict[str, Any]]`,
+    which correspond to model input batch, model target type batch, and a datum metadata batch.
 
     Note: Unlike Dataset, this protocol does not require indexing support, only iterating.
 
     Methods
     -------
 
-    __iter__->Iterator[tuple[ArrayLike, ArrayLike, Sequence[Dict[str, Any]]]]
+    __iter__ -> Iterator[tuple[Sequence[ArrayLike], Sequence[ArrayLike], Sequence[Dict[str, Any]]]]
         Return an iterator over batches of data, where each batch contains a tuple of
-        of model input batch (as an `ArrayLike`), model target batch (as
-        an `ArrayLike`), and batched datum-level metadata
+        of model input batch (as `Sequence[ArrayLike]`), model target batch (as
+        `Sequence[ArrayLike]`), and batched datum-level metadata
         (as `Sequence[Dict[str,Any]]`), respectively.
 
     """
@@ -137,15 +148,15 @@ class Model(gen.Model[InputBatchType, TargetBatchType], Protocol):
     A model protocol for the image classification ML subproblem.
 
     Implementers must provide a `__call__` method that operates on a batch of model
-    inputs (as `ArrayLike`s) and returns a batch of model targets (implementers of
-    `ArrayLike`)
+    inputs (as `Sequence[ArrayLike]) and returns a batch of model targets (as
+    `Sequence[ArrayLike]`)
 
     Methods
     -------
 
-    __call__(input_batch: ArrayLike)->ArrayLike
-        Make a model prediction for inputs in input batch. Input batch is expected in
-        the shape `(N, C, H, W)`.
+    __call__(input_batch: Sequence[ArrayLike]) -> Sequence[ArrayLike]
+        Make a model prediction for inputs in input batch. Input batch is expected to
+        be `Sequence[ArrayLike]` with each element of shape `(C, H, W)`.
     """
 
 
@@ -159,15 +170,15 @@ class Metric(gen.Metric[TargetBatchType], Protocol):
     Methods
     -------
 
-    update(preds: ArrayLike, targets: ArrayLike)->None
+    update(preds: Sequence[ArrayLike], targets: Sequence[ArrayLike]) -> None
         Add predictions and targets to metric's cache for later calculation. Both
-        preds and targets are expected to be of shape `(N, Cl)`.
+        preds and targets are expected to be sequences with elements of shape `(Cl,)`.
 
-    compute()->Dict[str, Any]
+    compute() -> Dict[str, Any]
         Compute metric value(s) for currently cached predictions and targets, returned as
         a dictionary.
 
-    reset()->None
+    reset() -> None
         Clear contents of current metric's cache of predictions and targets.
     """
 
@@ -191,19 +202,20 @@ class Augmentation(
     An augmentation is expected to take a batch of data and return a modified version of
     that batch. Implementers must provide a single method that takes and returns a
     labeled data batch, where a labeled data batch is represented by a tuple of types
-    `ArrayLike` (of shape `(N, C, H, W)`), `ArrayLike` (of shape `(N, Cl)`), and
-    `Sequence[Dict[str, Any]]`. These correspond to the model input batch type, model
-    target batch type, and datum-level metadata batch type, respectively.
+    `Sequence[ArrayLike]` (with elements of shape `(C, H, W)`), `Sequence[ArrayLike]`
+    (with elements of shape `(Cl, )`), and `Sequence[Dict[str,Any]]`. These correspond
+    to the model input batch type, model target batch type, and datum-level metadata
+    batch type, respectively.
 
     Methods
     -------
 
-    __call__(datum: Tuple[ArrayLike, ArrayLike, Sequence[dict[str, Any]]])->
-                Tuple[ArrayLike, ArrayLike, Sequence[dict[str, Any]]]
+    __call__(datum: Tuple[Sequence[ArrayLike], Sequence[ArrayLike], Sequence[dict[str, Any]]]) ->\
+          Tuple[Sequence[ArrayLike], Sequence[ArrayLike], Sequence[dict[str, Any]]])
         Return a modified version of original data batch. A data batch is represented
-        by a tuple of model input batch (as an `ArrayLike` of shape `(N, C, H, W)`),
-        model target batch (as an `ArrayLike` of shape `(N, Cl)`), and batch metadata (as
-        `Sequence[Dict[str, Any]]`), respectively.
+        by a tuple of model input batch (as `Sequence[ArrayLike]` with elements of shape
+        `(C, H, W)`), model target batch (as an `Sequence[ArrayLike]` of shape `(N, Cl)`),
+        and batch metadata (as `Sequence[Dict[str, Any]]`), respectively.
 
     Examples
     --------
@@ -221,14 +233,14 @@ class Augmentation(
     >>> class ImageAugmentation:
     ...     def __call__(
     ...         self,
-    ...         data_batch: Tuple[ArrayLike, ArrayLike, Sequence[Dict[str, Any]]]
-    ...     ) -> Tuple[np.ndarray, np.ndarray, Sequence[Dict[str, Any]]]:
+    ...         data_batch: Tuple[Sequence[ArrayLike], Sequence[ArrayLike], Sequence[Dict[str, Any]]]
+    ...     ) -> Tuple[Sequence[np.ndarray], Sequence[np.ndarray], Sequence[Dict[str, Any]]]:
     ...         inputs, targets, mds = data_batch
     ...         # We copy data passed into the constructor to avoid mutating original inputs
     ...         # By using np.ndarray constructor, the static type-checker will let us treat
     ...         # generic ArrayLike as a more narrow return type
-    ...         inputs_aug = np.array(copy.copy(inputs))
-    ...         targets_aug = np.array(copy.copy(targets))
+    ...         inputs_aug = [copy.copy(np.array(input)) for input in inputs]
+    ...         targets_aug = [copy.copy(np.array(target)) for target in targets]
     ...         mds_aug = copy.deepcopy(mds)  # deepcopy in case of nested structure
     ...         # Modify inputs_aug, targets_aug, or mds_aug as needed
     ...         # In this example, we just add a new metadata field

@@ -47,6 +47,7 @@ import kornia.augmentation as K
 import matplotlib.pyplot as plt
 import requests
 import torch
+import numpy as np
 
 from dataclasses import dataclass
 from pathlib import Path
@@ -64,6 +65,10 @@ import maite.protocols.object_detection as od
 from maite.protocols import ArrayLike
 from maite.workflows import evaluate
 ```
+
+    /Users/je24578/miniconda3/envs/maite_dev/lib/python3.8/site-packages/tqdm/auto.py:21: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
+      from .autonotebook import tqdm as notebook_tqdm
+
 
 ## Wrapping a Torchvision Dataset
 
@@ -102,10 +107,10 @@ coco_subset_json = json.load(open(ann_subset_file, "r"))
 download_images(coco_subset_json, root=COCO_ROOT)
 ```
 
-    saving http://images.cocodataset.org/val2017/000000397133.jpg to coco_val2017_subset/000000397133.jpg ... done
-    saving http://images.cocodataset.org/val2017/000000037777.jpg to coco_val2017_subset/000000037777.jpg ... done
-    saving http://images.cocodataset.org/val2017/000000252219.jpg to coco_val2017_subset/000000252219.jpg ... done
-    saving http://images.cocodataset.org/val2017/000000087038.jpg to coco_val2017_subset/000000087038.jpg ... done
+    skipping http://images.cocodataset.org/val2017/000000397133.jpg
+    skipping http://images.cocodataset.org/val2017/000000037777.jpg
+    skipping http://images.cocodataset.org/val2017/000000252219.jpg
+    skipping http://images.cocodataset.org/val2017/000000087038.jpg
 
 
 Next we create the Torchvision dataset and verify that its reduced length is 4:
@@ -291,13 +296,13 @@ class TorchvisionDetector:
         self.model.eval()
         self.model.to(device)
 
-    def __call__(self, batch: ArrayLike) -> Sequence[CocoDetectionTarget]:
+    def __call__(self, batch: Sequence[ArrayLike]) -> Sequence[CocoDetectionTarget]:
         # tensor bridging
-        batch = torch.as_tensor(batch)
-        assert batch.ndim == 4
+        batch_tn = torch.as_tensor(np.stack(batch, axis=0))
+        assert batch_tn.ndim == 4
 
         # put on device
-        batch = batch.to(self.device)
+        batch_tn = batch_tn.to(self.device)
 
         # convert to list of tensors and apply inference transforms
         # - https://pytorch.org/vision/stable/models.html
@@ -341,7 +346,7 @@ xb, yb, mdb = x.unsqueeze(0), [y], [md]
 print(f"{xb.shape = }")
 
 # Get predictions for batch(which just has one image for this example)
-preds = model(xb)
+preds = model([xb[0]])
 
 # Overlay detections on image
 img = create_pil_image(xb[0], preds[0], id2name)
@@ -350,15 +355,22 @@ img = create_pil_image(xb[0], preds[0], id2name)
 fig, ax = plt.subplots()
 ax.axis("off")
 ax.set_title("Prediction")
-ax.imshow(img);
+ax.imshow(img)
 ```
 
     xb.shape = torch.Size([1, 3, 230, 352])
 
 
 
+
+
+    <matplotlib.image.AxesImage at 0x30db16fa0>
+
+
+
+
     
-![png](torchvision_object_detection_files/torchvision_object_detection_24_1.png)
+![png](torchvision_object_detection_files/torchvision_object_detection_24_2.png)
     
 
 
@@ -490,15 +502,16 @@ class WrappedKorniaAugmentation:
         xb, yb, metadata = batch
 
         # Type narrow / bridge input batch to PyTorch tensor
-        xb_pt = torch.as_tensor(xb)
-        assert xb_pt.ndim == 4, "input must be a batch"
+        xb_pt = [torch.as_tensor(xb_i) for xb_i in xb]
+        assert xb_pt[0].ndim == 3, 'Input should be sequence of 3d ArrayLikes'
 
         # Apply augmentation to batch
+        # Return augmentation outputs as uint8
         # - NOTE: assumes input batch has pixels in [0, 255]
-        xb_aug = self.kornia_aug(xb_pt / 255.0).clamp(min=0.0, max=1.0) * 255.0
+        xb_aug = [(self.kornia_aug(xb_pti / 255.0).clamp(min=0.0, max=1.0) * 255.0).to(torch.uint8) for xb_pti in xb_pt]
 
         # Return augmented inputs and pass through unchanged targets and metadata
-        return xb_aug.to(torch.uint8), yb, metadata
+        return xb_aug, yb, metadata
 ```
 
 
@@ -514,7 +527,7 @@ For an initial test, we manually create an input batch and perturb it with the w
 i = 0
 x, y, md = dataset[i]
 x = torch.as_tensor(x)
-xb, yb, mdb = x.unsqueeze(0), [y], [md]
+xb, yb, mdb = [x], [y], [md]
 
 # Apply augmentation
 xb_aug, yb_aug, mdb_aug = noise((xb, yb, mdb))
@@ -523,19 +536,26 @@ xb_aug, yb_aug, mdb_aug = noise((xb, yb, mdb))
 preds_aug = model(xb_aug)
 
 # Overlay detections on image
-xb_aug = torch.as_tensor(xb_aug)
-img_aug = create_pil_image(xb_aug[0], preds_aug[0], id2name)
+xb_aug = torch.as_tensor(xb_aug[0])
+img_aug = create_pil_image(xb_aug, preds_aug[0], id2name)
 
 # Show result
 fig, ax = plt.subplots()
 ax.axis("off")
 ax.set_title("Perturbed")
-ax.imshow(img_aug);
+ax.imshow(img_aug)
 ```
 
 
+
+
+    <matplotlib.image.AxesImage at 0x30c7c9520>
+
+
+
+
     
-![png](torchvision_object_detection_files/torchvision_object_detection_39_0.png)
+![png](torchvision_object_detection_files/torchvision_object_detection_39_1.png)
     
 
 
@@ -560,7 +580,7 @@ results["map_50"]
 
 
 
-    tensor(0.2165)
+    tensor(0.1948)
 
 
 

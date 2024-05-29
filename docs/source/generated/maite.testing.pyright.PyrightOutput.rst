@@ -4,14 +4,24 @@
 .. currentmodule:: maite.testing.pyright
 
 .. autoclass:: PyrightOutput
+
    
    
    .. rubric:: Attributes
+
    .. autosummary::
    
-      ~PyrightOutput.version
-      ~PyrightOutput.time
-      ~PyrightOutput.generalDiagnostics
-      ~PyrightOutput.summary
+      
+        ~PyrightOutput.version
+      
+      
+        ~PyrightOutput.time
+      
+      
+        ~PyrightOutput.generalDiagnostics
+      
+      
+        ~PyrightOutput.summary
+      
    
    

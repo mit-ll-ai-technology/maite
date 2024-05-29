@@ -51,12 +51,16 @@ extensions = [
 ]
 
 # set autosummary_generate to True to repopulate autosummary-generated rst files
-# (needed only after either (1) adding new objects (e.g. classes/functions) under
-# 'autosummary' directives in 'api_reference.rst' or (2) otherwise modifying a
-# docstring in the source and regenerating api-reference documentation.
+# (needed only after adding/removing objects (e.g. classes/functions) under
+# 'autosummary' directives in 'api_reference.rst'.
 autosummary_generate = False
 numpydoc_show_inherited_class_members = False
 numpydoc_class_members_toctree = False
+# prevents build warnings resulting from Sphinx not finding generated documentation for
+# attributes of NumpyDocResults and PyrightOutput (these attributes have no docstrings
+# in the source, and thus an autodoc-populated page is never generated for them.)
+# Class members are typically documented directly in protocol class docstrings where
+# no member-specific page is needed.
 
 # Strip input prompts:
 # https://sphinx-copybutton.readthedocs.io/en/latest/#strip-and-configure-input-prompts-for-code-cells
