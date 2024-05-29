@@ -4,10 +4,16 @@
 
 from abc import ABCMeta, abstractmethod
 from functools import wraps
-from typing import Any, Callable, Dict, TypeVar, cast
+from typing import Any, Callable, Dict, Iterable, Tuple, TypeVar, cast
 from weakref import WeakSet
 
-from maite._internals.import_utils import is_torch_available
+from maite._internals.import_utils import is_torch_available, is_tqdm_available
+from maite._internals.protocols.generic import (
+    DataLoader,
+    DatumMetadataType_co,
+    InputType_co,
+    TargetType_co,
+)
 
 T = TypeVar("T", bound=Callable)
 
@@ -115,3 +121,32 @@ class evaluating(ContextDecorator):
 
                     if isinstance(m, Module):
                         m.train(train_status)
+
+
+def add_progress_bar(
+    dataloader: DataLoader[InputType_co, TargetType_co, DatumMetadataType_co],
+) -> Iterable[Tuple[InputType_co, TargetType_co, DatumMetadataType_co]]:
+    """Wrap a dataloader with tqdm to display progress bars.
+
+    Note tqdm output can be disabled as of entirely as of version 4.66.0 by setting the
+    environment variable TQDM_DISABLE=1.
+
+    Parameters
+    ----------
+    dataloader : DataLoader[InputType_co, TargetType_co, DatumMetadataType_co]
+        The dataloader to wrap.
+
+    Returns
+    -------
+    Iterable[Tuple[InputType_co, TargetType_co, DatumMetadataType_co]]
+        Return an iterator over batches of data, where each batch contains a tuple of
+        of model input, model target , and datum-level metadata.
+    """
+    if is_tqdm_available():
+        # tqdm.auto will resolve to tqdm.autonotebook, tqdm.asyncio or tqdm.std
+        # depending on the environment
+        from tqdm.auto import tqdm
+
+        return tqdm(dataloader)
+    else:
+        return dataloader

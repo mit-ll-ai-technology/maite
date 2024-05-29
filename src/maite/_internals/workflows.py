@@ -20,6 +20,7 @@ from maite._internals.protocols.task_aliases import (
     SomeModel,
     SomeTargetBatchType,
 )
+from maite._internals.utils import add_progress_bar
 from maite.errors import InvalidArgument
 from maite.protocols import image_classification as ic, object_detection as od
 
@@ -268,6 +269,8 @@ def _evaluate(
     preds_batches = []
     metric.reset()
     augmented_data_batches = []
+
+    dataloader = add_progress_bar(dataloader)
 
     for input_datum_batch, target_datum_batch, metadata_batch in dataloader:
         if augmentation is not None:
