@@ -439,6 +439,7 @@ def predict(
         dataset=dataset,
         augmentation=augmentation,
         batch_size=batch_size,
+        collate_fn=default_collate_fn,
         return_augmented_data=True,
         return_preds=True,
     )
