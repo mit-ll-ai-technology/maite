@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>maite.protocols.image_classification.DataLoader &#8212; maite 0.5.0 documentation</title>
+    <title>maite.protocols.image_classification.DataLoader &#8212; maite 0.6.0 documentation</title>
   
   
   
@@ -112,7 +112,7 @@
   
   
   
-    <p class="title logo__title">maite 0.5.0 documentation</p>
+    <p class="title logo__title">maite 0.6.0 documentation</p>
   
 </a></div>
     
@@ -421,15 +421,15 @@ document.write(`
 batch-level data access.</p>
 <p>Implementers must provide an iterable object (returning an iterator via the
 <code class="xref py py-obj docutils literal notranslate"><span class="pre">__iter__</span></code> method) that yields tuples containing batches of data. These tuples
-contain types <code class="xref py py-obj docutils literal notranslate"><span class="pre">ArrayLike</span></code> (shape <code class="xref py py-obj docutils literal notranslate"><span class="pre">(N,</span> <span class="pre">C,</span> <span class="pre">H,</span> <span class="pre">W)</span></code>), <code class="xref py py-obj docutils literal notranslate"><span class="pre">ArrayLike</span></code> (shape <code class="xref py py-obj docutils literal notranslate"><span class="pre">(N,</span> <span class="pre">Cl)</span></code>),
-and <code class="xref py py-obj docutils literal notranslate"><span class="pre">Sequence[Dict[str,</span> <span class="pre">Any]]</span></code>, which correspond to model input batch, model target
-type batch, and a datum metadata batch.</p>
+contain types <code class="xref py py-obj docutils literal notranslate"><span class="pre">Sequence[ArrayLike]</span></code> (elements of shape <code class="xref py py-obj docutils literal notranslate"><span class="pre">(C,</span> <span class="pre">H,</span> <span class="pre">W)</span></code>),
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">Sequence[ArrayLike]</span></code> (elements shape <code class="xref py py-obj docutils literal notranslate"><span class="pre">(Cl,</span> <span class="pre">)</span></code>), and <code class="xref py py-obj docutils literal notranslate"><span class="pre">Sequence[Dict[str,</span> <span class="pre">Any]]</span></code>,
+which correspond to model input batch, model target type batch, and a datum metadata batch.</p>
 <p>Note: Unlike Dataset, this protocol does not require indexing support, only iterating.</p>
 <p class="rubric">Methods</p>
 <table class="table">
 <tbody>
-<tr class="row-odd"><td><p><strong>__iter__-&gt;Iterator[tuple[ArrayLike, ArrayLike, Sequence[Dict[str, Any]]]]</strong></p></td>
-<td><p>Return an iterator over batches of data, where each batch contains a tuple of of model input batch (as an <code class="xref py py-obj docutils literal notranslate"><span class="pre">ArrayLike</span></code>), model target batch (as an <code class="xref py py-obj docutils literal notranslate"><span class="pre">ArrayLike</span></code>), and batched datum-level metadata (as <code class="xref py py-obj docutils literal notranslate"><span class="pre">Sequence[Dict[str,Any]]</span></code>), respectively.</p></td>
+<tr class="row-odd"><td><p><strong>__iter__ -&gt; Iterator[tuple[Sequence[ArrayLike], Sequence[ArrayLike], Sequence[Dict[str, Any]]]]</strong></p></td>
+<td><p>Return an iterator over batches of data, where each batch contains a tuple of of model input batch (as <code class="xref py py-obj docutils literal notranslate"><span class="pre">Sequence[ArrayLike]</span></code>), model target batch (as <code class="xref py py-obj docutils literal notranslate"><span class="pre">Sequence[ArrayLike]</span></code>), and batched datum-level metadata (as <code class="xref py py-obj docutils literal notranslate"><span class="pre">Sequence[Dict[str,Any]]</span></code>), respectively.</p></td>
 </tr>
 </tbody>
 </table>

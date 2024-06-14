@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>maite.workflows.evaluate &#8212; maite 0.5.0 documentation</title>
+    <title>maite.workflows.evaluate &#8212; maite 0.6.0 documentation</title>
   
   
   
@@ -112,7 +112,7 @@
   
   
   
-    <p class="title logo__title">maite 0.5.0 documentation</p>
+    <p class="title logo__title">maite 0.6.0 documentation</p>
   
 </a></div>
     
@@ -416,7 +416,7 @@ document.write(`
 <h1>maite.workflows.evaluate<a class="headerlink" href="#maite-workflows-evaluate" title="Permalink to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="maite.workflows.evaluate">
-<span class="sig-prename descclassname"><span class="pre">maite.workflows.</span></span><span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataloader</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">augmentation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_augmented_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_preds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/maite/_internals/workflows.html#evaluate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#maite.workflows.evaluate" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">maite.workflows.</span></span><span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataloader</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">augmentation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_augmented_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_preds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/maite/_internals/workflows/generic.html#evaluate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#maite.workflows.evaluate" title="Permalink to this definition">#</a></dt>
 <dd><p>Evaluate a model’s performance on data according to some metric with optional augmentation.</p>
 <p>Some data source (either a dataloader or a dataset) must be provided
 or an InvalidArgument exception is raised.</p>
@@ -427,11 +427,11 @@ or an InvalidArgument exception is raised.</p>
 </dd>
 <dt><strong>metric</strong><span class="classifier">Optional[SomeMetric], (default=None)</span></dt><dd><p>Compatible maite Metric.</p>
 </dd>
+<dt><strong>dataloader</strong><span class="classifier">Optional[SomeDataloader], (default=None)</span></dt><dd><p>Compatible maite dataloader.</p>
+</dd>
 <dt><strong>dataset</strong><span class="classifier">Optional[SomeDataset], (default=None)</span></dt><dd><p>Compatible maite dataset.</p>
 </dd>
 <dt><strong>batch_size</strong><span class="classifier">int, (default=1)</span></dt><dd><p>Batch size for use with dataset (ignored if dataset=None).</p>
-</dd>
-<dt><strong>dataloader</strong><span class="classifier">Optional[SomeDataloader], (default=None)</span></dt><dd><p>Compatible maite dataloader.</p>
 </dd>
 <dt><strong>augmentation</strong><span class="classifier">Optional[SomeAugmentation], (default=None)</span></dt><dd><p>Compatible maite augmentation.</p>
 </dd>

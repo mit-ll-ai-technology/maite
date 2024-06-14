@@ -5,7 +5,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.19: https://docutils.sourceforge.io/" name="generator"/>
-<title>Torchvision Object Detection Example — maite 0.5.0 documentation</title>
+<title>Torchvision Object Detection Example — maite 0.6.0 documentation</title>
 <script data-cfasync="false">
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
@@ -64,7 +64,7 @@
 <div class="navbar-header-items__start">
 <div class="navbar-item">
 <a class="navbar-brand logo" href="../index.html">
-<p class="title logo__title">maite 0.5.0 documentation</p>
+<p class="title logo__title">maite 0.6.0 documentation</p>
 </a></div>
 </div>
 <div class="col-lg-9 navbar-header-items">
@@ -267,6 +267,7 @@ SPDX-License-Identifier: MIT</p>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">requests</span>
 <span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <a class="sphinx-codeautolink-a" href="https://numpy.org/doc/stable/reference/index.html#module-numpy" title="numpy"><span class="nn">numpy</span></a> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">from</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/dataclasses.html#module-dataclasses" title="dataclasses"><span class="nn">dataclasses</span></a> <span class="kn">import</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/dataclasses.html#dataclasses.dataclass" title="dataclasses.dataclass"><span class="n">dataclass</span></a>
 <span class="kn">from</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/pathlib.html#module-pathlib" title="pathlib"><span class="nn">pathlib</span></a> <span class="kn">import</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path"><span class="n">Path</span></a>
@@ -283,6 +284,10 @@ SPDX-License-Identifier: MIT</p>
 
 <span class="kn">from</span> <span class="nn">maite.protocols</span> <span class="kn">import</span> <a class="sphinx-codeautolink-a" href="../generated/maite.protocols.ArrayLike.html#maite.protocols.ArrayLike" title="maite._internals.protocols.ArrayLike"><span class="n">ArrayLike</span></a>
 <span class="kn">from</span> <span class="nn">maite.workflows</span> <span class="kn">import</span> <a class="sphinx-codeautolink-a" href="../generated/maite.workflows.evaluate.html#maite.workflows.evaluate" title="maite.workflows.evaluate"><span class="n">evaluate</span></a>
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>/Users/je24578/miniconda3/envs/maite_dev/lib/python3.8/site-packages/tqdm/auto.py:21: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
+  from .autonotebook import tqdm as notebook_tqdm
 </pre></div>
 </div>
 </section>
@@ -317,10 +322,10 @@ SPDX-License-Identifier: MIT</p>
 <span class="n">download_images</span><span class="p">(</span><span class="n">coco_subset_json</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="n">COCO_ROOT</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>saving http://images.cocodataset.org/val2017/000000397133.jpg to coco_val2017_subset/000000397133.jpg ... done
-saving http://images.cocodataset.org/val2017/000000037777.jpg to coco_val2017_subset/000000037777.jpg ... done
-saving http://images.cocodataset.org/val2017/000000252219.jpg to coco_val2017_subset/000000252219.jpg ... done
-saving http://images.cocodataset.org/val2017/000000087038.jpg to coco_val2017_subset/000000087038.jpg ... done
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>skipping http://images.cocodataset.org/val2017/000000397133.jpg
+skipping http://images.cocodataset.org/val2017/000000037777.jpg
+skipping http://images.cocodataset.org/val2017/000000252219.jpg
+skipping http://images.cocodataset.org/val2017/000000087038.jpg
 </pre></div>
 </div>
 <p>Next we create the Torchvision dataset and verify that its reduced length is 4:</p>
@@ -471,13 +476,13 @@ tv_dataset.coco.cats[64] = {'supercategory': 'furniture', 'id': 64, 'name': 'pot
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">CocoDetectionTarget</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">ArrayLike</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">CocoDetectionTarget</span><span class="p">]:</span>
         <span class="c1"># tensor bridging</span>
-        <span class="n">batch</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="n">batch</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">4</span>
+        <span class="n">batch_tn</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+        <span class="k">assert</span> <span class="n">batch_tn</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">4</span>
 
         <span class="c1"># put on device</span>
-        <span class="n">batch</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">batch_tn</span> <span class="o">=</span> <span class="n">batch_tn</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
 
         <span class="c1"># convert to list of tensors and apply inference transforms</span>
         <span class="c1"># - https://pytorch.org/vision/stable/models.html</span>
@@ -516,7 +521,7 @@ tv_dataset.coco.cats[64] = {'supercategory': 'furniture', 'id': 64, 'name': 'pot
 <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">xb</span><span class="o">.</span><span class="n">shape</span><span class="w"> </span><span class="si">= }</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="c1"># Get predictions for batch(which just has one image for this example)</span>
-<span class="n">preds</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">xb</span><span class="p">)</span>
+<span class="n">preds</span> <span class="o">=</span> <span class="n">model</span><span class="p">([</span><span class="n">xb</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
 
 <span class="c1"># Overlay detections on image</span>
 <span class="n">img</span> <span class="o">=</span> <span class="n">create_pil_image</span><span class="p">(</span><span class="n">xb</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">preds</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">id2name</span><span class="p">)</span>
@@ -525,13 +530,19 @@ tv_dataset.coco.cats[64] = {'supercategory': 'furniture', 'id': 64, 'name': 'pot
 <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">"off"</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Prediction"</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img</span><span class="p">);</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>xb.shape = torch.Size([1, 3, 230, 352])
+
+
+
+
+
+&lt;matplotlib.image.AxesImage at 0x30db16fa0&gt;
 </pre></div>
 </div>
-<p><img alt="png" src="../_images/torchvision_object_detection_24_1.png"/></p>
+<p><img alt="png" src="tutorials/torchvision_object_detection_files/torchvision_object_detection_24_2.png"/></p>
 <p>Qualitatively, it appears that the model has detected the majority of the objects, but not all.</p>
 <p>At this point, we’d like to perform a more quantitative evaluation across a larger set of images.</p>
 </section>
@@ -637,15 +648,16 @@ tv_dataset.coco.cats[64] = {'supercategory': 'furniture', 'id': 64, 'name': 'pot
         <span class="n">xb</span><span class="p">,</span> <span class="n">yb</span><span class="p">,</span> <span class="n">metadata</span> <span class="o">=</span> <span class="n">batch</span>
 
         <span class="c1"># Type narrow / bridge input batch to PyTorch tensor</span>
-        <span class="n">xb_pt</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">xb</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="n">xb_pt</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">"input must be a batch"</span>
+        <span class="n">xb_pt</span> <span class="o">=</span> <span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">xb_i</span><span class="p">)</span> <span class="k">for</span> <span class="n">xb_i</span> <span class="ow">in</span> <span class="n">xb</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">xb_pt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">'Input should be sequence of 3d ArrayLikes'</span>
 
         <span class="c1"># Apply augmentation to batch</span>
+        <span class="c1"># Return augmentation outputs as uint8</span>
         <span class="c1"># - NOTE: assumes input batch has pixels in [0, 255]</span>
-        <span class="n">xb_aug</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kornia_aug</span><span class="p">(</span><span class="n">xb_pt</span> <span class="o">/</span> <span class="mf">255.0</span><span class="p">)</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="mf">255.0</span>
+        <span class="n">xb_aug</span> <span class="o">=</span> <span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">kornia_aug</span><span class="p">(</span><span class="n">xb_pti</span> <span class="o">/</span> <span class="mf">255.0</span><span class="p">)</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="mf">255.0</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span> <span class="k">for</span> <span class="n">xb_pti</span> <span class="ow">in</span> <span class="n">xb_pt</span><span class="p">]</span>
 
         <span class="c1"># Return augmented inputs and pass through unchanged targets and metadata</span>
-        <span class="k">return</span> <span class="n">xb_aug</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">uint8</span><span class="p">),</span> <span class="n">yb</span><span class="p">,</span> <span class="n">metadata</span>
+        <span class="k">return</span> <span class="n">xb_aug</span><span class="p">,</span> <span class="n">yb</span><span class="p">,</span> <span class="n">metadata</span>
 </pre></div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">noise</span><span class="p">:</span> <span class="n">od</span><span class="o">.</span><span class="n">Augmentation</span> <span class="o">=</span> <span class="n">WrappedKorniaAugmentation</span><span class="p">(</span><span class="n">kornia_noise</span><span class="p">)</span>
@@ -656,7 +668,7 @@ tv_dataset.coco.cats[64] = {'supercategory': 'furniture', 'id': 64, 'name': 'pot
 <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
 <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">md</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
 <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-<span class="n">xb</span><span class="p">,</span> <span class="n">yb</span><span class="p">,</span> <span class="n">mdb</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="p">[</span><span class="n">y</span><span class="p">],</span> <span class="p">[</span><span class="n">md</span><span class="p">]</span>
+<span class="n">xb</span><span class="p">,</span> <span class="n">yb</span><span class="p">,</span> <span class="n">mdb</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">],</span> <span class="p">[</span><span class="n">y</span><span class="p">],</span> <span class="p">[</span><span class="n">md</span><span class="p">]</span>
 
 <span class="c1"># Apply augmentation</span>
 <span class="n">xb_aug</span><span class="p">,</span> <span class="n">yb_aug</span><span class="p">,</span> <span class="n">mdb_aug</span> <span class="o">=</span> <span class="n">noise</span><span class="p">((</span><span class="n">xb</span><span class="p">,</span> <span class="n">yb</span><span class="p">,</span> <span class="n">mdb</span><span class="p">))</span>
@@ -665,17 +677,20 @@ tv_dataset.coco.cats[64] = {'supercategory': 'furniture', 'id': 64, 'name': 'pot
 <span class="n">preds_aug</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">xb_aug</span><span class="p">)</span>
 
 <span class="c1"># Overlay detections on image</span>
-<span class="n">xb_aug</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">xb_aug</span><span class="p">)</span>
-<span class="n">img_aug</span> <span class="o">=</span> <span class="n">create_pil_image</span><span class="p">(</span><span class="n">xb_aug</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">preds_aug</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">id2name</span><span class="p">)</span>
+<span class="n">xb_aug</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">xb_aug</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">img_aug</span> <span class="o">=</span> <span class="n">create_pil_image</span><span class="p">(</span><span class="n">xb_aug</span><span class="p">,</span> <span class="n">preds_aug</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">id2name</span><span class="p">)</span>
 
 <span class="c1"># Show result</span>
 <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">"off"</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Perturbed"</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img_aug</span><span class="p">);</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img_aug</span><span class="p">)</span>
 </pre></div>
 </div>
-<p><img alt="png" src="../_images/torchvision_object_detection_39_0.png"/></p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.image.AxesImage at 0x30c7c9520&gt;
+</pre></div>
+</div>
+<p><img alt="png" src="tutorials/torchvision_object_detection_files/torchvision_object_detection_39_1.png"/></p>
 <p>We see that the noise has resulted in some errors.</p>
 <p>Finally, we run <code class="docutils literal notranslate"><span class="pre">evaluate</span></code> with the augmentation over the dataset:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run evaluate over perturbed dataset</span>
@@ -690,7 +705,7 @@ tv_dataset.coco.cats[64] = {'supercategory': 'furniture', 'id': 64, 'name': 'pot
 <span class="n">results</span><span class="p">[</span><span class="s2">"map_50"</span><span class="p">]</span>
 </pre></div>
 </div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>tensor(0.2165)
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>tensor(0.1948)
 </pre></div>
 </div>
 <p>We see that the mAP_50 performance has decreased due to the simulated image degradation.</p>

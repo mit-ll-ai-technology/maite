@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>maite.protocols.object_detection.Model &#8212; maite 0.5.0 documentation</title>
+    <title>maite.protocols.object_detection.Model &#8212; maite 0.6.0 documentation</title>
   
   
   
@@ -112,7 +112,7 @@
   
   
   
-    <p class="title logo__title">maite 0.5.0 documentation</p>
+    <p class="title logo__title">maite 0.6.0 documentation</p>
   
 </a></div>
     
@@ -419,13 +419,13 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">maite.protocols.object_detection.</span></span><span class="sig-name descname"><span class="pre">Model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/maite/_internals/protocols/object_detection.html#Model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#maite.protocols.object_detection.Model" title="Permalink to this definition">#</a></dt>
 <dd><p>A model protocol for the object detection ML subproblem.</p>
 <p>Implementers must provide a <code class="xref py py-obj docutils literal notranslate"><span class="pre">__call__</span></code> method that operates on a batch of model inputs
-(as <code class="xref py py-obj docutils literal notranslate"><span class="pre">ArrayLike`s)</span> <span class="pre">and</span> <span class="pre">returns</span> <span class="pre">a</span> <span class="pre">batch</span> <span class="pre">of</span> <span class="pre">model</span> <span class="pre">targets</span> <span class="pre">(as</span>
+(as <code class="xref py py-obj docutils literal notranslate"><span class="pre">Sequence[ArrayLike]`s)</span> <span class="pre">and</span> <span class="pre">returns</span> <span class="pre">a</span> <span class="pre">batch</span> <span class="pre">of</span> <span class="pre">model</span> <span class="pre">targets</span> <span class="pre">(as</span>
 <span class="pre">`Sequence[ObjectDetectionTarget]</span></code>)</p>
 <p class="rubric">Methods</p>
 <table class="table">
 <tbody>
-<tr class="row-odd"><td><p><strong>__call__(input_batch: ArrayLike)-&gt;Sequence[ObjectDetectionTarget]</strong></p></td>
-<td><p>Make a model prediction for inputs in input batch. Input batch is expected in the shape <code class="xref py py-obj docutils literal notranslate"><span class="pre">(N,</span> <span class="pre">C,</span> <span class="pre">H,</span> <span class="pre">W)</span></code>.</p></td>
+<tr class="row-odd"><td><p><strong>__call__(input_batch: Sequence[ArrayLike]) -&gt; Sequence[ObjectDetectionTarget]</strong></p></td>
+<td><p>Make a model prediction for inputs in input batch. Elements of input batch are expected in the shape <code class="xref py py-obj docutils literal notranslate"><span class="pre">(C,</span> <span class="pre">H,</span> <span class="pre">W)</span></code>.</p></td>
 </tr>
 </tbody>
 </table>

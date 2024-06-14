@@ -8,7 +8,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>maite._internals.protocols.object_detection &#8212; maite 0.5.0 documentation</title>
+    <title>maite._internals.protocols.object_detection &#8212; maite 0.6.0 documentation</title>
   
   
   
@@ -109,7 +109,7 @@
   
   
   
-    <p class="title logo__title">maite 0.5.0 documentation</p>
+    <p class="title logo__title">maite 0.6.0 documentation</p>
   
 </a></div>
     
@@ -350,7 +350,7 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <h1>Source code for maite._internals.protocols.object_detection</h1><div class="highlight"><pre>
-<span></span><span class="c1"># Copyright 2023, MASSACHUSETTS INSTITUTE OF TECHNOLOGY</span>
+<span></span><span class="c1"># Copyright 2024, MASSACHUSETTS INSTITUTE OF TECHNOLOGY</span>
 <span class="c1"># Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).</span>
 <span class="c1"># SPDX-License-Identifier: MIT</span>
 
@@ -359,7 +359,7 @@ document.write(`
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Protocol</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">runtime_checkable</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Protocol</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">runtime_checkable</span>
 
 <span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">TypeAlias</span>
 
@@ -427,24 +427,19 @@ document.write(`
 <span class="n">TargetType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">ObjectDetectionTarget</span>
 <span class="n">DatumMetadataType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
 
-<span class="n">InputBatchType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">ArrayLike</span>  <span class="c1"># shape (N, C, H, W)</span>
-<span class="n">TargetBatchType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">TargetType</span><span class="p">]</span>  <span class="c1"># length N</span>
+<span class="n">InputBatchType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Sequence</span><span class="p">[</span>
+    <span class="n">ArrayLike</span>
+<span class="p">]</span>  <span class="c1"># sequence of N ArrayLikes of shape (C, H, W)</span>
+<span class="n">TargetBatchType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">TargetType</span><span class="p">]</span>  <span class="c1"># sequence of N TargetType instances</span>
 <span class="n">DatumMetadataBatchType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">DatumMetadataType</span><span class="p">]</span>
 
-<span class="c1"># TODO: Consider what pylance shows on cursoring over: &quot;(type alias) Dataset: type[Dataset[ArrayLike, Dict[Unknown, Unknown], object]]&quot;</span>
-<span class="c1"># Can these type hints be made more intuitive? Perhaps given a name like type[Dataset[InputType = ArrayLike,...]]</span>
-<span class="c1"># - This will likely involve eliminating some TypeAlias uses.</span>
+<span class="n">Datum</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">InputType</span><span class="p">,</span> <span class="n">TargetType</span><span class="p">,</span> <span class="n">DatumMetadataType</span><span class="p">]</span>
+<span class="n">DatumBatch</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">InputBatchType</span><span class="p">,</span> <span class="n">TargetBatchType</span><span class="p">,</span> <span class="n">DatumMetadataBatchType</span><span class="p">]</span>
 
-<span class="c1"># TODO: Determine whether I should/can parameterize on the Datum TypeAlias.</span>
-<span class="c1"># This could make the pylance messages more intuitive?</span>
-
-<span class="c1"># TODO: Consider how we should help type-checker infer method return type when argument type</span>
-<span class="c1">#       matches more than one method signature. For example: Model.__call__ takes an</span>
-<span class="c1">#       ArrayLike in two separate method signatures, but the return type differs.</span>
-<span class="c1">#       In this case, typechecker seems to use the first matching method signature to</span>
-<span class="c1">#       determine type of output. -&gt; we can handle this problem by considering only</span>
-<span class="c1">#       batches as the required handled types for model, augmentation, and metric objects</span>
-<span class="c1">#</span>
+<span class="n">CollateFn</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[</span>
+    <span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="n">Datum</span><span class="p">]],</span>
+    <span class="n">DatumBatch</span><span class="p">,</span>
+<span class="p">]</span>
 
 
 <div class="viewcode-block" id="Dataset"><a class="viewcode-back" href="../../../../generated/maite.protocols.object_detection.Dataset.html#maite.protocols.object_detection.Dataset">[docs]</a><span class="k">class</span> <span class="nc">Dataset</span><span class="p">(</span><span class="n">gen</span><span class="o">.</span><span class="n">Dataset</span><span class="p">[</span><span class="n">InputType</span><span class="p">,</span> <span class="n">TargetType</span><span class="p">,</span> <span class="n">DatumMetadataType</span><span class="p">],</span> <span class="n">Protocol</span><span class="p">):</span>
@@ -464,12 +459,12 @@ document.write(`
 <span class="sd">    Methods</span>
 <span class="sd">    -------</span>
 
-<span class="sd">    __getitem__(ind: int)-&gt;Tuple[ArrayLike, ObjectDetectionTarget, Dict[str, Any]]</span>
+<span class="sd">    __getitem__(ind: int) -&gt; Tuple[ArrayLike, ObjectDetectionTarget, Dict[str, Any]]</span>
 <span class="sd">        Provide mapping-style access to dataset elements. Returned tuple elements</span>
 <span class="sd">        correspond to model input type, model target type, and datum-specific metadata,</span>
 <span class="sd">        respectively.</span>
 
-<span class="sd">    __len__()-&gt;int</span>
+<span class="sd">    __len__() -&gt; int</span>
 <span class="sd">        Return the number of data elements in the dataset.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -491,18 +486,19 @@ document.write(`
 
 <span class="sd">    Implementers must provide an iterable object (returning an iterator via the</span>
 <span class="sd">    `__iter__` method) that yields tuples containing batches of data. These tuples</span>
-<span class="sd">    contain types `ArrayLike` (shape `(N, C, H, W)`), `Sequence[ObjectDetectionTarget]`,</span>
-<span class="sd">    `Sequence[Dict[str, Any]]`, which correspond to model input batch, model target</span>
-<span class="sd">    type batch, and datum metadata batch.</span>
+<span class="sd">    contain types `Sequence[ArrayLike]` (elements of shape `(C, H, W)`),</span>
+<span class="sd">    `Sequence[ObjectDetectionTarget]`, and `Sequence[Dict[str, Any]]`,</span>
+<span class="sd">    which correspond to model input batch, model target batch, and a datum metadata batch.</span>
 
 <span class="sd">    Note: Unlike Dataset, this protocol does not require indexing support, only iterating.</span>
+
 
 <span class="sd">    Methods</span>
 <span class="sd">    -------</span>
 
-<span class="sd">    __iter__-&gt;Iterator[tuple[ArrayLike, Sequence[ObjectDetectionTarget], Sequence[Dict[str, Any]]]]</span>
+<span class="sd">    __iter__ -&gt; Iterator[tuple[Sequence[ArrayLike], Sequence[ObjectDetectionTarget], Sequence[Dict[str, Any]]]]</span>
 <span class="sd">        Return an iterator over batches of data, where each batch contains a tuple of</span>
-<span class="sd">        of model input batch (as an `ArrayLike`), model target batch (as</span>
+<span class="sd">        of model input batch (as `Sequence[ArrayLike]`), model target batch (as</span>
 <span class="sd">        `Sequence[ObjectDetectionTarget]`), and batched datum-level metadata</span>
 <span class="sd">        (as `Sequence[Dict[str,Any]]`), respectively.</span>
 
@@ -516,15 +512,15 @@ document.write(`
 <span class="sd">    A model protocol for the object detection ML subproblem.</span>
 
 <span class="sd">    Implementers must provide a `__call__` method that operates on a batch of model inputs</span>
-<span class="sd">    (as `ArrayLike`s) and returns a batch of model targets (as</span>
+<span class="sd">    (as `Sequence[ArrayLike]`s) and returns a batch of model targets (as</span>
 <span class="sd">    `Sequence[ObjectDetectionTarget]`)</span>
 
 <span class="sd">    Methods</span>
 <span class="sd">    -------</span>
 
-<span class="sd">    __call__(input_batch: ArrayLike)-&gt;Sequence[ObjectDetectionTarget]</span>
-<span class="sd">        Make a model prediction for inputs in input batch. Input batch is expected in</span>
-<span class="sd">        the shape `(N, C, H, W)`.</span>
+<span class="sd">    __call__(input_batch: Sequence[ArrayLike]) -&gt; Sequence[ObjectDetectionTarget]</span>
+<span class="sd">        Make a model prediction for inputs in input batch. Elements of input batch</span>
+<span class="sd">        are expected in the shape `(C, H, W)`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="o">...</span></div>
@@ -540,14 +536,14 @@ document.write(`
 <span class="sd">     Methods</span>
 <span class="sd">     -------</span>
 
-<span class="sd">     update(preds: Sequence[ObjectDetectionTarget], targets: Sequence[ObjectDetectionTarget])-&gt;None</span>
+<span class="sd">     update(preds: Sequence[ObjectDetectionTarget], targets: Sequence[ObjectDetectionTarget]) -&gt; None</span>
 <span class="sd">         Add predictions and targets to metric&#39;s cache for later calculation.</span>
 
-<span class="sd">     compute()-&gt;Dict[str, Any]</span>
+<span class="sd">     compute() -&gt; Dict[str, Any]</span>
 <span class="sd">         Compute metric value(s) for currently cached predictions and targets, returned as</span>
 <span class="sd">         a dictionary.</span>
 
-<span class="sd">     reset()-&gt;None</span>
+<span class="sd">     reset() -&gt; None</span>
 <span class="sd">         Clear contents of current metric&#39;s cache of predictions and targets.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -571,19 +567,19 @@ document.write(`
 <span class="sd">    An augmentation is expected to take a batch of data and return a modified version of</span>
 <span class="sd">    that batch. Implementers must provide a single method that takes and returns a</span>
 <span class="sd">    labeled data batch, where a labeled data batch is represented by a tuple of types</span>
-<span class="sd">    `ArrayLike`, `Sequence[ObjectDetectionTarget]`, and `Sequence[Dict[str,Any]]`. These</span>
-<span class="sd">    correspond to the model input batch type, model target batch type, and datum-level</span>
+<span class="sd">    `Sequence[ArrayLike]`, `Sequence[ObjectDetectionTarget]`, and `Sequence[Dict[str,Any]]`.</span>
+<span class="sd">    These correspond to the model input batch type, model target batch type, and datum-level</span>
 <span class="sd">    metadata batch type, respectively.</span>
 
 <span class="sd">    Methods</span>
 <span class="sd">    -------</span>
 
-<span class="sd">    __call__(datum: Tuple[ArrayLike, Sequence[ObjectDetectionTarget], Sequence[dict[str, Any]]])-&gt;</span>
-<span class="sd">                Tuple[ArrayLike, Sequence[ObjectDetectionTarget], Sequence[dict[str, Any]]]</span>
+<span class="sd">    __call__(datum: Tuple[Sequence[ArrayLike], Sequence[ObjectDetectionTarget], Sequence[dict[str, Any]]]) -&gt;\</span>
+<span class="sd">          Tuple[Sequence[ArrayLike], Sequence[ObjectDetectionTarget], Sequence[dict[str, Any]]]</span>
 <span class="sd">        Return a modified version of original data batch. A data batch is represented</span>
-<span class="sd">        by a tuple of model input batch (as an `ArrayLike` of shape `(N, C, H, W)`),</span>
-<span class="sd">        model target batch (as `Sequence[ObjectDetectionTarget]`), and batch metadata</span>
-<span class="sd">        (as `Sequence[Dict[str,Any]]`), respectively.</span>
+<span class="sd">        by a tuple of model input batch (as `Sequence ArrayLike` with elements of shape</span>
+<span class="sd">        `(C, H, W)`), model target batch (as `Sequence[ObjectDetectionTarget]`), and</span>
+<span class="sd">        batch metadata (as `Sequence[Dict[str,Any]]`), respectively.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="o">...</span></div>

@@ -14,8 +14,7 @@ Thus the goal of this document is to provide:
 
 > **Following along:**
 > The code-snippets in this document are designed to be runnable/parsable. The easiest way to follow along is to copy these snippets into scripts in VSCode with the Pylance extension installed. Under settings specify `Python > Analysis: Type Checking Mode -> basic`. This  will enable pyright's basic static type checking features: demonstrated incompatible types will appear as red squiggles, and you can mouse over variables to see what the statically-inferred types are.
-> To get a feel for mypy and pyright (and their differences) try writing/running snippets in the browser-based [mypy-playground](https://mypy-play.net/?mypy=latest&python=3.10) and [pyright playground](https://pyright-playground.decorator-factory.su/) (note: the pyright playground is blocked on lab browsers :( ). **Do not paste work-specific code into these**. 
-
+> To get a feel for mypy and pyright (and their differences) try writing/running snippets in the browser-based [mypy-playground](https://mypy-play.net/?mypy=latest&python=3.10) and [pyright playground](https://pyright-playground.decorator-factory.su/).
 
 ## A quick introduction to writing statically typed Python code
 

@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>maite.protocols.image_classification.Metric &#8212; maite 0.5.0 documentation</title>
+    <title>maite.protocols.image_classification.Metric &#8212; maite 0.6.0 documentation</title>
   
   
   
@@ -112,7 +112,7 @@
   
   
   
-    <p class="title logo__title">maite 0.5.0 documentation</p>
+    <p class="title logo__title">maite 0.6.0 documentation</p>
   
 </a></div>
     
@@ -423,13 +423,13 @@ predictions and ground-truth labels.</p>
 <p class="rubric">Methods</p>
 <table class="table">
 <tbody>
-<tr class="row-odd"><td><p><strong>update(preds: ArrayLike, targets: ArrayLike)-&gt;None</strong></p></td>
-<td><p>Add predictions and targets to metric’s cache for later calculation. Both preds and targets are expected to be of shape <code class="xref py py-obj docutils literal notranslate"><span class="pre">(N,</span> <span class="pre">Cl)</span></code>.</p></td>
+<tr class="row-odd"><td><p><strong>update(preds: Sequence[ArrayLike], targets: Sequence[ArrayLike]) -&gt; None</strong></p></td>
+<td><p>Add predictions and targets to metric’s cache for later calculation. Both preds and targets are expected to be sequences with elements of shape <code class="xref py py-obj docutils literal notranslate"><span class="pre">(Cl,)</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><strong>compute()-&gt;Dict[str, Any]</strong></p></td>
+<tr class="row-even"><td><p><strong>compute() -&gt; Dict[str, Any]</strong></p></td>
 <td><p>Compute metric value(s) for currently cached predictions and targets, returned as a dictionary.</p></td>
 </tr>
-<tr class="row-odd"><td><p><strong>reset()-&gt;None</strong></p></td>
+<tr class="row-odd"><td><p><strong>reset() -&gt; None</strong></p></td>
 <td><p>Clear contents of current metric’s cache of predictions and targets.</p></td>
 </tr>
 </tbody>

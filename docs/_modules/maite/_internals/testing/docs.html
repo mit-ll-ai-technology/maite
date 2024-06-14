@@ -8,7 +8,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>maite._internals.testing.docs &#8212; maite 0.5.0 documentation</title>
+    <title>maite._internals.testing.docs &#8212; maite 0.6.0 documentation</title>
   
   
   
@@ -109,7 +109,7 @@
   
   
   
-    <p class="title logo__title">maite 0.5.0 documentation</p>
+    <p class="title logo__title">maite 0.6.0 documentation</p>
   
 </a></div>
     
@@ -347,7 +347,7 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <h1>Source code for maite._internals.testing.docs</h1><div class="highlight"><pre>
-<span></span><span class="c1"># Copyright 2023, MASSACHUSETTS INSTITUTE OF TECHNOLOGY</span>
+<span></span><span class="c1"># Copyright 2024, MASSACHUSETTS INSTITUTE OF TECHNOLOGY</span>
 <span class="c1"># Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).</span>
 <span class="c1"># SPDX-License-Identifier: MIT</span>
 
@@ -470,31 +470,6 @@ document.write(`
     <span class="n">joined_tags</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">doc_ignore_re</span><span class="p">,</span> <span class="n">src</span><span class="p">)])</span>
     <span class="n">joined_tags</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">_comma_or_whitespace</span><span class="p">,</span> <span class="n">joined_tags</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">ERRORCODES</span> <span class="o">&amp;</span> <span class="n">joined_tags</span>
-
-
-<span class="k">def</span> <span class="nf">person</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">age</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Enter person ID info.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    name : str</span>
-<span class="sd">        The person&#39;s first name.</span>
-<span class="sd">    age : int</span>
-<span class="sd">        The person&#39;s age.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    None</span>
-<span class="sd">        Nothing.</span>
-
-<span class="sd">    Examples</span>
-<span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; from maite.testing.documentation.documentation_dependencies import person</span>
-<span class="sd">    &gt;&gt;&gt; person(&#39;Brad&#39;, 22)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">return</span>
 
 
 <span class="nd">@overload</span>
@@ -634,13 +609,13 @@ document.write(`
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; from maite.testing.docs import validate_docstring, person</span>
+<span class="sd">    &gt;&gt;&gt; from maite.testing.docs import validate_docstring</span>
 <span class="sd">    &gt;&gt;&gt; from maite.testing.documentation.documentation_dependencies import person</span>
 <span class="sd">    </span>
 <span class="sd">    Let&#39;s ignore the need for an Extended Summary and a See Also section.</span>
 
-<span class="sd">    &gt;&gt;&gt; validate_docstring(person, ignore=(&#39;ES01&#39;, &#39;SA01&#39;), include_ignored_errors=True) # doctest: +ELLIPSIS</span>
-<span class="sd">    {&#39;error_count&#39;: 0, &#39;errors&#39;: {},...&#39;ignored_errors&#39;: {&#39;ES01&#39;: [&#39;No extended summary found&#39;], &#39;SA01&#39;: [&#39;See Also section not found&#39;]}...</span>
+<span class="sd">    &gt;&gt;&gt; validate_docstring(person, ignore=(&#39;ES01&#39;, &#39;SA01&#39;), include_ignored_errors=True)</span>
+<span class="sd">    {&#39;error_count&#39;: 0, &#39;errors&#39;: {}, ...&#39;ignored_errors&#39;: {&#39;ES01&#39;: [&#39;No extended summary found&#39;], &#39;SA01&#39;: [&#39;See Also section not found&#39;]}...</span>
 <span class="sd">    </span>
 <span class="sd">    Using comments to skip validation.</span>
 

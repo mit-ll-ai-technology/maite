@@ -5,7 +5,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.19: https://docutils.sourceforge.io/" name="generator"/>
-<title>Overview of MAITE Protocols — maite 0.5.0 documentation</title>
+<title>Overview of MAITE Protocols — maite 0.6.0 documentation</title>
 <script data-cfasync="false">
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
@@ -64,7 +64,7 @@
 <div class="navbar-header-items__start">
 <div class="navbar-item">
 <a class="navbar-brand logo" href="../index.html">
-<p class="title logo__title">maite 0.5.0 documentation</p>
+<p class="title logo__title">maite 0.6.0 documentation</p>
 </a></div>
 </div>
 <div class="col-lg-9 navbar-header-items">
@@ -293,8 +293,8 @@ document.write(`
 <span class="n">TargetType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">ArrayLike</span>  <span class="c1"># shape-(Cl) tensor of one-hot encoded true class or predicted probabilities</span>
 <span class="n">DatumMetadataType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Dict</span><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
 
-<span class="n">InputBatchType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">ArrayLike</span>  <span class="c1"># shape-(N, C, H, W) tensor of N images</span>
-<span class="n">TargetBatchType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">ArrayLike</span>  <span class="c1"># shape-(N, Cl)</span>
+<span class="n">InputBatchType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">ArrayLike</span><span class="p">]</span>  <span class="c1"># element shape-(C, H, W) tensor of N images</span>
+<span class="n">TargetBatchType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">ArrayLike</span><span class="p">]</span>  <span class="c1"># element shape-(Cl,)</span>
 <span class="n">DatumMetadataBatchType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">DatumMetadataType</span><span class="p">]</span>
 </pre></div>
 </div>
@@ -306,23 +306,25 @@ document.write(`
 <li><p>prediction from a model would be a vector of pseudo-probabilities, e.g., <code class="docutils literal notranslate"><span class="pre">[0.1,</span> <span class="pre">0.0,</span> <span class="pre">0.7,</span> <span class="pre">0.2]</span></code></p></li>
 </ul>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">InputBatchType</span></code> and <code class="docutils literal notranslate"><span class="pre">TargetBatchType</span></code> require all elements in the batch to be the same size (either natively or after resizing).</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">InputType</span></code> and <code class="docutils literal notranslate"><span class="pre">InputBatchType</span></code> are shown with shapes following PyTorch channels-first convention</p></li>
 </ul>
 <p>These type aliases along with the versions of the various component protocols that use these types can be imported from <code class="docutils literal notranslate"><span class="pre">maite.protocols.image_classification</span></code> (if necessary):</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">maite.protocols.image_classification</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="c1"># - protocol classes -</span>
-    <span class="n">Dataset</span><span class="p">,</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># import protocol classes</span>
+<span class="kn">from</span> <span class="nn">maite.protocols.image_classification</span> <span class="kn">import</span> <span class="p">(</span>
+    <a class="sphinx-codeautolink-a" href="../generated/maite.protocols.image_classification.Dataset.html#maite.protocols.image_classification.Dataset" title="maite._internals.protocols.image_classification.Dataset"><span class="n">Dataset</span></a><span class="p">,</span>
     <a class="sphinx-codeautolink-a" href="../generated/maite.protocols.image_classification.DataLoader.html#maite.protocols.image_classification.DataLoader" title="maite._internals.protocols.image_classification.DataLoader"><span class="n">DataLoader</span></a><span class="p">,</span>
     <a class="sphinx-codeautolink-a" href="../generated/maite.protocols.image_classification.Model.html#maite.protocols.image_classification.Model" title="maite._internals.protocols.image_classification.Model"><span class="n">Model</span></a><span class="p">,</span>
     <a class="sphinx-codeautolink-a" href="../generated/maite.protocols.image_classification.Augmentation.html#maite.protocols.image_classification.Augmentation" title="maite._internals.protocols.image_classification.Augmentation"><span class="n">Augmentation</span></a><span class="p">,</span>
-    <a class="sphinx-codeautolink-a" href="../generated/maite.protocols.image_classification.Metric.html#maite.protocols.image_classification.Metric" title="maite._internals.protocols.image_classification.Metric"><span class="n">Metric</span></a><span class="p">,</span>
-    <span class="c1"># - type aliases -</span>
-    <span class="n">InputType</span><span class="p">,</span>
+    <a class="sphinx-codeautolink-a" href="../generated/maite.protocols.image_classification.Metric.html#maite.protocols.image_classification.Metric" title="maite._internals.protocols.image_classification.Metric"><span class="n">Metric</span></a>
+<span class="p">)</span>
+
+<span class="c1"># import type aliases</span>
+<span class="kn">from</span> <span class="nn">maite.protocols.image_classification</span> <span class="kn">import</span> <span class="p">(</span>
+    <a class="sphinx-codeautolink-a" href="../generated/maite.protocols.ArrayLike.html#maite.protocols.ArrayLike" title="maite._internals.protocols.ArrayLike"><span class="n">InputType</span></a><span class="p">,</span>
     <a class="sphinx-codeautolink-a" href="../generated/maite.protocols.ArrayLike.html#maite.protocols.ArrayLike" title="maite._internals.protocols.ArrayLike"><span class="n">TargetType</span></a><span class="p">,</span>
     <span class="n">DatumMetadataType</span><span class="p">,</span>
-    <a class="sphinx-codeautolink-a" href="../generated/maite.protocols.ArrayLike.html#maite.protocols.ArrayLike" title="maite._internals.protocols.ArrayLike"><span class="n">InputBatchType</span></a><span class="p">,</span>
-    <a class="sphinx-codeautolink-a" href="../generated/maite.protocols.ArrayLike.html#maite.protocols.ArrayLike" title="maite._internals.protocols.ArrayLike"><span class="n">TargetBatchType</span></a><span class="p">,</span>
+    <span class="n">InputBatchType</span><span class="p">,</span>
+    <span class="n">TargetBatchType</span><span class="p">,</span>
     <span class="n">DatumMetadataBatchType</span>
 <span class="p">)</span>
 </pre></div>
@@ -351,15 +353,14 @@ document.write(`
 <span class="n">TargetType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">ObjectDetectionTarget</span>
 <span class="n">DatumMetadataType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Dict</span><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
 
-<span class="n">InputBatchType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">ArrayLike</span>  <span class="c1"># shape-(N, C, H, W) tensor of N images</span>
-<span class="n">TargetBatchType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">TargetType</span><span class="p">]</span>  <span class="c1"># length N</span>
+<span class="n">InputBatchType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">ArrayLike</span><span class="p">]</span>  <span class="c1"># sequence of N ArrayLikes each of shape (C, H, W)</span>
+<span class="n">TargetBatchType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">TargetType</span><span class="p">]</span>   <span class="c1"># sequence of object detection "target" objects</span>
 <span class="n">DatumMetadataBatchType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">DatumMetadataType</span><span class="p">]</span>
 </pre></div>
 </div>
 <p>Notes:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">ObjectDetectionTarget</span></code> contains a single label and score per box</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">TargetBatchType</span></code> requires all inputs in the batch to be the same size or have been resized to the same size</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">InputType</span></code> and <code class="docutils literal notranslate"><span class="pre">InputBatchType</span></code> are shown with shapes following PyTorch channels-first convention</p></li>
 </ul>
 </section>
@@ -374,15 +375,15 @@ document.write(`
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>    A model protocol for the image classification ML subproblem.
 
     Implementers must provide a `__call__` method that operates on a batch of model
-    inputs (as `ArrayLike`s) and returns a batch of model targets (implementers of
-    `ArrayLike`)
+    inputs (as `Sequence[ArrayLike]) and returns a batch of model targets (as
+    `Sequence[ArrayLike]`)
 
     Methods
     -------
 
-    __call__(input_batch: ArrayLike)-&gt;ArrayLike
-        Make a model prediction for inputs in input batch. Input batch is expected in
-        the shape `(N, C, H, W)`.
+    __call__(input_batch: Sequence[ArrayLike]) -&gt; Sequence[ArrayLike]
+        Make a model prediction for inputs in input batch. Input batch is expected to
+        be `Sequence[ArrayLike]` with each element of shape `(C, H, W)`.
 </pre></div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">maite.protocols.object_detection</span> <span class="k">as</span> <span class="nn">od</span>
@@ -392,15 +393,15 @@ document.write(`
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>    A model protocol for the object detection ML subproblem.
 
     Implementers must provide a `__call__` method that operates on a batch of model inputs
-    (as `ArrayLike`s) and returns a batch of model targets (as
+    (as `Sequence[ArrayLike]`s) and returns a batch of model targets (as
     `Sequence[ObjectDetectionTarget]`)
 
     Methods
     -------
 
-    __call__(input_batch: ArrayLike)-&gt;Sequence[ObjectDetectionTarget]
-        Make a model prediction for inputs in input batch. Input batch is expected in
-        the shape `(N, C, H, W)`.
+    __call__(input_batch: Sequence[ArrayLike]) -&gt; Sequence[ObjectDetectionTarget]
+        Make a model prediction for inputs in input batch. Elements of input batch
+        are expected in the shape `(C, H, W)`.
 </pre></div>
 </div>
 </section>
@@ -414,24 +415,70 @@ document.write(`
     data access.
 
     Implementers must provide index lookup (via `__getitem__(ind: int)` method) and
-    support `len` (via `__len__()` method). Data elements looked up this way correspond to
-    individual examples (as opposed to batches).
+    support `len` (via `__len__()` method). Data elements looked up this way correspond
+    to individual examples (as opposed to batches).
 
-    Indexing into or iterating over the an image_classification dataset returns a `Tuple` of
-    types `ArrayLike`, `ArrayLike`, and `Dict[str,Any]`. These correspond to
-    the model input type, model target type, and datum-level metadata, respectively.
-
+    Indexing into or iterating over the an image_classification dataset returns a
+    `Tuple` of types `ArrayLike`, `ArrayLike`, and `Dict[str,Any]`.
+    These correspond to the model input type, model target type, and datum-level
+    metadata, respectively.
 
     Methods
     -------
 
-    __getitem__(ind: int)-&gt;Tuple[ArrayLike, ArrayLike, Dict[str, Any]]
-        Provide mapping-style access to dataset elements. Returned tuple elements
-        correspond to model input type, model target type, and datum-specific metadata,
+    __getitem__(ind: int) -&gt; Tuple[ArrayLike, ArrayLike, Dict[str, Any]]
+        Provide map-style access to dataset elements. Returned tuple elements
+        correspond to model input type, model target type, and datum-specific metadata type,
         respectively.
 
-    __len__()-&gt;int
+    __len__() -&gt; int
         Return the number of data elements in the dataset.
+
+    Examples
+    --------
+
+    We create a dummy set of data and use it to create a class that implements
+    this lightweight dataset protocol:
+
+    &gt;&gt;&gt; import numpy as np
+    &gt;&gt;&gt; from typing import List, Dict, Any, Tuple
+    &gt;&gt;&gt; from maite.protocols import ArrayLike
+
+    Assume we have 5 classes, 10 datapoints, and 10 target labels, and that we want
+    to simply have an integer 'id' field in each datapoint's metadata:
+
+    &gt;&gt;&gt; N_CLASSES: int = 5
+    &gt;&gt;&gt; N_DATUM: int = 10
+    &gt;&gt;&gt; images: List[np.ndarray] = [np.random.rand(3, 32, 16) for _ in range(N_DATUM)]
+    &gt;&gt;&gt; targets: np.ndarray = np.eye(N_CLASSES)[np.random.choice(N_CLASSES, N_DATUM)]
+    &gt;&gt;&gt; metadata: List[Dict] = [{'id': i} for i in range(N_DATUM)]
+
+    Constructing a compliant dataset just involves a simple wrapper that fetches
+    individual datapoints, where a datapoint is a single image, target, metadata 3-tuple.
+
+    &gt;&gt;&gt; class ImageDataset:
+    ...     def __init__(self,
+    ...                  images: List[np.ndarray],
+    ...                  targets: np.ndarray,
+    ...                  metadata: List[Dict[str, Any]]):
+    ...         self.images = images
+    ...         self.targets = targets
+    ...         self.metadata = metadata
+    ...     def __len__(self) -&gt; int:
+    ...         return len(images)
+    ...     def __getitem__(self, ind: int) -&gt; Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
+    ...         return self.images[ind], self.targets[ind], self.metadata[ind]
+
+    We can instantiate this class and typehint it as an image_classification.Dataset.
+    By using typehinting, we permit a static typechecker to verify protocol compliance.
+
+    &gt;&gt;&gt; from maite.protocols import image_classification as ic
+    &gt;&gt;&gt; dataset: ic.Dataset = ImageDataset(images, targets, metadata)
+
+    Note that when writing a Dataset implementer, return types may be narrower than the
+    return types promised by the protocol (np.ndarray is a subtype of ArrayLike), but
+    the argument types must be at least as general as the argument types promised by the
+    protocol.
 </pre></div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="n">ic</span><span class="o">.</span><span class="n">DataLoader</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">)</span>
@@ -442,19 +489,19 @@ document.write(`
 
     Implementers must provide an iterable object (returning an iterator via the
     `__iter__` method) that yields tuples containing batches of data. These tuples
-    contain types `ArrayLike` (shape `(N, C, H, W)`), `ArrayLike` (shape `(N, Cl)`),
-    and `Sequence[Dict[str, Any]]`, which correspond to model input batch, model target
-    type batch, and a datum metadata batch.
+    contain types `Sequence[ArrayLike]` (elements of shape `(C, H, W)`),
+    `Sequence[ArrayLike]` (elements shape `(Cl, )`), and `Sequence[Dict[str, Any]]`,
+    which correspond to model input batch, model target type batch, and a datum metadata batch.
 
     Note: Unlike Dataset, this protocol does not require indexing support, only iterating.
 
     Methods
     -------
 
-    __iter__-&gt;Iterator[tuple[ArrayLike, ArrayLike, Sequence[Dict[str, Any]]]]
+    __iter__ -&gt; Iterator[tuple[Sequence[ArrayLike], Sequence[ArrayLike], Sequence[Dict[str, Any]]]]
         Return an iterator over batches of data, where each batch contains a tuple of
-        of model input batch (as an `ArrayLike`), model target batch (as
-        an `ArrayLike`), and batched datum-level metadata
+        of model input batch (as `Sequence[ArrayLike]`), model target batch (as
+        `Sequence[ArrayLike]`), and batched datum-level metadata
         (as `Sequence[Dict[str,Any]]`), respectively.
 </pre></div>
 </div>
@@ -466,18 +513,19 @@ document.write(`
 
     Implementers must provide an iterable object (returning an iterator via the
     `__iter__` method) that yields tuples containing batches of data. These tuples
-    contain types `ArrayLike` (shape `(N, C, H, W)`), `Sequence[ObjectDetectionTarget]`,
-    `Sequence[Dict[str, Any]]`, which correspond to model input batch, model target
-    type batch, and datum metadata batch.
+    contain types `Sequence[ArrayLike]` (elements of shape `(C, H, W)`),
+    `Sequence[ObjectDetectionTarget]`, and `Sequence[Dict[str, Any]]`,
+    which correspond to model input batch, model target type batch, and a datum metadata batch.
 
     Note: Unlike Dataset, this protocol does not require indexing support, only iterating.
+
 
     Methods
     -------
 
-    __iter__-&gt;Iterator[tuple[ArrayLike, Sequence[ObjectDetectionTarget], Sequence[Dict[str, Any]]]]
+    __iter__ -&gt; Iterator[tuple[Sequence[ArrayLike], Sequence[ObjectDetectionTarget], Sequence[Dict[str, Any]]]]
         Return an iterator over batches of data, where each batch contains a tuple of
-        of model input batch (as an `ArrayLike`), model target batch (as
+        of model input batch (as `Sequence[ArrayLike]`), model target batch (as
         `Sequence[ObjectDetectionTarget]`), and batched datum-level metadata
         (as `Sequence[Dict[str,Any]]`), respectively.
 </pre></div>
@@ -495,19 +543,56 @@ document.write(`
     An augmentation is expected to take a batch of data and return a modified version of
     that batch. Implementers must provide a single method that takes and returns a
     labeled data batch, where a labeled data batch is represented by a tuple of types
-    `ArrayLike` (of shape `(N, C, H, W)`), `ArrayLike` (of shape `(N, Cl)`), and
-    `Sequence[Dict[str,Any]]`. These correspond to the model input batch type, model
-    target batch type, and datum-level metadata batch type, respectively.
+    `Sequence[ArrayLike]` (with elements of shape `(C, H, W)`), `Sequence[ArrayLike]`
+    (with elements of shape `(Cl, )`), and `Sequence[Dict[str,Any]]`. These correspond
+    to the model input batch type, model target batch type, and datum-level metadata
+    batch type, respectively.
 
     Methods
     -------
 
-    __call__(datum: Tuple[ArrayLike, ArrayLike, Sequence[dict[str, Any]]])-&gt;
-                Tuple[ArrayLike, ArrayLike, Sequence[dict[str, Any]]]
+    __call__(datum: Tuple[Sequence[ArrayLike], Sequence[ArrayLike], Sequence[dict[str, Any]]]) -&gt;          Tuple[Sequence[ArrayLike], Sequence[ArrayLike], Sequence[dict[str, Any]]])
         Return a modified version of original data batch. A data batch is represented
-        by a tuple of model input batch (as an `ArrayLike` of shape `(N, C, H, W)`),
-        model target batch (as an `ArrayLike` of shape `(N, Cl)`), and batch metadata (as
-        `Sequence[Dict[str,Any]]`), respectively.
+        by a tuple of model input batch (as `Sequence[ArrayLike]` with elements of shape
+        `(C, H, W)`), model target batch (as an `Sequence[ArrayLike]` of shape `(N, Cl)`),
+        and batch metadata (as `Sequence[Dict[str, Any]]`), respectively.
+
+    Examples
+    --------
+
+    We can write an implementer of the augmentation class as either a function or a class.
+    The only requirement is that the object provide a __call__ method that takes objects
+    at least as general as the types promised in the protocol signature and return types
+    at least as specific.
+
+    &gt;&gt;&gt; import copy
+    &gt;&gt;&gt; import numpy as np
+    &gt;&gt;&gt; from typing import Dict, Any, Tuple, Sequence
+    &gt;&gt;&gt; from maite.protocols import ArrayLike
+    &gt;&gt;&gt;
+    &gt;&gt;&gt; class ImageAugmentation:
+    ...     def __call__(
+    ...         self,
+    ...         data_batch: Tuple[Sequence[ArrayLike], Sequence[ArrayLike], Sequence[Dict[str, Any]]]
+    ...     ) -&gt; Tuple[Sequence[np.ndarray], Sequence[np.ndarray], Sequence[Dict[str, Any]]]:
+    ...         inputs, targets, mds = data_batch
+    ...         # We copy data passed into the constructor to avoid mutating original inputs
+    ...         # By using np.ndarray constructor, the static type-checker will let us treat
+    ...         # generic ArrayLike as a more narrow return type
+    ...         inputs_aug = [copy.copy(np.array(input)) for input in inputs]
+    ...         targets_aug = [copy.copy(np.array(target)) for target in targets]
+    ...         mds_aug = copy.deepcopy(mds)  # deepcopy in case of nested structure
+    ...         # Modify inputs_aug, targets_aug, or mds_aug as needed
+    ...         # In this example, we just add a new metadata field
+    ...         for i, md in enumerate(mds_aug):
+    ...             md['new_key'] = i
+    ...         return inputs_aug, targets_aug, mds_aug
+
+    We can typehint an instance of the above class as an Augmentation in the
+    image_classification domain:
+
+    &gt;&gt;&gt; from maite.protocols import image_classification as ic
+    &gt;&gt;&gt; im_aug: ic.Augmentation = ImageAugmentation()
 </pre></div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="n">od</span><span class="o">.</span><span class="n">Augmentation</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">)</span>
@@ -518,19 +603,18 @@ document.write(`
     An augmentation is expected to take a batch of data and return a modified version of
     that batch. Implementers must provide a single method that takes and returns a
     labeled data batch, where a labeled data batch is represented by a tuple of types
-    `ArrayLike`, `Sequence[ObjectDetectionTarget]`, and `Sequence[Dict[str,Any]]`. These
-    correspond to the model input batch type, model target batch type, and datum-level
+    `Sequence[ArrayLike]`, `Sequence[ObjectDetectionTarget]`, and `Sequence[Dict[str,Any]]`.
+    These correspond to the model input batch type, model target batch type, and datum-level
     metadata batch type, respectively.
 
     Methods
     -------
 
-    __call__(datum: Tuple[ArrayLike, Sequence[ObjectDetectionTarget, dict[str, Any]]])-&gt;
-                Tuple[ArrayLike, Sequence[ObjectDetectionTarget], Sequence[dict[str, Any]]]
+    __call__(datum: Tuple[Sequence[ArrayLike], Sequence[ObjectDetectionTarget], Sequence[dict[str, Any]]]) -&gt;          Tuple[Sequence[ArrayLike], Sequence[ObjectDetectionTarget], Sequence[dict[str, Any]]]
         Return a modified version of original data batch. A data batch is represented
-        by a tuple of model input batch (as an `ArrayLike` of shape `(N, C, H, W)`),
-        model target batch (as `Sequence[ObjectDetectionTarget]`), and batch metadata
-        (as `Sequence[Dict[str,Any]]`), respectively.
+        by a tuple of model input batch (as `Sequence ArrayLike` with elements of shape
+        `(C, H, W)`), model target batch (as `Sequence[ObjectDetectionTarget]`), and
+        batch metadata (as `Sequence[Dict[str,Any]]`), respectively.
 </pre></div>
 </div>
 </section>
@@ -548,15 +632,15 @@ document.write(`
     Methods
     -------
 
-    update(preds: ArrayLike, targets: ArrayLike)-&gt;None
+    update(preds: Sequence[ArrayLike], targets: Sequence[ArrayLike]) -&gt; None
         Add predictions and targets to metric's cache for later calculation. Both
-        preds and targets are expected to be of shape `(N, Cl)`.
+        preds and targets are expected to be sequences with elements of shape `(Cl,)`.
 
-    compute()-&gt;Dict[str, Any]
+    compute() -&gt; Dict[str, Any]
         Compute metric value(s) for currently cached predictions and targets, returned as
         a dictionary.
 
-    reset()-&gt;None
+    reset() -&gt; None
         Clear contents of current metric's cache of predictions and targets.
 </pre></div>
 </div>
@@ -571,14 +655,14 @@ document.write(`
      Methods
      -------
 
-     update(preds: Sequence[ObjectDetectionTarget], targets: Sequence[ObjectDetectionTarget])-&gt;None
+     update(preds: Sequence[ObjectDetectionTarget], targets: Sequence[ObjectDetectionTarget]) -&gt; None
          Add predictions and targets to metric's cache for later calculation.
 
-     compute()-&gt;Dict[str, Any]
+     compute() -&gt; Dict[str, Any]
          Compute metric value(s) for currently cached predictions and targets, returned as
          a dictionary.
 
-     reset()-&gt;None
+     reset() -&gt; None
          Clear contents of current metric's cache of predictions and targets.
 </pre></div>
 </div>
@@ -589,6 +673,8 @@ document.write(`
 <p>The <code class="docutils literal notranslate"><span class="pre">evaluate</span></code> function can optionally return the model predictions and (potentially-augmented) data batches used during inference.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">predict</span></code> function returns the model predictions and (potentially-augmented) data batches used during inference, essentially calling <code class="docutils literal notranslate"><span class="pre">evaluate</span></code> with a dummy metric.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">maite.workflows</span> <span class="kn">import</span> <a class="sphinx-codeautolink-a" href="../generated/maite.workflows.evaluate.html#maite.workflows.evaluate" title="maite.workflows.evaluate"><span class="n">evaluate</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../generated/maite.workflows.predict.html#maite.workflows.predict" title="maite.workflows.predict"><span class="n">predict</span></a>
+<span class="c1"># we can also import from object_detection module</span>
+<span class="c1"># where the function call signature is the same</span>
 </pre></div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="n">evaluate</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">)</span>
@@ -607,14 +693,14 @@ document.write(`
     metric : Optional[SomeMetric], (default=None)
         Compatible maite Metric.
 
+    dataloader : Optional[SomeDataloader], (default=None)
+        Compatible maite dataloader.
+
     dataset : Optional[SomeDataset], (default=None)
         Compatible maite dataset.
 
     batch_size : int, (default=1)
         Batch size for use with dataset (ignored if dataset=None).
-
-    dataloader : Optional[SomeDataloader], (default=None)
-        Compatible maite dataloader.
 
     augmentation : Optional[SomeAugmentation], (default=None)
         Compatible maite augmentation.
