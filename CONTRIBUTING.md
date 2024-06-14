@@ -247,9 +247,9 @@ Using explicit data structures when processing data is critical to ensuring that
 
 ## Validating Type Correctness
 
-Our CI runs the `pyright` type-checker in basic mode against hydra-zen's entire code base and against specific test files; this ensures that our type-annotations are complete and accurate.
+Our CI runs the `pyright` type-checker in basic mode against maite's entire code base and against specific test files; this ensures that our type-annotations are complete and accurate.
 
-If you use VSCode with Pylance, then make sure that `Type Checking Mode` is set to `basic` for your hydra-zen workspace. Your IDE will then mark any problematic code.Other IDEs can leverage the pyright language server to a similar effect.
+If you use VSCode with Pylance, then make sure that `Type Checking Mode` is set to `basic` for your maite workspace. Your IDE will then mark any problematic code.Other IDEs can leverage the pyright language server to a similar effect.
 
 While this is helpful for getting immediate feedback about your code, it is no substitute for running `pyright` from the commandline. To do so, run the following tox job:
 
