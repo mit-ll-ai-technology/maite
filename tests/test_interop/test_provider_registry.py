@@ -9,15 +9,15 @@ from typing import List
 
 import pytest
 
-from maite._internals.protocols.generic import Dataset, Metric, Model
-from maite._internals.protocols.task_aliases import TaskName
-from maite.errors import InternalError, InvalidArgument
-from maite.interop.provider_registry import (
+from maite._internals.interop.provider_registry import (
     create_provider,
     get_provider_type,
     list_providers,
     register_provider,
 )
+from maite._internals.protocols.generic import Dataset, Metric, Model
+from maite._internals.protocols.task_aliases import TaskName
+from maite.errors import InternalError, InvalidArgument
 
 
 class AModel:

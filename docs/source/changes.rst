@@ -8,6 +8,17 @@ Changelog
 This is a record of all past maite releases and what went into them, in reverse 
 chronological order.
 
+.. _v0.6.0:
+
+---------------------
+0.6.0 - 2024-06-14
+---------------------
+
+- Removed torch dependency (internally, input/target types are batched agnostically of task)
+- Altered batch types in each task to be sequences of singleton types
+- Added tqdm progress bars to evaluate/predict workflows
+- Added docstring examples to Dataset and Augmentation protocols
+
 .. _v0.5.0:
 
 ---------------------

@@ -2,16 +2,7 @@
 # Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).
 # SPDX-License-Identifier: MIT
 
-from maite._internals.interop.provider_registry import (
-    create_provider,
-    get_provider_type,
-    list_providers,
-    register_provider,
-)
-
-__all__ = [
-    "list_providers",
-    "register_provider",
-    "create_provider",
-    "get_provider_type",
-]
+# ----
+# Not exposing provider_registry publicly yet on the grounds that writing provider
+# implementers will likely affect protocol design.
+# ----
