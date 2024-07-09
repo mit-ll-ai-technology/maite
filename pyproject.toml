@@ -60,6 +60,16 @@ test = [
   "torch>=1.7,!=1.12.0"
 ]
 
+notebooks = [
+  "jupyter",
+  "nbconvert",
+  "kornia",
+  "matplotlib",
+  "torchmetrics",
+  "torchvision",
+  "pycocotools",
+]
+
 # dependencies required to build all documentation with sphinx
 # (This is required because all classes/functions documented with `autodoc` 
 # and `autosummary` must be importable)
