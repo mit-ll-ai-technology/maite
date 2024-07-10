@@ -1,129 +1,121 @@
 [build-system]
-requires = [
-  "setuptools >= 35.0.2",
-  "wheel >= 0.29.0",
-  "setuptools_scm[toml]==7.0.5",
-]
-build-backend = "setuptools.build_meta"
+
+    requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning>=1.0.0,<2.0.0"]] and
+    build-backend = "poetry.core.masonry.api"
 
 
-[project]
-name = "maite"
-dynamic = ["version"]
-description = "Library of common types, protocols (a.k.a. structural subtypes), and utilities to support AI test and evaluation"
-readme = "README.md"
-requires-python = ">=3.8"
-dependencies = [
-  "typing-extensions >= 4.5,!= 4.6",
-  "numpy >= 1.17",
-]
+[tool.poetry]
 
-license = { file = "LICENSE.txt" }
-keywords = ["machine learning", "testing", "pytest"]
-
-authors = [
-    { name = "Justin Goodwin"},
-    { name = "Michael Yee"},
-    { name = "Ryan Soklaski" },
-    { name = "Lei Hamilton" },
-    { name = "Jeff Arena" },
-    { name = "Garrett Botkin"},
-    { name = "Manasi Sharma"}
-]
-maintainers = [
-    { name = "Justin Goodwin"}, 
-    { name = "Michael Yee"},
-    { name = "Lei Hamilton"},
-    { name = "Jeff Arena"}
-]
-
-classifiers = [
-  "Development Status :: 3 - Alpha",
-  "License :: OSI Approved :: MIT License",
-  "Operating System :: OS Independent",
-  "Intended Audience :: Science/Research",
-  "Programming Language :: Python :: 3.8",
-  "Programming Language :: Python :: 3.9",
-  "Programming Language :: Python :: 3.10",
-  "Topic :: Scientific/Engineering",
-  "Programming Language :: Python :: 3 :: Only",
-]
-
-[project.optional-dependencies]
-test = [
-  "jupytext >= 1.14.0",
-  "numpydoc >= 1.5.0",
-  "pyright >= 1.1.280",
-  "pytest >= 7.0.0",
-  "hypothesis >= 6.61.0",
-  "pytest-mock >= 3.10.0",
-  "torch>=1.7,!=1.12.0"
-]
-
-# dependencies required to build all documentation with sphinx
-# (This is required because all classes/functions documented with `autodoc` 
-# and `autosummary` must be importable)
-build_docs = [ "torch>=1.7,!=1.12.0",
-               "pytest >= 7.0.0"]
-
-[project.urls]
-"Homepage" = "https://github.com/mit-ll-ai-technology/maite"
-"Bug Reports" = "https://github.com/mit-ll-ai-technology/maite/issues"
-"Source" = "https://github.com/mit-ll-ai-technology/maite"
+    name = "maite"
+    version = "0.0.0"  # just a placeholder to appease poetry, plugin sets dynamically
+    description = "Library of common types, protocols (a.k.a. structural subtypes), and utilities to support AI test and evaluation"
+    license = "MIT"
+    authors = [
+        { name = "Justin Goodwin"},
+        { name = "Michael Yee"},
+        { name = "Ryan Soklaski" },
+        { name = "Lei Hamilton" },
+        { name = "Jeff Arena" },
+        { name = "Garrett Botkin"},
+        { name = "Manasi Sharma"}
+    ]
+    maintainers = [
+        { name = "Justin Goodwin"}, 
+        { name = "Michael Yee"},
+        { name = "Lei Hamilton"},
+        { name = "Jeff Arena"}
+    ]
+    readme = "README.md"
+    homepage = "https://github.com/mit-ll-ai-technology/maite"
+    repository = "https://github.com/mit-ll-ai-technology/maite"
+    documentation = "https://mit-ll-ai-technology.github.io/maite/"
+    keywords = ["machine learning", "testing", "pytest"]
+    classifiers = [  
+        "Development Status :: 3 - Alpha",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+        "Intended Audience :: Science/Research",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Topic :: Scientific/Engineering",
+        "Programming Language :: Python :: 3 :: Only",
+    ]
+    include = ["LICENSE.txt", "Contributors.md"]
 
 
-[tool.setuptools_scm]
-write_to = "src/maite/_version.py"
-version_scheme = "no-guess-dev"
+[tool.poetry.dependencies]
+
+    python = "^3.8"
+    typing-extensions = ">= 4.5", "!= 4.6"
+    numpy = ">= 1.17"
+    # optional deps (each belongs to at least one extra)
+    jupytext = { version = "^1.14.0", optional = true }
+    numpydoc = { version = "^1.5.0", optional = true }
+    pyright = { version = "^1.1.280", optional = true }
+    pytest = { version = "^7.0.0", optional = true }
+    hypothesis = { version "^6.61.0", optional = true }
+    pytest-mock = { version = "^3.10.0", optional = true }
+    torch = { version = "^1.7,!=1.12.0", optional = true }
 
 
-[tool.setuptools]
-package-dir = { "" = "src" }
+[tool.poetry.extras]
+    # dependencies required to build all documentation with sphinx
+    # (This is required because all classes/functions documented with `autodoc` 
+    # and `autosummary` must be importable)
+    test = ["jupytext",
+            "numpydoc",
+            "pyright",
+            "pytest",
+            "hypothesis",
+            "pytest-mock",
+            "torch"]
 
-[tool.setuptools.packages.find]
-where = ["src"]
-exclude = ["tests*", "tests.*"]
+    build_docs = ["torch",
+                  "pytest"]
+    
 
-[tool.setuptools.package-data]
-maite = ["py.typed"]
+[tool.poetry-dynamic-versioning]
+    enable = true
+    vcs = "git"
+    style = "semver"
 
 
 [tool.isort]
-known_first_party = ["maite", "tests"]
-profile = "black"
-combine_as_imports = true
+    known_first_party = ["maite", "tests"]
+    profile = "black"
+    combine_as_imports = true
 
 
 [tool.coverage.report]
-exclude_lines = [
-  'pragma: no cover',
-  'def __repr__',
-  'raise AssertionError',
-  'raise NotImplementedError',
-  'class .*\bProtocol(\[.+\])?\):',
-  '@(abc\.)?abstractmethod',
-  '@(typing\.)?overload',
-  'except ImportError',
-  'except ModuleNotFoundError',
-  'if (typing\.)?TYPE_CHECKING:',
-
-]
+    exclude_lines = [
+      'pragma: no cover',
+      'def __repr__',
+      'raise AssertionError',
+      'raise NotImplementedError',
+      'class .*\bProtocol(\[.+\])?\):',
+      '@(abc\.)?abstractmethod',
+      '@(typing\.)?overload',
+      'except ImportError',
+      'except ModuleNotFoundError',
+      'if (typing\.)?TYPE_CHECKING:',
+    ]
 
 [tool.pytest.ini_options]
-xfail_strict = true
+    xfail_strict = true
 
 
 [tool.pyright]
-include = ["src"]
-exclude = [
-  "**/node_modules",
-  "**/__pycache__",
-  "src/maite/_version.py",
-  "tests/conftest.py",
-  "tests/test_testing/test_type_checking.py",
-  "tests/test_testing/test_project.py",
-  "tests/test_protocols.py",
-  "tests/dummy_projects"
-]
-reportUnnecessaryTypeIgnoreComment = true
-reportUnnecessaryIsInstance = false
+    include = ["src"]
+    exclude = [
+      "**/node_modules",
+      "**/__pycache__",
+      "src/maite/_version.py",
+      "tests/conftest.py",
+      "tests/test_testing/test_type_checking.py",
+      "tests/test_testing/test_project.py",
+      "tests/test_protocols.py",
+      "tests/dummy_projects"
+    ]
+    reportUnnecessaryTypeIgnoreComment = true
+    reportUnnecessaryIsInstance = false
