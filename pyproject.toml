@@ -75,6 +75,10 @@
                   "pytest"]
     
 
+[tool.poetry.urls]
+    "Bug Reports" = "https://github.com/mit-ll-ai-technology/maite/issues"
+
+
 [tool.poetry-dynamic-versioning]
     enable = true
     vcs = "git"
