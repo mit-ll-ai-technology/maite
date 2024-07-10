@@ -1,11 +1,9 @@
 [build-system]
-
     requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning>=1.0.0,<2.0.0"]
     build-backend = "poetry.core.masonry.api"
 
 
 [tool.poetry]
-
     name = "maite"
     version = "0.0.0"  # just a placeholder to appease poetry, plugin sets dynamically
     description = "Library of common types, protocols (a.k.a. structural subtypes), and utilities to support AI test and evaluation"
@@ -45,7 +43,6 @@
 
 
 [tool.poetry.dependencies]
-
     python = "^3.8"
     typing-extensions = ">= 4.5, != 4.6"
     numpy = ">= 1.17"
