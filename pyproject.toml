@@ -1,6 +1,6 @@
 [build-system]
 
-    requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning>=1.0.0,<2.0.0"]] and
+    requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning>=1.0.0,<2.0.0"]
     build-backend = "poetry.core.masonry.api"
 
 
@@ -11,19 +11,19 @@
     description = "Library of common types, protocols (a.k.a. structural subtypes), and utilities to support AI test and evaluation"
     license = "MIT"
     authors = [
-        { name = "Justin Goodwin"},
-        { name = "Michael Yee"},
-        { name = "Ryan Soklaski" },
-        { name = "Lei Hamilton" },
-        { name = "Jeff Arena" },
-        { name = "Garrett Botkin"},
-        { name = "Manasi Sharma"}
+        "Justin Goodwin",
+        "Michael Yee",
+        "Ryan Soklaski",
+        "Lei Hamilton" ,
+        "Jeff Arena",
+        "Garrett Botkin",
+        "Manasi Sharma"
     ]
     maintainers = [
-        { name = "Justin Goodwin"}, 
-        { name = "Michael Yee"},
-        { name = "Lei Hamilton"},
-        { name = "Jeff Arena"}
+        "Justin Goodwin", 
+        "Michael Yee",
+        "Lei Hamilton",
+        "Jeff Arena"
     ]
     readme = "README.md"
     homepage = "https://github.com/mit-ll-ai-technology/maite"
@@ -47,14 +47,14 @@
 [tool.poetry.dependencies]
 
     python = "^3.8"
-    typing-extensions = ">= 4.5", "!= 4.6"
+    typing-extensions = ">= 4.5, != 4.6"
     numpy = ">= 1.17"
     # optional deps (each belongs to at least one extra)
     jupytext = { version = "^1.14.0", optional = true }
     numpydoc = { version = "^1.5.0", optional = true }
     pyright = { version = "^1.1.280", optional = true }
     pytest = { version = "^7.0.0", optional = true }
-    hypothesis = { version "^6.61.0", optional = true }
+    hypothesis = { version = "^6.61.0", optional = true }
     pytest-mock = { version = "^3.10.0", optional = true }
     torch = { version = "^1.7,!=1.12.0", optional = true }
 
