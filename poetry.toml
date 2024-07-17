@@ -1,0 +1,6 @@
+[virtualenvs]
+    in-project = true  # build a virtual environment in a project `.venv` directory on call to `poetry install` (rather than system-level poetry location)
+    prefer-active-python = true  # build virtual environment using active python version rather than version used during poetry installation
+
+[experimental]
+    system-git-client = true  # rely on system git client rather than pure python version called 'dulwich' (https://www.dulwich.io)

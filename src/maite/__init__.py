@@ -2,11 +2,12 @@
 # Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).
 # SPDX-License-Identifier: MIT
 
+from importlib.metadata import version
 from typing import TYPE_CHECKING
 
 if not TYPE_CHECKING:
     try:
-        from ._version import version as __version__
+        __version__ = version(__name__)
     except ImportError:
         __version__ = "unknown version"
 else:  # pragma: no cover
