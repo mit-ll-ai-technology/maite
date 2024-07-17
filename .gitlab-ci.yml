@@ -13,8 +13,8 @@ stages:
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
   GITLAB_REPO_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi"
-  DS_EXCLUDED_PATHS: "spec, test, tests, tmp, venv"
-  SAST_EXCLUDED_PATHS: "spec, test, tests, tmp, venv"
+  DS_EXCLUDED_PATHS: "spec,test,tests,tmp,venv"
+  SAST_EXCLUDED_PATHS: "spec,test,tests,tmp,venv"
 
 # Pip's cache doesn't store the python packages
 # https://pip.pypa.io/en/stable/topics/caching/
