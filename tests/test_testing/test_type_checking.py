@@ -321,4 +321,6 @@ def test_list_error_messages():
     assert len(listed_errors) == 1
     assert listed_errors[0].startswith(
         '(line start) 1: Cannot access member "lower" for type "int"'
+    ) or listed_errors[0].startswith(
+        '(line start) 1: Cannot access attribute "lower" for class "int"'
     )
