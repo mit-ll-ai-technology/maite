@@ -1,3 +1,6 @@
+# This file holds project-specific poetry configs
+# See https://python-poetry.org/docs/configuration/#local-configuration for details
+
 [virtualenvs]
     in-project = true  # build a virtual environment in a project `.venv` directory on call to `poetry install` (rather than system-level poetry location)
     prefer-active-python = true  # build virtual environment using active python version rather than version used during poetry installation
