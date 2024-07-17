@@ -40,7 +40,9 @@
         "Programming Language :: Python :: 3 :: Only",
     ]
     include = ["LICENSE.txt", "Contributors.md"]
-    # Specify package locations explicitly because we need maite_dummy to be discovered for tests to work properly
+    # Specify package locations explicitly because we need maite_dummy to be 
+    # discovered for tests to work properly (autodiscovery disabled when any
+    # packages are specified).
     packages = [
         { include = "maite" , from = "src"},
         { include = "maite_dummy", from = "tests/dummy_projects/basic/src" }
