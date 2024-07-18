@@ -2,6 +2,8 @@
     requires = ["poetry-core>=1.0.0"]
     build-backend = "poetry.core.masonry.api"
 
+[project]
+    license = { file = "LICENSE.txt" }
 
 [tool.poetry]
     name = "maite"
@@ -9,19 +11,18 @@
     description = "Library of common types, protocols (a.k.a. structural subtypes), and utilities to support AI test and evaluation"
     license = "MIT"
     authors = [
-        "Justin Goodwin",
-        "Michael Yee",
-        "Ryan Soklaski",
-        "Lei Hamilton" ,
-        "Jeff Arena",
-        "Garrett Botkin",
-        "Manasi Sharma"
+        {name = "Justin Goodwin"},
+        {name = "Michael Yee"},
+        {name = "Ryan Soklaski"},
+        {name = "Lei Hamilton"},
+        {name = "Jeff Arena"},
+        {name = "Garrett Botkin"},
+        {name = "Manasi Sharma"}
     ]
     maintainers = [
-        "Justin Goodwin", 
-        "Michael Yee",
-        "Lei Hamilton",
-        "Jeff Arena"
+        {name = "Michael Yee"},
+        {name = "Lei Hamilton"},
+        {name = "Jeff Arena"},
     ]
     readme = "README.md"
     homepage = "https://github.com/mit-ll-ai-technology/maite"
