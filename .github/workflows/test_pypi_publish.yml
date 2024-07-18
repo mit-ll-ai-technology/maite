@@ -1,9 +1,7 @@
-# This workflows will upload a Python Package using PyPI's Trusted Publisher feature: https://docs.pypi.org/trusted-publishers/adding-a-publisher/
-name: Upload Python Package
+# This workflows will upload a Python Package to test.pypy.org using PyPI's Trusted Publisher feature: https://docs.pypi.org/trusted-publishers/adding-a-publisher/
+name: Test Upload Python Package
 
-on:
-  release:
-    types: [created]
+on: workflow_dispatch  # only trigger when manually dispatched
 
 jobs:
   build-artifacts:
@@ -33,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: 
       name: pypi-publish
-      url: https://pypi.org/p/maite
+      url: https://test.pypi.org/p/maite  # note altered url (pypi.org -> test.pypy.org)
     permissions:
       id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
     steps:
