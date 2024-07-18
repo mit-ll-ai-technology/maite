@@ -4,12 +4,6 @@
 
 [project]
     license = { file = "LICENSE.txt" }
-
-[tool.poetry]
-    name = "maite"
-    version = "0.6.0"
-    description = "Library of common types, protocols (a.k.a. structural subtypes), and utilities to support AI test and evaluation"
-    license = "MIT"
     authors = [
         {name = "Justin Goodwin"},
         {name = "Michael Yee"},
@@ -24,6 +18,12 @@
         {name = "Lei Hamilton"},
         {name = "Jeff Arena"},
     ]
+
+[tool.poetry]
+    name = "maite"
+    version = "0.6.0"
+    description = "Library of common types, protocols (a.k.a. structural subtypes), and utilities to support AI test and evaluation"
+    # license = "MIT" # already provided in [project] table
     readme = "README.md"
     homepage = "https://github.com/mit-ll-ai-technology/maite"
     repository = "https://github.com/mit-ll-ai-technology/maite"
