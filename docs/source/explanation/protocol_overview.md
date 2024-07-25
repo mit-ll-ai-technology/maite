@@ -1,3 +1,7 @@
+> Copyright 2024, MASSACHUSETTS INSTITUTE OF TECHNOLOGY<br/>
+> Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).<br/>
+> SPDX-License-Identifier: MIT
+
 # Overview of MAITE Protocols
 
 MAITE provides protocols for the following AI components:

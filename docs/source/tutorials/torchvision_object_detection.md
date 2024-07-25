@@ -1,4 +1,4 @@
-> Copyright 2023, MASSACHUSETTS INSTITUTE OF TECHNOLOGY<br/>
+> Copyright 2024, MASSACHUSETTS INSTITUTE OF TECHNOLOGY<br/>
 > Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).<br/>
 > SPDX-License-Identifier: MIT
 
