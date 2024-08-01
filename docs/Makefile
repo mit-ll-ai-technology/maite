@@ -49,6 +49,7 @@ notebook_rst: $(RST_FILES)
 # We could use the original target setting SOURCEDIR, BUILDDIR, and SPHINXOPTS='-d "$(TOXENVTMPDIR)"/doctrees'
 tox_html: $(RST_FILES)
 	sphinx-build -b html -d "$(TOXENVTMPDIR)"/doctrees ./source  "$(TOXENVDIR)/build/html"
+	python copy_docs_to_dir.py "$(TOXENVDIR)/build/gh-pages"
 	
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
