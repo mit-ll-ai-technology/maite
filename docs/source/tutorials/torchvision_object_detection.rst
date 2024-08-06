@@ -1,1 +1,0 @@
-.. include:: ../../build/generated/tutorials/torchvision_object_detection.rst

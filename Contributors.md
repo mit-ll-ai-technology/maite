@@ -1,1 +1,0 @@
-Andrew M. James (Quansight)
