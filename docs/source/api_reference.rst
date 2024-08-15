@@ -36,10 +36,6 @@ Data, Datasets, & DataLoaders
    protocols.object_detection.Dataset
    protocols.object_detection.DataLoader
 
-   protocols.providers.ModelProvider
-   protocols.providers.DatasetProvider
-   protocols.providers.MetricProvider
-
 Models
 ------
 
@@ -76,18 +72,6 @@ Workflows
 
    workflows.evaluate
    workflows.predict
-
-+++++++++
-Interop
-+++++++++
-
-.. autosummary::
-   :toctree: generated/
-
-   interop.provider_registry.list_providers
-   interop.provider_registry.register_provider
-   interop.provider_registry.create_provider
-   interop.provider_registry.get_provider_type
 
 +++++++++++++++++++++++++++++
 Validation and Error Handling

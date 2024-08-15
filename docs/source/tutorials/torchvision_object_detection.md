@@ -370,7 +370,7 @@ ax.imshow(img)
 
 
     
-![png](torchvision_object_detection_files/torchvision_object_detection_24_2.png)
+![png](torchvision_object_detection_files/torchvision_object_detection_24_1.png)
     
 
 
@@ -555,7 +555,7 @@ ax.imshow(img_aug)
 
 
     
-![png](torchvision_object_detection_files/torchvision_object_detection_39_1.png)
+![png](torchvision_object_detection_files/torchvision_object_detection_39_0.png)
     
 
 
