@@ -135,9 +135,10 @@ def rst_to_code(src: str) -> str:
        .. code-block:: pycon
           :caption: blah
 
-          >>> print("hi")
+          >>> print("hi")    # not real example --> # doctest: +SKIP
           hi
-          >>> 2+1
+          >>> 2+1            # not real example --> # doctest: +SKIP
+          3
 
     and returns the string::
 
@@ -231,10 +232,11 @@ def md_to_code(src: str) -> str:
        foorbarius isbarfooium
 
        ```pycon
-        >>> print("hi")
-        hi
-        >>> 2+1
-        ```
+       >>> print("hi")    # not real example --> # doctest: +SKIP
+       hi
+       >>> 2+1            # not real example --> # doctest: +SKIP
+       3
+       ```
 
     and returns the string::
 
@@ -457,7 +459,7 @@ def pyright_analyze(
     ...     3
     ...     '''
     ...     return x + 1
-    >>> pyright_analyze(plus_1, scan_docstring=True)[0]["summary"]["errorCount"]
+    >>> pyright_analyze(plus_1, scan_docstring=True)[0]["summary"]["errorCount"]    # nested notional example has fake import --> # doctest: +SKIP
     1
 
     Fixing the docstring issue
@@ -471,7 +473,7 @@ def pyright_analyze(
     ...     3
     ...     '''
     ...     return x + 1
-    >>> pyright_analyze(plus_1, scan_docstring=True)[0]["summary"]["errorCount"]
+    >>> pyright_analyze(plus_1, scan_docstring=True)[0]["summary"]["errorCount"]    # nested notional example has fake import --> # doctest: +SKIP
     0
     """
     if path_to_pyright is None:  # pragma: no cover

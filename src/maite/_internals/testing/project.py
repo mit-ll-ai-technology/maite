@@ -142,7 +142,7 @@ class ModuleScan:
     {'filesAnalyzed': ..., 'errorCount': ..., 'warningCount': ..., 'informationCount': ..., 'timeInSec': ...}
     >>> results["typeCompleteness"]["packageName"]
     'maite'
-    >>> results["typeCompleteness"]["symbols"]
+    >>> results["typeCompleteness"]["symbols"]     # will change as MAITE changes --> # doctest: +SKIP
     [{'category': 'class',
       'name': 'maite.errors.MaiteException',
       'referenceCount': 3,
@@ -157,7 +157,7 @@ class ModuleScan:
       'isTypeKnown': True,
       'isTypeAmbiguous': False,
       'diagnostics': []},
-    ...
+     ...]
     """
 
     def __init__(self) -> None:
@@ -316,30 +316,22 @@ def get_public_symbols(
     >>> from maite.testing.project import get_public_symbols, ModuleScan
     >>> scanner = ModuleScan()
     >>> results = scanner("maite")
-    >>> get_public_symbols(results)
-    [ {'category': 'class',
-    'name': 'maite.testing.project.ModuleScan',
-    'referenceCount': 1,
-    'isExported': True,
-    'isTypeKnown': False,
-    'isTypeAmbiguous': False,
-    'diagnostics': []},
-    {'category': 'class',
-    'name': 'maite.testing.project.ModuleScanResults',
-    'referenceCount': 1,
-    'isExported': True,
-    'isTypeKnown': False,
-    'isTypeAmbiguous': False,
-    'diagnostics': []},
-    {'category': 'class',
-    'name': 'maite.testing.project.Symbol',
-    'referenceCount': 1,
-    'isExported': True,
-    'isTypeKnown': True,
-    'isTypeAmbiguous': False,
-    'diagnostics': []},
-    ...
-    ]
+    >>> get_public_symbols(results)    # will change as MAITE changes --> # doctest: +SKIP
+    [{'category': 'class',
+      'name': 'maite.errors.MaiteException',
+      'referenceCount': 3,
+      'isExported': True,
+      'isTypeKnown': True,
+      'isTypeAmbiguous': False,
+      'diagnostics': []},
+     {'category': 'class',
+      'name': 'maite.errors.InternalError',
+      'referenceCount': 1,
+      'isExported': True,
+      'isTypeKnown': True,
+      'isTypeAmbiguous': False,
+      'diagnostics': []},
+     ...]
 
     Accessing symbols from the `docs` submodule.
 
@@ -422,9 +414,8 @@ def import_public_symbols(
     >>> from maite.testing.project import import_public_symbols, ModuleScan
     >>> scanner = ModuleScan()
     >>> results = scanner("pyright")
-    >>> list(import_public_symbols(results))[:2]
-    [<function pyright.cli.entrypoint() -> NoReturn>,
-    <function pyright.cli.main(args: List[str], **kwargs: Any) -> int>]
+    >>> list(import_public_symbols(results))[:2] # doctest: +ELLIPSIS
+    [<function entrypoint at ...>, <function main at ...>]
     """
 
     if isinstance(skip_module_not_found, bool):

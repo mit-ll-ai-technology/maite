@@ -111,7 +111,14 @@ exclude_lines = [
 
 [tool.pytest.ini_options]
 xfail_strict = true
-
+addopts = [
+    "--import-mode=importlib",  # Using an "importlib" import-mode that permits duplicate module names in different tested directories to avoid collisions (between "validation.py" files, for example). See https://docs.pytest.org/en/stable/explanation/pythonpath.html#import-modes
+    "--ignore-glob=tests/dummy_projects/*",
+    "--ignore=src/maite/_internals/interop/provider_registry.py",  # Contains docstring examples with side effects that affect other examples
+    "--doctest-modules",
+    "--doctest-report=udiff",
+    "--doctest-continue-on-failure"
+]
 
 [tool.pyright]
 include = ["src"]

@@ -273,10 +273,10 @@ def validate_docstring(
     >>> def f():
     ...     # doc-ignore: GL08
     ...     return
-    >>> validate_docstring(f)
-    {'error_count': 0, 'errors': {}, 'file': None, 'file_line': 1}
-    >>> validate_docstring(f, ignore_via_comments_allowed=False)
-    {'error_count': 1, 'errors': {'GL08': ['The object does not have a docstring']}, 'file': None, 'file_line': 1}
+    >>> validate_docstring(f)   # doctest: +ELLIPSIS
+    {'error_count': 0, 'errors': {}, 'file': ..., 'file_line': 1}
+    >>> validate_docstring(f, ignore_via_comments_allowed=False)   # doctest: +ELLIPSIS
+    {'error_count': 1, 'errors': {'GL08': ['The object does not have a docstring']}, 'file': ..., 'file_line': 1}
     """
     # fmt: on
     try:
