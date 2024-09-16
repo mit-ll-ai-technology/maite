@@ -142,6 +142,21 @@ class _SimpleDataLoader(Generic[T_in, T_tgt, T_md]):
 
             yield (batch_inputs, batch_targets, batch_metadata)
 
+    def __len__(self) -> int:
+        """Length of `SimpleDataLoader`.
+
+        Returns
+        -------
+        int
+            Length of the `dataset` if `batch_size` is <= 0. Otherwise, the total number of
+            times the `dataset` can be iterated over given the `batch_size`, before it is exhausted.
+        """
+        if self.batch_size > 0:
+            from math import ceil
+
+            return ceil(len(self.dataset) / self.batch_size)
+        return len(self.dataset)
+
 
 # begin all overloads for evaluate function
 # (There are currently no task-specific default arguments, which means
