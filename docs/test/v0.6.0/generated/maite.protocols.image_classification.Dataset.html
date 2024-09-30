@@ -1,0 +1,422 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.19: https://docutils.sourceforge.io/" name="generator"/>
+<title>maite.protocols.image_classification.Dataset — maite 0.6.0 documentation</title>
+<script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+<!-- Loaded before other Sphinx assets -->
+<link href="../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet"/>
+<link href="../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet"/>
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet"/>
+<link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet"/>
+<link as="font" crossorigin="" href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" rel="preload" type="font/woff2"/>
+<link as="font" crossorigin="" href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" rel="preload" type="font/woff2"/>
+<link as="font" crossorigin="" href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" rel="preload" type="font/woff2"/>
+<link href="../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/copybutton.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" rel="stylesheet" type="text/css"/>
+<!-- Pre-loaded scripts that we'll load fully later -->
+<link as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" rel="preload"/>
+<link as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" rel="preload"/>
+<script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+<script src="../_static/doctools.js"></script>
+<script src="../_static/sphinx_highlight.js"></script>
+<script src="../_static/clipboard.min.js"></script>
+<script src="../_static/copybutton.js"></script>
+<script async="async" src="https://www.googletagmanager.com/gtag/js?id=UA-115029372-2"></script>
+<script src="../_static/gtag.js"></script>
+<script src="../_static/design-tabs.js"></script>
+<script>DOCUMENTATION_OPTIONS.pagename = 'generated/maite.protocols.image_classification.Dataset';</script>
+<link href="../genindex.html" rel="index" title="Index"/>
+<link href="../search.html" rel="search" title="Search"/>
+<link href="maite.protocols.image_classification.DataLoader.html" rel="next" title="maite.protocols.image_classification.DataLoader"/>
+<link href="maite.protocols.ArrayLike.html" rel="prev" title="maite.protocols.ArrayLike"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="en" name="docsearch:language"/>
+</head>
+<body data-bs-root-margin="0px 0px -60%" data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-default-mode="" data-offset="180">
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<input class="sidebar-toggle" id="__primary" name="__primary" type="checkbox"/>
+<label class="overlay overlay-primary" for="__primary"></label>
+<input class="sidebar-toggle" id="__secondary" name="__secondary" type="checkbox"/>
+<label class="overlay overlay-secondary" for="__secondary"></label>
+<div class="search-button__wrapper">
+<div class="search-button__overlay"></div>
+<div class="search-button__search-container">
+<form action="../search.html" class="bd-search d-flex align-items-center" method="get">
+<i class="fa-solid fa-magnifying-glass"></i>
+<input aria-label="Search the docs ..." autocapitalize="off" autocomplete="off" autocorrect="off" class="form-control" id="search-input" name="q" placeholder="Search the docs ..." spellcheck="false" type="search"/>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+</div>
+<nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+<label class="sidebar-toggle primary-toggle" for="__primary">
+<span class="fa-solid fa-bars"></span>
+</label>
+<div class="navbar-header-items__start">
+<div class="navbar-item">
+<a class="navbar-brand logo" href="../index.html">
+<p class="title logo__title">maite 0.6.0 documentation</p>
+</a></div>
+</div>
+<div class="col-lg-9 navbar-header-items">
+<div class="me-auto navbar-header-items__center">
+<div class="navbar-item"><nav class="navbar-nav">
+<p aria-label="Site Navigation" aria-level="1" class="sidebar-header-items__title" role="heading">
+    Site Navigation
+  </p>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../tutorials.html">
+                        Tutorials
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../how_tos.html">
+                        How-To Guides
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../explanation.html">
+                        Explanation
+                      </a>
+</li>
+<li class="nav-item current active">
+<a class="nav-link nav-internal" href="../api_reference.html">
+                        Reference
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../changes.html">
+                        Changelog
+                      </a>
+</li>
+</ul>
+</nav></div>
+</div>
+<div class="navbar-header-items__end">
+<div class="navbar-item navbar-persistent--container">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+</div>
+<div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+</div>
+</div>
+<div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+</div>
+<label class="sidebar-toggle secondary-toggle" for="__secondary">
+<span class="fa-solid fa-outdent"></span>
+</label>
+</div>
+</nav>
+<div class="bd-container">
+<div class="bd-container__inner bd-page-width">
+<div class="bd-sidebar-primary bd-sidebar">
+<div class="sidebar-header-items sidebar-primary__section">
+<div class="sidebar-header-items__center">
+<div class="navbar-item"><nav class="navbar-nav">
+<p aria-label="Site Navigation" aria-level="1" class="sidebar-header-items__title" role="heading">
+    Site Navigation
+  </p>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../tutorials.html">
+                        Tutorials
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../how_tos.html">
+                        How-To Guides
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../explanation.html">
+                        Explanation
+                      </a>
+</li>
+<li class="nav-item current active">
+<a class="nav-link nav-internal" href="../api_reference.html">
+                        Reference
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../changes.html">
+                        Changelog
+                      </a>
+</li>
+</ul>
+</nav></div>
+</div>
+<div class="sidebar-header-items__end">
+<div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+</div>
+</div>
+<div class="sidebar-primary-items__start sidebar-primary__section">
+<div class="sidebar-primary-item"><nav aria-label="Section Navigation" class="bd-docs-nav bd-links">
+<p aria-level="1" class="bd-links__title" role="heading">Section Navigation</p>
+<div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.ArrayLike.html">maite.protocols.ArrayLike</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">maite.protocols.image_classification.Dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.image_classification.DataLoader.html">maite.protocols.image_classification.DataLoader</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.object_detection.ObjectDetectionTarget.html">maite.protocols.object_detection.ObjectDetectionTarget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.object_detection.Dataset.html">maite.protocols.object_detection.Dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.object_detection.DataLoader.html">maite.protocols.object_detection.DataLoader</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.image_classification.Model.html">maite.protocols.image_classification.Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.object_detection.Model.html">maite.protocols.object_detection.Model</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.image_classification.Augmentation.html">maite.protocols.image_classification.Augmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.object_detection.Augmentation.html">maite.protocols.object_detection.Augmentation</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.image_classification.Metric.html">maite.protocols.image_classification.Metric</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.object_detection.Metric.html">maite.protocols.object_detection.Metric</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.workflows.evaluate.html">maite.workflows.evaluate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.workflows.predict.html">maite.workflows.predict</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.utils.validation.check_type.html">maite.utils.validation.check_type</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.utils.validation.check_domain.html">maite.utils.validation.check_domain</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.utils.validation.check_one_of.html">maite.utils.validation.check_one_of</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.utils.validation.chain_validators.html">maite.utils.validation.chain_validators</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.errors.MaiteException.html">maite.errors.MaiteException</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.errors.InvalidArgument.html">maite.errors.InvalidArgument</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.docs.validate_docstring.html">maite.testing.docs.validate_docstring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.docs.NumpyDocErrorCode.html">maite.testing.docs.NumpyDocErrorCode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.docs.NumPyDocResults.html">maite.testing.docs.NumPyDocResults</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.pyright.pyright_analyze.html">maite.testing.pyright.pyright_analyze</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.pyright.PyrightOutput.html">maite.testing.pyright.PyrightOutput</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.pyright.list_error_messages.html">maite.testing.pyright.list_error_messages</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.pytest.cleandir.html">maite.testing.pytest.cleandir</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.project.ModuleScan.html">maite.testing.project.ModuleScan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.project.get_public_symbols.html">maite.testing.project.get_public_symbols</a></li>
+</ul>
+</div>
+</nav></div>
+</div>
+<div class="sidebar-primary-items__end sidebar-primary__section">
+</div>
+<div id="rtd-footer-container"></div>
+</div>
+<main class="bd-main" id="main-content">
+<div class="bd-content">
+<div class="bd-article-container">
+<div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+<div class="header-article-items__start">
+<div class="header-article-item">
+<nav aria-label="Breadcrumbs">
+<ul aria-label="Breadcrumb" class="bd-breadcrumbs" role="navigation">
+<li class="breadcrumb-item breadcrumb-home">
+<a aria-label="Home" class="nav-link" href="../index.html">
+<i class="fa-solid fa-home"></i>
+</a>
+</li>
+<li class="breadcrumb-item"><a class="nav-link" href="../api_reference.html">Reference</a></li>
+<li aria-current="page" class="breadcrumb-item active">maite.protocols.image_classification.Dataset</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+</div>
+<div id="searchbox"></div>
+<article class="bd-article" role="main">
+<section id="maite-protocols-image-classification-dataset">
+<h1>maite.protocols.image_classification.Dataset<a class="headerlink" href="#maite-protocols-image-classification-dataset" title="Permalink to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="maite.protocols.image_classification.Dataset">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">maite.protocols.image_classification.</span></span><span class="sig-name descname"><span class="pre">Dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/maite/_internals/protocols/image_classification.html#Dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#maite.protocols.image_classification.Dataset" title="Permalink to this definition">#</a></dt>
+<dd><p>A dataset protocol for image classification ML subproblem providing datum-level
+data access.</p>
+<p>Implementers must provide index lookup (via <code class="xref py py-obj docutils literal notranslate"><span class="pre">__getitem__(ind:</span> <span class="pre">int)</span></code> method) and
+support <a class="reference external" href="https://docs.python.org/3/library/functions.html#len" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">len</span></code></a> (via <code class="xref py py-obj docutils literal notranslate"><span class="pre">__len__()</span></code> method). Data elements looked up this way correspond
+to individual examples (as opposed to batches).</p>
+<p>Indexing into or iterating over the an image_classification dataset returns a
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">Tuple</span></code> of types <code class="xref py py-obj docutils literal notranslate"><span class="pre">ArrayLike</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">ArrayLike</span></code>, and <code class="xref py py-obj docutils literal notranslate"><span class="pre">Dict[str,Any]</span></code>.
+These correspond to the model input type, model target type, and datum-level
+metadata, respectively.</p>
+<p class="rubric">Examples</p>
+<p>We create a dummy set of data and use it to create a class that implements
+this lightweight dataset protocol:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="https://numpy.org/doc/stable/reference/index.html#module-numpy" title="numpy"><span class="nn">numpy</span></a> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#module-typing" title="typing"><span class="nn">typing</span></a> <span class="kn">import</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.List" title="typing.List"><span class="n">List</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="typing.Dict"><span class="n">Dict</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Any" title="typing.Any"><span class="n">Any</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="typing.Tuple"><span class="n">Tuple</span></a>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">maite.protocols</span> <span class="kn">import</span> <a class="sphinx-codeautolink-a" href="../generated/maite.protocols.ArrayLike.html#maite.protocols.ArrayLike" title="maite._internals.protocols.ArrayLike"><span class="n">ArrayLike</span></a>
+</pre></div>
+</div>
+<p>Assume we have 5 classes, 10 datapoints, and 10 target labels, and that we want
+to simply have an integer ‘id’ field in each datapoint’s metadata:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">N_CLASSES</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a> <span class="o">=</span> <span class="mi">5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">N_DATUM</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a> <span class="o">=</span> <span class="mi">10</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">images</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#range" title="range"><span class="nb">range</span></a><span class="p">(</span><span class="n">N_DATUM</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">targets</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">N_CLASSES</span><span class="p">)[</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">N_CLASSES</span><span class="p">,</span> <span class="n">N_DATUM</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">metadata</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">'id'</span><span class="p">:</span> <span class="n">i</span><span class="p">}</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#range" title="range"><span class="nb">range</span></a><span class="p">(</span><span class="n">N_DATUM</span><span class="p">)]</span>
+</pre></div>
+</div>
+<p>Constructing a compliant dataset just involves a simple wrapper that fetches
+individual datapoints, where a datapoint is a single image, target, metadata 3-tuple.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">ImageDataset</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+<span class="gp">... </span>                 <span class="n">images</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+<span class="gp">... </span>                 <span class="n">targets</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+<span class="gp">... </span>                 <span class="n">metadata</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">,</span> <span class="n">Any</span><span class="p">]]):</span>
+<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">images</span> <span class="o">=</span> <span class="n">images</span>
+<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">targets</span> <span class="o">=</span> <span class="n">targets</span>
+<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">:</span>
+<span class="gp">... </span>        <span class="k">return</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#len" title="len"><span class="nb">len</span></a><span class="p">(</span><span class="n">images</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ind</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="gp">... </span>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="n">ind</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets</span><span class="p">[</span><span class="n">ind</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>We can instantiate this class and typehint it as an image_classification.Dataset.
+By using typehinting, we permit a static typechecker to verify protocol compliance.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">maite.protocols</span> <span class="kn">import</span> <span class="n">image_classification</span> <span class="k">as</span> <span class="n">ic</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../generated/maite.protocols.image_classification.Dataset.html#maite.protocols.image_classification.Dataset" title="maite._internals.protocols.image_classification.Dataset"><span class="n">dataset</span></a><span class="p">:</span> <a class="sphinx-codeautolink-a" href="../generated/maite.protocols.image_classification.Dataset.html#maite.protocols.image_classification.Dataset" title="maite._internals.protocols.image_classification.Dataset"><span class="n">ic</span><span class="o">.</span><span class="n">Dataset</span></a> <span class="o">=</span> <span class="n">ImageDataset</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="n">metadata</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that when writing a Dataset implementer, return types may be narrower than the
+return types promised by the protocol (np.ndarray is a subtype of ArrayLike), but
+the argument types must be at least as general as the argument types promised by the
+protocol.</p>
+<p class="rubric">Methods</p>
+<table class="table">
+<tbody>
+<tr class="row-odd"><td><p><strong>__getitem__(ind: int) -&gt; Tuple[ArrayLike, ArrayLike, Dict[str, Any]]</strong></p></td>
+<td><p>Provide map-style access to dataset elements. Returned tuple elements correspond to model input type, model target type, and datum-specific metadata type, respectively.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>__len__() -&gt; int</strong></p></td>
+<td><p>Return the number of data elements in the dataset.</p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+</section>
+</article>
+<footer class="bd-footer-article">
+<div class="footer-article-items footer-article__inner">
+<div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+<a class="left-prev" href="maite.protocols.ArrayLike.html" title="previous page">
+<i class="fa-solid fa-angle-left"></i>
+<div class="prev-next-info">
+<p class="prev-next-subtitle">previous</p>
+<p class="prev-next-title">maite.protocols.ArrayLike</p>
+</div>
+</a>
+<a class="right-next" href="maite.protocols.image_classification.DataLoader.html" title="next page">
+<div class="prev-next-info">
+<p class="prev-next-subtitle">next</p>
+<p class="prev-next-title">maite.protocols.image_classification.DataLoader</p>
+</div>
+<i class="fa-solid fa-angle-right"></i>
+</a>
+</div></div>
+</div>
+</footer>
+</div>
+<div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+<div class="sidebar-secondary-item">
+<div class="page-toc tocsection onthispage">
+<i class="fa-solid fa-list"></i> On this page
+  </div>
+<nav class="bd-toc-nav page-toc">
+<ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#maite.protocols.image_classification.Dataset"><code class="docutils literal notranslate"><span class="pre">Dataset</span></code></a></li>
+</ul>
+</nav></div>
+<div class="sidebar-secondary-item">
+<div class="tocsection sourcelink">
+<a href="../_sources/generated/maite.protocols.image_classification.Dataset.rst.txt">
+<i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+</div>
+</div>
+</div></div>
+</div>
+<footer class="bd-footer-content">
+</footer>
+</main>
+</div>
+</div>
+<!-- Scripts loaded after <body> so the DOM is not blocked -->
+<script src="../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+<footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+<div class="footer-items__start">
+<div class="footer-item">
+<p class="copyright">
+    
+      © Copyright 2024 Massachusetts Institute of Technology.
+      <br/>
+</p>
+</div>
+<div class="footer-item">
+<p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.2.1.
+    <br/>
+</p>
+</div>
+</div>
+<div class="footer-items__end">
+<div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+</p></div>
+</div>
+</div>
+</footer>
+</body>
+</html>
