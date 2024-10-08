@@ -31,7 +31,7 @@ before_script:
   - virtualenv $TMP_DIR/venv
   - source $TMP_DIR/venv/bin/activate
   - python -m pip install --upgrade pip
-  - pip install 'tox < 4'
+  - pip install tox
 
 default:
   tags:
@@ -90,6 +90,18 @@ pages:
     - CDAO
   stage: docs
   image: python:3.9
+  variables:
+    TQDM_DISABLE: true
+  before_script:
+    - apt-get update -qq
+    - apt-get install -y pandoc
+    - python --version  # For debugging
+    - pip install virtualenv
+    - TMP_DIR=$(mktemp -d)
+    - virtualenv $TMP_DIR/venv
+    - source $TMP_DIR/venv/bin/activate
+    - python -m pip install --upgrade pip
+    - pip install 'tox < 4'
   script:
     - tox -e docs
     - mv ./.tox/docs/build/html/ ./public
@@ -98,6 +110,8 @@ pages:
       - public
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - when: manual
+      allow_failure: false
 
 deploy:
   tags:

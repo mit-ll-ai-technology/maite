@@ -63,8 +63,17 @@ test = [
 # dependencies required to build all documentation with sphinx
 # (This is required because all classes/functions documented with `autodoc` 
 # and `autosummary` must be importable)
-build_docs = [ "torch>=1.7,!=1.12.0",
-               "pytest >= 7.0.0"]
+builddocs = [
+  "torch>=1.7,!=1.12.0",
+  "pytest >= 7.0.0",
+  "jupyter",
+  "nbconvert",
+  "kornia",
+  "matplotlib",
+  "torchmetrics",
+  "torchvision",
+  "pycocotools",
+]
 
 [project.urls]
 "Homepage" = "https://github.com/mit-ll-ai-technology/maite"
