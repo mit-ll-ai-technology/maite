@@ -8,6 +8,14 @@ Changelog
 This is a record of all past maite releases and what went into them, in reverse 
 chronological order.
 
+.. _v0.6.1:
+
+---------------------
+0.6.1 - 2024-10-15
+---------------------
+
+- Add upper limit on hypothesis version (6.113) to ensure unit tests continue passing (`st.from_type(type)` changed behavior)
+
 .. _v0.6.0:
 
 ---------------------
