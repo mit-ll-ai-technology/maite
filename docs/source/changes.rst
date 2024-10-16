@@ -11,10 +11,10 @@ chronological order.
 .. _v0.6.1:
 
 ---------------------
-0.6.1 - 2024-10-15
+0.6.1 - 2024-10-16
 ---------------------
 
-- Add upper limit on hypothesis version (6.113) to ensure unit tests continue passing (`st.from_type(type)` changed behavior)
+- hotfix: Add upper limit on hypothesis version (6.113) to ensure unit tests continue passing (`st.from_type(type)` changed behavior)
 
 .. _v0.6.0:
 
