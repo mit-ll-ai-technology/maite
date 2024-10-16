@@ -58,4 +58,7 @@ def test_docstrings_adhere_to_numpydoc(obj):
         errs = []
         for err_key, err_val in results["errors"].items():
             errs.append(f"{err_key}: {err_val}")
-        raise AssertionError("\n" + "\n".join(errs))
+        raise AssertionError(
+            "\n" + f"{obj.__module__}.{obj.__name__} docstring doesn"
+            "t adhere to numpydoc" + "\n" + "\n".join(errs)
+        )
