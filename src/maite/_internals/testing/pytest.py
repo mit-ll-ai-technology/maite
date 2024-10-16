@@ -18,6 +18,11 @@ def cleandir() -> Iterable[str]:
     This is helpful for running tests that require file I/O that could pollute
     local directories. File cleanup is handled automatically.
 
+    Yields
+    ------
+    tmpdirname : str
+       Temporary directory name that will be removed at fixture teardown
+
     Examples
     --------
     This assumes that `cleandir` has been imported by the test suite's
