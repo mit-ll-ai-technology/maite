@@ -214,8 +214,8 @@ class Augmentation(
           Tuple[Sequence[ArrayLike], Sequence[ArrayLike], Sequence[dict[str, Any]]])
         Return a modified version of original data batch. A data batch is represented
         by a tuple of model input batch (as `Sequence[ArrayLike]` with elements of shape
-        `(C, H, W)`), model target batch (as an `Sequence[ArrayLike]` of shape `(N, Cl)`),
-        and batch metadata (as `Sequence[Dict[str, Any]]`), respectively.
+        `(C, H, W)`), model target batch (as `Sequence[ArrayLike]` with elements of shape
+        `(Cl,)`), and batch metadata (as `Sequence[Dict[str, Any]]`), respectively.
 
     Examples
     --------
