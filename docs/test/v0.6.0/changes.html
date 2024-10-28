@@ -1,0 +1,615 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+<meta content="The changelog for maite, including what's new." name="description" />
+
+    <title>Changelog &#8212; maite 0.6.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-codeautolink.css" />
+    <link rel="stylesheet" type="text/css" href="_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    <script async="async" src="https://www.googletagmanager.com/gtag/js?id=UA-115029372-2"></script>
+    <script src="_static/gtag.js"></script>
+    <script src="_static/design-tabs.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'changes';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="maite.testing.project.get_public_symbols" href="generated/maite.testing.project.get_public_symbols.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  <div class="navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    <p class="title logo__title">maite 0.6.0 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="tutorials.html">
+                        Tutorials
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="how_tos.html">
+                        How-To Guides
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="explanation.html">
+                        Explanation
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="api_reference.html">
+                        Reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="#">
+                        Changelog
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+    </div>
+  
+
+  
+    <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
+</div>
+
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="tutorials.html">
+                        Tutorials
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="how_tos.html">
+                        How-To Guides
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="explanation.html">
+                        Explanation
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="api_reference.html">
+                        Reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="#">
+                        Changelog
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumbs">
+  <ul class="bd-breadcrumbs" role="navigation" aria-label="Breadcrumb">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Changelog</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="changelog">
+<h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this heading">#</a></h1>
+<p>This is a record of all past maite releases and what went into them, in reverse
+chronological order.</p>
+<section id="v0-6-0">
+<span id="id1"></span><h2>0.6.0 - 2024-06-14<a class="headerlink" href="#v0-6-0" title="Permalink to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Removed torch dependency (internally, input/target types are batched agnostically of task)</p></li>
+<li><p>Altered batch types in each task to be sequences of singleton types</p></li>
+<li><p>Added tqdm progress bars to evaluate/predict workflows</p></li>
+<li><p>Added docstring examples to Dataset and Augmentation protocols</p></li>
+</ul>
+</section>
+<section id="v0-5-0">
+<span id="id2"></span><h2>0.5.0 - 2024-03-28<a class="headerlink" href="#v0-5-0" title="Permalink to this heading">#</a></h2>
+<p>This is a large change to protocols based on experiences of our growing userbase.
+These updated protocols should enable a wider variety of use cases, but do contain backward-compatibility breaking changes.</p>
+<p>High-level overview:</p>
+<ul class="simple">
+<li><p>A tutorial has been added to show <a class="reference external" href="https://github.com/mit-ll-ai-technology/maite/blob/main/examples/torchvision_object_detection/torchvision_object_detection.ipynb">use of core protocols in object detection domain</a></p></li>
+<li><p>An <a class="reference external" href="https://github.com/mit-ll-ai-technology/maite/blob/main/examples/protocol_overview.ipynb">overview of updated core protocols</a> has been provided</p></li>
+</ul>
+<p>More details:</p>
+<ul class="simple">
+<li><p>Class structure of core component protocols is now ML subproblem agnostic – e.g. <code class="xref py py-obj docutils literal notranslate"><span class="pre">Model</span></code> objects must all implement the same named methods.</p></li>
+<li><p>Type signatures of core component protocols are specific to ML subproblem domain, permitting subproblem specific component implementers to know more about their expected inputs/outputs.</p></li>
+<li><p>Within an ML subproblem, the model input type, model target type, datum metadata type (and the 3 respective batched versions of these types) are prescribed.</p></li>
+<li><p>Core protocols (with the exception of <code class="xref py py-obj docutils literal notranslate"><span class="pre">Dataset</span></code>) are only required to handle data in batched form (this may change)</p></li>
+<li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code> functions now exist under <code class="xref py py-obj docutils literal notranslate"><span class="pre">maite.workflows</span></code> to separate them from core protocols</p></li>
+<li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate</span></code> function takes ML components from either image processing or object detection domain (component domain compatibility enforced statically)</p></li>
+<li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code> function permits running model inference without evaluate</p></li>
+<li><p>“Interop” functionality (i.e. ability to load maite-wrapped versions of components originating from some third parties) has been rolled back temporarily as core architecture changed.</p></li>
+</ul>
+</section>
+<section id="v0-4-0">
+<span id="id3"></span><h2>0.4.0 - 2024-01-22<a class="headerlink" href="#v0-4-0" title="Permalink to this heading">#</a></h2>
+<ul class="simple">
+<li><p>bugfix: update maite exception naming and fix typo in import</p></li>
+<li><p>feature: added GitHub workflow to build and publish public documentation</p></li>
+<li><p>feature: added the use of DatumMetadata in tutorial basic_evaluation.ipynb</p></li>
+</ul>
+</section>
+<section id="v0-3-6">
+<span id="id4"></span><h2>0.3.6 - 2024-01-17<a class="headerlink" href="#v0-3-6" title="Permalink to this heading">#</a></h2>
+<p>This release includes the following changes:</p>
+<ul class="simple">
+<li><p>Fix issue with loading datasets from huggingface hub (e.g., cifar10) (bugfix)</p></li>
+<li><p>Import dataclass from dataclasses instead of attr (bugfix)</p></li>
+<li><p>Remove version constraints for torchmetrics</p></li>
+</ul>
+</section>
+<section id="v0-3-5">
+<span id="id5"></span><h2>0.3.5 - 2024-01-05<a class="headerlink" href="#v0-3-5" title="Permalink to this heading">#</a></h2>
+<p>This release includes two new features:</p>
+<ul class="simple">
+<li><p>Add dataset and datum level metadata</p></li>
+<li><p>Add model metadata</p></li>
+</ul>
+</section>
+<section id="v0-3-4">
+<span id="id6"></span><h2>0.3.4 - 2023-12-21<a class="headerlink" href="#v0-3-4" title="Permalink to this heading">#</a></h2>
+<p>Publish to pypi.org</p>
+</section>
+<section id="v0-3-3">
+<span id="id7"></span><h2>0.3.3 - 2023-12-21<a class="headerlink" href="#v0-3-3" title="Permalink to this heading">#</a></h2>
+<p>Modifying pyproject.toml to obtain better author display representation on pypi</p>
+</section>
+<section id="v0-3-2">
+<span id="id8"></span><h2>0.3.2 - 2023-12-21<a class="headerlink" href="#v0-3-2" title="Permalink to this heading">#</a></h2>
+<p>Updated README and pyproject.toml in preparation for pypi publishing (Note: we are still publishing to test.pypi)</p>
+</section>
+<section id="v0-3-1">
+<span id="id9"></span><h2>0.3.1 - 2023-12-21<a class="headerlink" href="#v0-3-1" title="Permalink to this heading">#</a></h2>
+<p>Updated docs</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Updated references in docs/README.md and docs/index.rst to reflect current repo name</dt><dd><ul>
+<li><p>Updated basic_evaluation.md tutorial</p></li>
+<li><p>Implemented default parameters for object detection</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>Added .github/pypi_publish.yml directory to automate publishing the repository to online packaging indices (after GitLab is mirrored to GitHub)</p></li>
+</ul>
+</section>
+<section id="v0-3-0">
+<span id="id10"></span><h2>0.3.0 - 2023-12-20<a class="headerlink" href="#v0-3-0" title="Permalink to this heading">#</a></h2>
+<p>This release is the first release after renaming to maite, the changes are follows</p>
+<ul class="simple">
+<li><p>The major change is the rename jatic-toolbox to maite</p></li>
+<li><p>It adds headers (copyright, license) to each file</p></li>
+<li><p>It adds the Phase-1 protocol and base provider/hub registration system from Quansight.</p></li>
+</ul>
+</section>
+<section id="v0-2-0">
+<span id="id11"></span><h2>0.2.0 - 2023-07-28<a class="headerlink" href="#v0-2-0" title="Permalink to this heading">#</a></h2>
+<p>This release provides a number of updates for usability and stability.</p>
+<section id="protocols">
+<h3>Protocols<a class="headerlink" href="#protocols" title="Permalink to this heading">#</a></h3>
+<p>Many updates to the names of protocols, usability, and stability.
+See reference documentation: <a class="reference external" href="https://jatic.pages.jatic.net/cdao/maite/api_reference.html">https://jatic.pages.jatic.net/cdao/maite/api_reference.html</a></p>
+<p>For an explanation of usage of current protocols see  (<em>deprecated link</em>) <code class="xref py py-obj docutils literal notranslate"><span class="pre">explanation/protocols_current</span></code>.</p>
+<p>For an overview of the future vision of protocols see  (<em>deprecated link</em>) <code class="xref py py-obj docutils literal notranslate"><span class="pre">explanation/protocols_vision</span></code>.</p>
+</section>
+<section id="documentation">
+<h3>Documentation<a class="headerlink" href="#documentation" title="Permalink to this heading">#</a></h3>
+<p>Explanations, how-tos, and tutorials have been added
+to the maite documentation at <a class="reference external" href="https://jatic.pages.jatic.net/cdao/maite/">https://jatic.pages.jatic.net/cdao/maite/</a>.</p>
+<p>Additionally, be sure to check reference documentation for examples of usage and API details.
+See <a class="reference external" href="https://jatic.pages.jatic.net/cdao/maite/api_reference.html">https://jatic.pages.jatic.net/cdao/maite/api_reference.html</a>.</p>
+</section>
+<section id="model-inference">
+<h3>Model Inference<a class="headerlink" href="#model-inference" title="Permalink to this heading">#</a></h3>
+<p>Previous release supported dictionary inputs to models.  This release changes the API to support
+to a single or collection of arrays.  This is more consistent with model inference APIs utilized
+in most deep learning frameworks.</p>
+<ul class="simple">
+<li><p>See image classification model definition: <code class="xref py py-class docutils literal notranslate"><span class="pre">maite.protocols.ImageClassifier</span></code></p></li>
+<li><p>See object detection model definition: <code class="xref py py-class docutils literal notranslate"><span class="pre">maite.protocols.ObjectDetector</span></code></p></li>
+</ul>
+<p>Additionally, the use of pre-processors and post-processors is kept internal to model inference
+rather than explicitly requiring users to manage these steps.  Integration with augmentations and
+perturbations is still in development.</p>
+</section>
+<section id="stability-and-usability">
+<h3>Stability and Usability<a class="headerlink" href="#stability-and-usability" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Remove 3.7 support and update typing_extensions references</p></li>
+<li><p>Pins <code class="xref py py-obj docutils literal notranslate"><span class="pre">torchmetrics</span> <span class="pre">&lt;</span> <span class="pre">1.0</span></code> due to breaking API changes</p></li>
+<li><p>Number of bug fixes and stability improvements</p></li>
+<li><p>Improved testing to ensure toolbox protocols and testing utilities work with minimal installation.</p></li>
+<li><p>Improve testing coverage for dataset and model loading</p></li>
+<li><p>Initial implementation of dataset, model, and metric registries. See  (<em>deprecated link</em>) <code class="xref py py-obj docutils literal notranslate"><span class="pre">how_to/named_evaluation</span></code>.</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-1-0">
+<span id="id12"></span><h2>0.1.0 - 2023-05-12<a class="headerlink" href="#v0-1-0" title="Permalink to this heading">#</a></h2>
+<p>This marks the first release of the maite.  We are not yet at a stable <code class="xref py py-obj docutils literal notranslate"><span class="pre">v1.0.0</span></code>.  Future release will aim to improving testing and stability of the software for general use.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+                <footer class="bd-footer-article">
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="generated/maite.testing.project.get_public_symbols.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">maite.testing.project.get_public_symbols</p>
+      </div>
+    </a>
+</div></div>
+  
+</div>
+
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-6-0">0.6.0 - 2024-06-14</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-5-0">0.5.0 - 2024-03-28</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-4-0">0.4.0 - 2024-01-22</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-3-6">0.3.6 - 2024-01-17</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-3-5">0.3.5 - 2024-01-05</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-3-4">0.3.4 - 2023-12-21</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-3-3">0.3.3 - 2023-12-21</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-3-2">0.3.2 - 2023-12-21</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-3-1">0.3.1 - 2023-12-21</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-3-0">0.3.0 - 2023-12-20</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-2-0">0.2.0 - 2023-07-28</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#protocols">Protocols</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation">Documentation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#model-inference">Model Inference</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#stability-and-usability">Stability and Usability</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-1-0">0.1.0 - 2023-05-12</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div class="tocsection sourcelink">
+    <a href="_sources/changes.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  <p class="copyright">
+    
+      © Copyright 2024 Massachusetts Institute of Technology.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.2.1.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
