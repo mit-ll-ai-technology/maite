@@ -4,8 +4,6 @@
 
 # flake8: noqa
 
-from typing import List, Tuple
-
 import hypothesis.strategies as st
 import pytest
 from hypothesis import given, settings
@@ -25,7 +23,7 @@ src1 = """.. tab-set::
          class Builds_DNN:
              input_size: int
              output_size: int
-             layer_widths: Tuple[int, ...] = (5, 10, 5)
+             layer_widths: tuple[int, ...] = (5, 10, 5)
              device: str = "cpu"
              _target_: str = "vision.model.DNN"
 
@@ -49,7 +47,7 @@ from dataclasses import dataclass
 class Builds_DNN:
     input_size: int
     output_size: int
-    layer_widths: Tuple[int, ...] = (5, 10, 5)
+    layer_widths: tuple[int, ...] = (5, 10, 5)
     device: str = "cpu"
     _target_: str = "vision.model.DNN"
 
@@ -127,7 +125,7 @@ distractors = [
 
 
 def strip_interspacing(x: str):
-    return "\n".join((s for s in x.splitlines() if s))
+    return "\n".join(s for s in x.splitlines() if s)
 
 
 import textwrap
@@ -144,7 +142,7 @@ import textwrap
     indent_level=st.integers(0, 9),
 )
 def test_rst_parsing(
-    blocks: List[Tuple[str, str]], data: st.DataObject, indent_level: int
+    blocks: list[tuple[str, str]], data: st.DataObject, indent_level: int
 ):
     """Combines known src blocks (with associated expected outputs), joined by
     different patterns of joining text"""
@@ -179,7 +177,7 @@ md_src1 = """.. tab-set::
          class Builds_DNN:
              input_size: int
              output_size: int
-             layer_widths: Tuple[int, ...] = (5, 10, 5)
+             layer_widths: tuple[int, ...] = (5, 10, 5)
              device: str = "cpu"
              _target_: str = "vision.model.DNN"
       ```
@@ -201,7 +199,7 @@ from dataclasses import dataclass
 class Builds_DNN:
     input_size: int
     output_size: int
-    layer_widths: Tuple[int, ...] = (5, 10, 5)
+    layer_widths: tuple[int, ...] = (5, 10, 5)
     device: str = "cpu"
     _target_: str = "vision.model.DNN"
 

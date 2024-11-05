@@ -7,7 +7,8 @@
 
 from __future__ import annotations
 
-from typing import Callable, Iterable, Protocol, Sequence, Tuple, runtime_checkable
+from collections.abc import Iterable, Sequence
+from typing import Callable, Protocol, runtime_checkable
 
 from typing_extensions import TypeAlias
 
@@ -81,8 +82,8 @@ InputBatchType: TypeAlias = Sequence[
 TargetBatchType: TypeAlias = Sequence[TargetType]  # sequence of N TargetType instances
 DatumMetadataBatchType: TypeAlias = Sequence[DatumMetadataType]
 
-Datum: TypeAlias = Tuple[InputType, TargetType, DatumMetadataType]
-DatumBatch: TypeAlias = Tuple[InputBatchType, TargetBatchType, DatumMetadataBatchType]
+Datum: TypeAlias = tuple[InputType, TargetType, DatumMetadataType]
+DatumBatch: TypeAlias = tuple[InputBatchType, TargetBatchType, DatumMetadataBatchType]
 
 CollateFn: TypeAlias = Callable[
     [Iterable[Datum]],
@@ -201,7 +202,7 @@ class Metric(gen.Metric[TargetBatchType], Protocol):
     update(preds: Sequence[ObjectDetectionTarget], targets: Sequence[ObjectDetectionTarget]) -> None
          Add predictions and targets to metric's cache for later calculation.
 
-    compute() -> Dict[str, Any]
+     compute() -> dict[str, Any]
          Compute metric value(s) for currently cached predictions and targets, returned as
          a dictionary.
 

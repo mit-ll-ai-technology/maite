@@ -5,7 +5,8 @@
 
 from __future__ import annotations
 
-from typing import Any, Generic, Iterable, Optional, Sequence, Tuple, TypeVar, overload
+from collections.abc import Iterable, Sequence
+from typing import Any, Generic, TypeVar, overload
 
 from maite._internals.protocols import (
     image_classification as ic,
@@ -84,8 +85,8 @@ T_md = TypeVar("T_md", bound=SomeMetadataType)
 
 
 def default_collate_fn(
-    batch_data_as_singles: Iterable[Tuple[T_in, T_tgt, T_md]]
-) -> Tuple[Sequence[T_in], Sequence[T_tgt], Sequence[T_md]]:
+    batch_data_as_singles: Iterable[tuple[T_in, T_tgt, T_md]]
+) -> tuple[Sequence[T_in], Sequence[T_tgt], Sequence[T_md]]:
     """
     Describe how to create a tuple of
     (InputBatchType, TargetBatchType, DatumMetadataBatchType)
@@ -172,17 +173,17 @@ class _SimpleDataLoader(Generic[T_in, T_tgt, T_md]):
 def evaluate(
     *,
     model: ic.Model,
-    metric: Optional[ic.Metric] = None,
-    dataloader: Optional[ic.DataLoader] = None,
-    dataset: Optional[ic.Dataset] = None,
+    metric: ic.Metric | None = None,
+    dataloader: ic.DataLoader | None = None,
+    dataset: ic.Dataset | None = None,
     batch_size: int = 1,
-    augmentation: Optional[ic.Augmentation] = None,
+    augmentation: ic.Augmentation | None = None,
     return_augmented_data: bool = False,
     return_preds: bool = False,
-) -> Tuple[
+) -> tuple[
     MetricComputeReturnType,
     Sequence[ic.TargetBatchType],
-    Sequence[Tuple[ic.InputBatchType, ic.TargetBatchType, ic.DatumMetadataBatchType]],
+    Sequence[tuple[ic.InputBatchType, ic.TargetBatchType, ic.DatumMetadataBatchType]],
 ]:
     ...
 
@@ -191,17 +192,17 @@ def evaluate(
 def evaluate(
     *,
     model: od.Model,
-    metric: Optional[od.Metric] = None,
-    dataloader: Optional[od.DataLoader] = None,
-    dataset: Optional[od.Dataset] = None,
+    metric: od.Metric | None = None,
+    dataloader: od.DataLoader | None = None,
+    dataset: od.Dataset | None = None,
     batch_size: int = 1,
-    augmentation: Optional[od.Augmentation] = None,
+    augmentation: od.Augmentation | None = None,
     return_augmented_data: bool = False,
     return_preds: bool = False,
-) -> Tuple[
+) -> tuple[
     MetricComputeReturnType,
     Sequence[od.TargetBatchType],
-    Sequence[Tuple[od.InputBatchType, od.TargetBatchType, od.DatumMetadataBatchType]],
+    Sequence[tuple[od.InputBatchType, od.TargetBatchType, od.DatumMetadataBatchType]],
 ]:
     ...
 
@@ -209,17 +210,17 @@ def evaluate(
 def evaluate(
     *,
     model: OpenModelType,
-    metric: Optional[OpenMetricType] = None,
-    dataloader: Optional[OpenDataLoaderType] = None,
-    dataset: Optional[OpenDatasetType] = None,
+    metric: OpenMetricType | None = None,
+    dataloader: OpenDataLoaderType | None = None,
+    dataset: OpenDatasetType | None = None,
     batch_size: int = 1,
-    augmentation: Optional[OpenAugmentationType] = None,
+    augmentation: OpenAugmentationType | None = None,
     return_augmented_data: bool = False,
     return_preds: bool = False,
-) -> Tuple[
+) -> tuple[
     MetricComputeReturnType,
     Sequence[SomeTargetBatchType],
-    Sequence[Tuple[SomeInputBatchType, SomeTargetBatchType, SomeMetadataBatchType]],
+    Sequence[tuple[SomeInputBatchType, SomeTargetBatchType, SomeMetadataBatchType]],
 ]:
     # doc-ignore: EX01
     """
@@ -233,19 +234,19 @@ def evaluate(
     model : SomeModel
         Maite Model object.
 
-    metric : Optional[SomeMetric], (default=None)
+    metric : SomeMetric | None, (default=None)
         Compatible maite Metric.
 
-    dataloader : Optional[SomeDataloader], (default=None)
+    dataloader : SomeDataloader | None, (default=None)
         Compatible maite dataloader.
 
-    dataset : Optional[SomeDataset], (default=None)
+    dataset : SomeDataset | None, (default=None)
         Compatible maite dataset.
 
     batch_size : int, (default=1)
         Batch size for use with dataset (ignored if dataset=None).
 
-    augmentation : Optional[SomeAugmentation], (default=None)
+    augmentation : SomeAugmentation | None, (default=None)
         Compatible maite augmentation.
 
     return_augmented_data : bool, (default=False)
@@ -256,7 +257,7 @@ def evaluate(
 
     Returns
     -------
-    Tuple[Dict[str, Any], Sequence[TargetType], Sequence[Tuple[InputBatchType, TargetBatchType, DatumMetadataBatchType]]]
+    tuple[dict[str, Any], Sequence[TargetType], Sequence[tuple[InputBatchType, TargetBatchType, DatumMetadataBatchType]]]
         Tuple of returned metric value, sequence of model predictions, and
         sequence of data batch tuples fed to the model during inference. The actual
         types represented by InputBatchType, TargetBatchType, and DatumMetadataBatchType will vary
@@ -282,18 +283,18 @@ def evaluate(
 def _evaluate(
     *,
     model: Model,
-    metric: Optional[Metric] = None,
-    dataloader: Optional[DataLoader] = None,
-    dataset: Optional[Dataset] = None,
+    metric: Metric | None = None,
+    dataloader: DataLoader | None = None,
+    dataset: Dataset | None = None,
     batch_size: int = 1,
-    augmentation: Optional[Augmentation] = None,
-    collate_fn: Optional[CollateFn] = None,
+    augmentation: Augmentation | None = None,
+    collate_fn: CollateFn | None = None,
     return_augmented_data: bool = False,
     return_preds: bool = False,
-) -> Tuple[
+) -> tuple[
     MetricComputeReturnType,
     Sequence[SomeTargetBatchType],
-    Sequence[Tuple[SomeInputBatchType, SomeTargetBatchType, SomeMetadataBatchType]],
+    Sequence[tuple[SomeInputBatchType, SomeTargetBatchType, SomeMetadataBatchType]],
 ]:
     """
     Task-agnostically typed version of evaluate for use by any workflows that
@@ -389,13 +390,13 @@ def _evaluate(
 def predict(
     *,
     model: ic.Model,
-    dataloader: Optional[ic.DataLoader] = None,
-    dataset: Optional[ic.Dataset] = None,
+    dataloader: ic.DataLoader | None = None,
+    dataset: ic.Dataset | None = None,
     batch_size: int = 1,
-    augmentation: Optional[ic.Augmentation] = None,
-) -> Tuple[
+    augmentation: ic.Augmentation | None = None,
+) -> tuple[
     Sequence[ic.TargetBatchType],
-    Sequence[Tuple[ic.InputBatchType, ic.TargetBatchType, ic.DatumMetadataBatchType]],
+    Sequence[tuple[ic.InputBatchType, ic.TargetBatchType, ic.DatumMetadataBatchType]],
 ]:
     ...
 
@@ -404,13 +405,13 @@ def predict(
 def predict(
     *,
     model: od.Model,
-    dataloader: Optional[od.DataLoader] = None,
-    dataset: Optional[od.Dataset] = None,
+    dataloader: od.DataLoader | None = None,
+    dataset: od.Dataset | None = None,
     batch_size: int = 1,
-    augmentation: Optional[od.Augmentation] = None,
-) -> Tuple[
+    augmentation: od.Augmentation | None = None,
+) -> tuple[
     Sequence[od.TargetBatchType],
-    Sequence[Tuple[od.InputBatchType, od.TargetBatchType, od.DatumMetadataBatchType]],
+    Sequence[tuple[od.InputBatchType, od.TargetBatchType, od.DatumMetadataBatchType]],
 ]:
     ...
 
@@ -418,13 +419,13 @@ def predict(
 def predict(
     *,
     model: OpenModelType,
-    dataloader: Optional[OpenDataLoaderType] = None,
-    dataset: Optional[OpenDatasetType] = None,
+    dataloader: OpenDataLoaderType | None = None,
+    dataset: OpenDatasetType | None = None,
     batch_size: int = 1,
-    augmentation: Optional[OpenAugmentationType] = None,
-) -> Tuple[
+    augmentation: OpenAugmentationType | None = None,
+) -> tuple[
     Sequence[SomeTargetBatchType],
-    Sequence[Tuple[SomeInputBatchType, SomeTargetBatchType, SomeMetadataBatchType]],
+    Sequence[tuple[SomeInputBatchType, SomeTargetBatchType, SomeMetadataBatchType]],
 ]:
     # doc-ignore: EX01
     """
@@ -438,21 +439,21 @@ def predict(
     model : SomeModel
         Maite Model object.
 
-    dataloader : Optional[SomeDataloader], (default=None)
+    dataloader : SomeDataloader | None, (default=None)
         Compatible maite dataloader.
 
-    dataset : Optional[SomeDataset], (default=None)
+    dataset : SomeDataset | None, (default=None)
         Compatible maite dataset.
 
     batch_size : int, (default=1)
         Batch size for use with dataset (ignored if dataset=None).
 
-    augmentation : Optional[SomeAugmentation], (default=None)
+    augmentation : SomeAugmentation | None, (default=None)
         Compatible maite augmentation.
 
     Returns
     -------
-    Tuple[Sequence[SomeTargetBatchType], Sequence[Tuple[SomeInputBatchType, SomeTargetBatchType, SomeMetadataBatchType]],
+    tuple[Sequence[SomeTargetBatchType], Sequence[tuple[SomeInputBatchType, SomeTargetBatchType, SomeMetadataBatchType]],
         A tuple of the predictions (as a sequence of batches) and a sequence
         of tuples containing the information associated with each batch.
     """

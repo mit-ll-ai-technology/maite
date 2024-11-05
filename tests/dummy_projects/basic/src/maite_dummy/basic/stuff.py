@@ -3,9 +3,9 @@
 # SPDX-License-Identifier: MIT
 
 from dataclasses import dataclass
-from typing import Final, Literal, Protocol
+from typing import Final, Literal, Protocol, TypedDict
 
-from typing_extensions import TypeAlias, TypedDict
+from typing_extensions import TypeAlias
 
 __all__ = [
     "CONSTANT",

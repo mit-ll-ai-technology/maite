@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MIT
 
 from pathlib import Path
-from typing import List
 
 import pytest
 from pytest import param
@@ -70,7 +69,7 @@ def test_scan_caching():
 def test_known_scan():
     results = module_scan("maite")["typeCompleteness"]
     assert results["packageName"] == "maite"
-    modules = set(v["name"] for v in results["modules"])
+    modules = {v["name"] for v in results["modules"]}
     # must update this if project's modules are renamed
     assert {
         "maite.testing.docs",
@@ -92,7 +91,7 @@ def test_public_symbols(submodule):
     symbols = get_public_symbols(
         module_scan("maite"), submodule=submodule, include_dunder_names=False
     )
-    names = set(s["name"] for s in symbols)
+    names = {s["name"] for s in symbols}
     assert {
         "maite.testing.project.ModuleScan",
         "maite.testing.project.get_public_symbols",
@@ -194,7 +193,7 @@ def test_special_method_filtering():
         dummy_results, include_dunder_names=False
     )
 
-    assert set(x["name"] for x in symbols_with_special) == {
+    assert {x["name"] for x in symbols_with_special} == {
         "foo.SomeClass",
         "foo.SomeClass.__init__",
         "foo.SomeClass.public_method__",
@@ -202,7 +201,7 @@ def test_special_method_filtering():
         "foo.SomeClass.__dataclass_method__",
     }
 
-    assert set(x["name"] for x in symbols_without_special) == {
+    assert {x["name"] for x in symbols_without_special} == {
         "foo.SomeClass",
         "foo.SomeClass.public_method__",
         "foo.SomeClass.___not_special___",
@@ -228,7 +227,7 @@ def test_import_symbols():
 
 def test_import_pytest_skip():
     results = module_scan("maite_dummy.basic")
-    out: List[str] = [
+    out: list[str] = [
         x.values[0]
         for x in import_public_symbols(results, skip_module_not_found="pytest-skip")
         if isinstance(x, ParameterSet)

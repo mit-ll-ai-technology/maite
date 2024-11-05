@@ -3,8 +3,9 @@
 # SPDX-License-Identifier: MIT
 
 from abc import ABCMeta, abstractmethod
+from collections.abc import Iterable
 from functools import wraps
-from typing import Any, Callable, Iterable, Tuple, TypeVar, cast
+from typing import Any, Callable, TypeVar, cast
 
 from maite._internals.import_utils import is_tqdm_available
 from maite._internals.protocols.generic import (
@@ -47,7 +48,7 @@ class ContextDecorator(metaclass=ABCMeta):
 
 def add_progress_bar(
     dataloader: DataLoader[InputType_co, TargetType_co, DatumMetadataType_co],
-) -> Iterable[Tuple[InputType_co, TargetType_co, DatumMetadataType_co]]:
+) -> Iterable[tuple[InputType_co, TargetType_co, DatumMetadataType_co]]:
     """Wrap a dataloader with tqdm to display progress bars.
 
     Note tqdm output can be disabled as of entirely as of version 4.66.0 by setting the
@@ -60,7 +61,7 @@ def add_progress_bar(
 
     Returns
     -------
-    Iterable[Tuple[InputType_co, TargetType_co, DatumMetadataType_co]]
+    Iterable[tuple[InputType_co, TargetType_co, DatumMetadataType_co]]
         Return an iterator over batches of data, where each batch contains a tuple of
         of model input, model target , and datum-level metadata.
     """

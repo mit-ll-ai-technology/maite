@@ -57,10 +57,12 @@ def test_python_version():
     with open("f.py", "w") as file:
         file.writelines(code)
 
-    py38 = pyright_analyze("./", python_version="3.8")
     py39 = pyright_analyze("./", python_version="3.9")
-    assert py38[0]["summary"]["errorCount"] == 1, py38
     assert py39[0]["summary"]["errorCount"] == 0
+    py310 = pyright_analyze("./", python_version="3.10")
+    assert py310[0]["summary"]["errorCount"] == 0
+    py311 = pyright_analyze("./", python_version="3.11")
+    assert py311[0]["summary"]["errorCount"] == 0
 
 
 def test_scan_path_to_code():
@@ -101,11 +103,11 @@ def test_scan_docstring():
 
     results = pyright_analyze(f, scan_docstring=True)
     assert results[0]["summary"]["errorCount"] == 1
-    (message,) = [
+    (message,) = (
         d["message"]
         for d in results[0]["generalDiagnostics"]
         if d["severity"] == "error"
-    ]
+    )
     assert message.startswith('Operator "+" not supported for types')
 
 

@@ -5,7 +5,8 @@
 # import component generics from generic.py and specialize them for image_classification
 from __future__ import annotations
 
-from typing import Callable, Iterable, Protocol, Sequence, Tuple
+from collections.abc import Iterable, Sequence
+from typing import Callable, Protocol
 
 from typing_extensions import TypeAlias
 
@@ -30,8 +31,8 @@ InputBatchType: TypeAlias = Sequence[
 TargetBatchType: TypeAlias = Sequence[TargetType]  # sequence of N TargetType instances
 DatumMetadataBatchType: TypeAlias = Sequence[DatumMetadataType]
 
-Datum: TypeAlias = Tuple[InputType, TargetType, DatumMetadataType]
-DatumBatch: TypeAlias = Tuple[InputBatchType, TargetBatchType, DatumMetadataBatchType]
+Datum: TypeAlias = tuple[InputType, TargetType, DatumMetadataType]
+DatumBatch: TypeAlias = tuple[InputBatchType, TargetBatchType, DatumMetadataBatchType]
 
 CollateFn: TypeAlias = Callable[
     [Iterable[Datum]],
@@ -51,14 +52,14 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
     to individual examples (as opposed to batches).
 
     Indexing into or iterating over the an image_classification dataset returns a
-    `Tuple` of types `ArrayLike`, `ArrayLike`, and `DatumMetadataType`.
+    `tuple` of types `ArrayLike`, `ArrayLike`, and `DatumMetadataType`.
     These correspond to the model input type, model target type, and datum-level
     metadata, respectively.
 
     Methods
     -------
 
-    __getitem__(ind: int) -> Tuple[ArrayLike, ArrayLike, DatumMetadataType]
+    __getitem__(ind: int) -> tuple[ArrayLike, ArrayLike, DatumMetadataType]
         Provide map-style access to dataset elements. Returned tuple elements
         correspond to model input type, model target type, and datum-specific metadata type,
         respectively.
@@ -81,15 +82,15 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
     this lightweight dataset protocol:
 
     >>> import numpy as np
-    >>> from typing import List, Dict, Any, Tuple, Mapping, Sequence, TypedDict
-    >>> from maite.protocols import ArrayLike, DatumMetadata, DatasetMetadata
+    >>> from typing import Any, TypedDict
+    >>> from maite.protocols import ArrayLike, DatasetMetadata
 
     Assume we have 5 classes, 10 datapoints, and 10 target labels, and that we want
     to simply have an integer 'id' field in each datapoint's metadata:
 
     >>> N_CLASSES: int = 5
     >>> N_DATUM: int = 10
-    >>> images: List[np.ndarray] = [np.random.rand(3, 32, 16) for _ in range(N_DATUM)]
+    >>> images: list[np.ndarray] = [np.random.rand(3, 32, 16) for _ in range(N_DATUM)]
     >>> targets: np.ndarray = np.eye(N_CLASSES)[np.random.choice(N_CLASSES, N_DATUM)]
 
     We can type our datum metadata as a maite.protocols DatumMetadata, or define our
@@ -116,7 +117,7 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
     ...         self._datum_metadata = datum_metadata
     ...     def __len__(self) -> int:
     ...         return len(images)
-    ...     def __getitem__(self, ind: int) -> Tuple[np.ndarray, np.ndarray, MyDatumMetadata]:
+    ...     def __getitem__(self, ind: int) -> tuple[np.ndarray, np.ndarray, MyDatumMetadata]:
     ...         return self.images[ind], self.targets[ind], self._datum_metadata[ind]
 
     We can instantiate this class and typehint it as an image_classification.Dataset.
@@ -202,7 +203,7 @@ class Metric(gen.Metric[TargetBatchType], Protocol):
         Add predictions and targets to metric's cache for later calculation. Both
         preds and targets are expected to be sequences with elements of shape `(Cl,)`.
 
-    compute() -> Dict[str, Any]
+    compute() -> dict[str, Any]
         Compute metric value(s) for currently cached predictions and targets, returned as
         a dictionary.
 
@@ -245,8 +246,8 @@ class Augmentation(
     Methods
     -------
 
-    __call__(datum: Tuple[Sequence[ArrayLike], Sequence[ArrayLike], Sequence[DatumMetadataType]]) ->\
-          Tuple[Sequence[ArrayLike], Sequence[ArrayLike], Sequence[DatumMetadataType]])
+    __call__(datum: tuple[Sequence[ArrayLike], Sequence[ArrayLike], Sequence[DatumMetadataType]]) ->\
+          tuple[Sequence[ArrayLike], Sequence[ArrayLike], Sequence[DatumMetadataType]])
         Return a modified version of original data batch. A data batch is represented
         by a tuple of model input batch (as `Sequence[ArrayLike]` with elements of shape
         `(C, H, W)`), model target batch (as `Sequence[ArrayLike]` with elements of shape
@@ -269,7 +270,8 @@ class Augmentation(
 
     >>> import copy
     >>> import numpy as np
-    >>> from typing import Dict, Any, Tuple, Sequence
+    >>> from typing import Any
+    >>> from collections.abc import Sequence
     >>> from maite.protocols import ArrayLike, DatumMetadata, AugmentationMetadata
     >>>
     >>> class EnrichedDatumMetadata(DatumMetadata):
@@ -280,8 +282,8 @@ class Augmentation(
     ...         self.metadata: AugmentationMetadata = {'id': aug_name}
     ...     def __call__(
     ...         self,
-    ...         data_batch: Tuple[Sequence[ArrayLike], Sequence[ArrayLike], Sequence[DatumMetadata]]
-    ...     ) -> Tuple[Sequence[np.ndarray], Sequence[np.ndarray], Sequence[EnrichedDatumMetadata]]:
+    ...         data_batch: tuple[Sequence[ArrayLike], Sequence[ArrayLike], Sequence[DatumMetadata]]
+    ...     ) -> tuple[Sequence[np.ndarray], Sequence[np.ndarray], Sequence[EnrichedDatumMetadata]]:
     ...         inputs, targets, mds = data_batch
     ...         # We copy data passed into the constructor to avoid mutating original inputs
     ...         # By using np.ndarray constructor, the static type-checker will let us treat

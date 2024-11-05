@@ -3,9 +3,10 @@
 # SPDX-License-Identifier: MIT
 
 import re
+from collections.abc import Collection
 from enum import Enum, Flag
 from functools import partial
-from typing import Any, Collection, NamedTuple, Tuple, Union
+from typing import Any, NamedTuple, Union
 
 import hypothesis.strategies as st
 import pytest
@@ -191,7 +192,7 @@ def test_valid_inequalities(
 class CheckOneOfInputs(NamedTuple):
     arg: Any
     collection: Collection = []
-    vals: Tuple[Any, ...] = ()
+    vals: tuple[Any, ...] = ()
     requires_identity: bool = False
     name: str = "foo"
 
