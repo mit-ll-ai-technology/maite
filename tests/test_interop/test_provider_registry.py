@@ -18,9 +18,13 @@ from maite._internals.interop.provider_registry import (
 from maite._internals.protocols.generic import Dataset, Metric, Model
 from maite._internals.protocols.task_aliases import TaskName
 from maite.errors import InternalError, InvalidArgument
+from maite.protocols import DatasetMetadata, MetricMetadata, ModelMetadata
 
 
 class AModel:
+    def __init__(self):
+        self.metadata = ModelMetadata(id="a_model")
+
     def __call__(self, arg: list):
         return arg
 
@@ -29,6 +33,7 @@ class AMetric:
     def init(self):
         self.pred = 0
         self._count = 0
+        self.metadata = MetricMetadata(id="a_metric")
 
     def reset(self):
         pass
@@ -45,6 +50,7 @@ class AMetric:
 class ADataset:
     def __init__(self, data):
         self.data = data
+        self.metadata = DatasetMetadata(id="a_dataset")
 
     def __len__(self):
         return len(self.data)

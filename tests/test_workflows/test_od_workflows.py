@@ -15,11 +15,15 @@ def test_simple_component_structural(
 ):
     # verify types pass isinstance checks
 
-    assert isinstance(od_simple_augmentation, gen.Augmentation)
-    assert isinstance(od_simple_metric, gen.Metric)
-    assert isinstance(od_simple_dataset, gen.Dataset)
-    assert isinstance(od_simple_dataloader, gen.DataLoader)
-    assert isinstance(od_simple_model, gen.Model)
+    assert isinstance(
+        od_simple_augmentation, gen.Augmentation
+    ), "augmentation structural check fail"
+    assert isinstance(od_simple_metric, gen.Metric), "metric structural check fail"
+    assert isinstance(od_simple_dataset, gen.Dataset), "dataset structural check fail"
+    assert isinstance(
+        od_simple_dataloader, gen.DataLoader
+    ), "dataloader structural check fail"
+    assert isinstance(od_simple_model, gen.Model), "model structural check fail"
 
 
 def test_simple_od_evaluate(

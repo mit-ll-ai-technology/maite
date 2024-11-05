@@ -23,7 +23,7 @@ from typing import (
     overload,
 )
 
-from typing_extensions import NotRequired, TypeAlias, TypedDict
+from typing_extensions import NotRequired, ReadOnly, TypeAlias, TypedDict
 
 from maite._internals.validation import check_type
 from maite.errors import InvalidArgument
@@ -71,7 +71,7 @@ NumpyDocErrorCode: TypeAlias = Literal[
     "NOQA",
 ]
 
-ERRORCODES: Set[NumpyDocErrorCode] = set(NumpyDocErrorCode.__args__)  # type: ignore
+ERRORCODES: Set[NumpyDocErrorCode] = set(NumpyDocErrorCode.__args__)
 
 
 class _C:
@@ -97,7 +97,7 @@ class NumPyDocResults(TypedDict):
     errors: Dict[NumpyDocErrorCode, List[str]]
     file: str
     file_line: int
-    ignored_errors: NotRequired[Dict[NumpyDocErrorCode, List[str]]]
+    ignored_errors: ReadOnly[NotRequired[Dict[NumpyDocErrorCode, List[str]]]]
 
 
 class NumPyDocResultsWithIgnored(NumPyDocResults):
@@ -381,6 +381,7 @@ def validate_docstring(
 
         del init_results
 
+        obj = cast(Any, obj)
         for _ignore, name in chain(
             zip_longest([], doc_obj.properties, fillvalue=property_ignore),
             zip_longest([], doc_obj.methods, fillvalue=method_ignore),
@@ -388,7 +389,6 @@ def validate_docstring(
             if isinstance(obj, type) and issubclass(obj, Protocol):
                 # protocol attributes don't need docstrings
                 break
-
             if name not in obj.__dict__:
                 # don't scan inherited methods/attrs
                 continue
@@ -404,12 +404,20 @@ def validate_docstring(
                 ignore=get_tags(_member) | _ignore,
             )
 
-    out = NumPyDocResults(
-        error_count=sum((len(x) for x in errors.values())),
-        errors=dict(errors),
-        file=results["file"],
-        file_line=results["file_line"],
-    )
     if include_ignored_errors:
-        out["ignored_errors"] = dict(ignored_errors)
+        out = NumPyDocResultsWithIgnored(
+            error_count=sum((len(x) for x in errors.values())),
+            errors=dict(errors),
+            file=results["file"],
+            file_line=results["file_line"],
+            ignored_errors=dict(ignored_errors),
+        )
+    else:
+        out = NumPyDocResults(
+            error_count=sum((len(x) for x in errors.values())),
+            errors=dict(errors),
+            file=results["file"],
+            file_line=results["file_line"],
+        )
+
     return out

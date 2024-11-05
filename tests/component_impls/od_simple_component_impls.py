@@ -9,6 +9,13 @@ from typing import Any, Dict, Iterator, List, Sequence, Tuple
 
 import numpy as np
 
+from maite.protocols import (
+    AugmentationMetadata,
+    DatasetMetadata,
+    DatumMetadata,
+    MetricMetadata,
+    ModelMetadata,
+)
 from maite.protocols.object_detection import (
     DatumMetadataBatchType,
     InputBatchType,
@@ -20,13 +27,13 @@ from maite.protocols.object_detection import (
 #
 # mock up a set of components such that:
 #
-# InputType = np.array of shape [C, H, W]
-# TargetType = ObjectDetectionTarget
-# DatumMetadataType = Dict[str, Any]
+# InputType is np.array of shape (C, H, W)
+# TargetType is ObjectDetectionTarget
+# DatumMetadataType is DatumMetadata (i.e. a specialized TypedDict)
 #
-# InputBatchType = np.array of shape [N, C, H, W]
-# TargetBatchType = Sequence[ObjectDetectionTarget]
-# DatumMetadataBatchType = list[Dict[str, Any]]
+# InputBatchType is Sequence[np.array] with elements of shape (C, H, W)
+# TargetBatchType is Sequence[ObjectDetectionTarget]
+# DatumMetadataBatchType is Sequence[DatumMetadata]
 
 
 N_CLASSES = 5  # how many classes
@@ -78,16 +85,20 @@ class DatasetImpl:
             for _ in range(N_DATAPOINTS)
         ]
 
-        self._data_metadata: Sequence[Dict[str, Any]] = [
-            {"some_metadata": i} for i in range(self._data.shape[0])
+        self._data_metadata: Sequence[DatumMetadata] = [
+            {"id": i} for i in range(self._data.shape[0])
         ]
+
+        self.metadata = DatasetMetadata(
+            id="simple_dataset", index2label={i: f"class_{i}" for i in range(N_CLASSES)}
+        )
 
     def __len__(self) -> int:
         return self._data.shape[0]
 
     def __getitem__(
         self, ind: int
-    ) -> Tuple[np.ndarray, ObjectDetectionTargetImpl, Dict[str, Any]]:
+    ) -> Tuple[np.ndarray, ObjectDetectionTargetImpl, DatumMetadata]:
         return (self._data[ind], self._targets[ind], self._data_metadata[ind])
 
 
@@ -99,7 +110,7 @@ class DataLoaderImpl:
     def __iter__(
         self,
     ) -> Iterator[
-        Tuple[List[np.ndarray], List[ObjectDetectionTargetImpl], List[Dict[str, Any]]]
+        Tuple[List[np.ndarray], List[ObjectDetectionTargetImpl], List[DatumMetadata]]
     ]:
         # calculate number of batches
         n_batches = len(self._dataset) // self._batch_size
@@ -120,7 +131,7 @@ class DataLoaderImpl:
             ]
             batch_inputs: List[np.ndarray] = []
             batch_targets: List[ObjectDetectionTargetImpl] = []
-            batch_mds: List[Dict[str, Any]] = []
+            batch_mds: List[DatumMetadata] = []
             for batch_tup in batch_data:
                 batch_inputs.append(np.array(batch_tup[0]))
                 batch_targets.append(batch_tup[1])
@@ -129,30 +140,35 @@ class DataLoaderImpl:
             yield (batch_inputs, batch_targets, batch_mds)
 
 
+class EnrichedDatumMetadata(DatumMetadata):
+    new_key: str
+
+
 class AugmentationImpl:
     def __init__(self):
-        ...
+        self.metadata = AugmentationMetadata(id="simple_augmentation")
 
     def __call__(
         self,
         __datum_batch: Tuple[InputBatchType, TargetBatchType, DatumMetadataBatchType],
     ) -> Tuple[
-        List[np.ndarray], List[ObjectDetectionTargetImpl], Sequence[Dict[str, Any]]
+        List[np.ndarray],
+        List[ObjectDetectionTargetImpl],
+        Sequence[EnrichedDatumMetadata],
     ]:
         input_batch_aug = copy.deepcopy([np.array(elem) for elem in __datum_batch[0]])
         target_batch_aug = copy.deepcopy(
             [ObjectDetectionTargetImpl.from_protocol(i) for i in __datum_batch[1]]
         )
-        metadata_batch_aug = copy.deepcopy(__datum_batch[2])
+        metadata_batch_aug: list[EnrichedDatumMetadata] = []
 
         # -- manipulate input_batch, target_batch, and metadata_batch --
 
         # add new value to metadata_batch_aug
-        for md in metadata_batch_aug:
-            assert (
-                "new_key" not in md.keys()
-            ), "bad practice to write over keys in metadata"
-            md["new_key"] = "new_val"
+        for md in __datum_batch[2]:
+            metadata_batch_aug.append(
+                EnrichedDatumMetadata(**copy.deepcopy(md), new_key="new_val")
+            )
 
         # modify input batch
         for in_batch_elem in input_batch_aug:
@@ -166,6 +182,9 @@ class AugmentationImpl:
 
 
 class ModelImpl:
+    def __init__(self):
+        self.metadata = ModelMetadata(id="simple_model")
+
     def __call__(
         self, __input_batch: InputBatchType
     ) -> Sequence[ObjectDetectionTargetImpl]:
@@ -195,7 +214,7 @@ class ModelImpl:
 
 class MetricImpl:
     def __init__(self):
-        return None
+        self.metadata = MetricMetadata(id="simple_metric")
 
     def reset(self) -> None:
         return None

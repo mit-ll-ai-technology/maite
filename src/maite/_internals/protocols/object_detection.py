@@ -7,12 +7,12 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable, Iterable, Protocol, Sequence, Tuple, runtime_checkable
+from typing import Callable, Iterable, Protocol, Sequence, Tuple, runtime_checkable
 
-from typing_extensions import Dict, TypeAlias
+from typing_extensions import TypeAlias
 
 from maite._internals.protocols import generic as gen
-from maite.protocols import ArrayLike
+from maite.protocols import ArrayLike, DatumMetadata
 
 # We *could* make ArrayLike generic and rely on the subscripts for ArrayLike type
 # annotations to hint to the user the appropriate shape. No runtime safety would
@@ -68,12 +68,12 @@ class ObjectDetectionTarget(Protocol):
 #
 #       Perhaps the functionality I want is named TypeVars for generic, so developers can understand that
 #       e.g. generic.Dataset typevars are 'InputType', 'TargetType', and 'MetaDataType' and their values in
-#       concrete Dataset classes (like object_detection.Dataset) are ArrayLike, ObjectDetectionTarget, Dict[str,Any]
-#       so users can see an expected return type of Tuple[ArrayLike, ObjectDetectionTarget, Dict[str,Any]]
+#       concrete Dataset classes (like object_detection.Dataset) are ArrayLike, ObjectDetectionTarget, DatumMetadataType
+#       so users can see an expected return type of Tuple[ArrayLike, ObjectDetectionTarget, DatumMetadataType]
 
 InputType: TypeAlias = ArrayLike  # shape (C, H, W)
 TargetType: TypeAlias = ObjectDetectionTarget
-DatumMetadataType: TypeAlias = Dict[str, Any]
+DatumMetadataType: TypeAlias = DatumMetadata
 
 InputBatchType: TypeAlias = Sequence[
     ArrayLike
@@ -100,14 +100,14 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
     individual examples (as opposed to batches).
 
     Indexing into or iterating over the an object detection dataset returns a `Tuple` of
-    types `ArrayLike`, `ObjectDetectionTarget`, and `Dict[str,Any]`. These correspond to
+    types `ArrayLike`, `ObjectDetectionTarget`, and `DatumMetadataType`. These correspond to
     the model input type, model target type, and datum-level metadata, respectively.
 
 
     Methods
     -------
 
-    __getitem__(ind: int) -> Tuple[ArrayLike, ObjectDetectionTarget, Dict[str, Any]]
+    __getitem__(ind: int) -> Tuple[ArrayLike, ObjectDetectionTarget, DatumMetadataType]
         Provide mapping-style access to dataset elements. Returned tuple elements
         correspond to model input type, model target type, and datum-specific metadata,
         respectively.
@@ -115,6 +115,13 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
     __len__() -> int
         Return the number of data elements in the dataset.
 
+    Attributes
+    ----------
+
+    metadata : TypedDict
+        Typed dictionary containing fields:
+            id : str
+            index2label : dict[int, str]
     """
 
     ...
@@ -135,7 +142,7 @@ class DataLoader(
     Implementers must provide an iterable object (returning an iterator via the
     `__iter__` method) that yields tuples containing batches of data. These tuples
     contain types `Sequence[ArrayLike]` (elements of shape `(C, H, W)`),
-    `Sequence[ObjectDetectionTarget]`, and `Sequence[Dict[str, Any]]`,
+    `Sequence[ObjectDetectionTarget]`, and `Sequence[DatumMetadataType]`,
     which correspond to model input batch, model target batch, and a datum metadata batch.
 
     Note: Unlike Dataset, this protocol does not require indexing support, only iterating.
@@ -144,12 +151,11 @@ class DataLoader(
     Methods
     -------
 
-    __iter__ -> Iterator[tuple[Sequence[ArrayLike], Sequence[ObjectDetectionTarget], Sequence[Dict[str, Any]]]]
+    __iter__ -> Iterator[tuple[Sequence[ArrayLike], Sequence[ObjectDetectionTarget], Sequence[DatumMetadataType]]]
         Return an iterator over batches of data, where each batch contains a tuple of
         of model input batch (as `Sequence[ArrayLike]`), model target batch (as
         `Sequence[ObjectDetectionTarget]`), and batched datum-level metadata
-        (as `Sequence[Dict[str,Any]]`), respectively.
-
+        (as `Sequence[DatumMetadataType]]`), respectively.
     """
 
     ...
@@ -169,6 +175,14 @@ class Model(gen.Model[InputBatchType, TargetBatchType], Protocol):
     __call__(input_batch: Sequence[ArrayLike]) -> Sequence[ObjectDetectionTarget]
         Make a model prediction for inputs in input batch. Elements of input batch
         are expected in the shape `(C, H, W)`.
+
+    Attributes
+    ----------
+
+    metadata : TypedDict
+        Typed dictionary containing fields:
+            id : str
+            index2label : dict[int, str]
     """
 
     ...
@@ -178,21 +192,28 @@ class Metric(gen.Metric[TargetBatchType], Protocol):
     """
     A metric protocol for the object detection ML subproblem.
 
-     A metric in this sense is expected to measure the level of agreement between model
-     predictions and ground-truth labels.
+    A metric in this sense is expected to measure the level of agreement between model
+    predictions and ground-truth labels.
 
-     Methods
-     -------
+    Methods
+    -------
 
-     update(preds: Sequence[ObjectDetectionTarget], targets: Sequence[ObjectDetectionTarget]) -> None
+    update(preds: Sequence[ObjectDetectionTarget], targets: Sequence[ObjectDetectionTarget]) -> None
          Add predictions and targets to metric's cache for later calculation.
 
-     compute() -> Dict[str, Any]
+    compute() -> Dict[str, Any]
          Compute metric value(s) for currently cached predictions and targets, returned as
          a dictionary.
 
-     reset() -> None
-         Clear contents of current metric's cache of predictions and targets.
+    reset() -> None
+        Clear contents of current metric's cache of predictions and targets.
+
+    Attributes
+    ----------
+
+    metadata : TypedDict
+        Typed dictionary containing fields:
+            id : str
     """
 
     ...
@@ -215,19 +236,26 @@ class Augmentation(
     An augmentation is expected to take a batch of data and return a modified version of
     that batch. Implementers must provide a single method that takes and returns a
     labeled data batch, where a labeled data batch is represented by a tuple of types
-    `Sequence[ArrayLike]`, `Sequence[ObjectDetectionTarget]`, and `Sequence[Dict[str,Any]]`.
+    `Sequence[ArrayLike]`, `Sequence[ObjectDetectionTarget]`, and `Sequence[DatumMetadataType]`.
     These correspond to the model input batch type, model target batch type, and datum-level
     metadata batch type, respectively.
 
     Methods
     -------
 
-    __call__(datum: Tuple[Sequence[ArrayLike], Sequence[ObjectDetectionTarget], Sequence[dict[str, Any]]]) ->\
-          Tuple[Sequence[ArrayLike], Sequence[ObjectDetectionTarget], Sequence[dict[str, Any]]]
+    __call__(datum: Tuple[Sequence[ArrayLike], Sequence[ObjectDetectionTarget], Sequence[DatumMetadataType]]) ->\
+          Tuple[Sequence[ArrayLike], Sequence[ObjectDetectionTarget], Sequence[DatumMetadataType]]
         Return a modified version of original data batch. A data batch is represented
         by a tuple of model input batch (as `Sequence ArrayLike` with elements of shape
         `(C, H, W)`), model target batch (as `Sequence[ObjectDetectionTarget]`), and
-        batch metadata (as `Sequence[Dict[str,Any]]`), respectively.
+        batch metadata (as `Sequence[DatumMetadataType]`), respectively.
+
+    Attributes
+    ----------
+
+    metadata : TypedDict
+        Typed dictionary containing fields:
+            id : str
     """
 
     ...
