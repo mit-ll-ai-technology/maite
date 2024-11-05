@@ -6,12 +6,19 @@ from typing import Any, Dict, List, Type, TypeVar
 
 from typing_extensions import TypedDict, TypeGuard
 
+
+# Can't bound typevar with TypedDict directly because it is actually a metaclass,
+# So we can create an empty TypedDict for this
+class TypedDictClass(TypedDict):
+    ...
+
+
 K = TypeVar("K")
 T = TypeVar("T")
-Td = TypeVar("Td", bound=TypedDict)
+Td = TypeVar("Td", bound=TypedDictClass)
 
 
-def is_list_of_type(d: Any, guard: Type[T] = Any) -> TypeGuard[List[T]]:
+def is_list_of_type(d: Any, guard: Type[T] = dict) -> TypeGuard[List[T]]:
     """
     Check if object is a list of dictionaries.
 

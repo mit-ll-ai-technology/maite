@@ -139,7 +139,9 @@ exclude = [
   "tests/test_testing/test_type_checking.py",
   "tests/test_testing/test_project.py",
   "tests/test_protocols.py",
-  "tests/dummy_projects"
+  "tests/dummy_projects",
+  "src/maite/_internals/interop/provider_registry.py",  # providers not exposed externally yet
+  "src/maite/_internals/protocols/providers.py"  # providers not exposed externally yet
 ]
 reportUnnecessaryTypeIgnoreComment = true
 reportUnnecessaryIsInstance = false

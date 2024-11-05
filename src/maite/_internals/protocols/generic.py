@@ -13,11 +13,12 @@ from typing import (
     Protocol,
     Sequence,
     Tuple,
+    TypedDict,
     TypeVar,
     runtime_checkable,
 )
 
-from typing_extensions import TypeAlias
+from typing_extensions import NotRequired, ReadOnly, Required, TypeAlias
 
 # Note
 # (1) the use of each generic variable can differ in generic components
@@ -77,35 +78,17 @@ DatumMetadataBatchType_in = TypeVar(
 
 MetricComputeReturnType = Dict[str, Any]
 
-# TODO 0: add docstrings
-#
-# TODO 1: check type expected by pytorch getitem
-#
-# TODO 2: Decide if I really need different TypeVars based on context?
-#           - in the context of Dataset, class is covariant to all types
-#           - in the context of Augmentation, class is invariant to all types
-# TODO 3: Consider whether 'to' method should be a part of Metric/Model/Dataset protocol
-#           (intuitively, this seems more like framework-specific implementation detail)
-#
-# TODO 4: Consider whether using Datum as a TypeAlias is more confusing than helpful
+# TODO: Consider whether using Datum as a TypeAlias is more confusing than helpful
 #         It seems we just need 3 typevars in the TypeAlias assignment and the TypeVar
 #         type variance is completely inconsequential (because they are substituted for
 #         when the TypeAlias is used (as 'Any' or as the provided bracketed types.) We
 #         could also define a 4th version of Input/Target/Metadata types, but this also
 #         seems confusing.
-# TODO 5: Consider how easily and usefully variadic generics (which sound a bit scary)
+# TODO: Consider how easily and usefully variadic generics (which sound a bit scary)
 #         could be used to helpfully represent the shape of an expected array.
 #         So, for example, instead of having type hints that specified that 'InputType=ArrayLike'
-#         we could say 'InputType=ArrayLike[H,W,C]'.
-#
-# TODO 6: Add AugmentationMetadata
-#
-# TODO 7: Verify use of 'overload' decorator in protocol definition
-#       Methods/signatures advertised by a protocol class *must* be mirrored by
-#       compatible types in implementation. If overload decorator is present,
-#       only the overloaded methods are the source of these "promised" signatures.
-#       If more than one signature is advertised by a protocol, then implementers
-#       must use overload-decorator to advertise compatible signatures.
+#         we could say 'InputType=ArrayLike[H,W,C]'. -- This would require python > 3.11, which is
+#         not an option in short to mid term.
 
 
 # Generic versions of all protocols
@@ -120,8 +103,92 @@ MetricComputeReturnType = Dict[str, Any]
 #         ...
 
 
+# Define component metadata types
+# (currently these are completely ML subproblem agnostic, but it is
+# possible to make each generic to support specializing by subproblem)
+
+
+# If we created some 'standard' set of required component fields, we could
+# use inheritance to reduce redundant text, but I'm resisting urge to
+# prematurely optimize.
+class DatumMetadata(TypedDict):
+    # doc-ignore: PR01, EX01
+    """
+    Metadata associated with a single datum.
+
+    Attributes
+    ----------
+    id : int|str
+        Identifier for a single datum
+    """
+
+    id: Required[ReadOnly[int | str]]
+
+
+class DatasetMetadata(TypedDict):
+    # doc-ignore: PR01, EX01
+    """
+    Metadata associated with a Dataset object.
+
+    Attributes
+    ----------
+    id : str
+        Identifier for a single Dataset instance
+    index2label : NotRequired[ReadOnly[dict[int, str]]]
+        Mapping from integer labels to corresponding string descriptions
+    """
+
+    id: Required[ReadOnly[str]]
+    index2label: NotRequired[ReadOnly[dict[int, str]]]
+
+
+class ModelMetadata(TypedDict):
+    # doc-ignore: PR01, EX01
+    """
+    Metadata associated with a Model object.
+
+    Attributes
+    ----------
+    id : str
+        Identifier for a single Dataset instance
+    index2label : NotRequired[ReadOnly[dict[int, str]]]
+        Mapping from integer labels to corresponding string descriptions
+    """
+
+    id: Required[ReadOnly[str]]
+    index2label: NotRequired[ReadOnly[dict[int, str]]]
+
+
+class MetricMetadata(TypedDict):
+    # doc-ignore: PR01, EX01
+    """
+    Metadata associated with a Metric object.
+
+    Attributes
+    ----------
+    id : str
+        Identifier for a single Metric instance
+    """
+    id: Required[ReadOnly[str]]
+
+
+class AugmentationMetadata(TypedDict):
+    # doc-ignore: PR01, EX01
+    """
+    Metadata associated with an Augmentation object.
+
+    Attributes
+    ----------
+    id : str
+        Identifier for a single Augmentation instance
+    """
+    id: Required[ReadOnly[str]]
+
+
 @runtime_checkable
 class Dataset(Protocol, Generic[InputType_co, TargetType_co, DatumMetadataType_co]):
+    metadata: DatasetMetadata
+
     def __getitem__(
         self, __ind: int
     ) -> Tuple[InputType_co, TargetType_co, DatumMetadataType_co]:
@@ -147,12 +214,16 @@ class Model(
     Protocol,
     Generic[InputBatchType_cn, TargetBatchType_co],
 ):
+    metadata: ModelMetadata
+
     def __call__(self, __batch_input: InputBatchType_cn) -> TargetBatchType_co:
         ...
 
 
 @runtime_checkable
 class Metric(Protocol, Generic[TargetBatchType_cn]):
+    metadata: MetricMetadata
+
     def reset(self) -> None:
         ...
 
@@ -182,6 +253,8 @@ class Augmentation(
         DatumMetadataBatchType_cn,
     ],
 ):
+    metadata: AugmentationMetadata
+
     def __call__(
         self,
         __batch: Tuple[

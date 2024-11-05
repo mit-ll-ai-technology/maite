@@ -35,6 +35,7 @@ from maite._internals.protocols.task_aliases import (  # SomeInputType,; SomeMet
 )
 from maite._internals.utils import add_progress_bar
 from maite.errors import InvalidArgument
+from maite.protocols import MetricMetadata
 
 # TODO: Permit returned predictions to be of type tuple[InputDataType, TargetDataType, DatumMetadataType].
 #       This seems much more natural as it is independent of batch_size.
@@ -56,6 +57,9 @@ class _DummyMetric(Metric):
     """
     Metric that does nothing and returns an empty dictionary from compute
     """
+
+    def __init__(self):
+        self.metadata = MetricMetadata({"id": "dummy_metric"})
 
     def reset(self) -> None:
         ...
@@ -340,9 +344,9 @@ def _evaluate(
     metric.reset()
     augmented_data_batches = []
 
-    dataloader = add_progress_bar(dataloader)
-
-    for input_datum_batch, target_datum_batch, metadata_batch in dataloader:
+    for input_datum_batch, target_datum_batch, metadata_batch in add_progress_bar(
+        dataloader
+    ):
         if augmentation is not None:
             (
                 input_datum_batch_aug,

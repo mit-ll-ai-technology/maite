@@ -29,7 +29,7 @@ Category = Literal[
     "variable",
 ]
 
-CATEGORIES: FrozenSet[Category] = frozenset(Category.__args__)  # type: ignore
+CATEGORIES: FrozenSet[Category] = frozenset(Category.__args__)
 
 
 class Symbol(TypedDict):

@@ -4,7 +4,19 @@
 
 
 from maite._internals.protocols import ArrayLike
+from maite._internals.protocols.generic import (
+    AugmentationMetadata,
+    DatasetMetadata,
+    DatumMetadata,
+    MetricMetadata,
+    ModelMetadata,
+)
 
 __all__ = [
     "ArrayLike",
+    "DatasetMetadata",
+    "ModelMetadata",
+    "MetricMetadata",
+    "AugmentationMetadata",
+    "DatumMetadata",
 ]

@@ -16,7 +16,6 @@ from typing import (
     Type,
     TypeVar,
     Union,
-    cast,
     overload,
     runtime_checkable,
 )
@@ -372,7 +371,6 @@ def check_one_of(
         if isinstance(arg, collection):
             return arg
     elif requires_identity:
-        collection = cast(Collection[Any], collection)
         if any(arg is x for x in chain(collection, vals)):
             return arg
     elif arg in collection or arg in vals:
