@@ -4,13 +4,14 @@
 
 import json
 import subprocess
+from collections.abc import Collection, Generator, Mapping
 from copy import deepcopy
 from functools import _CacheInfo as CacheInfo, lru_cache
 from importlib import import_module
 from pathlib import Path
-from typing import Any, Collection, FrozenSet, Generator, List, Literal, Mapping, Union
+from typing import Any, Literal, TypedDict, Union
 
-from typing_extensions import NotRequired, TypedDict
+from typing_extensions import NotRequired
 
 from maite._internals.testing.pyright import PYRIGHT_PATH, Diagnostic, PyrightOutput
 from maite.errors import InvalidArgument
@@ -29,7 +30,7 @@ Category = Literal[
     "variable",
 ]
 
-CATEGORIES: FrozenSet[Category] = frozenset(Category.__args__)
+CATEGORIES: frozenset[Category] = frozenset(Category.__args__)
 
 
 class Symbol(TypedDict):
@@ -39,7 +40,7 @@ class Symbol(TypedDict):
     isExported: bool
     isTypeKnown: bool
     isTypeAmbiguous: bool
-    diagnostics: List[Diagnostic]
+    diagnostics: list[Diagnostic]
 
 
 class SymbolCounts(TypedDict):
@@ -61,8 +62,8 @@ class CompletenessSection(TypedDict):
     missingClassDocStringCount: int
     missingDefaultParamCount: int
     completenessScore: float
-    modules: List[Any]
-    symbols: List[Symbol]
+    modules: list[Any]
+    symbols: list[Symbol]
 
 
 class ModuleScanResults(PyrightOutput):
@@ -197,7 +198,7 @@ class ModuleScan:
 
                 version: str
                 time: str
-                generalDiagnostics: List[Diagnostic]  (empty)
+                generalDiagnostics: list[Diagnostic]  (empty)
                 summary: Summary
                     filesAnalyzed: int
                     errorCount: int
@@ -218,7 +219,7 @@ class ModuleScan:
                     missingDefaultParamCount: int
                     completenessScore: float
                     modules: list
-                    symbols: List[Symbol]
+                    symbols: list[Symbol]
 
         Raises
         ------
@@ -275,7 +276,7 @@ def _is_dunder(name: str) -> bool:
 
 def get_public_symbols(
     scan: ModuleScanResults, submodule: str = "", include_dunder_names: bool = False
-) -> List[Symbol]:
+) -> list[Symbol]:
     """
     Return all public symbols (functions, classes, etc.) from a module's API.
 
@@ -297,7 +298,7 @@ def get_public_symbols(
 
     Returns
     -------
-    List[Symbol]
+    list[Symbol]
         Each symbol is a dict containing the following key-value pairs::
 
             category: Literal["class", "constant", "function", "method",
@@ -307,7 +308,7 @@ def get_public_symbols(
             isExported: bool
             isTypeKnown: bool
             isTypeAmbiguous: bool
-            diagnostics: List[Diagnostic]
+            diagnostics: list[Diagnostic]
 
     Examples
     --------

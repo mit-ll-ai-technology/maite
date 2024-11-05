@@ -63,4 +63,5 @@ def test_docstrings_adhere_to_numpydoc(obj):
         errs = []
         for err_key, err_val in results["errors"].items():
             errs.append(f"{err_key}: {err_val}")
-        raise AssertionError("\n" + "\n".join(errs))
+        r = "\n".join((f"{k}:{v}" for k, v in results.items() if k != "errors"))
+        raise AssertionError(f"In {obj}\n{r}\n" + "\n".join(errs))

@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 import itertools
-from typing import List
 
 import pytest
 
@@ -71,7 +70,7 @@ class FullModelProvider(BaseProvider):
     def list_models(
         self,
         *,
-        filter_str: str | List[str] | None = None,
+        filter_str: str | list[str] | None = None,
         model_name: str | None = None,
         task: TaskName | None = None,
     ):

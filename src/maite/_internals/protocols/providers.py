@@ -8,17 +8,8 @@
 from __future__ import annotations
 
 import os
-from typing import (
-    Any,
-    Callable,
-    Iterable,
-    List,
-    Literal,
-    Protocol,
-    Union,
-    overload,
-    runtime_checkable,
-)
+from collections.abc import Iterable
+from typing import Any, Callable, Literal, Protocol, Union, overload, runtime_checkable
 
 from typing_extensions import Self, TypeAlias
 
@@ -57,7 +48,7 @@ class ModelProvider(Protocol):
     def list_models(
         self,
         *,
-        filter_str: str | List[str] | None = None,
+        filter_str: str | list[str] | None = None,
         model_name: str | None = None,
         task: al.TaskName | None = None,
     ) -> Iterable[Any]:
@@ -66,7 +57,7 @@ class ModelProvider(Protocol):
 
         Parameters
         ----------
-        filter_str : str | List[str] | None (default: None)
+        filter_str : str | list[str] | None (default: None)
             A string or list of strings that contain complete or partial names for models.
         model_name : str | None (default: None)
             A string that contain complete or partial names for models.

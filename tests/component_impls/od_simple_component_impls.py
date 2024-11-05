@@ -4,8 +4,9 @@
 
 
 import copy
+from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
-from typing import Any, Dict, Iterator, List, Sequence, Tuple
+from typing import Any
 
 import numpy as np
 
@@ -66,7 +67,7 @@ class DatasetImpl:
     def __init__(self):
         self._data: np.ndarray = np.random.rand(N_DATAPOINTS, C, H, W)
 
-        self._targets: List[ObjectDetectionTargetImpl] = [
+        self._targets: list[ObjectDetectionTargetImpl] = [
             ObjectDetectionTargetImpl(
                 boxes=np.array(
                     [
@@ -98,7 +99,7 @@ class DatasetImpl:
 
     def __getitem__(
         self, ind: int
-    ) -> Tuple[np.ndarray, ObjectDetectionTargetImpl, DatumMetadata]:
+    ) -> tuple[np.ndarray, ObjectDetectionTargetImpl, DatumMetadata]:
         return (self._data[ind], self._targets[ind], self._data_metadata[ind])
 
 
@@ -110,7 +111,7 @@ class DataLoaderImpl:
     def __iter__(
         self,
     ) -> Iterator[
-        Tuple[List[np.ndarray], List[ObjectDetectionTargetImpl], List[DatumMetadata]]
+        tuple[list[np.ndarray], list[ObjectDetectionTargetImpl], list[DatumMetadata]]
     ]:
         # calculate number of batches
         n_batches = len(self._dataset) // self._batch_size
@@ -129,9 +130,9 @@ class DataLoaderImpl:
                     np.min([(i_batch + 1) * self._batch_size, len(self._dataset)]),
                 )
             ]
-            batch_inputs: List[np.ndarray] = []
-            batch_targets: List[ObjectDetectionTargetImpl] = []
-            batch_mds: List[DatumMetadata] = []
+            batch_inputs: list[np.ndarray] = []
+            batch_targets: list[ObjectDetectionTargetImpl] = []
+            batch_mds: list[DatumMetadata] = []
             for batch_tup in batch_data:
                 batch_inputs.append(np.array(batch_tup[0]))
                 batch_targets.append(batch_tup[1])
@@ -150,11 +151,11 @@ class AugmentationImpl:
 
     def __call__(
         self,
-        __datum_batch: Tuple[InputBatchType, TargetBatchType, DatumMetadataBatchType],
-    ) -> Tuple[
-        List[np.ndarray],
-        List[ObjectDetectionTargetImpl],
-        Sequence[EnrichedDatumMetadata],
+        __datum_batch: tuple[InputBatchType, TargetBatchType, DatumMetadataBatchType],
+    ) -> tuple[
+        list[np.ndarray],
+        list[ObjectDetectionTargetImpl],
+        list[EnrichedDatumMetadata],
     ]:
         input_batch_aug = copy.deepcopy([np.array(elem) for elem in __datum_batch[0]])
         target_batch_aug = copy.deepcopy(
@@ -224,5 +225,5 @@ class MetricImpl:
     ) -> None:
         return None
 
-    def compute(self) -> Dict[str, Any]:
+    def compute(self) -> dict[str, Any]:
         return {"metric1": "val1", "metric2": "val2"}

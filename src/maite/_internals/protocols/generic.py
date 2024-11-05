@@ -3,16 +3,12 @@
 # SPDX-License-Identifier: MIT
 from __future__ import annotations
 
+from collections.abc import Iterable, Iterator, Sequence
 from typing import (
     Any,
     Callable,
-    Dict,
     Generic,
-    Iterable,
-    Iterator,
     Protocol,
-    Sequence,
-    Tuple,
     TypedDict,
     TypeVar,
     runtime_checkable,
@@ -76,7 +72,7 @@ DatumMetadataBatchType_in = TypeVar(
     "DatumMetadataBatchType_in", covariant=False, contravariant=False
 )
 
-MetricComputeReturnType = Dict[str, Any]
+MetricComputeReturnType = dict[str, Any]
 
 # TODO: Consider whether using Datum as a TypeAlias is more confusing than helpful
 #         It seems we just need 3 typevars in the TypeAlias assignment and the TypeVar
@@ -99,7 +95,7 @@ MetricComputeReturnType = Dict[str, Any]
 # class Dataset(Protocol, Generic[InputType_co, TargetType_co, DatumMetadataType_co]):
 #     def __iter__(
 #             self
-#     ) -> Iterator[Tuple[InputType_co, TargetType_co, DatumMetadataType_co]]:
+#     ) -> Iterator[tuple[InputType_co, TargetType_co, DatumMetadataType_co]]:
 #         ...
 
 
@@ -191,7 +187,7 @@ class Dataset(Protocol, Generic[InputType_co, TargetType_co, DatumMetadataType_c
 
     def __getitem__(
         self, __ind: int
-    ) -> Tuple[InputType_co, TargetType_co, DatumMetadataType_co]:
+    ) -> tuple[InputType_co, TargetType_co, DatumMetadataType_co]:
         ...
 
     def __len__(self) -> int:
@@ -202,7 +198,7 @@ class Dataset(Protocol, Generic[InputType_co, TargetType_co, DatumMetadataType_c
 class DataLoader(Protocol, Generic[InputType_co, TargetType_co, DatumMetadataType_co]):
     def __iter__(
         self,
-    ) -> Iterator[Tuple[InputType_co, TargetType_co, DatumMetadataType_co]]:
+    ) -> Iterator[tuple[InputType_co, TargetType_co, DatumMetadataType_co]]:
         ...
 
     # no longer having Dataloader operate as the Iterator, just using it as an iterable
@@ -257,10 +253,10 @@ class Augmentation(
 
     def __call__(
         self,
-        __batch: Tuple[
+        __batch: tuple[
             InputBatchType_cn, TargetBatchType_cn, DatumMetadataBatchType_cn
         ],
-    ) -> Tuple[InputBatchType_co, TargetBatchType_co, DatumMetadataBatchType_co]:
+    ) -> tuple[InputBatchType_co, TargetBatchType_co, DatumMetadataBatchType_co]:
         ...
 
 
@@ -269,6 +265,6 @@ T_tgt = TypeVar("T_tgt")
 T_md = TypeVar("T_md")
 
 CollateFn: TypeAlias = Callable[
-    [Iterable[Tuple[T_in, T_tgt, T_md]]],
-    Tuple[Sequence[T_in], Sequence[T_tgt], Sequence[T_md]],
+    [Iterable[tuple[T_in, T_tgt, T_md]]],
+    tuple[Sequence[T_in], Sequence[T_tgt], Sequence[T_md]],
 ]

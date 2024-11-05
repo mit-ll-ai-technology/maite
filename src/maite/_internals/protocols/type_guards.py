@@ -2,9 +2,9 @@
 # Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).
 # SPDX-License-Identifier: MIT
 
-from typing import Any, Dict, List, Type, TypeVar
+from typing import Any, TypedDict, TypeVar
 
-from typing_extensions import TypedDict, TypeGuard
+from typing_extensions import TypeGuard
 
 
 # Can't bound typevar with TypedDict directly because it is actually a metaclass,
@@ -18,7 +18,7 @@ T = TypeVar("T")
 Td = TypeVar("Td", bound=TypedDictClass)
 
 
-def is_list_of_type(d: Any, guard: Type[T] = dict) -> TypeGuard[List[T]]:
+def is_list_of_type(d: Any, guard: type[T] = dict) -> TypeGuard[list[T]]:
     """
     Check if object is a list of dictionaries.
 
@@ -26,12 +26,12 @@ def is_list_of_type(d: Any, guard: Type[T] = dict) -> TypeGuard[List[T]]:
     ----------
     d : Any
         The object to check.
-    guard : Type[T]
+    guard : type[T]
         The type guard of the dictionaries. Defaults to dict.
 
     Returns
     -------
-    TypeGuard[List[T]]
+    TypeGuard[list[T]]
         True if object is a list of dictionaries.
 
     Examples
@@ -42,7 +42,7 @@ def is_list_of_type(d: Any, guard: Type[T] = dict) -> TypeGuard[List[T]]:
     return isinstance(d, (list, tuple)) and isinstance(d[0], guard)
 
 
-def is_list_dict(d: Any, guard: Type[T] = Dict[Any, Any]) -> TypeGuard[List[T]]:
+def is_list_dict(d: Any, guard: type[T] = dict[Any, Any]) -> TypeGuard[list[T]]:
     """
     Check if object is a list of dictionaries.
 
@@ -50,12 +50,12 @@ def is_list_dict(d: Any, guard: Type[T] = Dict[Any, Any]) -> TypeGuard[List[T]]:
     ----------
     d : Any
         The object to check.
-    guard : Type[T]
+    guard : type[T]
         The type guard of the dictionaries. Defaults to dict.
 
     Returns
     -------
-    TypeGuard[List[T]]
+    TypeGuard[list[T]]
         True if object is a list of dictionaries.
 
     Examples
@@ -66,7 +66,7 @@ def is_list_dict(d: Any, guard: Type[T] = Dict[Any, Any]) -> TypeGuard[List[T]]:
     return isinstance(d, (list, tuple)) and isinstance(d[0], dict)
 
 
-def is_typed_dict(object: Any, target: Type[Td]) -> TypeGuard[Td]:
+def is_typed_dict(object: Any, target: type[Td]) -> TypeGuard[Td]:
     """
     Check if object is a typed dictionary.
 
@@ -75,7 +75,7 @@ def is_typed_dict(object: Any, target: Type[Td]) -> TypeGuard[Td]:
     object : Any
         The object to check.
 
-    target : Type[T]
+    target : type[T]
         The type of the dictionary.
 
     Returns
@@ -85,7 +85,7 @@ def is_typed_dict(object: Any, target: Type[Td]) -> TypeGuard[Td]:
 
     Examples
     --------
-    >>> from typing_extensions import TypedDict
+    >>> from typing import TypedDict
     >>> class Foo(TypedDict):
     ...     a: int
     >>> is_typed_dict({"a": 1}, Foo)

@@ -4,21 +4,12 @@
 
 # pyright: strict
 
+from __future__ import annotations
+
+from collections.abc import Collection
 from enum import Enum, EnumMeta
 from itertools import chain
-from typing import (
-    Any,
-    Callable,
-    Collection,
-    Optional,
-    Protocol,
-    Tuple,
-    Type,
-    TypeVar,
-    Union,
-    overload,
-    runtime_checkable,
-)
+from typing import Any, Callable, Protocol, TypeVar, Union, overload, runtime_checkable
 
 from maite.errors import InvalidArgument
 
@@ -59,7 +50,7 @@ class Unsatisfiable(AssertionError):
 
 
 def check_type(
-    name: str, arg: T, type_: Union[type, Tuple[type, ...]], *, optional: bool = False
+    name: str, arg: T, type_: Union[type, tuple[type, ...]], *, optional: bool = False
 ) -> T:
     """
     Check that an argument is an instance of one or more types.
@@ -129,7 +120,7 @@ def check_domain(
     arg: C,
     *,
     lower: Comparable,
-    upper: Optional[Comparable] = None,
+    upper: Comparable | None = None,
     incl_low: bool = ...,
     incl_up: bool = ...,
     lower_name: str = ...,
@@ -143,7 +134,7 @@ def check_domain(
     name: str,
     arg: C,
     *,
-    lower: Optional[Comparable] = None,
+    lower: Comparable | None = None,
     upper: Comparable,
     incl_low: bool = ...,
     incl_up: bool = ...,
@@ -157,8 +148,8 @@ def check_domain(
     name: str,
     arg: C,
     *,
-    lower: Optional[Comparable] = None,
-    upper: Optional[Comparable] = None,
+    lower: Comparable | None = None,
+    upper: Comparable | None = None,
     incl_low: bool = True,
     incl_up: bool = True,
     lower_name: str = "",
@@ -175,11 +166,11 @@ def check_domain(
     arg : Comparable
         The value to be checked.
 
-    lower : Optional[Comparable]
+    lower : Comparable|None
         The lower bound of the domain. This bound is not checked
         if unspecified.
 
-    upper : Optional[Comparable]
+    upper : Comparable|None
         The upper bound of the domain. This bound is not checked
         if unspecified.
 
@@ -285,7 +276,7 @@ class SupportsEq(Protocol):
 def check_one_of(
     name: str,
     arg: T,
-    collection: Union[Collection[Any], Type[Enum]],
+    collection: Union[Collection[Any], type[Enum]],
     *vals: SupportsEq,
     requires_identity: bool = False,
 ) -> T:
@@ -300,7 +291,7 @@ def check_one_of(
     arg : T (Any)
         The argument.
 
-    collection : Collection | Type[Enum]
+    collection : Collection | type[Enum]
         Any collection (i.e., supports `__contains__` and `__iter__`) or enum type.
 
     *vals : Any
@@ -376,7 +367,7 @@ def check_one_of(
     elif arg in collection or arg in vals:
         return arg
 
-    values = sorted(set(str(x) for x in chain(collection, vals)))
+    values = sorted({str(x) for x in chain(collection, vals)})
     if not values:
         raise Unsatisfiable("`collections` and `args` are both empty.")
 

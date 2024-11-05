@@ -2,12 +2,13 @@
 # Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).
 # SPDX-License-Identifier: MIT
 
+from __future__ import annotations
+
 from itertools import chain
-from typing import Optional, Protocol
+from typing import Protocol, TypedDict
 
 import pytest
 from pytest import param
-from typing_extensions import TypedDict
 
 from maite._internals.testing.docs import _get_numpy_tags
 from maite.errors import InvalidArgument
@@ -74,8 +75,8 @@ def make_func(
 
 
 def make_class(
-    class_doc: Optional[str] = None,
-    init_doc: Optional[str] = None,
+    class_doc: str | None = None,
+    init_doc: str | None = None,
     method_doc: str = "",
     property_doc: str = "",
 ):

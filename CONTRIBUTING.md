@@ -149,7 +149,7 @@ def compute_student_stats(grade_book, stat_function, student_list=None):
 
     Parameters
     ----------
-    grade_book : Dict[str, List[float]]
+    grade_book : dict[str, list[float]]
         The dictionary (name -> grades) of all of the students'
         grades.
 
@@ -157,14 +157,14 @@ def compute_student_stats(grade_book, stat_function, student_list=None):
         The function used to compute statistics over each student's
         grades.
 
-    student_list : Optional[List[str]]
+    student_list : list[str] | None
         A list of names of the students for whom statistics will be
         computed. By default, statistics will be computed for all
         students in the grade book.
 
     Returns
     -------
-    List[Tuple[str, Any]]
+    list[tuple[str, Any]]
         The name-stats tuple pair for each specified student.
 
     Examples

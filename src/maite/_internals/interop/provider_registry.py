@@ -10,13 +10,8 @@ from typing import (
     Any,
     Callable,
     ClassVar,
-    Dict,
-    List,
     Literal,
     NamedTuple,
-    Optional,
-    Tuple,
-    Type,
     TypeVar,
     Union,
     get_args as get_type_args,
@@ -33,7 +28,7 @@ from maite.errors import InternalError, InvalidArgument
 ArtifactName = Literal["model", "dataset", "metric"]
 AnyProvider = Union[ModelProvider, DatasetProvider, MetricProvider]
 
-_PROVIDER_PROTOCOLS: Tuple[Type[AnyProvider], ...] = tuple(get_type_args(AnyProvider))
+_PROVIDER_PROTOCOLS: tuple[type[AnyProvider], ...] = tuple(get_type_args(AnyProvider))
 
 # And from that build the enum
 # The enum gives us a compact way to map a desired artifact on the proper protocol interface
@@ -54,7 +49,7 @@ class _RegisteredProviderInfo(NamedTuple):
 
     Attributes
     ----------
-    impl: Type[AnyProvider]
+    impl: type[AnyProvider]
       The type which has been registered as a provider
     implements:
       A tuple of ProviderProtocolTag's indicating which protocols ``impl`` supports
@@ -67,8 +62,8 @@ class _RegisteredProviderInfo(NamedTuple):
         implementation is looked up for use.
     """
 
-    impl: Type[AnyProvider]
-    implements: Tuple[_ProviderProtocolTag, ...]
+    impl: type[AnyProvider]
+    implements: tuple[_ProviderProtocolTag, ...]
 
 
 class _ProviderRegistry:
@@ -78,21 +73,21 @@ class _ProviderRegistry:
 
     Attributes
     ----------
-    registered_provider : Dict[str, RegisteredProviderInfo]
+    registered_provider : dict[str, RegisteredProviderInfo]
         Maps registered names -> provider implementation types
 
     Methods
     -------
-    register_impl(impl_type: Type[AnyProvider], key: str) -> None
+    register_impl(impl_type: type[AnyProvider], key: str) -> None
         Register a provider under the given key
-    get_impl(key: str, enforce_protocol: ArtifactName | None = None) -> Type[AnyProvider]
+    get_impl(key: str, enforce_protocol: ArtifactName | None = None) -> type[AnyProvider]
         Lookup the Provider type associated with a key
-    list_registered(enforce_protocol: ArtifactName | None = None) -> List[str]
+    list_registered(enforce_protocol: ArtifactName | None = None) -> list[str]
         List provider keys registered (optionally limit to specific protocol)
 
     """
 
-    registered_providers: ClassVar[Dict[str, _RegisteredProviderInfo]] = {}
+    registered_providers: ClassVar[dict[str, _RegisteredProviderInfo]] = {}
 
     def __init__(self, *args, **kwargs):
         # Error on __init__ no need to instantiate the class Technically, this would be
@@ -104,12 +99,12 @@ class _ProviderRegistry:
         )
 
     @classmethod
-    def register_impl(cls, impl_type: Type[AnyProvider], key: str):
+    def register_impl(cls, impl_type: type[AnyProvider], key: str):
         """Register a Provider implementation
 
         Parameters
         ----------
-        impl_type : Type[AnyProvider]
+        impl_type : type[AnyProvider]
            Some type implementing at least one of the provider protocols
         key : str
            The string name that can be used to find that provider implementation
@@ -117,7 +112,7 @@ class _ProviderRegistry:
         Examples
         --------
         >>> import torch
-        >>> from typing import Iterable
+        >>> from collections.abc import Iterable
         >>> from maite.protocols.image_classification import Dataset
         >>> class SimpleProvider:
         ...     def help(self, name) -> str:
@@ -164,7 +159,7 @@ class _ProviderRegistry:
         )
 
     @classmethod
-    def list_registered(cls, enforce_protocol: ArtifactName | None = None) -> List[str]:
+    def list_registered(cls, enforce_protocol: ArtifactName | None = None) -> list[str]:
         """List the implementations registered which satisfy requirements to be a provider for a particular artifact"""
         if enforce_protocol:
             enforce_tag = _ProviderProtocolTag[enforce_protocol]
@@ -181,7 +176,7 @@ class _ProviderRegistry:
         cls,
         key: str,
         enforce_protocol: ArtifactName | None = None,
-    ) -> Type[AnyProvider]:
+    ) -> type[AnyProvider]:
         """Get the type associated with the provider key
 
         Parameters
@@ -195,7 +190,7 @@ class _ProviderRegistry:
 
         Returns
         -------
-        Type[AnyProvider]
+        type[AnyProvider]
            A type (class) that implements at least one of the provider protocols. If
            restricted with ``enforce_protocol`` registered types which do not implement
            that specific artifact protocol will be considered invalid.
@@ -237,38 +232,36 @@ PT = TypeVar("PT", bound=AnyProvider)
 
 
 @overload
-def register_provider(
-    provider_type: Type[PT], *, key: Optional[str] = None
-) -> Type[PT]:
+def register_provider(provider_type: type[PT], *, key: str | None = None) -> type[PT]:
     ...
 
 
 @overload
 def register_provider(
     provider_type: None,
-) -> Callable[[Type[PT]], Type[PT]]:
+) -> Callable[[type[PT]], type[PT]]:
     ...
 
 
 @overload
-def register_provider(*, key: Optional[str] = None) -> Callable[[Type[PT]], Type[PT]]:
+def register_provider(*, key: str | None = None) -> Callable[[type[PT]], type[PT]]:
     ...
 
 
 @overload
-def register_provider(provider_type: Type[PT]) -> Type[PT]:
+def register_provider(provider_type: type[PT]) -> type[PT]:
     ...
 
 
 def register_provider(
-    provider_type: Optional[Type[PT]] = None, *, key: Optional[str] = None
-) -> Callable[[Type[PT]], Type[PT]] | Type[PT]:
+    provider_type: type[PT] | None = None, *, key: str | None = None
+) -> Callable[[type[PT]], type[PT]] | type[PT]:
     """
     Register a provider.
 
     Parameters
     ----------
-    provider_type : Type[AnyProvider]
+    provider_type : type[AnyProvider]
        A class which implements one of the provider protocols. The registry will enforce this requirement dynamically.
     key : str, default = None
        The key this implementation will be associated with in the registry.
@@ -340,8 +333,8 @@ def register_provider(
     """
 
     def _registration_helper(
-        provider_type: Type[PT], *, key: Optional[str] = None
-    ) -> Type[PT]:
+        provider_type: type[PT], *, key: str | None = None
+    ) -> type[PT]:
         if key is None:
             key = getattr(provider_type, "PROVIDER_REGISTRY_KEY", None)
 
@@ -369,7 +362,7 @@ def register_provider(
 #
 
 
-def list_providers(enforce_protocol: ArtifactName | None = None) -> List[str]:
+def list_providers(enforce_protocol: ArtifactName | None = None) -> list[str]:
     """
     List registered provider keys.
 
@@ -381,7 +374,7 @@ def list_providers(enforce_protocol: ArtifactName | None = None) -> List[str]:
 
     Returns
     -------
-    List[str]
+    list[str]
        A list of keys which be used to look up a provider which is able to provide the
        specified artifact type.
 
@@ -413,7 +406,7 @@ def list_providers(enforce_protocol: ArtifactName | None = None) -> List[str]:
 
 def get_provider_type(
     key: str, enforce_protocol: ArtifactName | None = None
-) -> Type[AnyProvider]:
+) -> type[AnyProvider]:
     """
     Get the type from the registry based on its key.
 
@@ -426,7 +419,7 @@ def get_provider_type(
 
     Returns
     -------
-    Type[AnyProvider]
+    type[AnyProvider]
        The provider type registered with the given key.
 
     Raises
@@ -454,8 +447,8 @@ def get_provider_type(
 def create_provider(
     key: str,
     enforce_protocol: ArtifactName | None = None,
-    provider_args: Tuple[Any, ...] | None = None,
-    provider_kwargs: Dict[str, Any] | None = None,
+    provider_args: tuple[Any, ...] | None = None,
+    provider_kwargs: dict[str, Any] | None = None,
 ) -> AnyProvider:
     """
     Create and return an instance of the specified provider type.
@@ -466,9 +459,9 @@ def create_provider(
        The key associated with the desired provider type in the registry.
     enforce_protocol : ArtifactName, default None
        When provided, an error is raised if the provider does is not able to provide the specified artifact type.
-    provider_args : Tuple[Any, ...], default None
+    provider_args : tuple[Any, ...], default None
        Args to forward to the provider type's __init__.
-    provider_kwargs : Dict[str, Any], default None
+    provider_kwargs : dict[str, Any], default None
        Kwargs to forward to the provider type's __init__.
 
     Returns

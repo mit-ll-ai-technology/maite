@@ -2,6 +2,8 @@
 # Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).
 # SPDX-License-Identifier: MIT
 
+from __future__ import annotations
+
 import inspect
 import json
 import os
@@ -13,9 +15,9 @@ import textwrap
 from collections import Counter, defaultdict
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, DefaultDict, Dict, List, Optional, Union
+from typing import Any, DefaultDict, Literal, TypedDict, Union
 
-from typing_extensions import Literal, NotRequired, TypedDict
+from typing_extensions import NotRequired
 
 
 def notebook_to_py_text(path_to_nb: Path) -> str:
@@ -61,7 +63,7 @@ class PyrightOutput(TypedDict):
     # # doc-ignore: NOQA
     version: str
     time: str
-    generalDiagnostics: List[Diagnostic]
+    generalDiagnostics: list[Diagnostic]
     summary: Summary
 
 
@@ -106,7 +108,7 @@ def get_docstring_examples(doc: str) -> str:
 
     # contains input lines of docstring examples with all indentation
     # and REPL markers removed
-    src_lines: List[str] = []
+    src_lines: list[str] = []
 
     for source, indent in docstring_re.findall(doc):
         source: str
@@ -153,16 +155,16 @@ def rst_to_code(src: str) -> str:
        '''
 
     """
-    block: Optional[List[str]] = None  # lines in code block
-    indentation: Optional[str] = None  # leading whitespace before .. code-block
-    preamble: Optional[str] = None  # python or pycon
+    block: list[str] | None = None  # lines in code block
+    indentation: str | None = None  # leading whitespace before .. code-block
+    preamble: str | None = None  # python or pycon
     n = -float("inf")  # line no in code block
-    blocks: List[str] = []  # respective code blocks, each ready for processing
+    blocks: list[str] = []  # respective code blocks, each ready for processing
 
     def add_block(
-        block: Optional[List[str]],
-        preamble: Optional[str],
-        blocks: List[str],
+        block: list[str] | None,
+        preamble: str | None,
+        blocks: list[str],
     ):
         if block:
             block_str = "\n".join(block) + "\n"
@@ -251,9 +253,9 @@ def md_to_code(src: str) -> str:
        '''
 
     """
-    block: Optional[List[str]] = None  # lines in code block
-    preamble: Optional[str] = None  # python or pycon
-    blocks: List[str] = []  # respective code blocks, each ready for processing
+    block: list[str] | None = None  # lines in code block
+    preamble: str | None = None  # python or pycon
+    blocks: list[str] = []  # respective code blocks, each ready for processing
 
     # inside
     # ````
@@ -268,9 +270,9 @@ def md_to_code(src: str) -> str:
     in_code_block: bool = False
 
     def add_block(
-        block: Optional[List[str]],
-        preamble: Optional[str],
-        blocks: List[str],
+        block: list[str] | None,
+        preamble: str | None,
+        blocks: list[str],
     ):
         if block:
             block_str = "\n".join(block) + "\n"
@@ -319,14 +321,14 @@ def md_to_code(src: str) -> str:
 
 def pyright_analyze(
     *code_objs_and_or_paths: Any,
-    pyright_config: Optional[Dict[str, Any]] = None,
+    pyright_config: dict[str, Any] | None = None,
     scan_docstring: bool = False,
     path_to_pyright: Union[Path, None] = PYRIGHT_PATH,
     preamble: str = "",
-    python_version: Optional[str] = None,
-    report_unnecessary_type_ignore_comment: Optional[bool] = None,
-    type_checking_mode: Optional[Literal["basic", "strict"]] = None,
-) -> List[PyrightOutput]:
+    python_version: str | None = None,
+    report_unnecessary_type_ignore_comment: bool | None = None,
+    type_checking_mode: Literal["basic", "strict"] | None = None,
+) -> list[PyrightOutput]:
     r"""
     Scan a Python object, docstring, or file with pyright.
 
@@ -366,25 +368,25 @@ def pyright_analyze(
         A "header" added to the source code that will be scanned. E.g., this can be
         useful for adding import statements.
 
-    python_version : Optional[str], keyword-only
+    python_version : str | None, keyword-only
         The version of Python used for this execution environment as a string in the
         format "M.m". E.g., "3.9" or "3.7".
 
-    report_unnecessary_type_ignore_comment : Optional[bool], keyword-only
+    report_unnecessary_type_ignore_comment : bool | None, keyword-only
         If `True` specifying `# type: ignore` for an expression that would otherwise
         not result in an error will cause pyright to report an error.
 
-    type_checking_mode : Optional[Literal["basic", "strict"]], keyword-only
+    type_checking_mode : Literal["basic", "strict"] | None, keyword-only
         Modifies pyright's default settings for what it marks as a warning verses an
         error. Defaults to 'basic'.
 
     Returns
     -------
-    List[Dict[str, Any]]  (In one-to-one correspondence with `code_objs_and_or_paths`)
+    list[dict[str, Any]]  (In one-to-one correspondence with `code_objs_and_or_paths`)
         The JSON-decoded results of the scan [3]_.
             - version: str
             - time: str
-            - generalDiagnostics: List[DiagnosticDict] (one entry per error/warning)
+            - generalDiagnostics: list[DiagnosticDict] (one entry per error/warning)
             - summary: SummaryDict
 
         See Notes for more details.
@@ -498,7 +500,7 @@ def pyright_analyze(
     if type_checking_mode is not None:
         pyright_config["typeCheckingMode"] = type_checking_mode
 
-    sources: List[Optional[str]] = []
+    sources: list[str | None] = []
     code_objs_and_or_paths_resolved = []
     for code_or_path in code_objs_and_or_paths:
         if scan_docstring and (
@@ -538,7 +540,7 @@ def pyright_analyze(
             if preamble and not preamble.endswith("\n"):
                 preamble = preamble + "\n"
             if not scan_docstring:
-                source = preamble + textwrap.dedent((inspect.getsource(code_or_path)))
+                source = preamble + textwrap.dedent(inspect.getsource(code_or_path))
             else:
                 docstring = inspect.getdoc(code_or_path)
                 assert docstring is not None
@@ -585,7 +587,7 @@ def pyright_analyze(
             raise e
 
     out = scan["generalDiagnostics"]
-    diagnostics_by_file: DefaultDict[int, List[Diagnostic]] = defaultdict(list)
+    diagnostics_by_file: DefaultDict[int, list[Diagnostic]] = defaultdict(list)
 
     for item in out:
         file_str = item["file"]
@@ -603,7 +605,7 @@ def pyright_analyze(
         diagnostic["file"] = name
         diagnostics_by_file[file_index].append(diagnostic)
 
-    results: List[PyrightOutput] = []
+    results: list[PyrightOutput] = []
 
     for n in range(len(code_objs_and_or_paths)):
         severities = Counter(d["severity"] for d in diagnostics_by_file[n])
@@ -625,7 +627,7 @@ def pyright_analyze(
     return results
 
 
-def list_error_messages(results: PyrightOutput) -> List[str]:
+def list_error_messages(results: PyrightOutput) -> list[str]:
     """A convenience function that returns a list of error messages reported by pyright.
 
     Parameters

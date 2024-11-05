@@ -4,7 +4,8 @@
 
 
 import copy
-from typing import Any, Dict, Iterator, List, Sequence, Tuple
+from collections.abc import Iterator, Sequence
+from typing import Any
 
 import numpy as np
 
@@ -48,7 +49,7 @@ class DatasetImpl:
         for data_index in range(self._targets.shape[0]):
             self._targets[data_index, data_index % N_CLASSES] = 1
 
-        self._data_metadata: List[DatumMetadata] = [
+        self._data_metadata: list[DatumMetadata] = [
             {"id": i} for i in range(self._data.shape[0])
         ]
 
@@ -59,7 +60,7 @@ class DatasetImpl:
     def __len__(self) -> int:
         return self._data.shape[0]
 
-    def __getitem__(self, ind: int) -> Tuple[np.ndarray, np.ndarray, DatumMetadata]:
+    def __getitem__(self, ind: int) -> tuple[np.ndarray, np.ndarray, DatumMetadata]:
         return (self._data[ind], self._targets[ind], self._data_metadata[ind])
 
 
@@ -71,7 +72,7 @@ class DataLoaderImpl:
     def __iter__(
         self,
     ) -> Iterator[
-        Tuple[Sequence[np.ndarray], Sequence[np.ndarray], Sequence[DatumMetadata]]
+        tuple[Sequence[np.ndarray], Sequence[np.ndarray], Sequence[DatumMetadata]]
     ]:
         # calculate number of batches
         n_batches = len(self._dataset) // self._batch_size
@@ -111,8 +112,8 @@ class AugmentationImpl:
 
     def __call__(
         self,
-        __datum_batch: Tuple[InputBatchType, TargetBatchType, DatumMetadataBatchType],
-    ) -> Tuple[List[np.ndarray], List[np.ndarray], Sequence[EnrichedDatumMetadata]]:
+        __datum_batch: tuple[InputBatchType, TargetBatchType, DatumMetadataBatchType],
+    ) -> tuple[list[np.ndarray], list[np.ndarray], Sequence[EnrichedDatumMetadata]]:
         input_batch_aug = copy.deepcopy([np.array(elem) for elem in __datum_batch[0]])
         target_batch_aug = copy.deepcopy([np.array(elem) for elem in __datum_batch[1]])
         # metadata_batch_aug = copy.deepcopy(__datum_batch[2])
@@ -141,7 +142,7 @@ class ModelImpl:
     def __init__(self):
         self.metadata = ModelMetadata({"id": "simple_model"})
 
-    def __call__(self, __input_batch: InputBatchType) -> List[np.ndarray]:
+    def __call__(self, __input_batch: InputBatchType) -> list[np.ndarray]:
         target_batch = np.zeros((N_DATAPOINTS, N_CLASSES))
         for i, target_instance in enumerate(target_batch):
             target_instance[i % N_CLASSES] = 1
@@ -161,5 +162,5 @@ class MetricImpl:
     ) -> None:
         return None
 
-    def compute(self) -> Dict[str, Any]:
+    def compute(self) -> dict[str, Any]:
         return {"metric1": "val1", "metric2": "val2"}

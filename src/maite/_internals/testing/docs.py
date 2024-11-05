@@ -3,27 +3,17 @@
 # SPDX-License-Identifier: MIT
 
 # flake8: noqa
+
+from __future__ import annotations
+
 import re
 from collections import defaultdict
+from collections.abc import Collection
 from inspect import getsource, isclass
 from itertools import chain, zip_longest
-from typing import (
-    Any,
-    Callable,
-    Collection,
-    Dict,
-    List,
-    Literal,
-    Optional,
-    Protocol,
-    Set,
-    Tuple,
-    Union,
-    cast,
-    overload,
-)
+from typing import Any, Callable, Literal, Protocol, TypedDict, Union, cast, overload
 
-from typing_extensions import NotRequired, ReadOnly, TypeAlias, TypedDict
+from typing_extensions import NotRequired, ReadOnly, TypeAlias
 
 from maite._internals.validation import check_type
 from maite.errors import InvalidArgument
@@ -71,7 +61,7 @@ NumpyDocErrorCode: TypeAlias = Literal[
     "NOQA",
 ]
 
-ERRORCODES: Set[NumpyDocErrorCode] = set(NumpyDocErrorCode.__args__)
+ERRORCODES: set[NumpyDocErrorCode] = set(NumpyDocErrorCode.__args__)
 
 
 class _C:
@@ -88,28 +78,28 @@ class _NumpyDocValidate(TypedDict):
     deprecated: bool
     file: str
     file_line: int
-    errors: List[Tuple[NumpyDocErrorCode, str]]
+    errors: list[tuple[NumpyDocErrorCode, str]]
 
 
 class NumPyDocResults(TypedDict):
     # doc-ignore: NOQA
     error_count: int
-    errors: Dict[NumpyDocErrorCode, List[str]]
+    errors: dict[NumpyDocErrorCode, list[str]]
     file: str
     file_line: int
-    ignored_errors: ReadOnly[NotRequired[Dict[NumpyDocErrorCode, List[str]]]]
+    ignored_errors: ReadOnly[NotRequired[dict[NumpyDocErrorCode, list[str]]]]
 
 
 class NumPyDocResultsWithIgnored(NumPyDocResults):
     # doc-ignore: NOQA
-    ignored_errors: Dict[NumpyDocErrorCode, List[str]]
+    ignored_errors: dict[NumpyDocErrorCode, list[str]]
 
 
 doc_ignore_re = re.compile(r"#\s?doc-ignore:(.*)")
 _comma_or_whitespace = re.compile(r"[,\s+]")
 
 
-def _get_numpy_tags(obj: Any) -> Set[NumpyDocErrorCode]:
+def _get_numpy_tags(obj: Any) -> set[NumpyDocErrorCode]:
     """Searches source code for # doc-ignore: <list of error codes>."""
     try:
         src = getsource(obj)
@@ -119,7 +109,7 @@ def _get_numpy_tags(obj: Any) -> Set[NumpyDocErrorCode]:
     if isclass(obj):
         src = src[: src.find("def ")]
     joined_tags = ",".join([x.strip() for x in re.findall(doc_ignore_re, src)])
-    joined_tags = set(x.strip() for x in re.split(_comma_or_whitespace, joined_tags))
+    joined_tags = {x.strip() for x in re.split(_comma_or_whitespace, joined_tags)}
     return ERRORCODES & joined_tags
 
 
@@ -127,8 +117,8 @@ def _get_numpy_tags(obj: Any) -> Set[NumpyDocErrorCode]:
 def validate_docstring(
     obj: Any,
     ignore: Collection[NumpyDocErrorCode] = ...,
-    method_ignore: Optional[Collection[NumpyDocErrorCode]] = ...,
-    property_ignore: Optional[Collection[NumpyDocErrorCode]] = ...,
+    method_ignore: Collection[NumpyDocErrorCode] | None = ...,
+    property_ignore: Collection[NumpyDocErrorCode] | None = ...,
     include_ignored_errors: Literal[True] = ...,
     ignore_via_comments_allowed: bool = ...,
 ) -> NumPyDocResultsWithIgnored:
@@ -139,8 +129,8 @@ def validate_docstring(
 def validate_docstring(
     obj: Any,
     ignore: Collection[NumpyDocErrorCode] = ...,
-    method_ignore: Optional[Collection[NumpyDocErrorCode]] = ...,
-    property_ignore: Optional[Collection[NumpyDocErrorCode]] = ...,
+    method_ignore: Collection[NumpyDocErrorCode] | None = ...,
+    property_ignore: Collection[NumpyDocErrorCode] | None = ...,
     include_ignored_errors: bool = ...,
     ignore_via_comments_allowed: bool = ...,
 ) -> NumPyDocResults:
@@ -150,8 +140,8 @@ def validate_docstring(
 def validate_docstring(
     obj: Any,
     ignore: Collection[NumpyDocErrorCode] = ("SA01",),
-    method_ignore: Optional[Collection[NumpyDocErrorCode]] = None,
-    property_ignore: Optional[Collection[NumpyDocErrorCode]] = None,
+    method_ignore: Collection[NumpyDocErrorCode] | None = None,
+    property_ignore: Collection[NumpyDocErrorCode] | None = None,
     include_ignored_errors: bool = False,
     ignore_via_comments_allowed: bool = True,
 ) -> Union[NumPyDocResults, NumPyDocResultsWithIgnored]:
@@ -185,11 +175,11 @@ def validate_docstring(
         Notes section for a list of error codes. NOQA can be specified to ignore
         *all* errors.
 
-    method_ignore : Optional[Collection[ErrorCode]]
+    method_ignore : Collection[ErrorCode] | None
         For method docstring. One or more error codes to be excluded from the reported
         errors. If not specified, defers to the codes specified in `ignore`.
 
-    property_ignore : Optional[Collection[ErrorCode]]
+    property_ignore : Collection[ErrorCode] | None
         For property doc strings. One or more error codes to be excluded from the
         reported errors. If not specified, defers to the codes specified in `ignore`.
 
@@ -207,8 +197,8 @@ def validate_docstring(
     NumPyDocResults
         A dictionary with the following fields.
             - error_count : int
-            - errors : Dict[ErrorCode, List[str]]
-            - ignored_errors : NotEquired[Dict[ErrorCode, List[str]]]
+            - errors : dict[ErrorCode, list[str]]
+            - ignored_errors : NotEquired[dict[ErrorCode, list[str]]]
             - file : str
             - file_line : int
 
@@ -301,7 +291,7 @@ def validate_docstring(
     get_tags = (
         _get_numpy_tags
         if ignore_via_comments_allowed
-        else lambda _: cast(Set[NumpyDocErrorCode], set())
+        else lambda _: cast(set[NumpyDocErrorCode], set())
     )
 
     for _name, _codes in [
@@ -317,12 +307,12 @@ def validate_docstring(
             )
     validate = cast(Callable[[Any], _NumpyDocValidate], validate)
 
-    errors: Dict[NumpyDocErrorCode, List[str]] = defaultdict(list)
-    ignored_errors: Dict[NumpyDocErrorCode, List[str]] = defaultdict(list)
+    errors: dict[NumpyDocErrorCode, list[str]] = defaultdict(list)
+    ignored_errors: dict[NumpyDocErrorCode, list[str]] = defaultdict(list)
 
     def update_errors(
-        new_errors: List[Tuple[NumpyDocErrorCode, str]],
-        ignore: Set[NumpyDocErrorCode],
+        new_errors: list[tuple[NumpyDocErrorCode, str]],
+        ignore: set[NumpyDocErrorCode],
         prefix: str = "",
     ) -> None:
         if "NOQA" in ignore:
@@ -342,7 +332,7 @@ def validate_docstring(
     doc_obj = get_doc_object(obj)
 
     results = validate(doc_obj)
-    results_codes = set(c for c, _ in results["errors"])
+    results_codes = {c for c, _ in results["errors"]}
 
     update_errors(results["errors"], ignore=get_tags(obj) | ignore)
 
@@ -359,7 +349,7 @@ def validate_docstring(
                 ("GL08", "The object does not have a docstring")
             )
 
-        init_codes = set(c for c, _ in init_results["errors"])
+        init_codes = {c for c, _ in init_results["errors"]}
 
         if "GL08" not in init_codes:
             update_errors(
@@ -369,7 +359,7 @@ def validate_docstring(
             )
             # Ignore 'missing section' errors unless the error occurs in both the
             # class docstring and in the __init__ docstring
-            resolved: List[NumpyDocErrorCode] = [
+            resolved: list[NumpyDocErrorCode] = [
                 code
                 for code in errors
                 if (code.endswith("01") or code == "GL08")
@@ -394,7 +384,7 @@ def validate_docstring(
                 continue
 
             assert isinstance(name, str)
-            _ignore = cast(Set[NumpyDocErrorCode], _ignore)
+            _ignore = cast(set[NumpyDocErrorCode], _ignore)
             _member = getattr(obj, name)
             attr_results = validate(get_doc_object(_member))
             prefix = f"{obj.__name__}.{name}: "

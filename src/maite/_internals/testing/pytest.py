@@ -5,7 +5,7 @@
 import logging
 import os
 import tempfile
-from typing import Iterable
+from collections.abc import Iterable
 
 import pytest
 
