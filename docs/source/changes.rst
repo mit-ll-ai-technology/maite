@@ -8,10 +8,22 @@ Changelog
 This is a record of all past maite releases and what went into them, in reverse 
 chronological order.
 
+.. _v0.7.0:
+
+---------------------
+0.7.0 - 2024-11-06
+---------------------
+
+- Add TypedDict `metadata` attributes to `Dataset`, `Augmentation`, `Model`, `Metric` protocols
+- Add support for Python 3.11 and drop support for Python 3.8
+- Automatically generate documentation from notebooks in examples
+- Display progress-bar when maite `Dataset` is passed to `evaluate`
+- Automatically typecheck docstring examples
+
 .. _v0.6.1:
 
 ---------------------
-0.6.1 - 2024-XX-XX
+0.6.1 - 2024-10-16
 ---------------------
 
 - bugfix: Added upper limit to numpy dependency (\"<2\") for compatibility with torchvision
