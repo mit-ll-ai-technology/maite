@@ -119,10 +119,8 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
     Attributes
     ----------
 
-    metadata : TypedDict
-        Typed dictionary containing fields:
-            id : str
-            index2label : dict[int, str]
+    metadata : DatasetMetadata
+        A typed dictionary containing at least an 'id' field of type str
     """
 
     ...
@@ -180,10 +178,8 @@ class Model(gen.Model[InputBatchType, TargetBatchType], Protocol):
     Attributes
     ----------
 
-    metadata : TypedDict
-        Typed dictionary containing fields:
-            id : str
-            index2label : dict[int, str]
+    metadata : ModelMetadata
+        A typed dictionary containing at least an 'id' field of type str
     """
 
     ...
@@ -212,9 +208,8 @@ class Metric(gen.Metric[TargetBatchType], Protocol):
     Attributes
     ----------
 
-    metadata : TypedDict
-        Typed dictionary containing fields:
-            id : str
+    metadata : MetricMetadata
+        A typed dictionary containing at least an 'id' field of type str
     """
 
     ...
@@ -254,9 +249,8 @@ class Augmentation(
     Attributes
     ----------
 
-    metadata : TypedDict
-        Typed dictionary containing fields:
-            id : str
+    metadata : AugmentationMetadata
+        A typed dictionary containing at least an 'id' field of type str
     """
 
     ...
