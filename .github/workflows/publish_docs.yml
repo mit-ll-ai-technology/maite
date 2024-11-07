@@ -33,7 +33,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
       - name: Install package
-        run: python3 -m pip install ".[build_docs]"
+        run: python3 -m pip install ".[builddocs]"
 
       - name: Install docs dependencies
         run: pip install -r ./docs/requirements.txt
