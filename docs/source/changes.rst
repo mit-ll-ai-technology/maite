@@ -8,6 +8,14 @@ Changelog
 This is a record of all past maite releases and what went into them, in reverse 
 chronological order.
 
+.. _v0.7.1:
+
+---------------------
+0.7.1 - 2024-11-06
+---------------------
+
+- bugfix: correct typo github action for publishing new docs to gh-pages
+
 .. _v0.7.0:
 
 ---------------------
