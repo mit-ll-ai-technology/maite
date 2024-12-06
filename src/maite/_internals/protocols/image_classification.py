@@ -51,7 +51,7 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
     support `len` (via `__len__()` method). Data elements looked up this way correspond
     to individual examples (as opposed to batches).
 
-    Indexing into or iterating over the an image_classification dataset returns a
+    Indexing into or iterating over an image_classification dataset returns a
     `tuple` of types `ArrayLike`, `ArrayLike`, and `DatumMetadataType`.
     These correspond to the model input type, model target type, and datum-level
     metadata, respectively.
@@ -182,6 +182,73 @@ class Model(gen.Model[InputBatchType, TargetBatchType], Protocol):
 
     metadata : ModelMetadata
         A typed dictionary containing at least an 'id' field of type str
+
+    Examples
+    --------
+
+    We create a multinomial logistic regression classifier for a CIFAR-10-like dataset
+    with 10 classes and shape-(3, 32, 32) images.
+
+    >>> import maite.protocols.image_classification as ic
+    >>> import numpy as np
+    >>> import numpy.typing as npt
+    >>> from maite.protocols import ArrayLike, ModelMetadata
+    >>> from typing import Sequence
+
+    Creating a MAITE-compliant model involves writing a `__call__` method that takes a
+    batch of inputs and returns a batch of predictions (probabilities).
+
+    >>> class LinearClassifier:
+    ...     def __init__(self) -> None:
+    ...         # Set up required metadata attribute using the default `ModelMetadata` type,
+    ...         # using class name for the ID
+    ...         self.metadata: ModelMetadata = {"id": self.__class__.__name__}
+    ...
+    ...         # Initialize weights
+    ...         rng = np.random.default_rng(12345678)
+    ...         num_classes = 10
+    ...         flattened_size = 3 * 32 * 32
+    ...         self.weights = -0.2 + 0.4 * rng.random((flattened_size, num_classes))
+    ...         self.bias = -0.2 + 0.4 * rng.random((1, num_classes))
+    ...
+    ...     def __call__(self, batch: Sequence[ArrayLike]) -> Sequence[npt.NDArray]:
+    ...         # Convert each element in batch to ndarray, flatten,
+    ...         # then combine into 4D array of shape-(N, C, H, W)
+    ...         batch_np = np.vstack([np.asarray(x).flatten() for x in batch])
+    ...
+    ...         # Send input batch through model
+    ...         out = batch_np @ self.weights + self.bias
+    ...         out = np.exp(out) / np.sum(np.exp(out), axis=1, keepdims=True) # softmax
+    ...
+    ...         # Restructure to sequence of shape-(10,) probabilities
+    ...         return [row for row in out]
+
+    We set up a test batch, instantiate the model, and apply it to the batch.
+
+    >>> batch_size = 8
+    >>> rng = np.random.default_rng(12345678)
+    >>> batch: Sequence[ArrayLike] = [-0.2 + 0.4 * rng.random((3, 32, 32)) for _ in range(batch_size)]
+    >>>
+    >>> model: ic.Model = LinearClassifier()
+    >>> out = model(batch)
+
+    We can now show the class probabilities returned by the model for each image in the batch.
+
+    >>> for probs in out:
+    ...     print(np.round(probs, 2))
+    [0.16 0.1  0.16 0.14 0.04 0.02 0.06 0.04 0.17 0.1 ]
+    [0.21 0.16 0.04 0.07 0.08 0.05 0.09 0.03 0.18 0.09]
+    [0.15 0.11 0.13 0.11 0.09 0.09 0.07 0.04 0.19 0.02]
+    [0.04 0.08 0.14 0.07 0.12 0.2  0.11 0.06 0.14 0.04]
+    [0.03 0.08 0.06 0.05 0.17 0.18 0.09 0.03 0.12 0.19]
+    [0.09 0.04 0.1  0.03 0.32 0.05 0.07 0.04 0.15 0.09]
+    [0.15 0.05 0.1  0.05 0.11 0.14 0.04 0.08 0.08 0.2 ]
+    [0.11 0.11 0.08 0.11 0.08 0.05 0.24 0.03 0.08 0.12]
+
+    Note that when writing a Model implementer, return types may be narrower than the
+    return types promised by the protocol (npt.NDArray is a subtype of ArrayLike), but
+    the argument types must be at least as general as the argument types promised by the
+    protocol.
     """
 
 
