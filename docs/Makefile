@@ -28,7 +28,7 @@ IPYNB_FILES := $(wildcard $(IPYNB_PATTERN))
 # GENERATED_RST_FILES the path of the .rst files generated from the $(IPYNB_DIR) files
 GENERATED_RST_FILES := $(foreach file,$(IPYNB_FILES),$(GENERATED_RST_DIR)/$(subst $(IPYNB_DIR)/,,$(file:.ipynb=.rst)))
 
-.PHONY: all clean notebook_rst html help
+.PHONY: all clean notebook_rst html
 
 # First target is default
 all: html
@@ -45,6 +45,5 @@ html: notebook_rst
 	cp -r ./source/* $(SOURCEDIR);
 	# $GENERATED_RST_FILES already generated in $(SOURCEDIR)
 	sphinx-build -b html $(SPHINXOPTS) $(SOURCEDIR) $(BUILDDIR)/html
-
 
 

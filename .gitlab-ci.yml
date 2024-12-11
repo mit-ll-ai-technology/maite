@@ -23,7 +23,7 @@ variables:
 cache:
   paths:
     - .cache/pip
-  
+
 before_script:
   - python --version  # For debugging
   - pip install virtualenv
@@ -32,14 +32,15 @@ before_script:
   - source $TMP_DIR/venv/bin/activate
   - python -m pip install --upgrade pip
   - pip install tox
+  - apt-get update
+  - apt-get install -y pandoc
+
 
 default:
   tags:
     - CDAO
 
 tests:
-  tags:
-    - CDAO
   stage: test
   image: python:$PYTHON_VERSIONS
   parallel:
@@ -50,8 +51,6 @@ tests:
     - tox -e py
 
 coverage:
-  tags:
-    - CDAO
   stage: test
   image: python:3.9
   script:
@@ -59,8 +58,6 @@ coverage:
   - tox -e coverage
 
 min-deps:
-  tags:
-    - CDAO
   stage: test
   image: python:3.9
   script:
@@ -68,8 +65,6 @@ min-deps:
     - tox -e min-deps
 
 enforce-format:
-  tags:
-    - CDAO
   stage: test
   image: python:3.9
   script:
@@ -77,8 +72,6 @@ enforce-format:
     - tox -e enforce-format
 
 typecheck:
-  tags:
-    - CDAO
   stage: test
   image: python:3.9
   script:
@@ -86,9 +79,8 @@ typecheck:
     - tox -e typecheck -vv
 
 pages:
-  tags:
-    - CDAO
   stage: docs
+  environment: docs_env
   image: python:3.9
   variables:
     TQDM_DISABLE: true
@@ -101,21 +93,32 @@ pages:
     - virtualenv $TMP_DIR/venv
     - source $TMP_DIR/venv/bin/activate
     - python -m pip install --upgrade pip
-    - pip install 'tox < 4'
+    - pip install tox requests
+    - git config --global user.email "doc@maite"
+    - git config --global user.name "Doc"
   script:
     - tox -e docs
-    - mv ./.tox/docs/build/html/ ./public
+    # Upload built docs to package registry if commit is tagged in format "^v\d+.\d+.\d+$"
+    - python docs/upload_docs_to_pkg_registry.py upload --skip-nonrelease --docdir .tox/docs/build/html --token "$CI_DOC_TOKEN"
+    # Populate `docs` directory with (a) built docs from last release, (b) previous doc builds in `docs/<version>` dirs, and (c) last doc build in 'latest' dir
+    - python docs/assemble_docs_for_publish.py --token "$CI_DOC_TOKEN" --outdir ./public
+    - git clone --branch=gh-pages "https://oath2:$CI_DOC_TOKEN@gitlab.jatic.net/jatic/cdao/maite.git" gh-pages-branch
+    - cd gh-pages-branch
+    - git reset --hard empty-doc
+    - cp -r ../public docs
+    - git add .
+    - git commit -m "Update docs"
+    - git push -f origin gh-pages
   artifacts:
     paths:
       - public
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-    - when: manual
-      allow_failure: false
+    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+      when: manual
+      allow_failure: true
 
 deploy:
-  tags:
-    - CDAO
   stage: deploy
   image: python:3.9
   rules:
