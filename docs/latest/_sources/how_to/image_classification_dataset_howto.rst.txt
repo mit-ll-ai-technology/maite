@@ -1,0 +1,459 @@
+::
+
+   Copyright 2024, MASSACHUSETTS INSTITUTE OF TECHNOLOGY
+   Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).
+   SPDX-License-Identifier: MIT
+
+How to wrap an image classification dataset
+-------------------------------------------
+
+In this how-to, we will show you how to wrap the
+`CIFAR-10 <https://www.cs.toronto.edu/~kriz/cifar.html>`__ dataset as a
+`maite.protocols.image_classification.Dataset <https://mit-ll-ai-technology.github.io/maite/generated/maite.protocols.image_classification.Dataset.html>`__.
+CIFAR-10 is an image classification dataset made by by Alex Krizhevsky,
+Vinod Nair, and Geoffrey Hinton. It’s available both through `Hugging
+Face Hub <https://huggingface.co/datasets/uoft-cs/cifar10>`__ and
+`torchvision.datasets <https://pytorch.org/vision/main/generated/torchvision.datasets.CIFAR10.html>`__,
+but this how-to uses Hugging Face Hub.
+
+1. Load the CIFAR-10 dataset from Hugging Face Hub
+--------------------------------------------------
+
+Load the modules needed for this how-to.
+
+.. code:: ipython3
+
+    from __future__ import annotations
+    import PIL.Image
+    import datasets
+    import numpy as np
+    import numpy.typing as npt
+    from IPython.display import display
+    
+    from typing import Literal
+    
+    import maite.protocols.image_classification as ic
+    from maite.protocols.image_classification import InputType, TargetType, DatumMetadataType, Dataset
+    from maite.protocols import ArrayLike, DatasetMetadata
+
+Load CIFAR-10 from Hugging Face Hub.
+
+.. code:: ipython3
+
+    cifar10_dataset_dict= datasets.load_dataset('uoft-cs/cifar10')
+    cifar10_dataset_dict
+
+
+
+.. parsed-literal::
+
+    README.md:   0%|          | 0.00/5.16k [00:00<?, ?B/s]
+
+
+
+.. parsed-literal::
+
+    train-00000-of-00001.parquet:   0%|          | 0.00/120M [00:00<?, ?B/s]
+
+
+
+.. parsed-literal::
+
+    test-00000-of-00001.parquet:   0%|          | 0.00/23.9M [00:00<?, ?B/s]
+
+
+
+.. parsed-literal::
+
+    Generating train split:   0%|          | 0/50000 [00:00<?, ? examples/s]
+
+
+
+.. parsed-literal::
+
+    Generating test split:   0%|          | 0/10000 [00:00<?, ? examples/s]
+
+
+
+
+.. parsed-literal::
+
+    DatasetDict({
+        train: Dataset({
+            features: ['img', 'label'],
+            num_rows: 50000
+        })
+        test: Dataset({
+            features: ['img', 'label'],
+            num_rows: 10000
+        })
+    })
+
+
+
+``cifar10`` is ``datasets.DatasetDict`` containing a 50000 image train
+dataset and a 10000 image test dataset. Create variables for the train
+and test datasets.
+
+.. code:: ipython3
+
+    cifar10_train: datasets.Dataset = cifar10_dataset_dict['train'] # type: ignore
+    cifar10_test: datasets.Dataset = cifar10_dataset_dict['test'] # type: ignore
+
+2. Check the source dataset
+---------------------------
+
+Following best practice, we examine the dataset before wrapping it first
+and confirm we understand it.
+
+Print all the labels in the dataset
+
+.. code:: ipython3
+
+    for label_number, label_name  in enumerate(cifar10_train.features['label'].names):
+        print(f"Label {label_number}: {label_name}")
+
+
+.. parsed-literal::
+
+    Label 0: airplane
+    Label 1: automobile
+    Label 2: bird
+    Label 3: cat
+    Label 4: deer
+    Label 5: dog
+    Label 6: frog
+    Label 7: horse
+    Label 8: ship
+    Label 9: truck
+
+
+Spot check the items in the dataset.
+
+.. code:: ipython3
+
+    for i in range(0,len(cifar10_train),10000):
+        item = cifar10_train[i]
+        label, img = item['label'], item['img']
+        label_name = cifar10_train.features['label'].names[label]
+        print(f"CIFAR-10 Train {i}")
+        print(f"Label: {label} {label_name}")
+        display(img)
+
+
+.. parsed-literal::
+
+    CIFAR-10 Train 0
+    Label: 0 airplane
+
+
+
+.. image:: image_classification_dataset_howto_files/image_classification_dataset_howto_13_1.png
+
+
+.. parsed-literal::
+
+    CIFAR-10 Train 10000
+    Label: 8 ship
+
+
+
+.. image:: image_classification_dataset_howto_files/image_classification_dataset_howto_13_3.png
+
+
+.. parsed-literal::
+
+    CIFAR-10 Train 20000
+    Label: 1 automobile
+
+
+
+.. image:: image_classification_dataset_howto_files/image_classification_dataset_howto_13_5.png
+
+
+.. parsed-literal::
+
+    CIFAR-10 Train 30000
+    Label: 1 automobile
+
+
+
+.. image:: image_classification_dataset_howto_files/image_classification_dataset_howto_13_7.png
+
+
+.. parsed-literal::
+
+    CIFAR-10 Train 40000
+    Label: 6 frog
+
+
+
+.. image:: image_classification_dataset_howto_files/image_classification_dataset_howto_13_9.png
+
+
+Everything looks as expected, CIFAR-10 images are 32x32 RGB and the
+labels match the images.
+
+3. Creating a MAITE wrapper for the source dataset
+--------------------------------------------------
+
+We create a class that implements the
+`maite.protocols.image_classification.Dataset <https://mit-ll-ai-technology.github.io/maite/generated/maite.protocols.image_classification.Dataset.html>`__
+protocol.
+
+A MAITE image classification compliant Dataset needs to have the
+following two methods : - ``__getitem__(index: int)`` to return the
+number of data elements in the dataset - ``__len__()`` to get the number
+of data elements in the dataset via () method
+
+and an attribute: - ``metadata`` containing an ‘id’ str and a map from
+indexes to label
+
+InputType, TargetType, DatumMetadataType
+
+``__getitem__`` is the most involved, it returns a tuple the image
+``ArrayLike``, the target label and the datum metadata. The image
+ArrayLike is typically an numpy array or torch tensor with the shape (C,
+H, W). Both the dtype and value range of the image ArrayLike is not
+specified. The target label is a one-hot encoding of the label. The
+datum metadata is a dictionary that includes at least a ``str`` or
+``int`` ``id`` for the datum.
+
+.. code:: ipython3
+
+    class Cifar10Dataset:
+        def __init__(
+            self,
+            cifar10_dataset_split: datasets.Dataset | None = None,
+            split: Literal["train"] | Literal["test"] = "train",
+        ):
+            """Create a MAITE CIFAR-10 dataset from a datasets.Dataset CIFAR-10 dataset.
+    
+            Parameters
+            ----------
+            cifar10_dataset_split : datasets.Dataset | None, optional
+                The dataset to wrap, typically the train or test dataset, by default None
+            split : Literal[&quot;train&quot;] | Literal[&quot;test&quot;], optional
+                If the `cifar10_dataset_split` is not given, load this split, by default "train"
+            """
+    
+            if cifar10_dataset_split is None:
+                # Load (and possibly download) the dataset
+                cifar10_dataset_dict = datasets.load_dataset("uoft-cs/cifar10")
+    
+                # We have already validated that cifar10 is a DatasetDict, but we leave this assertion
+                # as a sanity check and to assist typechecking.
+                assert isinstance(cifar10_dataset_dict, datasets.DatasetDict)
+    
+                # Use the given training or test split.
+                self.dataset = cifar10_dataset_dict[split]
+            else:
+                # Save the CIFAR-10 dataset given by the user. This is helpful if you want to
+                # sample the dataset using the Huggingface api prior to using it.
+                self.dataset = cifar10_dataset_split
+    
+            # Create a dictionary from label number to label name from the label metadata
+            # in the underlying dataset.
+            index2label = {
+                i: label for i, label in enumerate(self.dataset.features["label"].names)
+            }
+    
+            self.metadata: DatasetMetadata = {
+                "id": "CIFAR-10",
+                "index2label": index2label,
+            }
+    
+            # When the wrapper loads the dataset from a specific train/test split, record it in the metadata.
+            if cifar10_dataset_split is None:
+                self.metadata['split'] = split
+    
+            # Save the number of classes used in the dataset.
+            num_classes = self.dataset.features["label"].num_classes
+            self.targets = np.eye(num_classes)
+    
+        def __len__(self) -> int:
+            """Return the number of items in the dataset
+    
+            Returns
+            -------
+            int
+                The number of items in the dataset
+            """
+            return len(self.dataset)
+    
+        def __getitem__(
+            self, index: int
+        ) -> tuple[npt.NDArray, npt.NDArray, DatumMetadataType]:
+    
+            # Looking up an item in the dataset will return a diction with two keys
+            # - "img": PIL.PngImagePlugin.PngImageFile image mode=RGB size=32x32>,
+            # - "label": int
+            item = self.dataset[index]
+            img_pil = item["img"]
+            label = item["label"]
+    
+            # Convert the PIL image to a Numpy array.
+            img_hwc = np.array(img_pil)  # shape (H, W, C)
+    
+            # Use MAITE array index convention for representing images is (channel, height, width)
+            img_chw = img_hwc.transpose(2, 0, 1)
+    
+            # One hot encoded tensor indicating the class label for this image.
+            target = self.targets[label, :]
+    
+            # CIFAR-10 does not have any extra metadata, we record only the index of this datum.
+            metadata: DatumMetadataType = {"id": index}
+    
+            return img_chw, target, metadata
+
+4. Examining the MAITE wrapper
+------------------------------
+
+Wrap the train dataset and print the metadata.
+
+.. code:: ipython3
+
+    train: Dataset = Cifar10Dataset(cifar10_dataset_split=cifar10_train)
+    train.metadata
+
+
+
+
+.. parsed-literal::
+
+    {'id': 'CIFAR-10',
+     'index2label': {0: 'airplane',
+      1: 'automobile',
+      2: 'bird',
+      3: 'cat',
+      4: 'deer',
+      5: 'dog',
+      6: 'frog',
+      7: 'horse',
+      8: 'ship',
+      9: 'truck'}}
+
+
+
+Load the test dataset using the ``test`` split.
+
+.. code:: ipython3
+
+    test: Dataset = Cifar10Dataset(split='test')
+    test.metadata
+
+
+
+
+.. parsed-literal::
+
+    {'id': 'CIFAR-10',
+     'index2label': {0: 'airplane',
+      1: 'automobile',
+      2: 'bird',
+      3: 'cat',
+      4: 'deer',
+      5: 'dog',
+      6: 'frog',
+      7: 'horse',
+      8: 'ship',
+      9: 'truck'},
+     'split': 'test'}
+
+
+
+Check the length of the dataset
+
+.. code:: ipython3
+
+    print(f"CIFIAR-10 size train={len(train)} test={len(test)}")
+
+
+.. parsed-literal::
+
+    CIFIAR-10 size train=50000 test=10000
+
+
+Examine some of the datum in the wrapped dataset.
+
+.. code:: ipython3
+
+    def print_datum(dataset, index):
+        img_arr_chw,target,datum_metadata = dataset[index]
+        print(f"Datum {datum_metadata['id']}")
+        print(f"  Input Image Array: {str(img_arr_chw)[:30]}...")
+        print(f"    shape={img_arr_chw.shape}")
+        print(f"    dtype={img_arr_chw.dtype}")
+        display(PIL.Image.fromarray(img_arr_chw.transpose(1,2,0)))
+        print(f"  Target: {target}")
+        label_index=np.argmax(target)
+        print(f"    target index: {np.argmax(target)}")
+        print(f"    target label: {dataset.metadata['index2label'][label_index]}")
+        print("  Metadata:")
+        print(f"    {datum_metadata}")
+
+.. code:: ipython3
+
+    for i in [0, 3000, 6000]:
+        print_datum(test, i)
+        print()
+
+
+.. parsed-literal::
+
+    Datum 0
+      Input Image Array: [[[158 159 165 ... 137 126 116...
+        shape=(3, 32, 32)
+        dtype=uint8
+
+
+
+.. image:: image_classification_dataset_howto_files/image_classification_dataset_howto_27_1.png
+
+
+.. parsed-literal::
+
+      Target: [0. 0. 0. 1. 0. 0. 0. 0. 0. 0.]
+        target index: 3
+        target label: cat
+      Metadata:
+        {'id': 0}
+    
+    Datum 3000
+      Input Image Array: [[[17 17 18 ... 23 21 20]
+      [2...
+        shape=(3, 32, 32)
+        dtype=uint8
+
+
+
+.. image:: image_classification_dataset_howto_files/image_classification_dataset_howto_27_3.png
+
+
+.. parsed-literal::
+
+      Target: [0. 0. 0. 0. 0. 1. 0. 0. 0. 0.]
+        target index: 5
+        target label: dog
+      Metadata:
+        {'id': 3000}
+    
+    Datum 6000
+      Input Image Array: [[[201 211 211 ... 191 183 188...
+        shape=(3, 32, 32)
+        dtype=uint8
+
+
+
+.. image:: image_classification_dataset_howto_files/image_classification_dataset_howto_27_5.png
+
+
+.. parsed-literal::
+
+      Target: [0. 0. 0. 0. 0. 0. 0. 0. 1. 0.]
+        target index: 8
+        target label: ship
+      Metadata:
+        {'id': 6000}
+    
+
