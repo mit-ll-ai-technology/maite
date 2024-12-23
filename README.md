@@ -18,7 +18,7 @@
   </p>
 
   <p align="center">
-    Check out the <a href="https://mit-ll-ai-technology.github.io/maite/">documentation</a> and 
+    Check out the <a href="https://mit-ll-ai-technology.github.io/maite/">documentation</a> and
     <a href="https://github.com/mit-ll-ai-technology/maite/tree/main/examples">examples</a> for more information.
   </p>
 </p>
@@ -34,10 +34,10 @@ To install from the Python Package Index (PyPI), run:
 pip install maite
 ```
 
-> :information_source: You can install MAITE for a given release tag, e.g. `v0.4.0`, by running:
+> :information_source: You can install MAITE for a given release tag, e.g. `v0.6.1`, by running:
 >
 >```console
->$ pip install git+ssh://git@github.com/mit-ll-ai-technology/maite.git@v0.4.0
+>$ pip install git+ssh://git@github.com/mit-ll-ai-technology/maite.git@v0.6.1
 >```
 
 ### From Source
@@ -55,30 +55,6 @@ $ pip install .
 *Common types for machine learning test and evaluation*
 
 The `protocols` subpackage defines common types – such as an inference-mode object detector – to be leveraged across JATIC projects. These are specifically designed to be [Python protocol classes](https://peps.python.org/pep-0544/), which support structural subtyping. As a result, developers and users can satisfy MAITE-typed interfaces without having to explicitly subclass. This ability helps to promote common interfaces across JATIC projects without introducing explicit inter-dependencies between them.
-
-### ArrayLike
-
-One example of a MAITE protocol class is `ArrayLike`.  An `ArrayLike` defines a common interface for objects that can be manipulated as arrays, regardless of the specific implementation.
-This allows code to be written in a more generic way, allowing it to work with different array-like objects without having to worry
-about the details of the specific implementation. With an `ArrayLike` protocol, vendors can write functions and algorithms that
-operate on arrays without JATIC defining the specific implementation of arrays to use.
-
-```python
-from maite.protocols import ArrayLike
-
-# ArrayLike requires objects to implement `__array__`
-assert not isinstance([1, 2, 3], ArrayLike)
-
-# NumPy ndarray objects satisfy protocol
-import numpy as np
-np_array = np.zeros((10, 10, 3), dtype=np.uint8)
-assert isinstance(np_array, ArrayLike)
-
-# PyTorch Tensor objects satisfy protocol 
-import torch as tr
-array = tr.as_tensor(np_array)
-assert isinstance(array, ArrayLike)
-```
 
 ## maite.testing
 
