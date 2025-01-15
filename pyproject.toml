@@ -74,6 +74,9 @@ builddocs = [
   "torchmetrics",
   "torchvision",
   "pycocotools",
+  "datasets",
+  "transformers",
+  "watermark"
 ]
 
 [project.urls]
