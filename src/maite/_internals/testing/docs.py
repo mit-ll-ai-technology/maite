@@ -11,7 +11,17 @@ from collections import defaultdict
 from collections.abc import Collection
 from inspect import getsource, isclass
 from itertools import chain, zip_longest
-from typing import Any, Callable, Literal, Protocol, TypedDict, Union, cast, overload
+from typing import (
+    Any,
+    Callable,
+    Literal,
+    Protocol,
+    TypedDict,
+    Union,
+    cast,
+    get_args,
+    overload,
+)
 
 from typing_extensions import NotRequired, ReadOnly, TypeAlias
 
@@ -61,7 +71,7 @@ NumpyDocErrorCode: TypeAlias = Literal[
     "NOQA",
 ]
 
-ERRORCODES: set[NumpyDocErrorCode] = set(NumpyDocErrorCode.__args__)
+ERRORCODES: set[NumpyDocErrorCode] = set(get_args(NumpyDocErrorCode))
 
 
 class _C:
