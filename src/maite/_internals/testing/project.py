@@ -9,7 +9,7 @@ from copy import deepcopy
 from functools import _CacheInfo as CacheInfo, lru_cache
 from importlib import import_module
 from pathlib import Path
-from typing import Any, Literal, TypedDict, Union
+from typing import Any, Literal, TypedDict, Union, get_args
 
 from typing_extensions import NotRequired
 
@@ -30,7 +30,7 @@ Category = Literal[
     "variable",
 ]
 
-CATEGORIES: frozenset[Category] = frozenset(Category.__args__)
+CATEGORIES: frozenset[Category] = frozenset(get_args(Category))
 
 
 class Symbol(TypedDict):
