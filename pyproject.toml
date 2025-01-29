@@ -62,7 +62,7 @@ test = [
 
 
 # dependencies required to build all documentation with sphinx
-# (This is required because all classes/functions documented with `autodoc` 
+# (This is required because all classes/functions documented with `autodoc`
 # and `autosummary` must be importable)
 builddocs = [
   "torch>=1.7,!=1.12.0",
