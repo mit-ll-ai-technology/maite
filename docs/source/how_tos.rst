@@ -17,3 +17,4 @@ objectives.
    how_to/static_typing
    how_to/wrap_image_classification_dataset
    how_to/wrap_image_classification_model
+   how_to/wrap_object_detection_dataset
