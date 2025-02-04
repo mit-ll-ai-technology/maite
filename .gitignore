@@ -135,3 +135,5 @@ dmypy.json
 
 # "desktop services store" on Mac
 **/.DS_Store
+
+examples/**/*.jpg
