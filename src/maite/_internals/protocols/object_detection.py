@@ -387,7 +387,7 @@ class Metric(gen.Metric[TargetBatchType], Protocol):
     update(preds: Sequence[ObjectDetectionTarget], targets: Sequence[ObjectDetectionTarget]) -> None
          Add predictions and targets to metric's cache for later calculation.
 
-     compute() -> dict[str, Any]
+    compute() -> dict[str, Any]
          Compute metric value(s) for currently cached predictions and targets, returned as
          a dictionary.
 
@@ -399,9 +399,131 @@ class Metric(gen.Metric[TargetBatchType], Protocol):
 
     metadata : MetricMetadata
         A typed dictionary containing at least an 'id' field of type str
-    """
 
+    Examples
+    --------
+
+    Below, we write and test a class that implements the Metric protocol for object detection.
+    For simplicity, the metric will compute the intersection over union (IoU) averaged over
+    all predicted and associated ground truth boxes for a single image, and then take the mean
+    over the per-image means.
+
+    Note that when writing a `Metric` implementer, return types may be narrower than the
+    return types promised by the protocol, but the argument types must be at least as
+    general as the argument types promised by the protocol.
+
+    >>> from dataclasses import dataclass
+    >>> from maite.protocols import ArrayLike, MetricMetadata
+    >>> from typing import Any, Sequence
+    >>> import maite.protocols.object_detection as od
+    >>> import numpy as np
+
+    >>> class MyIoUMetric:
     ...
+    ...     def __init__(self, id: str):
+    ...         self.pred_boxes = []  # elements correspond to predicted boxes in single image
+    ...         self.target_boxes = []  # elements correspond to ground truth boxes in single image
+    ...         # Store provided id for this metric instance
+    ...         self.metadata = MetricMetadata(
+    ...             id=id
+    ...         )
+    ...
+    ...     def reset(self) -> None:
+    ...         self.pred_boxes = []
+    ...         self.target_boxes = []
+    ...
+    ...     def update(
+    ...         self,
+    ...         pred_batch: Sequence[od.ObjectDetectionTarget],
+    ...         target_batch: Sequence[od.ObjectDetectionTarget],
+    ...     ) -> None:
+    ...         self.pred_boxes.extend(pred_batch)
+    ...         self.target_boxes.extend(target_batch)
+    ...
+    ...     @staticmethod
+    ...     def iou_vec(boxes_a: ArrayLike, boxes_b: ArrayLike) -> np.ndarray:
+    ...         # Break up points into separate columns
+    ...         x0a, y0a, x1a, y1a = np.split(boxes_a, 4, axis=1)
+    ...         x0b, y0b, x1b, y1b = np.split(boxes_b, 4, axis=1)
+    ...         # Calculate intersections
+    ...         xi_0, yi_0 = np.split(
+    ...             np.maximum(np.append(x0a, y0a, axis=1), np.append(x0b, y0b, axis=1)),
+    ...             2,
+    ...             axis=1,
+    ...         )
+    ...         xi_1, yi_1 = np.split(
+    ...             np.minimum(np.append(x1a, y1a, axis=1), np.append(x1b, y1b, axis=1)),
+    ...             2,
+    ...             axis=1,
+    ...         )
+    ...         ints: np.ndarray = np.maximum(0, xi_1 - xi_0) * np.maximum(0, yi_1 - yi_0)
+    ...         # Calculate unions (as sum of areas minus their intersection)
+    ...         unions: np.ndarray = (
+    ...             (x1a - x0a) * (y1a - y0a)
+    ...             + (x1b - x0b) * (y1b - y0b)
+    ...             - (xi_1 - xi_0) * (yi_1 - yi_0)
+    ...         )
+    ...         return ints / unions
+    ...
+    ...     def compute(self) -> dict[str, Any]:
+    ...         mean_iou_by_img: list[float] = []
+    ...         for pred_box, tgt_box in zip(self.pred_boxes, self.target_boxes):
+    ...             single_img_ious = self.iou_vec(pred_box.boxes, tgt_box.boxes)
+    ...             mean_iou_by_img.append(float(np.mean(single_img_ious)))
+    ...         return {"mean_iou": np.mean(np.array(mean_iou_by_img))}
+    ...
+
+    Now we can instantiate our IoU Metric class:
+
+    >>> iou_metric: od.Metric = MyIoUMetric(id="IoUMetric")
+
+    To use the metric, we populate two lists that encode predicted object detections
+    and ground truth object detections for a single image. (Ordinarily, predictions
+    would be produced by a model.)
+
+    >>> prediction_boxes: list[tuple[int, int, int, int]] = [
+    ...     (1, 1, 12, 12),
+    ...     (100, 100, 120, 120),
+    ...     (180, 180, 270, 270),
+    ... ]
+
+    >>> target_boxes: list[tuple[int, int, int, int]] = [
+    ...     (1, 1, 10, 10),
+    ...     (100, 100, 120, 120),
+    ...     (200, 200, 300, 300),
+    ... ]
+
+    The MAITE Metric protocol requires the `pred_batch` and `target_batch` arguments to the
+    `update` method to be assignable to Sequence[ObjectDetectionTarget] (where ObjectDetectionTarget
+    encodes detections in a single image). We define an implementation of ObjectDetectionTarget and use it
+    to pass ground truth and predicted detections.
+
+    >>> @dataclass
+    ... class ObjectDetectionTargetImpl:
+    ...     boxes: np.ndarray
+    ...     labels: np.ndarray
+    ...     scores: np.ndarray
+
+    >>> num_boxes = len(target_boxes)
+    >>> fake_labels = np.random.randint(0, 9, num_boxes)
+    >>> fake_scores = np.zeros(num_boxes)
+    >>> pred_batch = [
+    ...     ObjectDetectionTargetImpl(
+    ...         boxes=np.array(prediction_boxes), labels=fake_labels, scores=fake_scores
+    ...     )
+    ... ]
+    >>> target_batch: Sequence[ObjectDetectionTargetImpl] = [
+    ...     ObjectDetectionTargetImpl(
+    ...         boxes=np.array(target_boxes), labels=fake_labels, scores=fake_scores
+    ...     )
+    ... ]
+
+    Finally, we call `update` using this one-element batch, compute the metric value, and print it:
+
+    >>> iou_metric.update(pred_batch, target_batch)
+    >>> print(iou_metric.compute())
+    {'mean_iou': 0.6802112029384757}
+    """
 
 
 class Augmentation(
