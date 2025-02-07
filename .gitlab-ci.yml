@@ -88,6 +88,7 @@ pages:
     - apt-get update -qq
     - apt-get install -y pandoc
     - apt-get install -y fonts-dejavu
+    - apt-get install libgl1
     - python --version  # For debugging
     - pip install virtualenv
     - TMP_DIR=$(mktemp -d)
