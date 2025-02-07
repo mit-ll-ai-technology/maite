@@ -87,6 +87,7 @@ pages:
   before_script:
     - apt-get update -qq
     - apt-get install -y pandoc
+    - apt-get install -y fonts-dejavu
     - python --version  # For debugging
     - pip install virtualenv
     - TMP_DIR=$(mktemp -d)
