@@ -77,8 +77,7 @@ builddocs = [
   "datasets",
   "transformers",
   "ultralytics",
-  "watermark",
-  "opencv-python-headless"
+  "watermark"
 ]
 
 [project.urls]
