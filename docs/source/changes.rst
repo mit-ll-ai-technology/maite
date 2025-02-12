@@ -8,6 +8,20 @@ Changelog
 This is a record of all past maite releases and what went into them, in reverse 
 chronological order.
 
+.. _v0.7.2:
+
+---------------------
+0.7.2 - 2025-02-12
+---------------------
+
+- Add how-to guide for wrapping object detection models & datasets
+- Add how-to guide for wrapping image classification models & datasets
+- Add docstring examples for object detection model, dataset, metric, & augmentation
+- Add docstring examples for image classification model and metric
+- Add image classification tutorial
+- Back MAITE ArrayLike with numpy.typing.ArrayLike
+- Publish historical and latest built documentation to github (automatically)
+
 .. _v0.7.1:
 
 ---------------------
