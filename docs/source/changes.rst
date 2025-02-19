@@ -8,6 +8,15 @@ Changelog
 This is a record of all past maite releases and what went into them, in reverse 
 chronological order.
 
+.. _v0.7.3:
+
+---------------------
+0.7.3 - 2025-02-19
+---------------------
+
+- Update GitHub CI/CD to not directly publish docs (which is now done through GitLab mirroring)
+- Update GitHub CI/CD to use latest version of upload-artifact and download-artifact actions
+
 .. _v0.7.2:
 
 ---------------------
