@@ -108,6 +108,7 @@ html_theme = "pydata_sphinx_theme"
 html_theme_options = {
     "collapse_navigation": True,
     "navigation_depth": 4,
+    "navbar_align": "left",
     # "favicons": [
     #     {
     #         "rel": "icon",
