@@ -3,6 +3,10 @@
 # SPDX-License-Identifier: MIT
 
 
-from maite._internals.workflows.generic import evaluate, predict
+from maite._internals.workflows.generic import (
+    evaluate,
+    evaluate_from_predictions,
+    predict,
+)
 
-__all__ = ["evaluate", "predict"]
+__all__ = ["evaluate", "evaluate_from_predictions", "predict"]
