@@ -41,6 +41,22 @@ def ic_simple_metric() -> ic.Metric:
     return ici.MetricImpl()
 
 
+# --- ic component fixtures for testing predict flags ---
+@pytest.fixture(scope="module")
+def ic_mock_dataset() -> ic.Dataset:
+    return ici.MockDataset()
+
+
+@pytest.fixture(scope="module")
+def ic_mock_model() -> ic.Model:
+    return ici.MockModel()
+
+
+@pytest.fixture(scope="module")
+def ic_mock_augmentation() -> ic.Augmentation:
+    return ici.MockAugmentation()
+
+
 # --- od component fixtures ---
 @pytest.fixture(scope="module")
 def od_simple_dataset() -> od.Dataset:

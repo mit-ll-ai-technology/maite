@@ -481,6 +481,7 @@ def predict(
     dataset: ic.Dataset | None = None,
     batch_size: int = 1,
     augmentation: ic.Augmentation | None = None,
+    return_augmented_data: bool = False,
 ) -> tuple[
     Sequence[ic.TargetBatchType],
     Sequence[tuple[ic.InputBatchType, ic.TargetBatchType, ic.DatumMetadataBatchType]],
@@ -496,6 +497,7 @@ def predict(
     dataset: od.Dataset | None = None,
     batch_size: int = 1,
     augmentation: od.Augmentation | None = None,
+    return_augmented_data: bool = False,
 ) -> tuple[
     Sequence[od.TargetBatchType],
     Sequence[tuple[od.InputBatchType, od.TargetBatchType, od.DatumMetadataBatchType]],
@@ -510,6 +512,7 @@ def predict(
     dataset: OpenDatasetType | None = None,
     batch_size: int = 1,
     augmentation: OpenAugmentationType | None = None,
+    return_augmented_data: bool = False,
 ) -> tuple[
     Sequence[SomeTargetBatchType],
     Sequence[tuple[SomeInputBatchType, SomeTargetBatchType, SomeMetadataBatchType]],
@@ -535,11 +538,16 @@ def predict(
     augmentation : SomeAugmentation | None, (default=None)
         Compatible maite augmentation.
 
+    return_augmented_data : bool, (default=False)
+        Set to True to return post-augmentation data as a function output.
+
     Returns
     -------
     tuple[Sequence[SomeTargetBatchType], Sequence[tuple[SomeInputBatchType, SomeTargetBatchType, SomeMetadataBatchType]],
         A tuple of the predictions (as a sequence of batches) and a sequence
         of tuples containing the information associated with each batch.
+        Note that the second return argument will be empty if
+        return_augmented_data is False.
 
     Raises
     ------
@@ -554,7 +562,7 @@ def predict(
         augmentation=augmentation,
         batch_size=batch_size,
         collate_fn=default_collate_fn,
-        return_augmented_data=True,
+        return_augmented_data=return_augmented_data,
         return_preds=True,
     )
 

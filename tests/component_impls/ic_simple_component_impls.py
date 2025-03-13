@@ -10,6 +10,7 @@ from typing import Any
 import numpy as np
 
 from maite.protocols import (
+    ArrayLike,
     AugmentationMetadata,
     DatasetMetadata,
     DatumMetadata,
@@ -18,6 +19,7 @@ from maite.protocols import (
 )
 from maite.protocols.image_classification import (
     DatumMetadataBatchType,
+    DatumMetadataType,
     InputBatchType,
     TargetBatchType,
 )
@@ -164,3 +166,63 @@ class MetricImpl:
 
     def compute(self) -> dict[str, Any]:
         return {"metric1": "val1", "metric2": "val2"}
+
+
+class MockDataset:
+    """CIFAR-10 shaped dummy dataset with image_i[:,:,:] = i and class_i = (i % 10)."""
+
+    def __init__(self, size: int = 8):
+        self.size = size
+        self.metadata = DatasetMetadata(id="MockDataset")
+
+    def __len__(self) -> int:
+        return self.size
+
+    def __getitem__(self, i: int) -> tuple[np.ndarray, np.ndarray, DatumMetadataType]:
+        if not (0 <= i < self.size):
+            raise IndexError
+
+        input = i * np.ones((3, 32, 32))
+        target = np.zeros(10)
+        target[i % 10] = 1
+        metadata = DatumMetadataType(id=i)
+
+        return input, target, metadata
+
+
+class MockModel:
+    """Predicts class(x) as int(x[0,0,0]) % 10."""
+
+    def __init__(self):
+        self.metadata = ModelMetadata(id="MockModel")
+
+    def __call__(self, batch: Sequence[ArrayLike]) -> list[np.ndarray]:
+        targets = []
+        for x in batch:
+            x_np = np.asarray(x)
+            y = int(x_np[0, 0, 0]) % 10
+            target = np.zeros(10)
+            target[y] = 1
+            targets.append(target)
+        return targets
+
+
+class MockAugmentation:
+    """Changes x[0,0,0] to x[0,0,0] + 1 for each input x in batch."""
+
+    def __init__(self):
+        self.metadata = AugmentationMetadata(id="MockAugmentation")
+
+    def __call__(
+        self,
+        batch: tuple[
+            Sequence[ArrayLike], Sequence[ArrayLike], Sequence[DatumMetadataType]
+        ],
+    ) -> tuple[Sequence[ArrayLike], Sequence[ArrayLike], Sequence[DatumMetadataType]]:
+        xb, yb, mdb = batch
+        xb_aug = []
+        for x in xb:
+            x_aug = np.array(x)  # copy
+            x_aug[0, 0, 0] += 1
+            xb_aug.append(x_aug)
+        return xb_aug, yb, mdb
