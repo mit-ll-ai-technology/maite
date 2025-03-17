@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from importlib import import_module
+from pathlib import Path
 
 import pytest
 from pytest import Config
@@ -13,9 +14,13 @@ from tests import all_dummy_subpkgs
 def test_version():
     import maite
 
+    txt = (Path(maite.__file__).parent / "_version.py").read_text()
+
     assert isinstance(maite.__version__, str)
     assert maite.__version__
-    assert "unknown" not in maite.__version__
+    assert (
+        "unknown" not in maite.__version__
+    ), f"{maite.__version__=:} _version.py={txt}"
 
 
 def test_xfail_strict(pytestconfig: Config):

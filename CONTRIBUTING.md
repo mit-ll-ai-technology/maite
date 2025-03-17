@@ -10,27 +10,33 @@ code base.
     - [Running tox](#running-tox)
 
 ## Contributor Basics
+
+### Installing poetry
+
+MAITE uses [poetry](https://python-poetry.org/) for packaging and dependency management. Follow the [installation instructions](https://python-poetry.org/docs/#installation) to install poetry. This ensures all developer's local installs are backed by the consistent set of dependency versions listed in the `poetry.lock` file.
+
 ### Installing MAITE for development
 
-Install MAITE along with its test dependencies; checkout the repo, navigate to its top level and run
+Install MAITE along with all development dependencies; checkout the repo, navigate to its top level and run
 
 ```shell
-pip install -e .[test]
+poetry sync --all-extras
 ```
 
-the `-e` option ensures that any changes that you make to the project's source code will be reflected in your local install – you need not reinstall the package in order for your modifications to take effect.
+This [poetry] command ensures that any local changes that you make to the project's source code will be reflected in your install (similar to `pip install -e`) and that you will use a the same set of dependency versions as all other developers.
+If you wish to install all dependencies **and not remove any existing non-conflicting dependencies that are already installed** you can instead use `poetry install ...` instead of `poetry sync ...`.
+
+Going forward in this document, any console commands run as a developer (e.g. `pytest`, `tox`, `black`, etc.) are assumed to be run within the poetry-managed environment.
+To ensure this, individual commands can be prefixed with `poetry run ...` or the environment can be first activated in bash/Zsh/Csh via `eval $(poetry env activate)`. See [this section](https://python-poetry.org/docs/managing-environments/#activating-the-environment) in the poetry docs for more information on activating the poetry-managed environment.
+Note: if you're using poetry properly **poetry should not be installed alongside `maite` or its dependencies**.
 
 ### Pre-Commit Hooks (Required)
 
 We provide contributors with pre-commit hooks, which will apply auto-formatters and
 linters to your code before your commit takes effect. You must install these in order to contribute to the repo.
 
-First install pre-commit in your Python environment. Run:
-
-```console
-pip install pre-commit
-```
-
+The pre-commit library should already be installed in your poetry-managed development environment.
+To configure it, you need to run two commands **in that environment**.
 Then, in the top-level of the `maite` repo, run:
 
 ```console
@@ -61,6 +67,9 @@ pytest tests/
 
 If you want to quickly run through the test suite, just to verify that it runs without error, you can run:
 
+```console
+tox -e py
+```
 
 Additional Resources to Learn About Our Approach to Automated Testing, see: https://github.com/rsokl/testing-tutorial
 
@@ -254,7 +263,7 @@ If you use VSCode with Pylance, then make sure that `Type Checking Mode` is set 
 While this is helpful for getting immediate feedback about your code, it is no substitute for running `pyright` from the commandline. To do so, run the following tox job:
 
 ```console
-tox -e pyright
+poetry run tox -e pyright
 ```
 
 # Maintaining MAITE
@@ -264,16 +273,17 @@ The following lays out the essentials for maintaining the MAITE library. It is r
 
 ## Project dependencies, metadata, and versioning
 
-The project's build tooling (e.g. that we use setuptools to builds the installable artifacts), metadata (e.g. author list), and dependencies are all specified in the [pyproject.toml](https://github.com/mit-ll-responsible-ai/responsible-ai-toolbox/blob/main/pyproject.toml) file.
+The project's build tooling (e.g. that we use poetry to build the installable artifacts), metadata (e.g. author list), and dependencies are all specified in the [pyproject.toml](https://github.com/mit-ll-responsible-ai/responsible-ai-toolbox/blob/main/pyproject.toml) file.
 
 The `project > dependencies` section is where the project's minimum dependencies are specified.
-In the case that a new dependency is added, a minimum version must be specified. `project > optional-dependencies` includes the dependencies that are needed to run our test suite, dependencies for the `mushin` and `datasets` submodules.
 
-The project's version (e.g. `v0.3.0`) is managed by [setuptools_scm](https://github.com/pypa/setuptools_scm), meaning that the `maite.__version__` attribute is not set manually, rather it is derived from the project's latest git-commit tag of the form `vX.Y.Z`. See [Creating a new release and publishing to PyPI](#creating-a-new-release-and-publishing-to-pypi) for more details.
+In the case that a new dependency is added, [poetry add](https://python-poetry.org/docs/cli/#add) should be used with a minimum version must be specified. `poetry add` provides several [options](https://python-poetry.org/docs/cli/#options) for adding the dev dependencies, extras dependencies or group dependencies. The pyproject.toml `project.optional-dependencies` lists the MAITE dependency groups.
+
+The project's version (e.g. `v0.3.0`) is managed by [poetry-dynamic-versioning](https://github.com/mtkennerly/poetry-dynamic-versioning), meaning that the `maite.__version__` attribute is not set manually, rather it is derived from the project's latest git-commit tag of the form `vX.Y.Z`. See [Creating a new release and publishing to PyPI](#creating-a-new-release-and-publishing-to-pypi) for more details.
 
 ## Branching and Merging
 
-We use the [github-flow](https://guides.github.com/introduction/flow/) branching model. This means that all changes are made on a branch that is branched off of the `main` branch. When working on a feature or bug fix, developers should create an issue in the project's issue tracker and reference it in the commit message or pull request. This helps to ensure that all work is tracked and that team members can easily see what issues have been worked on and what still needs to be done. Once the changes are ready to be merged, a pull request is opened against the `main` branch. The pull request must be approved by at least one other developer before it can be merged.  Every pull request will trigger a CI run that will run the test suite, check the codebase for formatting errors, and check the docs for spelling errors.  If any of these checks fail, the pull request cannot be merged. Lastly, a merge must be a fast-forward merge, meaning that the `main` branch must be up-to-date with the `main` branch of the upstream repo.  
+We use the [github-flow](https://guides.github.com/introduction/flow/) branching model. This means that all changes are made on a branch that is branched off of the `main` branch. When working on a feature or bug fix, developers should create an issue in the project's issue tracker and reference it in the commit message or pull request. This helps to ensure that all work is tracked and that team members can easily see what issues have been worked on and what still needs to be done. Once the changes are ready to be merged, a pull request is opened against the `main` branch. The pull request must be approved by at least one other developer before it can be merged.  Every pull request will trigger a CI run that will run the test suite, check the codebase for formatting errors, and check the docs for spelling errors.  If any of these checks fail, the pull request cannot be merged. Lastly, a merge must be a fast-forward merge, meaning that the `main` branch must be up-to-date with the `main` branch of the upstream repo.
 
 ## Tooling configuration
 
@@ -299,13 +309,7 @@ well as on a platform like GitHub Actions. Some tasks that tox runs are:
 - Run commandline commands within said environment.
 - Save specified artifacts.
 
-Install `tox` with:
-
-```console
-$ pip install tox
-```
-
-If you use `conda` to manage Python environments already, you can have `tox` use `conda` as its environment manager by installing `tox-conda`:
+The `tox` package is already installed in the poetry-managed development environment, however if you use `conda` to manage Python environments already, you can have `tox` use `conda` as its environment manager by installing `tox-conda`:
 
 ```console
 $ pip install tox-conda

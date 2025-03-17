@@ -13,7 +13,7 @@ stages:
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
   GITLAB_REPO_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi"
-
+  POETRY_DYNAMIC_VERSIONING_DEBUG: "1"
 
 # Pip's cache doesn't store the python packages
 # https://pip.pypa.io/en/stable/topics/caching/
@@ -32,7 +32,6 @@ before_script:
   - source $TMP_DIR/venv/bin/activate
   - python -m pip install --upgrade pip
   - pip install tox
-
 
 default:
   tags:
@@ -121,7 +120,7 @@ deploy:
   rules:
     - if: $CI_COMMIT_TAG
   script:
-    - pip install build twine --upgrade
+    - pip install poetry twine --upgrade
     - twine --version
-    - python -m build
+    - poetry build
     - twine upload --repository-url $GITLAB_REPO_URL -u gitlab-ci-token -p $CI_JOB_TOKEN dist/*
