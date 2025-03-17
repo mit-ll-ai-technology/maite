@@ -1,10 +1,6 @@
 [build-system]
-requires = [
-  "setuptools >= 35.0.2",
-  "wheel >= 0.29.0",
-  "setuptools_scm[toml]==7.0.5",
-]
-build-backend = "setuptools.build_meta"
+requires = ["poetry-core>=2.0.0,<3.0.0", "poetry-dynamic-versioning>=1.0.0,<2.0.0"]
+build-backend = "poetry_dynamic_versioning.backend"
 
 
 [project]
@@ -21,21 +17,7 @@ dependencies = [
 license = { file = "LICENSE.txt" }
 keywords = ["machine learning", "testing", "pytest"]
 
-authors = [
-    { name = "Justin Goodwin"},
-    { name = "Michael Yee"},
-    { name = "Ryan Soklaski" },
-    { name = "Lei Hamilton" },
-    { name = "Jeff Arena" },
-    { name = "Garrett Botkin"},
-    { name = "Manasi Sharma"}
-]
-maintainers = [
-    { name = "Justin Goodwin"},
-    { name = "Michael Yee"},
-    { name = "Lei Hamilton"},
-    { name = "Jeff Arena"}
-]
+authors = [{name = "MIT Lincoln Laboratory"}]
 
 classifiers = [
   "Development Status :: 3 - Alpha",
@@ -50,6 +32,8 @@ classifiers = [
 ]
 
 [project.optional-dependencies]
+
+# dependencies required to run maite unit tests
 test = [
   "jupytext >= 1.14.0",
   "numpydoc >= 1.5.0",
@@ -77,7 +61,15 @@ builddocs = [
   "datasets",
   "transformers",
   "ultralytics",
-  "watermark"
+  "watermark",
+  "tox (>=4.24.2,<5.0.0)"
+]
+
+# dependencies required to contribute to maite as a developer
+# (in addition to those listed in 'test' and 'builddocs' extras)
+dev = [
+  "tox",
+  "pre-commit"
 ]
 
 [project.urls]
@@ -86,20 +78,20 @@ builddocs = [
 "Source" = "https://github.com/mit-ll-ai-technology/maite"
 
 
-[tool.setuptools_scm]
-write_to = "src/maite/_version.py"
-version_scheme = "no-guess-dev"
+[tool.poetry]
+version = "0.0.0"
 
+[tool.poetry.requires-plugins]
+poetry-dynamic-versioning = { version = ">=1.0.0,<2.0.0", extras = ["plugin"] }
 
-[tool.setuptools]
-package-dir = { "" = "src" }
+[tool.poetry-dynamic-versioning]
+enable = true
+vcs = "git"
 
-[tool.setuptools.packages.find]
-where = ["src"]
-exclude = ["tests*", "tests.*"]
-
-[tool.setuptools.package-data]
-maite = ["py.typed"]
+[tool.poetry-dynamic-versioning.substitution]
+folders = [
+    { path = "src/maite", files = ["_version.py"] }
+]
 
 
 [tool.isort]
