@@ -58,6 +58,14 @@ def is_hypothesis_available():
     return importlib.util.find_spec("hypothesis") is not None
 
 
+def is_yolov5_available():
+    return importlib.util.find_spec("yolov5") is not None
+
+
+def is_ultralytics_available():
+    return importlib.util.find_spec("ultralytics") is not None
+
+
 if is_pytest_available():
     import pytest
 
@@ -87,4 +95,7 @@ if is_pytest_available():
     )
     requires_torcheval = pytest.mark.skipif(
         not is_torcheval_available(), reason="test requires torcheval"
+    )
+    requires_ultralytics = pytest.mark.skipif(
+        not is_ultralytics_available(), reason="test requires ultralytics"
     )

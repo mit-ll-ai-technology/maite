@@ -234,15 +234,16 @@ class Model(gen.Model[InputBatchType, TargetBatchType], Protocol):
 
     We can now show the class probabilities returned by the model for each image in the batch.
 
-    >>> for probs in out:
+    >>> np.set_printoptions(floatmode='fixed', precision=2)  # for reproducible output for doctest
+    >>> for probs in out:  # doctest: +NORMALIZE_WHITESPACE
     ...     print(np.round(probs, 2))
-    [0.16 0.1  0.16 0.14 0.04 0.02 0.06 0.04 0.17 0.1 ]
+    [0.16 0.10 0.16 0.14 0.04 0.02 0.06 0.04 0.17 0.10]
     [0.21 0.16 0.04 0.07 0.08 0.05 0.09 0.03 0.18 0.09]
     [0.15 0.11 0.13 0.11 0.09 0.09 0.07 0.04 0.19 0.02]
-    [0.04 0.08 0.14 0.07 0.12 0.2  0.11 0.06 0.14 0.04]
+    [0.04 0.08 0.14 0.07 0.12 0.20 0.11 0.06 0.14 0.04]
     [0.03 0.08 0.06 0.05 0.17 0.18 0.09 0.03 0.12 0.19]
-    [0.09 0.04 0.1  0.03 0.32 0.05 0.07 0.04 0.15 0.09]
-    [0.15 0.05 0.1  0.05 0.11 0.14 0.04 0.08 0.08 0.2 ]
+    [0.09 0.04 0.10 0.03 0.32 0.05 0.07 0.04 0.15 0.09]
+    [0.15 0.05 0.10 0.05 0.11 0.14 0.04 0.08 0.08 0.20]
     [0.11 0.11 0.08 0.11 0.08 0.05 0.24 0.03 0.08 0.12]
 
     Note that when writing a Model implementer, return types may be narrower than the

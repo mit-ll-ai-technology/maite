@@ -44,7 +44,6 @@ test = [
   "torch >=1.7, != 1.12.0"
 ]
 
-
 # dependencies required to build all documentation with sphinx
 # (This is required because all classes/functions documented with `autodoc`
 # and `autosummary` must be importable)
@@ -70,6 +69,19 @@ builddocs = [
 dev = [
   "tox",
   "pre-commit"
+]
+
+# dependencies required to use YOLO model wrappers
+yolo-models = [
+  "boto3 (>=1.35)",
+  "botocore (>=1.35)",
+  "roboflow (>=1.1.30)",
+  "matplotlib (>=3.7.1)",
+  "pandas (>=2.0)",
+  "opencv-python-headless (>=4.6.0)",
+  "torch (>=2.2.0)",
+  "ultralytics (>=8.2.78)",
+  "yolov5 (>=7.0.13)"
 ]
 
 [project.urls]
