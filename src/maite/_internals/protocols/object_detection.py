@@ -613,12 +613,13 @@ class Augmentation(
     ... )
     >>> mdb: od.DatumMetadataBatchType = list({"id": i} for i in range(N_DATAPOINTS))
     >>> # Display the first datum in batch, first color channel, and only first 5 rows and cols
-    >>> np.array(xb[0])[0][:5, :5]
-    array([[0., 0., 0., 0., 0.],
-           [0., 0., 0., 0., 0.],
-           [0., 0., 0., 0., 0.],
-           [0., 0., 0., 0., 0.],
-           [0., 0., 0., 0., 0.]])
+    >>> np.set_printoptions(floatmode='fixed', precision=3)  # for reproducible output for doctest
+    >>> np.array(xb[0])[0][:5, :5]  # doctest: +NORMALIZE_WHITESPACE
+    array([[0.000, 0.000, 0.000, 0.000, 0.000],
+           [0.000, 0.000, 0.000, 0.000, 0.000],
+           [0.000, 0.000, 0.000, 0.000, 0.000],
+           [0.000, 0.000, 0.000, 0.000, 0.000],
+           [0.000, 0.000, 0.000, 0.000, 0.000]])
 
     Now we create the Augmentation, which will apply random noise (rounded to 3 decimal
     places) to the input data using the `numpy.random.random` and `np.round` functions.
@@ -653,12 +654,12 @@ class Augmentation(
 
     >>> xb_aug, yb_aug, mdb_aug = noise((xb, yb, mdb))
     >>> # Display the first datum in batch, first color channel, and only first 5 rows and cols
-    >>> np.array(xb_aug[0])[0][:5, :5]
-    array([[0.417, 0.72 , 0.   , 0.302, 0.147],
+    >>> np.array(xb_aug[0])[0][:5, :5]  # doctest: +NORMALIZE_WHITESPACE
+    array([[0.417, 0.720, 0.000, 0.302, 0.147],
            [0.419, 0.685, 0.204, 0.878, 0.027],
            [0.801, 0.968, 0.313, 0.692, 0.876],
            [0.098, 0.421, 0.958, 0.533, 0.692],
-           [0.989, 0.748, 0.28 , 0.789, 0.103]])
+           [0.989, 0.748, 0.280, 0.789, 0.103]])
     """
 
     ...
