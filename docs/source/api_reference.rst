@@ -24,8 +24,8 @@ Data, Datasets, & DataLoaders
 -----------------------------
 
 .. autosummary::
-   :template: class_no_autosummary_attrs.rst
    :toctree: generated/
+   :template: obj_no_autosummary_attrs.rst
 
    protocols.ArrayLike
 
@@ -41,6 +41,7 @@ Models
 
 .. autosummary::
    :toctree: generated/
+   :template: obj_no_autosummary_attrs.rst
 
    protocols.image_classification.Model
    protocols.object_detection.Model
@@ -50,6 +51,7 @@ Augmentations
 
 .. autosummary::
    :toctree: generated/
+   :template: obj_no_autosummary_attrs.rst
 
    protocols.image_classification.Augmentation
    protocols.object_detection.Augmentation
@@ -59,6 +61,7 @@ Metrics
 
 .. autosummary::
    :toctree: generated/
+   :template: obj_no_autosummary_attrs.rst
 
    protocols.image_classification.Metric
    protocols.object_detection.Metric

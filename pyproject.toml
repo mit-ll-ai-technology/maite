@@ -57,7 +57,7 @@ builddocs = [
   "torchmetrics",
   "torchvision",
   "pycocotools",
-  "datasets",
+  "datasets>=3",
   "transformers",
   "ultralytics",
   "watermark",

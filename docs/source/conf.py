@@ -13,6 +13,7 @@
 # import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
+
 import maite
 
 # -- Project information -----------------------------------------------------
@@ -35,25 +36,26 @@ REPO_URL = "https://github.com/mit-ll-ai-technology/maite"
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    "sphinx.ext.autodoc",
-    "sphinx.ext.extlinks",
-    "sphinx.ext.intersphinx",
-    "sphinx.ext.mathjax",
-    "sphinx.ext.viewcode",
-    "sphinx.ext.githubpages",
-    "sphinx.ext.autosummary",
-    "numpydoc",
-    "sphinx_copybutton",
-    "sphinx_design",
-    "sphinx_codeautolink",
-    "myst_parser",
-    "sphinx.ext.doctest",
+    # Core Sphinx extensions first
+    "sphinx.ext.autodoc",  # Auto-generate docs from docstrings
+    "sphinx.ext.intersphinx",  # Link to external projects' documentation
+    "sphinx.ext.autosummary",  # Generate summary tables (needs autodoc)
+    "sphinx.ext.mathjax",  # Render math equations
+    "sphinx.ext.viewcode",  # Link to source code
+    "sphinx.ext.githubpages",  # Deploy to GitHub Pages
+    "sphinx.ext.extlinks",  # Define external links shorthand
+    # Third-party extensions (order matters!)
+    "numpydoc",  # Must come after sphinx.ext.autodoc!
+    "myst_parser",  # Parse Markdown files with MyST syntax
+    "sphinx_copybutton",  # Add copy-to-clipboard buttons to code blocks
+    "sphinx_design",  # UI components (cards, tabs, etc.)
+    "sphinx_codeautolink",  # Link symbols in code examples (last!)
 ]
 
 # set autosummary_generate to True to repopulate autosummary-generated rst files
 # (needed only after adding/removing objects (e.g. classes/functions) under
 # 'autosummary' directives in 'api_reference.rst'.
-autosummary_generate = False
+autosummary_generate = True
 numpydoc_show_inherited_class_members = False
 numpydoc_class_members_toctree = False
 # prevents build warnings resulting from Sphinx not finding generated documentation for
@@ -74,6 +76,16 @@ autodoc_typehints = "none"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
+
+# Ensure warnings printed include type information
+# (Warnings printed will thus be formatted as f'{warning_text}[{warning_type}]')
+show_warning_types = True
+
+# Suppress specific warnings using pattern matching
+suppress_warnings = [
+    "codeautolink.match_block"  # suppress warnings from codeautolink
+    # (caused by 6 doctest directives in numpy docstring examples)
+]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.

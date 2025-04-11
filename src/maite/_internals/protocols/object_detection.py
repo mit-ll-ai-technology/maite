@@ -302,6 +302,7 @@ class Model(gen.Model[InputBatchType, TargetBatchType], Protocol):
 
     Examples
     --------
+
     We create a simple MAITE-compliant object detection model, note it is a dummy model.
 
     >>> from dataclasses import dataclass
@@ -593,11 +594,11 @@ class Augmentation(
     create the following batch of object detection data:
 
     • `xb` is the input batch data. Our batch will include `N_DATAPOINTS` number of samples. Note
-    that we initialize all of the data to zeros in this example to demonstrate the augmentations
-    better.
+      that we initialize all of the data to zeros in this example to demonstrate the augmentations
+      better.
 
     • `yb` is the object detection target data, which in this example represents zero object
-    detections for each input datum (by having empty bounding boxes and class labels and scores).
+      detections for each input datum (by having empty bounding boxes and class labels and scores).
 
     • `mdb` is the associated metadata for each input datum.
 
