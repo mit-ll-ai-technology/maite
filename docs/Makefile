@@ -14,7 +14,7 @@ BUILDDIR      ?= build
 
 # SOURCEDIR is source directory given to sphinx. It holds all rst inputs,
 # both those copied from docs/source and those generated from notebooks.
-SOURCEDIR     := $(BUILDDIR)/source
+SOURCEDIR     ?= source
 
 # IPYNB_DIR holds jupyter notebooks that will be converted to .rst files
 IPYNB_DIR := ../examples
@@ -42,8 +42,7 @@ $(GENERATED_RST_DIR)/%.rst: $(IPYNB_DIR)/%.ipynb
 notebook_rst: $(GENERATED_RST_FILES)
 
 html: notebook_rst
-	cp -r ./source/* $(SOURCEDIR);
 	# $GENERATED_RST_FILES already generated in $(SOURCEDIR)
-	sphinx-build -b html $(SPHINXOPTS) $(SOURCEDIR) $(BUILDDIR)/html
+	sphinx-build -b html -v $(SPHINXOPTS) $(SOURCEDIR) $(BUILDDIR)/html
 
 

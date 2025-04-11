@@ -184,10 +184,6 @@ We will see concrete examples of this parsing paradigm in practice later.
 [^parse]: In effect, the difference between a validator and a parser is all in the return type. Validators convey no additional type information, whereas a parser preserves knowledge – in the form of a statically defined type – of the validation process. I encountered this definition of a parser from the excellent article [Parse, Don't Validate](https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/), which goes on to say:
     > What is a parser? Really, a parser is just a function that consumes less-structured input and produces more-structured output. By its very nature, a parser is a partial function — some values in the domain do not correspond to any value in the range — so all parsers must have some notion of failure [...] Under this flexible definition, parsers are an incredibly powerful tool: they allow discharging checks on input up-front, right on the boundary between a program and the outside world, and once those checks have been performed, they never need to be checked again!
 
-
-[^popular_parsers]: Although we used `phantom-types` here, the most popular parsing library for Python is . 
-
-
 Thus, **type annotations used in conjunction with parsers can help make illegal states unrepresentable**.
 
 

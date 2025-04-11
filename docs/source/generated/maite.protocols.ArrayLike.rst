@@ -3,4 +3,4 @@
 
 .. currentmodule:: maite.protocols
 
-.. autoclass:: ArrayLike
+.. autodata:: ArrayLike
