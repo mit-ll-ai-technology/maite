@@ -100,8 +100,8 @@ MetricComputeReturnType = dict[str, Any]
 
 
 # Define component metadata types
-# (currently these are completely ML subproblem agnostic, but it is
-# possible to make each generic to support specializing by subproblem)
+# (currently these are completely AI task agnostic, but it is
+# possible to make each generic to support specializing by AI task)
 
 
 # If we created some 'standard' set of required component fields, we could
