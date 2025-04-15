@@ -77,7 +77,7 @@ class _DummyMetric(Metric):
 
 
 # Note: These 3 TypeVars don't capture coupling constraints between
-# types of each (i.e. all should be drawn from same subproblem).
+# types of each (i.e. all should be drawn from same AI task).
 
 T_in = TypeVar("T_in", bound=SomeInputType)
 T_tgt = TypeVar("T_tgt", bound=SomeTargetType)
@@ -111,7 +111,7 @@ class _SimpleDataLoader(Generic[T_in, T_tgt, T_md]):
     Simple dataloader to create by default should a user not provide their own
     dataloader but does provide a Dataset.
 
-    Preconditions: dataset and collate_fn come from same ml subproblem domain
+    Preconditions: dataset and collate_fn come from same AI task domain
     """
 
     def __init__(

@@ -30,7 +30,7 @@ class ObjectDetectionTarget(Protocol):
     An object-detection target protocol.
 
     This class is used to encode both predictions and ground-truth labels in the object
-    detection problem.
+    detection AI task.
 
     Implementers must populate the following attributes:
 
@@ -93,7 +93,7 @@ CollateFn: TypeAlias = Callable[
 
 class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
     """
-    A dataset protocol for object detection ML subproblem providing datum-level data
+    A dataset protocol for object detection AI task providing datum-level data
     access.
 
     Implementers must provide index lookup (via `__getitem__(ind: int)` method) and
@@ -254,7 +254,7 @@ class DataLoader(
     Protocol,
 ):
     """
-    A dataloader protocol for the object detection ML subproblem providing
+    A dataloader protocol for the object detection AI task providing
     batch-level data access.
 
     Implementers must provide an iterable object (returning an iterator via the
@@ -281,7 +281,7 @@ class DataLoader(
 
 class Model(gen.Model[InputBatchType, TargetBatchType], Protocol):
     """
-    A model protocol for the object detection ML subproblem.
+    A model protocol for the object detection AI task.
 
     Implementers must provide a `__call__` method that operates on a batch of model inputs
     (as `Sequence[ArrayLike]`s) and returns a batch of model targets (as
@@ -377,7 +377,7 @@ class Model(gen.Model[InputBatchType, TargetBatchType], Protocol):
 
 class Metric(gen.Metric[TargetBatchType], Protocol):
     """
-    A metric protocol for the object detection ML subproblem.
+    A metric protocol for the object detection AI task.
 
     A metric in this sense is expected to measure the level of agreement between model
     predictions and ground-truth labels.
@@ -539,7 +539,7 @@ class Augmentation(
     Protocol,
 ):
     """
-    An augmentation protocol for the object detection subproblem.
+    An augmentation protocol for the object detection AI task.
 
     An augmentation is expected to take a batch of data and return a modified version of
     that batch. Implementers must provide a single method that takes and returns a

@@ -11,3 +11,4 @@ Articles and posts about topics relevant -- directly or indirectly -- to MAITE.
 
    explanation/protocol_overview
    explanation/type_hints_for_API_design
+   explanation/maite_vision

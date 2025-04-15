@@ -111,6 +111,8 @@ known_first_party = ["maite", "tests"]
 profile = "black"
 combine_as_imports = true
 
+[tool.codespell]
+skip = '*.svg'
 
 [tool.coverage.report]
 exclude_lines = [
