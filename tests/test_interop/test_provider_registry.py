@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import itertools
+from typing import Sequence
 
 import pytest
 
@@ -24,7 +25,7 @@ class AModel:
     def __init__(self):
         self.metadata = ModelMetadata(id="a_model")
 
-    def __call__(self, arg: list):
+    def __call__(self, arg: Sequence):
         return arg
 
 

@@ -3,9 +3,14 @@
 # SPDX-License-Identifier: MIT
 
 import numpy as np
+import pytest
 
 from maite._internals.protocols import generic as gen
 from maite.workflows import evaluate, predict
+from tests.component_impls import (
+    ic_simple_component_impls as ici,
+    od_simple_component_impls as odi,
+)
 
 
 def test_simple_ic_structural(
@@ -28,14 +33,14 @@ def test_simple_ic_structural(
     assert isinstance(ic_simple_model, gen.Model), "model structural check fail"
 
 
-def test_simple_ic_evaluate(
-    ic_simple_augmentation,
-    ic_simple_dataset,
-    ic_simple_dataloader,
-    ic_simple_model,
-    ic_simple_metric,
-):
+def test_simple_ic_evaluate():
     # Run types through "evaluate" workflow
+
+    ic_simple_model = ici.ModelImpl()
+    ic_simple_dataset = ici.DatasetImpl()
+    ic_simple_dataloader = ici.DataLoaderImpl(dataset=ici.DatasetImpl())
+    ic_simple_metric = ici.MetricImpl()
+    ic_simple_augmentation = ici.AugmentationImpl()
 
     evaluate(
         model=ic_simple_model,
@@ -69,6 +74,124 @@ def test_simple_ic_predict(
 
     predict(
         model=ic_simple_model,
+        dataset=ic_simple_dataset,
+        augmentation=ic_simple_augmentation,
+    )
+
+
+def test_simple_od_structural(
+    od_simple_augmentation,
+    od_simple_dataset,
+    od_simple_dataloader,
+    od_simple_model,
+    od_simple_metric,
+):
+    # verify types pass isinstance checks
+
+    assert isinstance(
+        od_simple_augmentation, gen.Augmentation
+    ), "augmentation structural check fail"
+    assert isinstance(od_simple_metric, gen.Metric), "metric structural check fail"
+    assert isinstance(od_simple_dataset, gen.Dataset), "dataset structural check fail"
+    assert isinstance(
+        od_simple_dataloader, gen.DataLoader
+    ), "dataloader structural check fail"
+    assert isinstance(od_simple_model, gen.Model), "model structural check fail"
+
+
+def test_simple_od_evaluate(
+    od_simple_augmentation,
+    od_simple_dataset,
+    od_simple_dataloader,
+    od_simple_model,
+    od_simple_metric,
+):
+    # Run types through "evaluate" workflow
+
+    od_simple_model = odi.ModelImpl()
+    od_simple_dataset = odi.DatasetImpl()
+    od_simple_dataloader = odi.DataLoaderImpl(dataset=odi.DatasetImpl())
+    od_simple_metric = odi.MetricImpl()
+    od_simple_augmentation = odi.AugmentationImpl()
+
+    evaluate(
+        model=od_simple_model,
+        dataloader=od_simple_dataloader,
+        metric=od_simple_metric,
+        augmentation=od_simple_augmentation,
+    )
+
+    evaluate(
+        model=od_simple_model,
+        dataset=od_simple_dataset,
+        metric=od_simple_metric,
+        augmentation=od_simple_augmentation,
+    )
+
+
+def test_simple_od_predict(
+    od_simple_augmentation,
+    od_simple_dataset,
+    od_simple_dataloader,
+    od_simple_model,
+):
+    # Run types through "predict" workflow
+
+    predict(
+        model=od_simple_model,
+        dataloader=od_simple_dataloader,
+        augmentation=od_simple_augmentation,
+    )
+
+    predict(
+        model=od_simple_model,
+        dataset=od_simple_dataset,
+        augmentation=od_simple_augmentation,
+    )
+
+
+@pytest.mark.xfail
+def test_simple_bad_evaluate(
+    ic_simple_augmentation,
+    ic_simple_dataset,
+    od_simple_dataloader,
+    od_simple_model,
+    od_simple_metric,
+):
+    # Run types through "evaluate" workflow
+
+    evaluate(
+        model=od_simple_model,
+        dataloader=od_simple_dataloader,
+        metric=od_simple_metric,
+        augmentation=ic_simple_augmentation,
+    )
+
+    evaluate(
+        model=od_simple_model,
+        dataset=ic_simple_dataset,
+        metric=od_simple_metric,
+        augmentation=ic_simple_augmentation,
+    )
+
+
+@pytest.mark.xfail
+def test_simple_bad_predict(
+    ic_simple_augmentation,
+    ic_simple_dataset,
+    od_simple_dataloader,
+    od_simple_model,
+):
+    # Run types through "predict" workflow
+
+    predict(
+        model=od_simple_model,
+        dataloader=od_simple_dataloader,
+        augmentation=ic_simple_augmentation,
+    )
+
+    predict(
+        model=od_simple_model,
         dataset=ic_simple_dataset,
         augmentation=ic_simple_augmentation,
     )

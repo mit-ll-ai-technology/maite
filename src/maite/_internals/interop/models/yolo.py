@@ -9,7 +9,7 @@ from typing import Optional, Union
 
 import numpy as np
 import torch
-from typing_extensions import TypeAlias
+from typing_extensions import Sequence, TypeAlias, cast
 from ultralytics import YOLO
 from ultralytics.engine.results import Results
 from yolov5.models.common import AutoShape, Detections
@@ -84,8 +84,8 @@ class YoloObjectDetector:
     >>> C = 3  # number of color channels
     >>> H = 5  # img height
     >>> W = 6  # img width
-    >>> batch_data: od.InputBatchType = list(np.random.rand(N_DATAPOINTS, C, H, W))
-    >>> model_results: od.TargetBatchType = wrapped_yolov8_model(batch_data)
+    >>> batch_data: Sequence[od.InputType] = list(np.random.rand(N_DATAPOINTS, C, H, W))
+    >>> model_results: Sequence[od.TargetType] = wrapped_yolov8_model(batch_data)
     >>> print(model_results)
     [ObjectDetectionTargets(boxes=array([], shape=(0, 4), dtype=float32), labels=array([], dtype=uint8), scores=array([], dtype=float32)), ObjectDetectionTargets(boxes=array([], shape=(0, 4), dtype=float32), labels=array([], dtype=uint8), scores=array([], dtype=float32)), ObjectDetectionTargets(boxes=array([], shape=(0, 4), dtype=float32), labels=array([], dtype=uint8), scores=array([], dtype=float32)), ObjectDetectionTargets(boxes=array([], shape=(0, 4), dtype=float32), labels=array([], dtype=uint8), scores=array([], dtype=float32)), ObjectDetectionTargets(boxes=array([], shape=(0, 4), dtype=float32), labels=array([], dtype=uint8), scores=array([], dtype=float32))]
 
@@ -199,11 +199,11 @@ class YoloObjectDetector:
 
         return all_detections
 
-    def __call__(self, batch: od.InputBatchType) -> list[ObjectDetectionTargets]:
+    def __call__(self, batch: Sequence[od.InputType]) -> list[ObjectDetectionTargets]:
         """
         Parameters
         ----------
-        batch : od.InputBatchType
+        batch : Sequence[od.InputType]
             Sequence of batch images to perform inference on.
 
         Returns
@@ -223,11 +223,13 @@ class YoloObjectDetector:
         if isinstance(batch[0], torch.Tensor):
             # Type ignore because ArrayLike is not guaranteed to have .cpu(), however,
             # we know for a fact it is a torch.Tensor here
-            batch = [b.cpu().numpy().transpose((1, 2, 0)) for b in batch]  # type: ignore
+            batch = cast(Sequence[torch.Tensor], batch)
+            batch = [b.cpu().numpy().transpose((1, 2, 0)) for b in batch]
         elif isinstance(batch[0], np.ndarray):
             # Type ignore because ArrayLike is not guaranteed to have .transpose,
             # however, we know for a fact it is an np.ndarray here
-            batch = [b.transpose((1, 2, 0)) for b in batch]  # type: ignore
+            batch = cast(Sequence[np.ndarray], batch)
+            batch = [b.transpose((1, 2, 0)) for b in batch]
         else:
             batch = [np.array(b).transpose((1, 2, 0)) for b in batch]
 

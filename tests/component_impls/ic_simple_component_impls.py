@@ -18,10 +18,9 @@ from maite.protocols import (
     ModelMetadata,
 )
 from maite.protocols.image_classification import (
-    DatumMetadataBatchType,
     DatumMetadataType,
-    InputBatchType,
-    TargetBatchType,
+    InputType,
+    TargetType,
 )
 
 # define lightweight component implementations
@@ -31,10 +30,6 @@ from maite.protocols.image_classification import (
 # InputType is np.array of shape (C, H, W)
 # TargetType is np.array of shape (Cl,)
 # DatumMetadataType is DatumMetadata (i.e. a specialized TypedDict)
-#
-# InputBatchType is Sequence[np.array] with elements of shape (C, H, W)
-# TargetBatchType is Sequence[np.array] with elements of shape (Cl,)
-# DatumMetadataBatchType = Sequence[DatumMetadata]
 
 N_CLASSES = 5  # how many classes
 N_DATAPOINTS = 10  # datapoints in dataset
@@ -114,7 +109,9 @@ class AugmentationImpl:
 
     def __call__(
         self,
-        __datum_batch: tuple[InputBatchType, TargetBatchType, DatumMetadataBatchType],
+        __datum_batch: tuple[
+            Sequence[InputType], Sequence[TargetType], Sequence[DatumMetadataType]
+        ],
     ) -> tuple[list[np.ndarray], list[np.ndarray], Sequence[EnrichedDatumMetadata]]:
         input_batch_aug = copy.deepcopy([np.array(elem) for elem in __datum_batch[0]])
         target_batch_aug = copy.deepcopy([np.array(elem) for elem in __datum_batch[1]])
@@ -144,7 +141,7 @@ class ModelImpl:
     def __init__(self):
         self.metadata = ModelMetadata({"id": "simple_model"})
 
-    def __call__(self, __input_batch: InputBatchType) -> list[np.ndarray]:
+    def __call__(self, __input_batch: Sequence[InputType]) -> list[np.ndarray]:
         target_batch = np.zeros((N_DATAPOINTS, N_CLASSES))
         for i, target_instance in enumerate(target_batch):
             target_instance[i % N_CLASSES] = 1
@@ -160,7 +157,7 @@ class MetricImpl:
         return None
 
     def update(
-        self, __pred_batch: TargetBatchType, __target_batch: TargetBatchType
+        self, __pred_batch: Sequence[TargetType], __target_batch: Sequence[TargetType]
     ) -> None:
         return None
 

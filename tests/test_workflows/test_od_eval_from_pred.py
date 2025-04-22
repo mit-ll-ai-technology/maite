@@ -71,7 +71,7 @@ def matching_boxes_percentage_metric() -> od.Metric:
 
 
 @pytest.fixture
-def mock_prediction_batches() -> Sequence[od.TargetBatchType]:
+def mock_prediction_batches() -> Sequence[Sequence[od.TargetType]]:
     prediction_boxes: list[tuple[int, int, int, int]] = [
         (1, 1, 12, 12),
         (100, 100, 120, 120),
@@ -81,7 +81,7 @@ def mock_prediction_batches() -> Sequence[od.TargetBatchType]:
 
 
 @pytest.fixture
-def mock_target_batches() -> Sequence[od.TargetBatchType]:
+def mock_target_batches() -> Sequence[Sequence[od.TargetType]]:
     target_boxes: list[tuple[int, int, int, int]] = [
         (1, 1, 12, 12),
         (90, 90, 120, 120),
@@ -92,14 +92,14 @@ def mock_target_batches() -> Sequence[od.TargetBatchType]:
 
 def _create_od_target_batch(
     boxes: list[tuple[int, int, int, int]]
-) -> od.TargetBatchType:
+) -> Sequence[od.TargetType]:
     """
     Creates a single instance of an ObjectDetectionTarget, from the input boxes.
     Args:
         boxes (list[tuple[int, int, int, int]]): Boxes associated with a target (i.e., a single image)
 
     Returns:
-        od.TargetBatchType: A batch with a single object detection target
+        Sequence[od.TargetType]: A batch with a single object detection target
     """
     num_boxes = len(boxes)
     fake_labels = np.random.randint(0, N_CLASSES, num_boxes)
@@ -116,8 +116,8 @@ def test_simple_od_evaluate_from_predictions(
     matching_boxes_percentage_metric, mock_prediction_batches, mock_target_batches
 ) -> None:
     metric: od.Metric = matching_boxes_percentage_metric
-    predictions: Sequence[od.TargetBatchType] = mock_prediction_batches
-    targets: Sequence[od.TargetBatchType] = mock_target_batches
+    predictions: Sequence[Sequence[od.TargetType]] = mock_prediction_batches
+    targets: Sequence[Sequence[od.TargetType]] = mock_target_batches
     metric_return: MetricComputeReturnType = evaluate_from_predictions(
         metric=metric,
         predictions=predictions,

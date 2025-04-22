@@ -50,12 +50,12 @@ def simple_ic_metric() -> ic.Metric:
 
 
 @pytest.fixture
-def mock_prediction_batches() -> Sequence[ic.TargetBatchType]:
-    target_batch_01: ic.TargetBatchType = [
+def mock_prediction_batches() -> Sequence[Sequence[ic.TargetType]]:
+    target_batch_01: Sequence[ic.TargetType] = [
         np.array([0.8, 0.1, 0.0, 0.1]),
         np.array([0.0, 0.1, 0.8, 0.1]),
     ]
-    target_batch_02: ic.TargetBatchType = [
+    target_batch_02: Sequence[ic.TargetType] = [
         np.array([0.1, 0.2, 0.6, 0.1]),
         np.array([0.1, 0.1, 0.7, 0.1]),
     ]
@@ -63,12 +63,12 @@ def mock_prediction_batches() -> Sequence[ic.TargetBatchType]:
 
 
 @pytest.fixture
-def mock_target_batches() -> Sequence[ic.TargetBatchType]:
-    target_batch_01: ic.TargetBatchType = [
+def mock_target_batches() -> Sequence[Sequence[ic.TargetType]]:
+    target_batch_01: Sequence[ic.TargetType] = [
         np.array([1.0, 0.0, 0.0, 0.0]),
         np.array([0.0, 0.0, 1.0, 0.0]),
     ]
-    target_batch_02: ic.TargetBatchType = [
+    target_batch_02: Sequence[ic.TargetType] = [
         np.array([0.0, 1.0, 0.0, 0.0]),
         np.array([0.0, 0.0, 1.0, 0.0]),
     ]
@@ -79,8 +79,8 @@ def test_simple_ic_evaluate_from_predictions(
     simple_ic_metric, mock_prediction_batches, mock_target_batches
 ) -> None:
     metric: ic.Metric = simple_ic_metric
-    predictions: Sequence[ic.TargetBatchType] = mock_prediction_batches
-    targets: Sequence[ic.TargetBatchType] = mock_target_batches
+    predictions: Sequence[Sequence[ic.TargetType]] = mock_prediction_batches
+    targets: Sequence[Sequence[ic.TargetType]] = mock_target_batches
 
     metric_return: MetricComputeReturnType = evaluate_from_predictions(
         metric=metric,

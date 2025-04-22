@@ -56,22 +56,6 @@ DatumMetadataType_in = TypeVar(
     "DatumMetadataType_in", contravariant=False, covariant=False
 )
 
-
-# create batch "versions" of all type vars
-InputBatchType_co = TypeVar("InputBatchType_co", covariant=True)
-TargetBatchType_co = TypeVar("TargetBatchType_co", covariant=True)
-DatumMetadataBatchType_co = TypeVar("DatumMetadataBatchType_co", covariant=True)
-
-InputBatchType_cn = TypeVar("InputBatchType_cn", contravariant=True)
-TargetBatchType_cn = TypeVar("TargetBatchType_cn", contravariant=True)
-DatumMetadataBatchType_cn = TypeVar("DatumMetadataBatchType_cn", contravariant=True)
-
-InputBatchType_in = TypeVar("InputBatchType_in", contravariant=False, covariant=False)
-TargetBatchType_in = TypeVar("TargetBatchType_in", covariant=False, contravariant=False)
-DatumMetadataBatchType_in = TypeVar(
-    "DatumMetadataBatchType_in", covariant=False, contravariant=False
-)
-
 MetricComputeReturnType = dict[str, Any]
 
 # TODO: Consider whether using Datum as a TypeAlias is more confusing than helpful
@@ -198,7 +182,13 @@ class Dataset(Protocol, Generic[InputType_co, TargetType_co, DatumMetadataType_c
 class DataLoader(Protocol, Generic[InputType_co, TargetType_co, DatumMetadataType_co]):
     def __iter__(
         self,
-    ) -> Iterator[tuple[InputType_co, TargetType_co, DatumMetadataType_co]]:
+    ) -> Iterator[
+        tuple[
+            Sequence[InputType_co],
+            Sequence[TargetType_co],
+            Sequence[DatumMetadataType_co],
+        ]
+    ]:
         ...
 
     # no longer having Dataloader operate as the Iterator, just using it as an iterable
@@ -208,16 +198,18 @@ class DataLoader(Protocol, Generic[InputType_co, TargetType_co, DatumMetadataTyp
 @runtime_checkable
 class Model(
     Protocol,
-    Generic[InputBatchType_cn, TargetBatchType_co],
+    Generic[InputType_cn, TargetType_co],
 ):
     metadata: ModelMetadata
 
-    def __call__(self, __batch_input: InputBatchType_cn) -> TargetBatchType_co:
+    def __call__(
+        self, __batch_input: Sequence[InputType_cn]
+    ) -> Sequence[TargetType_co]:
         ...
 
 
 @runtime_checkable
-class Metric(Protocol, Generic[TargetBatchType_cn]):
+class Metric(Protocol, Generic[TargetType_cn]):
     metadata: MetricMetadata
 
     def reset(self) -> None:
@@ -225,8 +217,8 @@ class Metric(Protocol, Generic[TargetBatchType_cn]):
 
     def update(
         self,
-        __preds_batch: TargetBatchType_cn,
-        __targets_batch: TargetBatchType_cn,
+        __preds_batch: Sequence[TargetType_cn],
+        __targets_batch: Sequence[TargetType_cn],
     ) -> None:
         ...
 
@@ -241,12 +233,12 @@ class Metric(Protocol, Generic[TargetBatchType_cn]):
 class Augmentation(
     Protocol,
     Generic[
-        InputBatchType_co,
-        TargetBatchType_co,
-        DatumMetadataBatchType_co,
-        InputBatchType_cn,
-        TargetBatchType_cn,
-        DatumMetadataBatchType_cn,
+        InputType_co,
+        TargetType_co,
+        DatumMetadataType_co,
+        InputType_cn,
+        TargetType_cn,
+        DatumMetadataType_cn,
     ],
 ):
     metadata: AugmentationMetadata
@@ -254,9 +246,13 @@ class Augmentation(
     def __call__(
         self,
         __batch: tuple[
-            InputBatchType_cn, TargetBatchType_cn, DatumMetadataBatchType_cn
+            Sequence[InputType_cn],
+            Sequence[TargetType_cn],
+            Sequence[DatumMetadataType_cn],
         ],
-    ) -> tuple[InputBatchType_co, TargetBatchType_co, DatumMetadataBatchType_co]:
+    ) -> tuple[
+        Sequence[InputType_co], Sequence[TargetType_co], Sequence[DatumMetadataType_co]
+    ]:
         ...
 
 

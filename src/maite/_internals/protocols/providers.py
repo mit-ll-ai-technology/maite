@@ -247,8 +247,8 @@ class MetricProvider(Protocol):
 
     def load_metric(self, metric_name: str) -> al.SomeMetric:
         # load_metric must return a supertype of all task-specific metrics
-        # since gen.Metric is contravariant wrt type argument, gen.Metric[Union[od.TargetBatchType, ic.TargetBatchType,...]]
-        # is gen.Metric[<SuperType of (od.TargetBatchType, ic.TargetBatchType,...)>]
+        # since gen.Metric is contravariant wrt type argument, gen.Metric[Union[Sequence[od.TargetType], Sequence[ic.TargetType],...]]
+        # is gen.Metric[<SuperType of (Sequence[od.TargetType], Sequence[ic.TargetType],...)>]
         # which is a *subtype* of all task specific metrics (note the reversal of supertype/subtype relationship)
         # when types are passed through contravariant argument of a generic
         """
