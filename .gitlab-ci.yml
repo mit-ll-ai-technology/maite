@@ -32,8 +32,14 @@ before_script:
   - source $TMP_DIR/venv/bin/activate
   - python -m pip install --upgrade pip
   - pip install tox
-  - apt-get update
-  - apt-get install -y libgl1-mesa-glx
+
+# Some (but not all jobs) need opengl library installed (required by YOLO wrapper)
+# Can't be put in global before_script because semgrep-sast-0 job doesn't use Debian runner
+# Can't be put in each local job's before_script because this causes global before_script to be ignored (I think)
+# YAML anchors allow these commands to be reused in multiple jobs (see: https://docs.gitlab.com/ci/yaml/yaml_optimization/)
+.install_libgl1: &install-libgl1
+  - apt-get update -qq
+  - apt-get install -y libgl1
 
 default:
   tags:
@@ -46,6 +52,7 @@ tests:
     matrix:
       - PYTHON_VERSIONS: ["3.9", "3.10", "3.11"]
   script:
+    - *install-libgl1
     - echo "Testing against minimum dependencies."
     - tox -e py
 
@@ -53,13 +60,15 @@ coverage:
   stage: test
   image: python:3.9
   script:
-  - echo "Coverage Testing"
-  - tox -e coverage
+    - *install-libgl1
+    - echo "Coverage Testing"
+    - tox -e coverage
 
 min-deps:
   stage: test
   image: python:3.9
   script:
+    - *install-libgl1
     - echo "Testing against minimum dependencies."
     - tox -e min-deps
 
