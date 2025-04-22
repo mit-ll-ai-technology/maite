@@ -64,7 +64,7 @@ The "MAITE component" and "MAITE task" abstractions are useful because they perm
 That's it. Regardless of a library's potentially complex inner workings, a highly-interoperable library should provide such components and tasks to guarantee broad interoperability for integrators.
 
 Structural Subtypes and Static Type Checking: Mechanisms for Defining and Verifying Standards
-============================================================================================
+=============================================================================================
 
 In the case of MAITE components, behavioral expectations are defined using Python structural types (viz. ``Protocol`` classes and ``TypedDict`` classes [#python_structural_types]_) and verified using a static type checker. [#pyright]_
 The Python structural types provide strict, consistent, and machine-readable definitions of MAITE components that specify minimum expected member variable names, member variable types, method names, and method type signatures.

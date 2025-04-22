@@ -18,10 +18,10 @@ from maite.protocols import (
     ModelMetadata,
 )
 from maite.protocols.object_detection import (
-    DatumMetadataBatchType,
-    InputBatchType,
+    DatumMetadataType,
+    InputType,
     ObjectDetectionTarget,
-    TargetBatchType,
+    TargetType,
 )
 
 # test lightweight implementations
@@ -31,10 +31,6 @@ from maite.protocols.object_detection import (
 # InputType is np.array of shape (C, H, W)
 # TargetType is ObjectDetectionTarget
 # DatumMetadataType is DatumMetadata (i.e. a specialized TypedDict)
-#
-# InputBatchType is Sequence[np.array] with elements of shape (C, H, W)
-# TargetBatchType is Sequence[ObjectDetectionTarget]
-# DatumMetadataBatchType is Sequence[DatumMetadata]
 
 
 N_CLASSES = 5  # how many classes
@@ -151,7 +147,9 @@ class AugmentationImpl:
 
     def __call__(
         self,
-        __datum_batch: tuple[InputBatchType, TargetBatchType, DatumMetadataBatchType],
+        __datum_batch: tuple[
+            Sequence[InputType], Sequence[TargetType], Sequence[DatumMetadataType]
+        ],
     ) -> tuple[
         list[np.ndarray],
         list[ObjectDetectionTargetImpl],
@@ -187,7 +185,7 @@ class ModelImpl:
         self.metadata = ModelMetadata(id="simple_model")
 
     def __call__(
-        self, __input_batch: InputBatchType
+        self, __input_batch: Sequence[InputType]
     ) -> Sequence[ObjectDetectionTargetImpl]:
         pass
 
@@ -221,7 +219,7 @@ class MetricImpl:
         return None
 
     def update(
-        self, __pred_batch: TargetBatchType, __target_batch: TargetBatchType
+        self, __pred_batch: Sequence[TargetType], __target_batch: Sequence[TargetType]
     ) -> None:
         return None
 

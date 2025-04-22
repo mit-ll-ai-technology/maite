@@ -6,12 +6,8 @@
 from __future__ import annotations
 
 from collections.abc import Iterable, Sequence
-from typing import Any, Generic, TypeVar, overload
+from typing import Any, Generic, TypeVar
 
-from maite._internals.protocols import (
-    image_classification as ic,
-    object_detection as od,
-)
 from maite._internals.protocols.generic import (
     Augmentation,
     CollateFn,
@@ -20,19 +16,6 @@ from maite._internals.protocols.generic import (
     Metric,
     MetricComputeReturnType,
     Model,
-)
-from maite._internals.protocols.task_aliases import (  # SomeInputType,; SomeMetadataType,; SomeTargetType,
-    OpenAugmentationType,
-    OpenDataLoaderType,
-    OpenDatasetType,
-    OpenMetricType,
-    OpenModelType,
-    SomeInputBatchType,
-    SomeInputType,
-    SomeMetadataBatchType,
-    SomeMetadataType,
-    SomeTargetBatchType,
-    SomeTargetType,
 )
 from maite._internals.utils import add_progress_bar
 from maite.errors import InvalidArgument
@@ -79,25 +62,25 @@ class _DummyMetric(Metric):
 # Note: These 3 TypeVars don't capture coupling constraints between
 # types of each (i.e. all should be drawn from same AI task).
 
-T_in = TypeVar("T_in", bound=SomeInputType)
-T_tgt = TypeVar("T_tgt", bound=SomeTargetType)
-T_md = TypeVar("T_md", bound=SomeMetadataType)
+T_input = TypeVar("T_input")
+T_target = TypeVar("T_target")
+T_metadata = TypeVar("T_metadata")
 
 
 def default_collate_fn(
-    batch_data_as_singles: Iterable[tuple[T_in, T_tgt, T_md]]
-) -> tuple[Sequence[T_in], Sequence[T_tgt], Sequence[T_md]]:
+    batch_data_as_singles: Iterable[tuple[T_input, T_target, T_metadata]],
+) -> tuple[Sequence[T_input], Sequence[T_target], Sequence[T_metadata]]:
     """
-    Describe how to create a tuple of
-    (InputBatchType, TargetBatchType, DatumMetadataBatchType)
+    Describe how to create a tuple of batches (i.e.,
+    (Sequence[InputType], Sequence[TargetType], Sequence[DatumMetadataType]) )
     from an iterator of tuples of
     (InputType, TargetType, DatumMetadataType)
     """
 
     # first just unpack inputs/targets/metadata from iterator into separate lists
-    input_batch: list[T_in] = []
-    target_batch: list[T_tgt] = []
-    metadata_batch: list[T_md] = []
+    input_batch: list[T_input] = []
+    target_batch: list[T_target] = []
+    metadata_batch: list[T_metadata] = []
     for input_datum, target_datum, metadata_datum in batch_data_as_singles:
         input_batch.append(input_datum)
         target_batch.append(target_datum)
@@ -106,7 +89,7 @@ def default_collate_fn(
     return input_batch, target_batch, metadata_batch
 
 
-class _SimpleDataLoader(Generic[T_in, T_tgt, T_md]):
+class _SimpleDataLoader(Generic[T_input, T_target, T_metadata]):
     """
     Simple dataloader to create by default should a user not provide their own
     dataloader but does provide a Dataset.
@@ -116,9 +99,9 @@ class _SimpleDataLoader(Generic[T_in, T_tgt, T_md]):
 
     def __init__(
         self,
-        dataset: Dataset[T_in, T_tgt, T_md],
+        dataset: Dataset[T_input, T_target, T_metadata],
         batch_size: int,
-        collate_fn: CollateFn = default_collate_fn,
+        collate_fn: CollateFn[T_input, T_target, T_metadata] = default_collate_fn,
     ):
         self.dataset = dataset
         self.batch_size = batch_size
@@ -169,65 +152,40 @@ class _SimpleDataLoader(Generic[T_in, T_tgt, T_md]):
 # procedures need to exist, at least not yet.)
 
 
-@overload
 def evaluate(
     *,
-    model: ic.Model,
-    metric: ic.Metric | None = None,
-    dataloader: ic.DataLoader | None = None,
-    dataset: ic.Dataset | None = None,
+    model: Model[T_input, T_target],
+    metric: Metric[T_target] | None = None,
+    dataloader: DataLoader[T_input, T_target, T_metadata] | None = None,
+    dataset: Dataset[T_input, T_target, T_metadata] | None = None,
     batch_size: int = 1,
-    augmentation: ic.Augmentation | None = None,
+    augmentation: (
+        Augmentation[
+            T_input,
+            T_target,
+            T_metadata,
+            T_input,
+            T_target,
+            T_metadata,
+        ]
+        | None
+    ) = None,
     return_augmented_data: bool = False,
     return_preds: bool = False,
+    collate_fn: CollateFn[T_input, T_target, T_metadata] = default_collate_fn,
 ) -> tuple[
     MetricComputeReturnType,
-    Sequence[ic.TargetBatchType],
-    Sequence[tuple[ic.InputBatchType, ic.TargetBatchType, ic.DatumMetadataBatchType]],
-]:
-    ...
-
-
-@overload
-def evaluate(
-    *,
-    model: od.Model,
-    metric: od.Metric | None = None,
-    dataloader: od.DataLoader | None = None,
-    dataset: od.Dataset | None = None,
-    batch_size: int = 1,
-    augmentation: od.Augmentation | None = None,
-    return_augmented_data: bool = False,
-    return_preds: bool = False,
-) -> tuple[
-    MetricComputeReturnType,
-    Sequence[od.TargetBatchType],
-    Sequence[tuple[od.InputBatchType, od.TargetBatchType, od.DatumMetadataBatchType]],
-]:
-    ...
-
-
-def evaluate(
-    *,
-    model: OpenModelType,
-    metric: OpenMetricType | None = None,
-    dataloader: OpenDataLoaderType | None = None,
-    dataset: OpenDatasetType | None = None,
-    batch_size: int = 1,
-    augmentation: OpenAugmentationType | None = None,
-    return_augmented_data: bool = False,
-    return_preds: bool = False,
-) -> tuple[
-    MetricComputeReturnType,
-    Sequence[SomeTargetBatchType],
-    Sequence[tuple[SomeInputBatchType, SomeTargetBatchType, SomeMetadataBatchType]],
+    Sequence[Sequence[T_target]],
+    Sequence[tuple[Sequence[T_input], Sequence[T_target], Sequence[T_metadata]]],
 ]:
     # doc-ignore: EX01
     """
     Evaluate a model's performance on data according to some metric with optional augmentation.
 
-    Some data source (either a dataloader or a dataset) must be provided
-    or an InvalidArgument exception is raised.
+    The types handled by all passed components must be compatible to avoid static type checking
+    errors. For example, if the __getitem__ method of a passed dataset returns some `InputType`
+    in the first element of the return tuple then the `model.__call__` argument must be type hinted
+    such that `Sequence[InputType]` can be assigned to it.
 
     Parameters
     ----------
@@ -255,50 +213,27 @@ def evaluate(
     return_preds : bool, (default=False)
         Set to True to return raw predictions as a function output.
 
+    collate_fn : Callable[[Iterable[tuple[T_input, T_target, T_metadata]]], tuple[Sequence[T_input], Sequence[T_target], Sequence[T_metadata]] ], (default=None)
+        Callable responsible for transforming an iterable of 3-tuples where each encodes a single
+        datapoint in some batch into a tuple of 3 sequences that each represent a batch of collated
+        inputs, collated targets, and collated metadata, respectively. Defaults to naively push
+        elements from input iterable onto sequences in their order of iteration.
+
     Returns
     -------
-    tuple[dict[str, Any], Sequence[TargetType], Sequence[tuple[InputBatchType, TargetBatchType, DatumMetadataBatchType]]]
+    tuple[dict[str, Any], Sequence[TargetType], Sequence[tuple[Sequence[InputType], Sequence[TargetType], Sequence[DatumMetadataType]]]]
         Tuple of returned metric value, sequence of model predictions, and
         sequence of data batch tuples fed to the model during inference. The actual
-        types represented by InputBatchType, TargetBatchType, and DatumMetadataBatchType will vary
-        by the domain of the components provided as input arguments (e.g. image
+        types represented by InputType, TargetType, and DatumMetadataType will vary
+        by the AI task of the components provided as input arguments (e.g., image
         classification or object detection.)
         Note that the second and third return arguments will be empty if
         return_augmented_data is False or return_preds is False, respectively.
-    """
 
-    return _evaluate(
-        model=model,
-        metric=metric,
-        dataloader=dataloader,
-        dataset=dataset,
-        batch_size=batch_size,
-        augmentation=augmentation,
-        collate_fn=default_collate_fn,
-        return_augmented_data=return_augmented_data,
-        return_preds=return_preds,
-    )
-
-
-def _evaluate(
-    *,
-    model: Model,
-    metric: Metric | None = None,
-    dataloader: DataLoader | None = None,
-    dataset: Dataset | None = None,
-    batch_size: int = 1,
-    augmentation: Augmentation | None = None,
-    collate_fn: CollateFn | None = None,
-    return_augmented_data: bool = False,
-    return_preds: bool = False,
-) -> tuple[
-    MetricComputeReturnType,
-    Sequence[SomeTargetBatchType],
-    Sequence[tuple[SomeInputBatchType, SomeTargetBatchType, SomeMetadataBatchType]],
-]:
-    """
-    Task-agnostically typed version of evaluate for use by any workflows that
-    wish to leverage evaluate internally in a task-agnostic way.
+    Raises
+    ------
+    InvalidArgument
+        If neither a dataloader nor a dataset is provided
     """
 
     # Validate potential input combinations.
@@ -316,6 +251,9 @@ def _evaluate(
         # user provided no metric
         metric = _DummyMetric()
 
+    if dataloader is not None and dataset is not None:
+        raise InvalidArgument("Do not provide both a dataloader and a dataset")
+
     if dataloader is None and dataset is None:
         # user provided neither a dataloader nor a dataset
         raise InvalidArgument("One of dataloader and dataset must be provided")
@@ -332,7 +270,7 @@ def _evaluate(
         assert batch_size is not None  # shouldn't trigger due to default value
         assert collate_fn is not None  # should never trigger due to previous checks
 
-        dataloader = _SimpleDataLoader(
+        dataloader = _SimpleDataLoader[T_input, T_target, T_metadata](
             dataset=dataset, batch_size=batch_size, collate_fn=collate_fn
         )
 
@@ -386,31 +324,11 @@ def _evaluate(
     return metric_results, preds, aug_data
 
 
-@overload
 def evaluate_from_predictions(
     *,
-    metric: ic.Metric,
-    predictions: Sequence[ic.TargetBatchType],
-    targets: Sequence[ic.TargetBatchType],
-) -> MetricComputeReturnType:
-    ...
-
-
-@overload
-def evaluate_from_predictions(
-    *,
-    metric: od.Metric,
-    predictions: Sequence[od.TargetBatchType],
-    targets: Sequence[od.TargetBatchType],
-) -> MetricComputeReturnType:
-    ...
-
-
-def evaluate_from_predictions(
-    *,
-    metric: OpenMetricType,
-    predictions: Sequence[SomeTargetBatchType],
-    targets: Sequence[SomeTargetBatchType],
+    metric: Metric[T_target],
+    predictions: Sequence[Sequence[T_target]],
+    targets: Sequence[Sequence[T_target]],
 ) -> MetricComputeReturnType:
     # doc-ignore: EX01
     """
@@ -422,11 +340,11 @@ def evaluate_from_predictions(
     metric : SomeMetric
         Compatible MAITE Metric.
 
-    predictions : Sequence[SomeTargetBatchType]
-        Generated by an inference process on some model.
+    predictions : Sequence[Sequence[SomeTargetType]]
+        Sequence of batches of predictions generated by running inference on some model.
 
-    targets : Sequence[SomeTargetBatchType]
-        Must be correlated to the predictions.
+    targets : Sequence[Sequence[SomeTargetType]]
+        Sequence of batches of ground-truth targets that correspond to provided predictions argument.
 
     Returns
     -------
@@ -439,19 +357,6 @@ def evaluate_from_predictions(
         If predictions or targets arguments have zero length (i.e. no batches), differing lengths,
         or corresponding elements (batches) have differing lengths.
     """
-    return _evaluate_from_predictions(
-        metric=metric,
-        predictions=predictions,
-        targets=targets,
-    )
-
-
-def _evaluate_from_predictions(
-    *,
-    metric: OpenMetricType,
-    predictions: Sequence[SomeTargetBatchType],
-    targets: Sequence[SomeTargetBatchType],
-) -> MetricComputeReturnType:
     # Checks for argument compliance.
 
     if len(predictions) != len(targets):
@@ -473,49 +378,25 @@ def _evaluate_from_predictions(
     return metric_results
 
 
-@overload
 def predict(
     *,
-    model: ic.Model,
-    dataloader: ic.DataLoader | None = None,
-    dataset: ic.Dataset | None = None,
+    model: Model[T_input, T_target],
+    dataloader: (DataLoader[T_input, T_target, T_metadata] | None) = None,
+    dataset: Dataset[T_input, T_target, T_metadata] | None = None,
     batch_size: int = 1,
-    augmentation: ic.Augmentation | None = None,
+    augmentation: Augmentation[
+        T_input,
+        T_target,
+        T_metadata,
+        T_input,
+        T_target,
+        T_metadata,
+    ]
+    | None = None,
     return_augmented_data: bool = False,
 ) -> tuple[
-    Sequence[ic.TargetBatchType],
-    Sequence[tuple[ic.InputBatchType, ic.TargetBatchType, ic.DatumMetadataBatchType]],
-]:
-    ...
-
-
-@overload
-def predict(
-    *,
-    model: od.Model,
-    dataloader: od.DataLoader | None = None,
-    dataset: od.Dataset | None = None,
-    batch_size: int = 1,
-    augmentation: od.Augmentation | None = None,
-    return_augmented_data: bool = False,
-) -> tuple[
-    Sequence[od.TargetBatchType],
-    Sequence[tuple[od.InputBatchType, od.TargetBatchType, od.DatumMetadataBatchType]],
-]:
-    ...
-
-
-def predict(
-    *,
-    model: OpenModelType,
-    dataloader: OpenDataLoaderType | None = None,
-    dataset: OpenDatasetType | None = None,
-    batch_size: int = 1,
-    augmentation: OpenAugmentationType | None = None,
-    return_augmented_data: bool = False,
-) -> tuple[
-    Sequence[SomeTargetBatchType],
-    Sequence[tuple[SomeInputBatchType, SomeTargetBatchType, SomeMetadataBatchType]],
+    Sequence[Sequence[T_target]],
+    Sequence[tuple[Sequence[T_input], Sequence[T_target], Sequence[T_metadata]]],
 ]:
     # doc-ignore: EX01
     """
@@ -543,7 +424,7 @@ def predict(
 
     Returns
     -------
-    tuple[Sequence[SomeTargetBatchType], Sequence[tuple[SomeInputBatchType, SomeTargetBatchType, SomeMetadataBatchType]],
+    tuple[Sequence[Sequence[SomeTargetType], Sequence[tuple[Sequence[SomeInputType], Sequence[SomeTargetType], Sequence[SomeMetadataType]]],
         A tuple of the predictions (as a sequence of batches) and a sequence
         of tuples containing the information associated with each batch.
         Note that the second return argument will be empty if
@@ -555,7 +436,7 @@ def predict(
         If neither a dataloader nor a dataset is provided.
     """
 
-    _, preds, aug_data = _evaluate(
+    _, preds, aug_data = evaluate(
         model=model,
         dataloader=dataloader,
         dataset=dataset,

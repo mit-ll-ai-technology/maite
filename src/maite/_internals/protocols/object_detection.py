@@ -7,8 +7,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Sequence
-from typing import Callable, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
 from typing_extensions import TypeAlias
 
@@ -30,7 +29,7 @@ class ObjectDetectionTarget(Protocol):
     An object-detection target protocol.
 
     This class is used to encode both predictions and ground-truth labels in the object
-    detection AI task.
+    detection problem.
 
     Implementers must populate the following attributes:
 
@@ -76,19 +75,7 @@ InputType: TypeAlias = ArrayLike  # shape (C, H, W)
 TargetType: TypeAlias = ObjectDetectionTarget
 DatumMetadataType: TypeAlias = DatumMetadata
 
-InputBatchType: TypeAlias = Sequence[
-    ArrayLike
-]  # sequence of N ArrayLikes of shape (C, H, W)
-TargetBatchType: TypeAlias = Sequence[TargetType]  # sequence of N TargetType instances
-DatumMetadataBatchType: TypeAlias = Sequence[DatumMetadataType]
-
 Datum: TypeAlias = tuple[InputType, TargetType, DatumMetadataType]
-DatumBatch: TypeAlias = tuple[InputBatchType, TargetBatchType, DatumMetadataBatchType]
-
-CollateFn: TypeAlias = Callable[
-    [Iterable[Datum]],
-    DatumBatch,
-]
 
 
 class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
@@ -247,9 +234,9 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
 
 class DataLoader(
     gen.DataLoader[
-        InputBatchType,
-        TargetBatchType,
-        DatumMetadataBatchType,
+        InputType,
+        TargetType,
+        DatumMetadataType,
     ],
     Protocol,
 ):
@@ -279,7 +266,7 @@ class DataLoader(
     ...
 
 
-class Model(gen.Model[InputBatchType, TargetBatchType], Protocol):
+class Model(gen.Model[InputType, TargetType], Protocol):
     """
     A model protocol for the object detection AI task.
 
@@ -341,7 +328,7 @@ class Model(gen.Model[InputBatchType, TargetBatchType], Protocol):
     ...     metadata: ModelMetadata = {"id": "ObjectDetectionDummyModel"}
     ...
     ...     def __call__(
-    ...         self, batch: od.InputBatchType
+    ...         self, batch: Sequence[od.InputType]
     ...     ) -> Sequence[MyObjectDetectionTarget]:
     ...         # For the simplicity, we don't provide an object detection model here, but the output from a model.
     ...         DETECTIONS_PER_IMG = (
@@ -375,7 +362,7 @@ class Model(gen.Model[InputBatchType, TargetBatchType], Protocol):
     ...
 
 
-class Metric(gen.Metric[TargetBatchType], Protocol):
+class Metric(gen.Metric[TargetType], Protocol):
     """
     A metric protocol for the object detection AI task.
 
@@ -529,12 +516,12 @@ class Metric(gen.Metric[TargetBatchType], Protocol):
 
 class Augmentation(
     gen.Augmentation[
-        InputBatchType,
-        TargetBatchType,
-        DatumMetadataBatchType,
-        InputBatchType,
-        TargetBatchType,
-        DatumMetadataBatchType,
+        InputType,
+        TargetType,
+        DatumMetadataType,
+        InputType,
+        TargetType,
+        DatumMetadataType,
     ],
     Protocol,
 ):
@@ -579,7 +566,7 @@ class Augmentation(
     >>> np.random.seed(1)
     >>> import copy
     >>> from dataclasses import dataclass
-    >>> from typing import Any
+    >>> from typing import Any, Sequence
     >>> from maite.protocols import AugmentationMetadata, object_detection as od
 
     First, we specify parameters that will be used to create the dummy dataset.
@@ -607,12 +594,12 @@ class Augmentation(
     ...     boxes: np.ndarray
     ...     labels: np.ndarray
     ...     scores: np.ndarray
-    >>> xb: od.InputBatchType = list(np.zeros((N_DATAPOINTS, C, H, W)))
-    >>> yb: od.TargetBatchType = list(
+    >>> xb: Sequence[od.InputType] = list(np.zeros((N_DATAPOINTS, C, H, W)))
+    >>> yb: Sequence[od.TargetType] = list(
     ...     MyObjectDetectionTarget(boxes=np.empty(0), labels=np.empty(0), scores=np.empty(0))
     ...     for _ in range(N_DATAPOINTS)
     ... )
-    >>> mdb: od.DatumMetadataBatchType = list({"id": i} for i in range(N_DATAPOINTS))
+    >>> mdb: Sequence[od.DatumMetadataType] = list({"id": i} for i in range(N_DATAPOINTS))
     >>> # Display the first datum in batch, first color channel, and only first 5 rows and cols
     >>> np.set_printoptions(floatmode='fixed', precision=3)  # for reproducible output for doctest
     >>> np.array(xb[0])[0][:5, :5]  # doctest: +NORMALIZE_WHITESPACE
@@ -632,8 +619,8 @@ class Augmentation(
     ...         self.metadata = metadata
     ...     def __call__(
     ...         self,
-    ...         batch: tuple[od.InputBatchType, od.TargetBatchType, od.DatumMetadataBatchType],
-    ...     ) -> tuple[od.InputBatchType, od.TargetBatchType, od.DatumMetadataBatchType]:
+    ...         batch: tuple[Sequence[od.InputType], Sequence[od.TargetType], Sequence[od.DatumMetadataType]],
+    ...     ) -> tuple[Sequence[od.InputType], Sequence[od.TargetType], Sequence[od.DatumMetadataType]]:
     ...         xb, yb, mdb = batch
     ...         # Copy data passed into the constructor to avoid mutating original inputs
     ...         xb_aug = [copy.copy(input) for input in xb]

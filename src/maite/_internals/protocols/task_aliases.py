@@ -32,12 +32,6 @@ SomeDataset: TypeAlias = Union[ic.Dataset, od.Dataset]
 SomeDataLoader: TypeAlias = Union[ic.DataLoader, od.DataLoader]
 SomeAugmentation: TypeAlias = Union[ic.Augmentation, od.Augmentation]
 
-SomeInputBatchType: TypeAlias = Union[ic.InputBatchType, od.InputBatchType]
-SomeTargetBatchType: TypeAlias = Union[ic.TargetBatchType, od.TargetBatchType]
-SomeMetadataBatchType: TypeAlias = Union[
-    ic.DatumMetadataBatchType, od.DatumMetadataBatchType
-]
-
 SomeInputType: TypeAlias = Union[ic.InputType, od.InputType]
 SomeTargetType: TypeAlias = Union[ic.TargetType, od.TargetType]
 SomeMetadataType: TypeAlias = Union[ic.DatumMetadataType, od.DatumMetadataType]

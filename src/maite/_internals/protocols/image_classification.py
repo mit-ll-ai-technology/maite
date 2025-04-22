@@ -5,8 +5,7 @@
 # import component generics from generic.py and specialize them for image_classification
 from __future__ import annotations
 
-from collections.abc import Iterable, Sequence
-from typing import Callable, Protocol
+from typing import Protocol
 
 from typing_extensions import TypeAlias
 
@@ -25,19 +24,7 @@ InputType: TypeAlias = ArrayLike  # shape (C, H, W)
 TargetType: TypeAlias = ArrayLike  # shape (Cl,)
 DatumMetadataType: TypeAlias = DatumMetadata
 
-InputBatchType: TypeAlias = Sequence[
-    InputType
-]  # sequence of N ArrayLikes of shape (C, H, W)
-TargetBatchType: TypeAlias = Sequence[TargetType]  # sequence of N TargetType instances
-DatumMetadataBatchType: TypeAlias = Sequence[DatumMetadataType]
-
 Datum: TypeAlias = tuple[InputType, TargetType, DatumMetadataType]
-DatumBatch: TypeAlias = tuple[InputBatchType, TargetBatchType, DatumMetadataBatchType]
-
-CollateFn: TypeAlias = Callable[
-    [Iterable[Datum]],
-    DatumBatch,
-]
 
 # Initialize component classes based on generic and Input/Target/Metadata types
 
@@ -135,9 +122,7 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
     ...
 
 
-class DataLoader(
-    gen.DataLoader[InputBatchType, TargetBatchType, DatumMetadataBatchType], Protocol
-):
+class DataLoader(gen.DataLoader[InputType, TargetType, DatumMetadataType], Protocol):
     """
     A dataloader protocol for the image classification AI task providing
     batch-level data access.
@@ -162,7 +147,7 @@ class DataLoader(
     """
 
 
-class Model(gen.Model[InputBatchType, TargetBatchType], Protocol):
+class Model(gen.Model[InputType, TargetType], Protocol):
     """
     A model protocol for the image classification AI task.
 
@@ -253,7 +238,7 @@ class Model(gen.Model[InputBatchType, TargetBatchType], Protocol):
     """
 
 
-class Metric(gen.Metric[TargetBatchType], Protocol):
+class Metric(gen.Metric[TargetType], Protocol):
     """
     A metric protocol for the image classification AI task.
 
@@ -348,12 +333,12 @@ class Metric(gen.Metric[TargetBatchType], Protocol):
 
 class Augmentation(
     gen.Augmentation[
-        InputBatchType,
-        TargetBatchType,
-        DatumMetadataBatchType,
-        InputBatchType,
-        TargetBatchType,
-        DatumMetadataBatchType,
+        InputType,
+        TargetType,
+        DatumMetadataType,
+        InputType,
+        TargetType,
+        DatumMetadataType,
     ],
     Protocol,
 ):
