@@ -44,7 +44,8 @@ class ObjectDetectionTarget(Protocol):
         `(N_DETECTIONS,)`
 
     scores: ArrayLike
-        An array representing the scores associated with each box (of shape `(N_DETECTIONS,)`)
+        An array representing the scores associated with each box (of shape `(N_DETECTIONS,)`
+        or `(N_DETECTIONS, N_CLASSES)`.
     """
 
     @property
@@ -58,7 +59,7 @@ class ObjectDetectionTarget(Protocol):
         ...
 
     @property
-    def scores(self) -> ArrayLike:  # shape (N,)
+    def scores(self) -> ArrayLike:  # shape (N,) or (N, CLASSES)
         ...
 
 

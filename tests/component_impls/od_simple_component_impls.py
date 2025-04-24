@@ -45,7 +45,7 @@ OBJ_PER_MODEL_PRED = 2
 @dataclass
 class ObjectDetectionTargetImpl:
     boxes: np.ndarray  # shape: (N_DETECTIONS, 4), X0,Y0,X1,Y1
-    scores: np.ndarray  # shape: (N_DETECTIONS,)
+    scores: np.ndarray  # shape: (N_DETECTIONS,) or (N_DETECTIONS, N_CLASSES)
     labels: np.ndarray  # shape: (N_DETECTIONS,)
 
     @classmethod
