@@ -18,7 +18,7 @@ from maite.protocols import ArrayLike, DatumMetadata
 # H  - image height
 # W  - image width
 # C  - image channel
-# Cl - classification label (one-hot for ground-truth label, or pseudo-probabilities for predictions)
+# Cl - classification label (one-hot for ground-truth label; probabilities or logits for predictions)
 
 InputType: TypeAlias = ArrayLike  # shape (C, H, W)
 TargetType: TypeAlias = ArrayLike  # shape (Cl,)
@@ -181,7 +181,7 @@ class Model(gen.Model[InputType, TargetType], Protocol):
     >>> from typing import Sequence
 
     Creating a MAITE-compliant model involves writing a `__call__` method that takes a
-    batch of inputs and returns a batch of predictions (probabilities).
+    batch of inputs and returns a batch of predictions (probabilities or logits).
 
     >>> class LinearClassifier:
     ...     def __init__(self) -> None:
@@ -287,11 +287,11 @@ class Metric(gen.Metric[TargetType], Protocol):
     ...        self._correct = 0
     ...
     ...    def update(self, preds: Sequence[ArrayLike], targets: Sequence[ArrayLike]) -> None:
-    ...        model_probs = [np.array(r) for r in preds]
+    ...        model_preds = [np.array(r) for r in preds]
     ...        true_onehot = [np.array(r) for r in targets]
     ...
     ...        # Stack into single array, convert to class indices
-    ...        model_classes = np.vstack(model_probs).argmax(axis=1)
+    ...        model_classes = np.vstack(model_preds).argmax(axis=1)
     ...        truth_classes = np.vstack(true_onehot).argmax(axis=1)
     ...
     ...        # Compare classes and update running counts
@@ -313,16 +313,16 @@ class Metric(gen.Metric[TargetType], Protocol):
     To use the metric call update() for each batch of predictions and truth values and call compute() to calculate the final metric values.
 
     >>> # batch 1
-    >>> model_probs = [np.array([0.8, 0.1, 0.0, 0.1]), np.array([0.1, 0.2, 0.6, 0.1])] # predicted classes: 0, 2
+    >>> model_preds = [np.array([0.8, 0.1, 0.0, 0.1]), np.array([0.1, 0.2, 0.6, 0.1])] # predicted classes: 0, 2
     >>> true_onehot = [np.array([1.0, 0.0, 0.0, 0.0]), np.array([0.0, 1.0, 0.0, 0.0])] # true classes: 0, 1
-    >>> accuracy.update(model_probs, true_onehot)
+    >>> accuracy.update(model_preds, true_onehot)
     >>> print(accuracy.compute())
     {'accuracy': 0.5}
     >>>
     >>> # batch 2
-    >>> model_probs = [np.array([0.1, 0.1, 0.7, 0.1]), np.array([0.0, 0.1, 0.0, 0.9])] # predicted classes: 2, 3
+    >>> model_preds = [np.array([0.1, 0.1, 0.7, 0.1]), np.array([0.0, 0.1, 0.0, 0.9])] # predicted classes: 2, 3
     >>> true_onehot = [np.array([0.0, 0.0, 1.0, 0.0]), np.array([0.0, 0.0, 0.0, 1.0])] # true classes: 2, 3
-    >>> accuracy.update(model_probs, true_onehot)
+    >>> accuracy.update(model_preds, true_onehot)
     >>>
     >>> print(accuracy.compute())
     {'accuracy': 0.75}
