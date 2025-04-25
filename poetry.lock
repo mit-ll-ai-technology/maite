@@ -319,7 +319,7 @@ description = "Timeout context manager for asyncio programs"
 optional = true
 python-versions = ">=3.8"
 groups = ["main"]
-markers = "python_version == \"3.9\" and extra == \"builddocs\" or platform_system == \"Linux\" and extra == \"builddocs\" and platform_machine == \"aarch64\" and python_version <= \"3.10\" or python_version == \"3.10\" and extra == \"builddocs\""
+markers = "python_version == \"3.9\" and extra == \"builddocs\" or python_version == \"3.10\" and extra == \"builddocs\" or platform_system == \"Linux\" and python_version <= \"3.10\" and platform_machine == \"aarch64\" and extra == \"builddocs\""
 files = [
     {file = "async_timeout-5.0.1-py3-none-any.whl", hash = "sha256:39e3809566ff85354557ec2398b55e096c8364bacac9405a7a1fa429e77fe76c"},
     {file = "async_timeout-5.0.1.tar.gz", hash = "sha256:d9321a7a3d5a6a5e187e824d2fa0793ce379a202935782d555d6e9d2735677d3"},
@@ -332,7 +332,7 @@ description = "Classes Without Boilerplate"
 optional = true
 python-versions = ">=3.8"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"test\" or extra == \"builddocs\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"test\" or extra == \"builddocs\")"
 files = [
     {file = "attrs-25.1.0-py3-none-any.whl", hash = "sha256:c75a69e28a550a7e93789579c22aa26b0f5b83b75dc4e08fe092980051e1090a"},
     {file = "attrs-25.1.0.tar.gz", hash = "sha256:1c97078a80c814273a76b2a298a932eb681c87415c11dee0a6921de7f1b02c3e"},
@@ -353,7 +353,7 @@ description = "Internationalization utilities"
 optional = true
 python-versions = ">=3.8"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"test\" or extra == \"builddocs\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"test\" or extra == \"builddocs\")"
 files = [
     {file = "babel-2.17.0-py3-none-any.whl", hash = "sha256:4d0b53093fdfb4b21c92b5213dba5a1b23885afa8383709427046b21c366e5f2"},
     {file = "babel-2.17.0.tar.gz", hash = "sha256:0c54cffb19f690cdcc52a3b50bcbf71e07a808d1c80d549f2459b9d2cf0afb9d"},
@@ -458,7 +458,7 @@ description = "Extensible memoizing collections and decorators"
 optional = true
 python-versions = ">=3.7"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"builddocs\" or extra == \"dev\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"builddocs\" or extra == \"dev\")"
 files = [
     {file = "cachetools-5.5.2-py3-none-any.whl", hash = "sha256:d26a22bcc62eb95c3beabd9f1ee5e820d3d2704fe2967cbe350e20c8ffcd3f0a"},
     {file = "cachetools-5.5.2.tar.gz", hash = "sha256:1a661caa9175d26759571b2e19580f9d6393969e5dfca11fdb1f947a23e640d4"},
@@ -471,7 +471,7 @@ description = "Python package for providing Mozilla's CA Bundle."
 optional = true
 python-versions = ">=3.6"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"test\" or extra == \"builddocs\" or extra == \"yolo-models\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"test\" or extra == \"builddocs\" or extra == \"yolo-models\")"
 files = [
     {file = "certifi-2025.1.31-py3-none-any.whl", hash = "sha256:ca78db4565a652026a4db2bcdf68f2fb589ea80d0be70e03929ed730746b84fe"},
     {file = "certifi-2025.1.31.tar.gz", hash = "sha256:3d5da6925056f6f18f119200434a4780a94263f10d1c21d032a6f6b2baa20651"},
@@ -578,7 +578,7 @@ description = "Universal encoding detector for Python 3"
 optional = true
 python-versions = ">=3.7"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"builddocs\" or extra == \"dev\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"builddocs\" or extra == \"dev\")"
 files = [
     {file = "chardet-5.2.0-py3-none-any.whl", hash = "sha256:e1cf59446890a00105fe7b7912492ea04b6e6f06d4b742b2c788469e34c82970"},
     {file = "chardet-5.2.0.tar.gz", hash = "sha256:1b3b6ff479a8c414bc3fa2c0852995695c4a026dcd6d0633b2dd092ca39c1cf7"},
@@ -591,7 +591,7 @@ description = "The Real First Universal Charset Detector. Open, modern and activ
 optional = true
 python-versions = ">=3.7"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"test\" or extra == \"builddocs\" or extra == \"yolo-models\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"test\" or extra == \"builddocs\" or extra == \"yolo-models\")"
 files = [
     {file = "charset_normalizer-3.4.1-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:91b36a978b5ae0ee86c394f5a54d6ef44db1de0815eb43de826d41d21e4af3de"},
     {file = "charset_normalizer-3.4.1-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:7461baadb4dc00fd9e0acbe254e3d7d2112e7f92ced2adc96e54ef6501c5f176"},
@@ -710,7 +710,7 @@ description = "Cross-platform colored terminal text."
 optional = true
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*,>=2.7"
 groups = ["main"]
-markers = "(extra == \"test\" or extra == \"builddocs\" or extra == \"dev\" or extra == \"yolo-models\") and platform_machine == \"aarch64\" and (sys_platform == \"win32\" or extra == \"builddocs\" or extra == \"dev\" or platform_system == \"Windows\") and (sys_platform == \"win32\" or extra == \"builddocs\" or extra == \"dev\" or extra == \"test\" or extra == \"yolo-models\") and (sys_platform == \"win32\" or platform_system == \"Windows\" or extra == \"builddocs\" or extra == \"dev\" or extra == \"test\") and (sys_platform == \"win32\" or extra == \"builddocs\" or extra == \"dev\" or extra == \"yolo-models\") and platform_system == \"Linux\" and (platform_system == \"Windows\" or extra == \"test\" or extra == \"builddocs\" or extra == \"dev\") and (python_version < \"3.10\" or extra == \"test\" or extra == \"builddocs\" or extra == \"yolo-models\" or extra == \"dev\")"
+markers = "(extra == \"test\" or extra == \"builddocs\" or extra == \"dev\" or extra == \"yolo-models\") and (extra == \"test\" or extra == \"builddocs\" or extra == \"dev\") and (sys_platform == \"win32\" or extra == \"builddocs\" or extra == \"dev\") and (sys_platform == \"win32\" or extra == \"builddocs\" or extra == \"dev\" or extra == \"yolo-models\") and (sys_platform == \"win32\" or extra == \"builddocs\" or extra == \"dev\" or extra == \"yolo-models\" or extra == \"test\") and platform_machine == \"aarch64\" and platform_system == \"Linux\""
 files = [
     {file = "colorama-0.4.6-py2.py3-none-any.whl", hash = "sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6"},
     {file = "colorama-0.4.6.tar.gz", hash = "sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44"},
@@ -742,7 +742,7 @@ description = "Python library for calculating contours of 2D quadrilateral grids
 optional = true
 python-versions = ">=3.9"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"builddocs\" or extra == \"yolo-models\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"builddocs\" or extra == \"yolo-models\")"
 files = [
     {file = "contourpy-1.3.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:880ea32e5c774634f9fcd46504bf9f080a41ad855f4fef54f5380f5133d343c7"},
     {file = "contourpy-1.3.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:76c905ef940a4474a6289c71d53122a4f77766eef23c03cd57016ce19d0f7b42"},
@@ -828,7 +828,7 @@ description = "Composable style cycles"
 optional = true
 python-versions = ">=3.8"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"builddocs\" or extra == \"yolo-models\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"builddocs\" or extra == \"yolo-models\")"
 files = [
     {file = "cycler-0.12.1-py3-none-any.whl", hash = "sha256:85cef7cff222d8644161529808465972e51340599459b8ac3ccbac5a854e0d30"},
     {file = "cycler-0.12.1.tar.gz", hash = "sha256:88bb128f02ba341da8ef447245a9e138fae777f6a23943da4540077d3601eb1c"},
@@ -968,7 +968,7 @@ description = "Distribution utilities"
 optional = true
 python-versions = "*"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"builddocs\" or extra == \"dev\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"builddocs\" or extra == \"dev\")"
 files = [
     {file = "distlib-0.3.9-py2.py3-none-any.whl", hash = "sha256:47f8c22fd27c27e25a65601af709b38e4f0a45ea4fc2e710f65755fa8caaaf87"},
     {file = "distlib-0.3.9.tar.gz", hash = "sha256:a60f20dea646b8a33f3e7772f74dc0b2d0772d2837ee1342a00645c81edf9403"},
@@ -994,7 +994,7 @@ description = "Backport of PEP 654 (exception groups)"
 optional = true
 python-versions = ">=3.7"
 groups = ["main"]
-markers = "(python_version == \"3.9\" or platform_system == \"Linux\" or python_version == \"3.10\") and (extra == \"test\" or extra == \"builddocs\") and (python_version == \"3.9\" or platform_machine == \"aarch64\" or python_version == \"3.10\") and python_version <= \"3.10\""
+markers = "(python_version == \"3.9\" or python_version == \"3.10\" or platform_system == \"Linux\") and python_version <= \"3.10\" and (python_version == \"3.9\" or python_version == \"3.10\" or platform_machine == \"aarch64\") and (extra == \"test\" or extra == \"builddocs\")"
 files = [
     {file = "exceptiongroup-1.2.2-py3-none-any.whl", hash = "sha256:3111b9d131c238bec2f8f516e123e14ba243563fb135d3fe885990585aa7795b"},
     {file = "exceptiongroup-1.2.2.tar.gz", hash = "sha256:47c2edf7c6738fafb49fd34290706d1a1a2f4d1c6df275526b62cbb4aa5393cc"},
@@ -1026,7 +1026,7 @@ description = "Fastest Python implementation of JSON schema"
 optional = true
 python-versions = "*"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"test\" or extra == \"builddocs\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"test\" or extra == \"builddocs\")"
 files = [
     {file = "fastjsonschema-2.21.1-py3-none-any.whl", hash = "sha256:c9e5b7e908310918cf494a434eeb31384dd84a98b57a30bcb1f535015b554667"},
     {file = "fastjsonschema-2.21.1.tar.gz", hash = "sha256:794d4f0a58f848961ba16af7b9c85a3e88cd360df008c59aac6fc5ae9323b5d4"},
@@ -1042,7 +1042,7 @@ description = "A platform independent file lock."
 optional = true
 python-versions = ">=3.9"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"yolo-models\" or extra == \"builddocs\" or extra == \"dev\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"builddocs\" or extra == \"yolo-models\" or extra == \"test\" or extra == \"torchmetrics\" or extra == \"dev\")"
 files = [
     {file = "filelock-3.17.0-py3-none-any.whl", hash = "sha256:533dc2f7ba78dc2f0f531fc6c4940addf7b70a481e269a5a3b93be94ffbe8338"},
     {file = "filelock-3.17.0.tar.gz", hash = "sha256:ee4e77401ef576ebb38cd7f13b9b28893194acc20a8e68e18730ba9c0e54660e"},
@@ -1088,7 +1088,7 @@ description = "Tools to manipulate font files"
 optional = true
 python-versions = ">=3.8"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"builddocs\" or extra == \"yolo-models\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"builddocs\" or extra == \"yolo-models\")"
 files = [
     {file = "fonttools-4.56.0-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:331954d002dbf5e704c7f3756028e21db07097c19722569983ba4d74df014000"},
     {file = "fonttools-4.56.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:8d1613abd5af2f93c05867b3a3759a56e8bf97eb79b1da76b2bc10892f96ff16"},
@@ -1279,7 +1279,7 @@ description = "File-system specification"
 optional = true
 python-versions = ">=3.8"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"yolo-models\" or extra == \"builddocs\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"builddocs\" or extra == \"yolo-models\" or extra == \"test\" or extra == \"torchmetrics\")"
 files = [
     {file = "fsspec-2025.2.0-py3-none-any.whl", hash = "sha256:9de2ad9ce1f85e1931858535bc882543171d197001a0a5eb2ddc04f1781ab95b"},
     {file = "fsspec-2025.2.0.tar.gz", hash = "sha256:1c24b16eaa0a1798afa0337aa0db9b256718ab2a89c425371f5628d22c3b6afd"},
@@ -1486,7 +1486,7 @@ description = "Client library to download and publish models, datasets and other
 optional = true
 python-versions = ">=3.8.0"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"builddocs\" or extra == \"yolo-models\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"builddocs\" or extra == \"yolo-models\")"
 files = [
     {file = "huggingface_hub-0.24.7-py3-none-any.whl", hash = "sha256:a212c555324c8a7b1ffdd07266bb7e7d69ca71aa238d27b7842d65e9a26ac3e5"},
     {file = "huggingface_hub-0.24.7.tar.gz", hash = "sha256:0ad8fb756e2831da0ac0491175b960f341fe06ebcf80ed6f8728313f95fc0207"},
@@ -1573,7 +1573,7 @@ description = "Internationalized Domain Names in Applications (IDNA)"
 optional = true
 python-versions = ">=3.5"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"test\" or extra == \"builddocs\" or extra == \"yolo-models\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"test\" or extra == \"builddocs\" or extra == \"yolo-models\")"
 files = [
     {file = "idna-3.7-py3-none-any.whl", hash = "sha256:82fee1fc78add43492d3a1898bfa6d8a904cc97d8427f683ed8e798d07761aa0"},
     {file = "idna-3.7.tar.gz", hash = "sha256:028ff3aadf0609c1fd278d8ea3089299412a7a8b9bd005dd08b9f8285bcb5cfc"},
@@ -1599,7 +1599,7 @@ description = "Read metadata from Python packages"
 optional = true
 python-versions = ">=3.9"
 groups = ["main"]
-markers = "(python_version == \"3.9\" or platform_system == \"Linux\") and (python_version == \"3.9\" or platform_machine == \"aarch64\") and (extra == \"test\" or extra == \"builddocs\" or extra == \"yolo-models\") and python_version < \"3.10\" or python_version >= \"3.10\" and extra == \"builddocs\""
+markers = "python_version == \"3.9\" and (extra == \"test\" or extra == \"builddocs\" or extra == \"yolo-models\") or platform_system == \"Linux\" and platform_machine == \"aarch64\" and python_version < \"3.10\" and (extra == \"builddocs\" or extra == \"test\" or extra == \"yolo-models\") or extra == \"builddocs\""
 files = [
     {file = "importlib_metadata-8.6.1-py3-none-any.whl", hash = "sha256:02a89390c1e15fdfdc0d7c6b25cb3e62650d0494005c97d6f148bf5b9787525e"},
     {file = "importlib_metadata-8.6.1.tar.gz", hash = "sha256:310b41d755445d74569f993ccfc22838295d9fe005425094fad953d7f15c8580"},
@@ -1624,7 +1624,7 @@ description = "Read resources from Python packages"
 optional = true
 python-versions = ">=3.9"
 groups = ["main"]
-markers = "(python_version == \"3.9\" or platform_system == \"Linux\") and (python_version == \"3.9\" or platform_machine == \"aarch64\") and python_version < \"3.10\" and (extra == \"builddocs\" or extra == \"yolo-models\")"
+markers = "(python_version == \"3.9\" or platform_system == \"Linux\") and python_version < \"3.10\" and (python_version == \"3.9\" or platform_machine == \"aarch64\") and (extra == \"builddocs\" or extra == \"yolo-models\")"
 files = [
     {file = "importlib_resources-6.5.2-py3-none-any.whl", hash = "sha256:789cfdc3ed28c78b67a06acb8126751ced69a3d5f79c095a98298cd8a760ccec"},
     {file = "importlib_resources-6.5.2.tar.gz", hash = "sha256:185f87adef5bcc288449d98fb4fba07cea78bc036455dd44c5fc4a2fe78fed2c"},
@@ -1648,7 +1648,7 @@ description = "brain-dead simple config-ini parsing"
 optional = true
 python-versions = ">=3.7"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"test\" or extra == \"builddocs\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"test\" or extra == \"builddocs\")"
 files = [
     {file = "iniconfig-2.0.0-py3-none-any.whl", hash = "sha256:b6a85871a79d2e3b22d2d1b94ac2824226a63c6b741c88f7ae975f18b6778374"},
     {file = "iniconfig-2.0.0.tar.gz", hash = "sha256:2d91e135bf72d31a410b17c16da610a82cb55f6b0477d1a902134b24a455b8b3"},
@@ -1795,7 +1795,7 @@ description = "A very fast and expressive template engine."
 optional = true
 python-versions = ">=3.7"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"test\" or extra == \"builddocs\" or extra == \"yolo-models\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"test\" or extra == \"builddocs\" or extra == \"yolo-models\" or extra == \"torchmetrics\")"
 files = [
     {file = "jinja2-3.1.5-py3-none-any.whl", hash = "sha256:aba0f4dc9ed8013c424088f68a5c226f7d6097ed89b246d7749c2ec4175c6adb"},
     {file = "jinja2-3.1.5.tar.gz", hash = "sha256:8fefff8dc3034e27bb80d67c671eb8a9bc424c0ef4c0826edbff304cceff43bb"},
@@ -1856,7 +1856,7 @@ description = "An implementation of JSON Schema validation for Python"
 optional = true
 python-versions = ">=3.8"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"test\" or extra == \"builddocs\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"test\" or extra == \"builddocs\")"
 files = [
     {file = "jsonschema-4.23.0-py3-none-any.whl", hash = "sha256:fbadb6f8b144a8f8cf9f0b89ba94501d143e50411a1278633f56a7acf7fd5566"},
     {file = "jsonschema-4.23.0.tar.gz", hash = "sha256:d71497fef26351a33265337fa77ffeb82423f3ea21283cd9467bb03999266bc4"},
@@ -1887,7 +1887,7 @@ description = "The JSON Schema meta-schemas and vocabularies, exposed as a Regis
 optional = true
 python-versions = ">=3.9"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"test\" or extra == \"builddocs\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"test\" or extra == \"builddocs\")"
 files = [
     {file = "jsonschema_specifications-2024.10.1-py3-none-any.whl", hash = "sha256:a09a0680616357d9a0ecf05c12ad234479f549239d0f5b55f3deea67475da9bf"},
     {file = "jsonschema_specifications-2024.10.1.tar.gz", hash = "sha256:0f38b83639958ce1152d02a7f062902c41c8fd20d558b0c34344292d417ae272"},
@@ -1975,7 +1975,7 @@ description = "Jupyter core package. A base package on which Jupyter projects re
 optional = true
 python-versions = ">=3.8"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"test\" or extra == \"builddocs\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"test\" or extra == \"builddocs\")"
 files = [
     {file = "jupyter_core-5.7.2-py3-none-any.whl", hash = "sha256:4f7315d2f6b4bcf2e3e7cb6e46772eba760ae459cd1f59d29eb57b0a01bd7409"},
     {file = "jupyter_core-5.7.2.tar.gz", hash = "sha256:aa5f8d32bbf6b431ac830496da7392035d6f61b4f54872f15c4bd2a9c3f536d9"},
@@ -2223,7 +2223,7 @@ description = "A fast implementation of the Cassowary constraint solver"
 optional = true
 python-versions = ">=3.8"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"builddocs\" or extra == \"yolo-models\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"builddocs\" or extra == \"yolo-models\")"
 files = [
     {file = "kiwisolver-1.4.7-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:8a9c83f75223d5e48b0bc9cb1bf2776cf01563e00ade8775ffe13b0b6e1af3a6"},
     {file = "kiwisolver-1.4.7-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:58370b1ffbd35407444d57057b57da5d6549d2d854fa30249771775c63b5fe17"},
@@ -2418,7 +2418,7 @@ description = "Lightning toolbox for across the our ecosystem."
 optional = true
 python-versions = ">=3.9"
 groups = ["main"]
-markers = "extra == \"builddocs\""
+markers = "extra == \"torchmetrics\""
 files = [
     {file = "lightning_utilities-0.12.0-py3-none-any.whl", hash = "sha256:b827f5768607e81ccc7b2ada1f50628168d1cc9f839509c7e87c04b59079e66c"},
     {file = "lightning_utilities-0.12.0.tar.gz", hash = "sha256:95b5f22a0b69eb27ca0929c6c1d510592a70080e1733a055bf154903c0343b60"},
@@ -2487,7 +2487,7 @@ description = "Safely add untrusted strings to HTML/XML markup."
 optional = true
 python-versions = ">=3.9"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"test\" or extra == \"builddocs\" or extra == \"yolo-models\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"test\" or extra == \"builddocs\" or extra == \"yolo-models\" or extra == \"torchmetrics\")"
 files = [
     {file = "MarkupSafe-3.0.2-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:7e94c425039cde14257288fd61dcfb01963e658efbc0ff54f5306b06054700f8"},
     {file = "MarkupSafe-3.0.2-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:9e2d922824181480953426608b81967de705c3cef4d1af983af849d7bd619158"},
@@ -2559,7 +2559,7 @@ description = "Python plotting package"
 optional = true
 python-versions = ">=3.9"
 groups = ["main"]
-markers = "(python_version == \"3.9\" or platform_system == \"Linux\") and (python_version == \"3.9\" or platform_machine == \"aarch64\") and python_version < \"3.10\" and (extra == \"builddocs\" or extra == \"yolo-models\")"
+markers = "(python_version == \"3.9\" or platform_system == \"Linux\") and python_version < \"3.10\" and (python_version == \"3.9\" or platform_machine == \"aarch64\") and (extra == \"builddocs\" or extra == \"yolo-models\")"
 files = [
     {file = "matplotlib-3.9.4-cp310-cp310-macosx_10_12_x86_64.whl", hash = "sha256:c5fdd7abfb706dfa8d307af64a87f1a862879ec3cd8d0ec8637458f0885b9c50"},
     {file = "matplotlib-3.9.4-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:d89bc4e85e40a71d1477780366c27fb7c6494d293e1617788986f74e2a03d7ff"},
@@ -2751,7 +2751,7 @@ description = "Python library for arbitrary-precision floating-point arithmetic"
 optional = true
 python-versions = "*"
 groups = ["main"]
-markers = "extra == \"yolo-models\" or extra == \"builddocs\""
+markers = "extra == \"builddocs\" or extra == \"yolo-models\" or extra == \"test\" or extra == \"torchmetrics\""
 files = [
     {file = "mpmath-1.3.0-py3-none-any.whl", hash = "sha256:a0b2b9fe80bbcd81a6647ff13108738cfb482d481d826cc0e02f5b35e5c88d2c"},
     {file = "mpmath-1.3.0.tar.gz", hash = "sha256:7a28eb2a9774d00c7bc92411c19a89209d5da7c4c9a9e227be8330a23a25b91f"},
@@ -2969,7 +2969,7 @@ description = "The Jupyter Notebook format"
 optional = true
 python-versions = ">=3.8"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"test\" or extra == \"builddocs\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"test\" or extra == \"builddocs\")"
 files = [
     {file = "nbformat-5.10.4-py3-none-any.whl", hash = "sha256:3b48d6c8fbca4b299bf3982ea7db1af21580e4fec269ad087b9e81588891200b"},
     {file = "nbformat-5.10.4.tar.gz", hash = "sha256:322168b14f937a5d11362988ecac2a4952d3d8e3a2cbeb2319584631226d5b3a"},
@@ -3005,7 +3005,7 @@ description = "Python package for creating and manipulating graphs and networks"
 optional = true
 python-versions = ">=3.9"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"yolo-models\" or extra == \"builddocs\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"builddocs\" or extra == \"yolo-models\" or extra == \"test\" or extra == \"torchmetrics\")"
 files = [
     {file = "networkx-3.2.1-py3-none-any.whl", hash = "sha256:f18c69adc97877c42332c170849c96cefa91881c99a7cb3e95b7c659ebdc1ec2"},
     {file = "networkx-3.2.1.tar.gz", hash = "sha256:9f1bb5cf3409bf324e0a722c20bdb4c20ee39bf1c30ce8ae499c8502b0b5e0c6"},
@@ -3025,7 +3025,7 @@ description = "Node.js virtual environment builder"
 optional = true
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*,>=2.7"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"test\" or extra == \"dev\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"test\" or extra == \"dev\")"
 files = [
     {file = "nodeenv-1.9.1-py2.py3-none-any.whl", hash = "sha256:ba11c9782d29c27c70ffbdda2d7415098754709be8a7056d79a737cd901155c9"},
     {file = "nodeenv-1.9.1.tar.gz", hash = "sha256:6ec12890a2dab7946721edbfbcd91f3319c6ccc9aec47be7c7e6b7011ee6645f"},
@@ -3152,7 +3152,7 @@ description = "CUBLAS native runtime libraries"
 optional = true
 python-versions = ">=3"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\" and (extra == \"yolo-models\" or extra == \"builddocs\")"
+markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\" and (extra == \"builddocs\" or extra == \"yolo-models\" or extra == \"test\" or extra == \"torchmetrics\")"
 files = [
     {file = "nvidia_cublas_cu12-12.4.5.8-py3-none-manylinux2014_aarch64.whl", hash = "sha256:0f8aa1706812e00b9f19dfe0cdb3999b092ccb8ca168c0db5b8ea712456fd9b3"},
     {file = "nvidia_cublas_cu12-12.4.5.8-py3-none-manylinux2014_x86_64.whl", hash = "sha256:2fc8da60df463fdefa81e323eef2e36489e1c94335b5358bcb38360adf75ac9b"},
@@ -3166,7 +3166,7 @@ description = "CUDA profiling tools runtime libs."
 optional = true
 python-versions = ">=3"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\" and (extra == \"yolo-models\" or extra == \"builddocs\")"
+markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\" and (extra == \"builddocs\" or extra == \"yolo-models\" or extra == \"test\" or extra == \"torchmetrics\")"
 files = [
     {file = "nvidia_cuda_cupti_cu12-12.4.127-py3-none-manylinux2014_aarch64.whl", hash = "sha256:79279b35cf6f91da114182a5ce1864997fd52294a87a16179ce275773799458a"},
     {file = "nvidia_cuda_cupti_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl", hash = "sha256:9dec60f5ac126f7bb551c055072b69d85392b13311fcc1bcda2202d172df30fb"},
@@ -3180,7 +3180,7 @@ description = "NVRTC native runtime libraries"
 optional = true
 python-versions = ">=3"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\" and (extra == \"yolo-models\" or extra == \"builddocs\")"
+markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\" and (extra == \"builddocs\" or extra == \"yolo-models\" or extra == \"test\" or extra == \"torchmetrics\")"
 files = [
     {file = "nvidia_cuda_nvrtc_cu12-12.4.127-py3-none-manylinux2014_aarch64.whl", hash = "sha256:0eedf14185e04b76aa05b1fea04133e59f465b6f960c0cbf4e37c3cb6b0ea198"},
     {file = "nvidia_cuda_nvrtc_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl", hash = "sha256:a178759ebb095827bd30ef56598ec182b85547f1508941a3d560eb7ea1fbf338"},
@@ -3194,7 +3194,7 @@ description = "CUDA Runtime native Libraries"
 optional = true
 python-versions = ">=3"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\" and (extra == \"yolo-models\" or extra == \"builddocs\")"
+markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\" and (extra == \"builddocs\" or extra == \"yolo-models\" or extra == \"test\" or extra == \"torchmetrics\")"
 files = [
     {file = "nvidia_cuda_runtime_cu12-12.4.127-py3-none-manylinux2014_aarch64.whl", hash = "sha256:961fe0e2e716a2a1d967aab7caee97512f71767f852f67432d572e36cb3a11f3"},
     {file = "nvidia_cuda_runtime_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl", hash = "sha256:64403288fa2136ee8e467cdc9c9427e0434110899d07c779f25b5c068934faa5"},
@@ -3208,7 +3208,7 @@ description = "cuDNN runtime libraries"
 optional = true
 python-versions = ">=3"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\" and (extra == \"yolo-models\" or extra == \"builddocs\")"
+markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\" and (extra == \"builddocs\" or extra == \"yolo-models\" or extra == \"test\" or extra == \"torchmetrics\")"
 files = [
     {file = "nvidia_cudnn_cu12-9.1.0.70-py3-none-manylinux2014_x86_64.whl", hash = "sha256:165764f44ef8c61fcdfdfdbe769d687e06374059fbb388b6c89ecb0e28793a6f"},
     {file = "nvidia_cudnn_cu12-9.1.0.70-py3-none-win_amd64.whl", hash = "sha256:6278562929433d68365a07a4a1546c237ba2849852c0d4b2262a486e805b977a"},
@@ -3224,7 +3224,7 @@ description = "CUFFT native runtime libraries"
 optional = true
 python-versions = ">=3"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\" and (extra == \"yolo-models\" or extra == \"builddocs\")"
+markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\" and (extra == \"builddocs\" or extra == \"yolo-models\" or extra == \"test\" or extra == \"torchmetrics\")"
 files = [
     {file = "nvidia_cufft_cu12-11.2.1.3-py3-none-manylinux2014_aarch64.whl", hash = "sha256:5dad8008fc7f92f5ddfa2101430917ce2ffacd86824914c82e28990ad7f00399"},
     {file = "nvidia_cufft_cu12-11.2.1.3-py3-none-manylinux2014_x86_64.whl", hash = "sha256:f083fc24912aa410be21fa16d157fed2055dab1cc4b6934a0e03cba69eb242b9"},
@@ -3241,7 +3241,7 @@ description = "CURAND native runtime libraries"
 optional = true
 python-versions = ">=3"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\" and (extra == \"yolo-models\" or extra == \"builddocs\")"
+markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\" and (extra == \"builddocs\" or extra == \"yolo-models\" or extra == \"test\" or extra == \"torchmetrics\")"
 files = [
     {file = "nvidia_curand_cu12-10.3.5.147-py3-none-manylinux2014_aarch64.whl", hash = "sha256:1f173f09e3e3c76ab084aba0de819c49e56614feae5c12f69883f4ae9bb5fad9"},
     {file = "nvidia_curand_cu12-10.3.5.147-py3-none-manylinux2014_x86_64.whl", hash = "sha256:a88f583d4e0bb643c49743469964103aa59f7f708d862c3ddb0fc07f851e3b8b"},
@@ -3255,7 +3255,7 @@ description = "CUDA solver native runtime libraries"
 optional = true
 python-versions = ">=3"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\" and (extra == \"yolo-models\" or extra == \"builddocs\")"
+markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\" and (extra == \"builddocs\" or extra == \"yolo-models\" or extra == \"test\" or extra == \"torchmetrics\")"
 files = [
     {file = "nvidia_cusolver_cu12-11.6.1.9-py3-none-manylinux2014_aarch64.whl", hash = "sha256:d338f155f174f90724bbde3758b7ac375a70ce8e706d70b018dd3375545fc84e"},
     {file = "nvidia_cusolver_cu12-11.6.1.9-py3-none-manylinux2014_x86_64.whl", hash = "sha256:19e33fa442bcfd085b3086c4ebf7e8debc07cfe01e11513cc6d332fd918ac260"},
@@ -3274,7 +3274,7 @@ description = "CUSPARSE native runtime libraries"
 optional = true
 python-versions = ">=3"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\" and (extra == \"yolo-models\" or extra == \"builddocs\")"
+markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\" and (extra == \"builddocs\" or extra == \"yolo-models\" or extra == \"test\" or extra == \"torchmetrics\")"
 files = [
     {file = "nvidia_cusparse_cu12-12.3.1.170-py3-none-manylinux2014_aarch64.whl", hash = "sha256:9d32f62896231ebe0480efd8a7f702e143c98cfaa0e8a76df3386c1ba2b54df3"},
     {file = "nvidia_cusparse_cu12-12.3.1.170-py3-none-manylinux2014_x86_64.whl", hash = "sha256:ea4f11a2904e2a8dc4b1833cc1b5181cde564edd0d5cd33e3c168eff2d1863f1"},
@@ -3291,7 +3291,7 @@ description = "NVIDIA cuSPARSELt"
 optional = true
 python-versions = "*"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\" and (extra == \"yolo-models\" or extra == \"builddocs\")"
+markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\" and (extra == \"builddocs\" or extra == \"yolo-models\" or extra == \"test\" or extra == \"torchmetrics\")"
 files = [
     {file = "nvidia_cusparselt_cu12-0.6.2-py3-none-manylinux2014_aarch64.whl", hash = "sha256:067a7f6d03ea0d4841c85f0c6f1991c5dda98211f6302cb83a4ab234ee95bef8"},
     {file = "nvidia_cusparselt_cu12-0.6.2-py3-none-manylinux2014_x86_64.whl", hash = "sha256:df2c24502fd76ebafe7457dbc4716b2fec071aabaed4fb7691a201cde03704d9"},
@@ -3305,7 +3305,7 @@ description = "NVIDIA Collective Communication Library (NCCL) Runtime"
 optional = true
 python-versions = ">=3"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\" and (extra == \"yolo-models\" or extra == \"builddocs\")"
+markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\" and (extra == \"builddocs\" or extra == \"yolo-models\" or extra == \"test\" or extra == \"torchmetrics\")"
 files = [
     {file = "nvidia_nccl_cu12-2.21.5-py3-none-manylinux2014_x86_64.whl", hash = "sha256:8579076d30a8c24988834445f8d633c697d42397e92ffc3f63fa26766d25e0a0"},
 ]
@@ -3317,7 +3317,7 @@ description = "Nvidia JIT LTO Library"
 optional = true
 python-versions = ">=3"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\" and (extra == \"yolo-models\" or extra == \"builddocs\")"
+markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\" and (extra == \"builddocs\" or extra == \"yolo-models\" or extra == \"test\" or extra == \"torchmetrics\")"
 files = [
     {file = "nvidia_nvjitlink_cu12-12.4.127-py3-none-manylinux2014_aarch64.whl", hash = "sha256:4abe7fef64914ccfa909bc2ba39739670ecc9e820c83ccc7a6ed414122599b83"},
     {file = "nvidia_nvjitlink_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl", hash = "sha256:06b3b9b25bf3f8af351d664978ca26a16d2c5127dbd53c0497e28d1fb9611d57"},
@@ -3331,7 +3331,7 @@ description = "NVIDIA Tools Extension"
 optional = true
 python-versions = ">=3"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\" and (extra == \"yolo-models\" or extra == \"builddocs\")"
+markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\" and (extra == \"builddocs\" or extra == \"yolo-models\" or extra == \"test\" or extra == \"torchmetrics\")"
 files = [
     {file = "nvidia_nvtx_cu12-12.4.127-py3-none-manylinux2014_aarch64.whl", hash = "sha256:7959ad635db13edf4fc65c06a6e9f9e55fc2f92596db928d169c0bb031e88ef3"},
     {file = "nvidia_nvtx_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl", hash = "sha256:781e950d9b9f60d8241ccea575b32f5105a5baf4c2351cab5256a24869f12a1a"},
@@ -3345,7 +3345,7 @@ description = "Wrapper package for OpenCV python bindings."
 optional = true
 python-versions = ">=3.6"
 groups = ["main"]
-markers = "extra == \"yolo-models\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"builddocs\" or extra == \"yolo-models\")"
 files = [
     {file = "opencv-python-4.11.0.86.tar.gz", hash = "sha256:03d60ccae62304860d232272e4a4fda93c39d595780cb40b161b310244b736a4"},
     {file = "opencv_python-4.11.0.86-cp37-abi3-macosx_13_0_arm64.whl", hash = "sha256:432f67c223f1dc2824f5e73cdfcd9db0efc8710647d4e813012195dc9122a52a"},
@@ -3359,11 +3359,11 @@ files = [
 [package.dependencies]
 numpy = [
     {version = ">=1.21.0", markers = "python_version == \"3.9\" and platform_system == \"Darwin\" and platform_machine == \"arm64\""},
-    {version = ">=1.19.3", markers = "(python_version >= \"3.8\" and platform_system == \"Linux\" and platform_machine == \"aarch64\" or python_version >= \"3.9\") and (python_version > \"3.9\" or platform_system != \"Darwin\" or platform_machine != \"arm64\")"},
     {version = ">=1.26.0", markers = "python_version >= \"3.12\""},
     {version = ">=1.23.5", markers = "python_version >= \"3.11\""},
     {version = ">=1.21.4", markers = "python_version >= \"3.10\" and platform_system == \"Darwin\""},
     {version = ">=1.21.2", markers = "platform_system != \"Darwin\" and python_version >= \"3.10\""},
+    {version = ">=1.19.3", markers = "(python_version >= \"3.8\" and platform_system == \"Linux\" and platform_machine == \"aarch64\" or python_version >= \"3.9\") and (python_version > \"3.9\" or platform_system != \"Darwin\" or platform_machine != \"arm64\")"},
 ]
 
 [[package]]
@@ -3387,11 +3387,11 @@ files = [
 [package.dependencies]
 numpy = [
     {version = ">=1.21.0", markers = "python_version == \"3.9\" and platform_system == \"Darwin\" and platform_machine == \"arm64\""},
-    {version = ">=1.19.3", markers = "(python_version >= \"3.8\" and platform_system == \"Linux\" and platform_machine == \"aarch64\" or python_version >= \"3.9\") and (python_version > \"3.9\" or platform_system != \"Darwin\" or platform_machine != \"arm64\")"},
     {version = ">=1.26.0", markers = "python_version >= \"3.12\""},
     {version = ">=1.23.5", markers = "python_version == \"3.11\""},
     {version = ">=1.21.4", markers = "python_version == \"3.10\" and platform_system == \"Darwin\""},
     {version = ">=1.21.2", markers = "platform_system != \"Darwin\" and python_version == \"3.10\""},
+    {version = ">=1.19.3", markers = "platform_system == \"Linux\" and python_version < \"3.10\" and platform_machine == \"aarch64\" and python_version >= \"3.8\" or python_version == \"3.9\" and platform_system != \"Darwin\" or python_version == \"3.9\" and platform_machine != \"arm64\""},
 ]
 
 [[package]]
@@ -3414,7 +3414,7 @@ description = "Core utilities for Python packages"
 optional = true
 python-versions = ">=3.8"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"test\" or extra == \"builddocs\" or extra == \"yolo-models\" or extra == \"dev\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"test\" or extra == \"builddocs\" or extra == \"yolo-models\" or extra == \"dev\" or extra == \"torchmetrics\")"
 files = [
     {file = "packaging-24.2-py3-none-any.whl", hash = "sha256:09abb1bccd265c01f4a3aa3f7a7db064b36514d2cba19a2f694fe6150451a759"},
     {file = "packaging-24.2.tar.gz", hash = "sha256:c228a6dc5e932d346bc5739379109d49e8853dd8223571c7c5b55260edc0b97f"},
@@ -3427,7 +3427,7 @@ description = "Powerful data structures for data analysis, time series, and stat
 optional = true
 python-versions = ">=3.9"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"builddocs\" or extra == \"yolo-models\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"builddocs\" or extra == \"yolo-models\")"
 files = [
     {file = "pandas-2.2.3-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:1948ddde24197a0f7add2bdc4ca83bf2b1ef84a1bc8ccffd95eda17fd836ecb5"},
     {file = "pandas-2.2.3-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:381175499d3802cde0eabbaf6324cce0c4f5d52ca6f8c377c29ad442f50f6348"},
@@ -3545,7 +3545,7 @@ description = "Pexpect allows easy control of interactive console applications."
 optional = true
 python-versions = "*"
 groups = ["main"]
-markers = "sys_platform != \"win32\" and extra == \"builddocs\" and platform_system == \"Linux\" and platform_machine == \"aarch64\""
+markers = "extra == \"builddocs\" and sys_platform != \"win32\" and platform_system == \"Linux\" and platform_machine == \"aarch64\""
 files = [
     {file = "pexpect-4.9.0-py2.py3-none-any.whl", hash = "sha256:7236d1e080e4936be2dc3e326cec0af72acf9212a7e1d060210e70a47e253523"},
     {file = "pexpect-4.9.0.tar.gz", hash = "sha256:ee7d41123f3c9911050ea2c2dac107568dc43b2d3b0c7557a33212c398ead30f"},
@@ -3561,7 +3561,7 @@ description = "Python Imaging Library (Fork)"
 optional = true
 python-versions = ">=3.9"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"builddocs\" or extra == \"yolo-models\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"builddocs\" or extra == \"yolo-models\")"
 files = [
     {file = "pillow-11.1.0-cp310-cp310-macosx_10_10_x86_64.whl", hash = "sha256:e1abe69aca89514737465752b4bcaf8016de61b3be1397a8fc260ba33321b3a8"},
     {file = "pillow-11.1.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:c640e5a06869c75994624551f45e5506e4256562ead981cce820d5ab39ae2192"},
@@ -3717,7 +3717,7 @@ description = "A small Python package for determining appropriate platform-speci
 optional = true
 python-versions = ">=3.8"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"test\" or extra == \"builddocs\" or extra == \"dev\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"test\" or extra == \"builddocs\" or extra == \"dev\")"
 files = [
     {file = "platformdirs-4.3.6-py3-none-any.whl", hash = "sha256:73e575e1408ab8103900836b97580d5307456908a03e92031bab39e4554cc3fb"},
     {file = "platformdirs-4.3.6.tar.gz", hash = "sha256:357fb2acbc885b0419afd3ce3ed34564c13c9b95c89360cd9563f73aa5e2b907"},
@@ -3735,7 +3735,7 @@ description = "plugin and hook calling mechanisms for python"
 optional = true
 python-versions = ">=3.8"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"test\" or extra == \"builddocs\" or extra == \"dev\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"test\" or extra == \"builddocs\" or extra == \"dev\")"
 files = [
     {file = "pluggy-1.5.0-py3-none-any.whl", hash = "sha256:44e1ad92c8ca002de6377e165f3e0f1be63266ab4d554740532335b9d75ea669"},
     {file = "pluggy-1.5.0.tar.gz", hash = "sha256:2cffa88e94fdc978c4c574f15f9e59b7f4201d439195c3715ca9e2486f1d0cf1"},
@@ -3917,7 +3917,7 @@ description = "Cross-platform lib for process and system monitoring in Python."
 optional = true
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,>=2.7"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"builddocs\" or extra == \"yolo-models\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"builddocs\" or extra == \"yolo-models\")"
 files = [
     {file = "psutil-6.1.1-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:9ccc4316f24409159897799b83004cb1e24f9819b0dcf9c0b68bdcb6cefee6a8"},
     {file = "psutil-6.1.1-cp27-cp27m-manylinux2010_i686.whl", hash = "sha256:ca9609c77ea3b8481ab005da74ed894035936223422dc591d6772b147421f777"},
@@ -3949,7 +3949,7 @@ description = "Run a subprocess in a pseudo terminal"
 optional = true
 python-versions = "*"
 groups = ["main"]
-markers = "(os_name != \"nt\" or sys_platform != \"win32\") and extra == \"builddocs\" and platform_system == \"Linux\" and platform_machine == \"aarch64\""
+markers = "extra == \"builddocs\" and (os_name != \"nt\" or sys_platform != \"win32\") and platform_system == \"Linux\" and platform_machine == \"aarch64\""
 files = [
     {file = "ptyprocess-0.7.0-py2.py3-none-any.whl", hash = "sha256:4b41f3967fce3af57cc7e94b888626c18bf37a083e3651ca8feeb66d492fef35"},
     {file = "ptyprocess-0.7.0.tar.gz", hash = "sha256:5c5d0a3b48ceee0b48485e0c26037c0acd7d29765ca3fbb5cb3831d347423220"},
@@ -3978,7 +3978,7 @@ description = "Get CPU info with pure Python"
 optional = true
 python-versions = "*"
 groups = ["main"]
-markers = "extra == \"yolo-models\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"builddocs\" or extra == \"yolo-models\")"
 files = [
     {file = "py-cpuinfo-9.0.0.tar.gz", hash = "sha256:3cdbbf3fac90dc6f118bfd64384f309edeadd902d7c8fb17f02ffa1fc3f49690"},
     {file = "py_cpuinfo-9.0.0-py3-none-any.whl", hash = "sha256:859625bc251f64e21f077d099d4162689c762b5d6a4c3c97553d56241c9674d5"},
@@ -4123,7 +4123,7 @@ description = "Pygments is a syntax highlighting package written in Python."
 optional = true
 python-versions = ">=3.8"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"test\" or extra == \"builddocs\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"test\" or extra == \"builddocs\")"
 files = [
     {file = "pygments-2.19.1-py3-none-any.whl", hash = "sha256:9ea1544ad55cecf4b8242fab6dd35a93bbce657034b0611ee383099054ab6d8c"},
     {file = "pygments-2.19.1.tar.gz", hash = "sha256:61c16d2a8576dc0649d9f39e089b5f02bcd27fba10d8fb4dcc28173f7a45151f"},
@@ -4139,7 +4139,7 @@ description = "pyparsing module - Classes and methods to define and execute pars
 optional = true
 python-versions = ">=3.9"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"builddocs\" or extra == \"yolo-models\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"builddocs\" or extra == \"yolo-models\")"
 files = [
     {file = "pyparsing-3.2.1-py3-none-any.whl", hash = "sha256:506ff4f4386c4cec0590ec19e6302d3aedb992fdc02c761e90416f158dacf8e1"},
     {file = "pyparsing-3.2.1.tar.gz", hash = "sha256:61980854fd66de3a90028d679a954d5f2623e83144b5afe5ee86f43d762e5f0a"},
@@ -4155,7 +4155,7 @@ description = "API to interact with the python pyproject.toml based projects"
 optional = true
 python-versions = ">=3.9"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"builddocs\" or extra == \"dev\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"builddocs\" or extra == \"dev\")"
 files = [
     {file = "pyproject_api-1.9.0-py3-none-any.whl", hash = "sha256:326df9d68dea22d9d98b5243c46e3ca3161b07a1b9b18e213d1e24fd0e605766"},
     {file = "pyproject_api-1.9.0.tar.gz", hash = "sha256:7e8a9854b2dfb49454fae421cb86af43efbb2b2454e5646ffb7623540321ae6e"},
@@ -4198,7 +4198,7 @@ description = "pytest: simple powerful testing with Python"
 optional = true
 python-versions = ">=3.8"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"test\" or extra == \"builddocs\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"test\" or extra == \"builddocs\")"
 files = [
     {file = "pytest-8.3.4-py3-none-any.whl", hash = "sha256:50e16d954148559c9a74109af1eaf0c945ba2d8f30f0a3d3335edde19788b6f6"},
     {file = "pytest-8.3.4.tar.gz", hash = "sha256:965370d062bce11e73868e0335abac31b4d3de0e82f4007408d242b4f8610761"},
@@ -4241,7 +4241,7 @@ description = "Extensions to the standard Python datetime module"
 optional = true
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"builddocs\" or extra == \"yolo-models\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"builddocs\" or extra == \"yolo-models\")"
 files = [
     {file = "python-dateutil-2.9.0.post0.tar.gz", hash = "sha256:37dd54208da7e1cd875388217d5e00ebd4179249f90fb72437e91a35459a0ad3"},
     {file = "python_dateutil-2.9.0.post0-py2.py3-none-any.whl", hash = "sha256:a8b2bc7bffae282281c8140a97d3aa9c14da0b136dfe83f850eea9a5f7470427"},
@@ -4292,7 +4292,7 @@ description = "World timezone definitions, modern and historical"
 optional = true
 python-versions = "*"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"builddocs\" or extra == \"yolo-models\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"builddocs\" or extra == \"yolo-models\")"
 files = [
     {file = "pytz-2025.1-py2.py3-none-any.whl", hash = "sha256:89dd22dca55b46eac6eda23b2d72721bf1bdfef212645d81513ef5d03038de57"},
     {file = "pytz-2025.1.tar.gz", hash = "sha256:c2db42be2a2518b28e65f9207c4d05e6ff547d1efa4086469ef855e4ab70178e"},
@@ -4305,7 +4305,7 @@ description = "Python for Window Extensions"
 optional = true
 python-versions = "*"
 groups = ["main"]
-markers = "platform_python_implementation != \"PyPy\" and (extra == \"test\" or extra == \"builddocs\") and sys_platform == \"win32\" and platform_system == \"Linux\" and platform_machine == \"aarch64\""
+markers = "sys_platform == \"win32\" and platform_python_implementation != \"PyPy\" and (extra == \"test\" or extra == \"builddocs\") and platform_system == \"Linux\" and platform_machine == \"aarch64\""
 files = [
     {file = "pywin32-308-cp310-cp310-win32.whl", hash = "sha256:796ff4426437896550d2981b9c2ac0ffd75238ad9ea2d3bfa67a1abd546d262e"},
     {file = "pywin32-308-cp310-cp310-win_amd64.whl", hash = "sha256:4fc888c59b3c0bef905ce7eb7e2106a07712015ea1c8234b703a088d46110e8e"},
@@ -4334,7 +4334,7 @@ description = "Pseudo terminal support for Windows from Python."
 optional = true
 python-versions = ">=3.9"
 groups = ["main"]
-markers = "os_name == \"nt\" and extra == \"builddocs\" and platform_system == \"Linux\" and platform_machine == \"aarch64\""
+markers = "extra == \"builddocs\" and os_name == \"nt\" and platform_system == \"Linux\" and platform_machine == \"aarch64\""
 files = [
     {file = "pywinpty-2.0.15-cp310-cp310-win_amd64.whl", hash = "sha256:8e7f5de756a615a38b96cd86fa3cd65f901ce54ce147a3179c45907fa11b4c4e"},
     {file = "pywinpty-2.0.15-cp311-cp311-win_amd64.whl", hash = "sha256:9a6bcec2df2707aaa9d08b86071970ee32c5026e10bcc3cc5f6f391d85baf7ca"},
@@ -4352,7 +4352,7 @@ description = "YAML parser and emitter for Python"
 optional = true
 python-versions = ">=3.8"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"test\" or extra == \"builddocs\" or extra == \"yolo-models\" or extra == \"dev\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"test\" or extra == \"builddocs\" or extra == \"yolo-models\" or extra == \"dev\")"
 files = [
     {file = "PyYAML-6.0.2-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:0a9a2848a5b7feac301353437eb7d5957887edbf81d56e903999a75a3d743086"},
     {file = "PyYAML-6.0.2-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:29717114e51c84ddfba879543fb232a6ed60086602313ca38cce623c1d62cfbf"},
@@ -4539,7 +4539,7 @@ description = "JSON Referencing + Python"
 optional = true
 python-versions = ">=3.9"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"test\" or extra == \"builddocs\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"test\" or extra == \"builddocs\")"
 files = [
     {file = "referencing-0.36.2-py3-none-any.whl", hash = "sha256:e8699adbbf8b5c7de96d8ffa0eb5c158b3beafce084968e2ea8bb08c6794dcd0"},
     {file = "referencing-0.36.2.tar.gz", hash = "sha256:df2e89862cd09deabbdba16944cc3f10feb6b3e6f18e902f7cc25609a34775aa"},
@@ -4662,7 +4662,7 @@ description = "Python HTTP for Humans."
 optional = true
 python-versions = ">=3.8"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"test\" or extra == \"builddocs\" or extra == \"yolo-models\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"test\" or extra == \"builddocs\" or extra == \"yolo-models\")"
 files = [
     {file = "requests-2.32.3-py3-none-any.whl", hash = "sha256:70761cfe03c773ceb22aa2f671b4757976145175cdfca038c02654d061d6dcc6"},
     {file = "requests-2.32.3.tar.gz", hash = "sha256:55365417734eb18255590a9ff9eb97e9e1da868d4ccd6402399eaf68af20a760"},
@@ -4767,7 +4767,7 @@ description = "Python bindings to Rust's persistent data structures (rpds)"
 optional = true
 python-versions = ">=3.9"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"test\" or extra == \"builddocs\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"test\" or extra == \"builddocs\")"
 files = [
     {file = "rpds_py-0.22.3-cp310-cp310-macosx_10_12_x86_64.whl", hash = "sha256:6c7b99ca52c2c1752b544e310101b98a659b720b21db00e65edca34483259967"},
     {file = "rpds_py-0.22.3-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:be2eb3f2495ba669d2a985f9b426c1797b7d48d6963899276d22f23e33d47e37"},
@@ -4968,7 +4968,7 @@ description = "Fundamental algorithms for scientific computing in Python"
 optional = true
 python-versions = ">=3.9"
 groups = ["main"]
-markers = "extra == \"yolo-models\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"builddocs\" or extra == \"yolo-models\")"
 files = [
     {file = "scipy-1.13.1-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:20335853b85e9a49ff7572ab453794298bcf0354d8068c5f6775a0eabf350aca"},
     {file = "scipy-1.13.1-cp310-cp310-macosx_12_0_arm64.whl", hash = "sha256:d605e9c23906d1994f55ace80e0125c587f96c020037ea6aa98d01b4bd2e222f"},
@@ -5012,7 +5012,7 @@ description = "Statistical data visualization"
 optional = true
 python-versions = ">=3.8"
 groups = ["main"]
-markers = "extra == \"yolo-models\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"builddocs\" or extra == \"yolo-models\")"
 files = [
     {file = "seaborn-0.13.2-py3-none-any.whl", hash = "sha256:636f8336facf092165e27924f223d3c62ca560b1f2bb5dff7ab7fad265361987"},
     {file = "seaborn-0.13.2.tar.gz", hash = "sha256:93e60a40988f4d65e9f4885df477e2fdaff6b73a9ded434c1ab356dd57eefff7"},
@@ -5053,7 +5053,7 @@ description = "Easily download, build, install, upgrade, and uninstall Python pa
 optional = true
 python-versions = ">=3.9"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"builddocs\" or extra == \"yolo-models\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"builddocs\" or extra == \"yolo-models\" or extra == \"torchmetrics\" or python_version >= \"3.12\") and (extra == \"builddocs\" or extra == \"yolo-models\" or extra == \"test\" or extra == \"torchmetrics\")"
 files = [
     {file = "setuptools-75.8.0-py3-none-any.whl", hash = "sha256:e3982f444617239225d675215d51f6ba05f845d4eec313da4418fdbb56fb27e3"},
     {file = "setuptools-75.8.0.tar.gz", hash = "sha256:c5afc8f407c626b8313a86e10311dd3f661c6cd9c09d4bf8c15c0e11f9f2b0e6"},
@@ -5135,7 +5135,7 @@ description = "Python 2 and 3 compatibility utilities"
 optional = true
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"builddocs\" or extra == \"yolo-models\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"builddocs\" or extra == \"yolo-models\")"
 files = [
     {file = "six-1.17.0-py2.py3-none-any.whl", hash = "sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274"},
     {file = "six-1.17.0.tar.gz", hash = "sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81"},
@@ -5378,7 +5378,7 @@ description = "Computer algebra system (CAS) in Python"
 optional = true
 python-versions = ">=3.8"
 groups = ["main"]
-markers = "extra == \"yolo-models\" or extra == \"builddocs\""
+markers = "extra == \"builddocs\" or extra == \"yolo-models\" or extra == \"test\" or extra == \"torchmetrics\""
 files = [
     {file = "sympy-1.13.1-py3-none-any.whl", hash = "sha256:db36cdc64bf61b9b24578b6f7bab1ecdd2452cf008f34faa33776680c26d66f8"},
     {file = "sympy-1.13.1.tar.gz", hash = "sha256:9cebf7e04ff162015ce31c9c6c9144daa34a93bd082f54fd8f12deca4f47515f"},
@@ -5572,7 +5572,7 @@ description = "A lil' TOML parser"
 optional = true
 python-versions = ">=3.8"
 groups = ["main"]
-markers = "(python_version == \"3.9\" or platform_system == \"Linux\" or python_version == \"3.10\") and python_version <= \"3.10\" and (extra == \"test\" or extra == \"builddocs\" or extra == \"dev\") and (python_version == \"3.9\" or platform_machine == \"aarch64\" or python_version == \"3.10\")"
+markers = "(python_version == \"3.9\" or python_version == \"3.10\" or platform_system == \"Linux\") and python_version <= \"3.10\" and (python_version == \"3.9\" or python_version == \"3.10\" or platform_machine == \"aarch64\") and (extra == \"test\" or extra == \"builddocs\" or extra == \"dev\")"
 files = [
     {file = "tomli-2.2.1-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:678e4fa69e4575eb77d103de3df8a895e1591b48e740211bd1067378c69e8249"},
     {file = "tomli-2.2.1-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:023aa114dd824ade0100497eb2318602af309e5a55595f76b626d6d9f3b7b0a6"},
@@ -5615,7 +5615,7 @@ description = "Tensors and Dynamic neural networks in Python with strong GPU acc
 optional = true
 python-versions = ">=3.9.0"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"yolo-models\" or extra == \"builddocs\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"builddocs\" or extra == \"yolo-models\" or extra == \"test\" or extra == \"torchmetrics\")"
 files = [
     {file = "torch-2.6.0-cp310-cp310-manylinux1_x86_64.whl", hash = "sha256:6860df13d9911ac158f4c44031609700e1eba07916fff62e21e6ffa0a9e01961"},
     {file = "torch-2.6.0-cp310-cp310-manylinux_2_28_aarch64.whl", hash = "sha256:c4f103a49830ce4c7561ef4434cc7926e5a5fe4e5eb100c19ab36ea1e2b634ab"},
@@ -5668,15 +5668,15 @@ optree = ["optree (>=0.13.0)"]
 
 [[package]]
 name = "torchmetrics"
-version = "1.6.1"
+version = "1.7.0"
 description = "PyTorch native Metrics"
 optional = true
 python-versions = ">=3.9"
 groups = ["main"]
-markers = "extra == \"builddocs\""
+markers = "extra == \"torchmetrics\""
 files = [
-    {file = "torchmetrics-1.6.1-py3-none-any.whl", hash = "sha256:c3090aa2341129e994c0a659abb6d4140ae75169a6ebf45bffc16c5cb553b38e"},
-    {file = "torchmetrics-1.6.1.tar.gz", hash = "sha256:a5dc236694b392180949fdd0a0fcf2b57135c8b600e557c725e077eb41e53e64"},
+    {file = "torchmetrics-1.7.0-py3-none-any.whl", hash = "sha256:39a72cf40c8452e041f5315b997ef811c2baaae01478131cf6ed9813f553a668"},
+    {file = "torchmetrics-1.7.0.tar.gz", hash = "sha256:7a26d5cb73a6ae51ab5cb514aa4dc0543af7287a507719986a06e15df12ea68b"},
 ]
 
 [package.dependencies]
@@ -5686,14 +5686,15 @@ packaging = ">17.1"
 torch = ">=2.0.0"
 
 [package.extras]
-all = ["SciencePlots (>=2.0.0)", "gammatone (>=1.0.0)", "ipadic (>=1.0.0)", "librosa (>=0.10.0)", "matplotlib (>=3.6.0)", "mecab-python3 (>=1.0.6)", "mypy (==1.14.0)", "nltk (>3.8.1)", "numpy (<2.0)", "onnxruntime (>=1.12.0)", "pesq (>=0.0.4)", "piq (<=0.8.0)", "pycocotools (>2.0.0)", "pystoi (>=0.4.0)", "regex (>=2021.9.24)", "requests (>=2.19.0)", "scipy (>1.0.0)", "sentencepiece (>=0.2.0)", "torch (==2.5.1)", "torch-fidelity (<=0.4.0)", "torchaudio (>=2.0.1)", "torchvision (>=0.15.1)", "torchvision (>=0.15.1)", "tqdm (<4.68.0)", "transformers (>4.4.0)", "transformers (>=4.42.3)", "types-PyYAML", "types-emoji", "types-protobuf", "types-requests", "types-setuptools", "types-six", "types-tabulate"]
-audio = ["gammatone (>=1.0.0)", "librosa (>=0.10.0)", "numpy (<2.0)", "onnxruntime (>=1.12.0)", "pesq (>=0.0.4)", "pystoi (>=0.4.0)", "requests (>=2.19.0)", "torchaudio (>=2.0.1)"]
+all = ["SciencePlots (>=2.0.0)", "einops (>=0.7.0)", "gammatone (>=1.0.0)", "ipadic (>=1.0.0)", "librosa (>=0.10.0)", "matplotlib (>=3.6.0)", "mecab-python3 (>=1.0.6)", "mypy (==1.15.0)", "nltk (>3.8.1)", "onnxruntime (>=1.12.0)", "pesq (>=0.0.4)", "piq (<=0.8.0)", "pycocotools (>2.0.0)", "pystoi (>=0.4.0)", "regex (>=2021.9.24)", "requests (>=2.19.0)", "scipy (>1.0.0)", "sentencepiece (>=0.2.0)", "timm (>=0.9.0)", "torch (==2.6.0)", "torch-fidelity (<=0.4.0)", "torch_linear_assignment (>=0.0.2)", "torchaudio (>=2.0.1)", "torchvision (>=0.15.1)", "torchvision (>=0.15.1)", "tqdm (<4.68.0)", "transformers (>4.4.0)", "transformers (>=4.42.3)", "types-PyYAML", "types-emoji", "types-protobuf", "types-requests", "types-setuptools", "types-six", "types-tabulate"]
+audio = ["gammatone (>=1.0.0)", "librosa (>=0.10.0)", "onnxruntime (>=1.12.0)", "pesq (>=0.0.4)", "pystoi (>=0.4.0)", "requests (>=2.19.0)", "torchaudio (>=2.0.1)"]
+clustering = ["torch_linear_assignment (>=0.0.2)"]
 detection = ["pycocotools (>2.0.0)", "torchvision (>=0.15.1)"]
-dev = ["PyTDC (==0.4.1) ; python_version < \"3.12\"", "SciencePlots (>=2.0.0)", "bert_score (==0.3.13)", "dython (==0.7.6) ; python_version < \"3.9\"", "dython (>=0.7.8,<0.8.0) ; python_version > \"3.8\"", "fairlearn", "fast-bss-eval (>=0.1.0)", "faster-coco-eval (>=1.6.3)", "gammatone (>=1.0.0)", "huggingface-hub (<0.28)", "ipadic (>=1.0.0)", "jiwer (>=2.3.0)", "kornia (>=0.6.7)", "librosa (>=0.10.0)", "lpips (<=0.1.4)", "matplotlib (>=3.6.0)", "mecab-ko (>=1.0.0,<1.1.0) ; python_version < \"3.12\"", "mecab-ko-dic (>=1.0.0) ; python_version < \"3.12\"", "mecab-python3 (>=1.0.6)", "mir-eval (>=0.6)", "monai (==1.3.2) ; python_version < \"3.9\"", "monai (==1.4.0) ; python_version > \"3.8\"", "mypy (==1.14.0)", "netcal (>1.0.0)", "nltk (>3.8.1)", "numpy (<2.0)", "numpy (<2.3.0)", "onnxruntime (>=1.12.0)", "pandas (>1.4.0)", "permetrics (==2.0.0)", "pesq (>=0.0.4)", "piq (<=0.8.0)", "pycocotools (>2.0.0)", "pystoi (>=0.4.0)", "pytorch-msssim (==1.0.0)", "regex (>=2021.9.24)", "requests (>=2.19.0)", "rouge-score (>0.1.0)", "sacrebleu (>=2.3.0)", "scikit-image (>=0.19.0)", "scipy (>1.0.0)", "scipy (>1.0.0)", "sentencepiece (>=0.2.0)", "sewar (>=0.4.4)", "statsmodels (>0.13.5)", "torch (==2.5.1)", "torch-fidelity (<=0.4.0)", "torch_complex (<0.5.0)", "torchaudio (>=2.0.1)", "torchvision (>=0.15.1)", "torchvision (>=0.15.1)", "tqdm (<4.68.0)", "transformers (>4.4.0)", "transformers (>=4.42.3)", "types-PyYAML", "types-emoji", "types-protobuf", "types-requests", "types-setuptools", "types-six", "types-tabulate"]
+dev = ["PyTDC (==0.4.1) ; python_version < \"3.12\"", "SciencePlots (>=2.0.0)", "aeon (>=1.0.0) ; python_version > \"3.10\"", "bert_score (==0.3.13)", "dists-pytorch (==0.1)", "dython (==0.7.9)", "einops (>=0.7.0)", "fairlearn", "fast-bss-eval (>=0.1.0)", "faster-coco-eval (>=1.6.3)", "gammatone (>=1.0.0)", "huggingface-hub (<0.30)", "ipadic (>=1.0.0)", "jiwer (>=2.3.0)", "kornia (>=0.6.7)", "librosa (>=0.10.0)", "lpips (<=0.1.4)", "matplotlib (>=3.6.0)", "mecab-ko (>=1.0.0,<1.1.0) ; python_version < \"3.12\"", "mecab-ko-dic (>=1.0.0) ; python_version < \"3.12\"", "mecab-python3 (>=1.0.6)", "mir-eval (>=0.6)", "monai (==1.4.0)", "mypy (==1.15.0)", "netcal (>1.0.0)", "nltk (>3.8.1)", "numpy (<2.3.0)", "onnxruntime (>=1.12.0)", "pandas (>1.4.0)", "permetrics (==2.0.0)", "pesq (>=0.0.4)", "piq (<=0.8.0)", "pycocotools (>2.0.0)", "pystoi (>=0.4.0)", "pytorch-msssim (==1.0.0)", "regex (>=2021.9.24)", "requests (>=2.19.0)", "rouge-score (>0.1.0)", "sacrebleu (>=2.3.0)", "scikit-image (>=0.19.0)", "scipy (>1.0.0)", "scipy (>1.0.0)", "sentencepiece (>=0.2.0)", "sewar (>=0.4.4)", "statsmodels (>0.13.5)", "timm (>=0.9.0)", "torch (==2.6.0)", "torch-fidelity (<=0.4.0)", "torch_complex (<0.5.0)", "torch_linear_assignment (>=0.0.2)", "torchaudio (>=2.0.1)", "torchvision (>=0.15.1)", "torchvision (>=0.15.1)", "tqdm (<4.68.0)", "transformers (>4.4.0)", "transformers (>=4.42.3)", "types-PyYAML", "types-emoji", "types-protobuf", "types-requests", "types-setuptools", "types-six", "types-tabulate"]
 image = ["scipy (>1.0.0)", "torch-fidelity (<=0.4.0)", "torchvision (>=0.15.1)"]
-multimodal = ["piq (<=0.8.0)", "transformers (>=4.42.3)"]
+multimodal = ["einops (>=0.7.0)", "piq (<=0.8.0)", "timm (>=0.9.0)", "transformers (>=4.42.3)"]
 text = ["ipadic (>=1.0.0)", "mecab-python3 (>=1.0.6)", "nltk (>3.8.1)", "regex (>=2021.9.24)", "sentencepiece (>=0.2.0)", "tqdm (<4.68.0)", "transformers (>4.4.0)"]
-typing = ["mypy (==1.14.0)", "torch (==2.5.1)", "types-PyYAML", "types-emoji", "types-protobuf", "types-requests", "types-setuptools", "types-six", "types-tabulate"]
+typing = ["mypy (==1.15.0)", "torch (==2.6.0)", "types-PyYAML", "types-emoji", "types-protobuf", "types-requests", "types-setuptools", "types-six", "types-tabulate"]
 visual = ["SciencePlots (>=2.0.0)", "matplotlib (>=3.6.0)"]
 
 [[package]]
@@ -5703,7 +5704,7 @@ description = "image and video datasets and models for torch deep learning"
 optional = true
 python-versions = ">=3.9"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"builddocs\" or extra == \"yolo-models\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"builddocs\" or extra == \"yolo-models\")"
 files = [
     {file = "torchvision-0.21.0-1-cp310-cp310-manylinux_2_28_aarch64.whl", hash = "sha256:5568c5a1ff1b2ec33127b629403adb530fab81378d9018ca4ed6508293f76e2b"},
     {file = "torchvision-0.21.0-1-cp311-cp311-manylinux_2_28_aarch64.whl", hash = "sha256:ff96666b94a55e802ea6796cabe788541719e6f4905fc59c380fed3517b6a64d"},
@@ -5770,7 +5771,7 @@ description = "tox is a generic virtualenv management and test command line tool
 optional = true
 python-versions = ">=3.8"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"builddocs\" or extra == \"dev\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"builddocs\" or extra == \"dev\")"
 files = [
     {file = "tox-4.24.2-py3-none-any.whl", hash = "sha256:92e8290e76ad4e15748860a205865696409a2d014eedeb796a34a0f3b5e7336e"},
     {file = "tox-4.24.2.tar.gz", hash = "sha256:d5948b350f76fae436d6545a5e87c2b676ab7a0d7d88c1308651245eadbe8aea"},
@@ -5799,7 +5800,7 @@ description = "Fast, Extensible Progress Meter"
 optional = true
 python-versions = ">=3.7"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"builddocs\" or extra == \"yolo-models\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"builddocs\" or extra == \"yolo-models\")"
 files = [
     {file = "tqdm-4.67.1-py3-none-any.whl", hash = "sha256:26445eca388f82e72884e0d580d5464cd801a3ea01e63e5601bdff9ba6a48de2"},
     {file = "tqdm-4.67.1.tar.gz", hash = "sha256:f8aef9c52c08c13a65f30ea34f4e5aac3fd1a34959879d7e59e63027286627f2"},
@@ -5822,7 +5823,7 @@ description = "Traitlets Python configuration system"
 optional = true
 python-versions = ">=3.8"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"test\" or extra == \"builddocs\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"test\" or extra == \"builddocs\")"
 files = [
     {file = "traitlets-5.14.3-py3-none-any.whl", hash = "sha256:b74e89e397b1ed28cc831db7aea759ba6640cb3de13090ca145426688ff1ac4f"},
     {file = "traitlets-5.14.3.tar.gz", hash = "sha256:9ed0579d3502c94b4b3732ac120375cda96f923114522847de4b3bb98b96b6b7"},
@@ -5910,7 +5911,7 @@ description = "A language and compiler for custom Deep Learning operations"
 optional = true
 python-versions = "*"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\" and (extra == \"yolo-models\" or extra == \"builddocs\")"
+markers = "platform_system == \"Linux\" and platform_machine == \"x86_64\" and (extra == \"builddocs\" or extra == \"yolo-models\" or extra == \"test\" or extra == \"torchmetrics\")"
 files = [
     {file = "triton-3.2.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:b3e54983cd51875855da7c68ec05c05cf8bb08df361b1d5b69e05e40b0c9bd62"},
     {file = "triton-3.2.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:8009a1fb093ee8546495e96731336a33fb8856a38e45bb4ab6affd6dbc3ba220"},
@@ -5957,7 +5958,7 @@ description = "Provider of IANA time zone data"
 optional = true
 python-versions = ">=2"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"builddocs\" or extra == \"yolo-models\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"builddocs\" or extra == \"yolo-models\")"
 files = [
     {file = "tzdata-2025.1-py2.py3-none-any.whl", hash = "sha256:7e127113816800496f027041c570f50bcd464a020098a3b6b199517772303639"},
     {file = "tzdata-2025.1.tar.gz", hash = "sha256:24894909e88cdb28bd1636c6887801df64cb485bd593f2fd83ef29075a81d694"},
@@ -5970,7 +5971,7 @@ description = "Ultralytics YOLO 🚀 for SOTA object detection, multi-object tra
 optional = true
 python-versions = ">=3.8"
 groups = ["main"]
-markers = "extra == \"yolo-models\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"builddocs\" or extra == \"yolo-models\")"
 files = [
     {file = "ultralytics-8.3.94-py3-none-any.whl", hash = "sha256:d2d49d3bc0375862c29075962abb57ef534deb22998ce199f6298140886516f5"},
     {file = "ultralytics-8.3.94.tar.gz", hash = "sha256:87b9cf3ed5e8c932d67f9c2cc276b235d61864440dd8dd8901481c7af38811c1"},
@@ -6010,7 +6011,7 @@ description = "Ultralytics THOP package for fast computation of PyTorch model FL
 optional = true
 python-versions = ">=3.8"
 groups = ["main"]
-markers = "extra == \"yolo-models\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"builddocs\" or extra == \"yolo-models\")"
 files = [
     {file = "ultralytics_thop-2.0.14-py3-none-any.whl", hash = "sha256:720b421e2459179fee21ec8f730d242a20774cd4b0a00a58d02351a39ec3881c"},
     {file = "ultralytics_thop-2.0.14.tar.gz", hash = "sha256:38ebfdbd3cd8dafdc3d26ec3a7d4f604fbeed5e69a74e61a48060b39736c945c"},
@@ -6043,7 +6044,7 @@ description = "HTTP library with thread-safe connection pooling, file post, and 
 optional = true
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,>=2.7"
 groups = ["main"]
-markers = "(python_version == \"3.9\" or platform_system == \"Linux\") and (python_version == \"3.9\" or platform_machine == \"aarch64\") and python_version < \"3.10\" and (extra == \"yolo-models\" or extra == \"test\" or extra == \"builddocs\")"
+markers = "(python_version == \"3.9\" or platform_system == \"Linux\") and python_version < \"3.10\" and (python_version == \"3.9\" or platform_machine == \"aarch64\") and (extra == \"yolo-models\" or extra == \"test\" or extra == \"builddocs\")"
 files = [
     {file = "urllib3-1.26.20-py2.py3-none-any.whl", hash = "sha256:0ed14ccfbf1c30a9072c7ca157e4319b70d65f623e91e7b32fadb2853431016e"},
     {file = "urllib3-1.26.20.tar.gz", hash = "sha256:40c2dc0c681e47eb8f90e7e27bf6ff7df2e677421fd46756da1161c39ca70d32"},
@@ -6080,7 +6081,7 @@ description = "Virtual Python Environment builder"
 optional = true
 python-versions = ">=3.8"
 groups = ["main"]
-markers = "platform_system == \"Linux\" and (extra == \"builddocs\" or extra == \"dev\") and platform_machine == \"aarch64\""
+markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and (extra == \"builddocs\" or extra == \"dev\")"
 files = [
     {file = "virtualenv-20.29.3-py3-none-any.whl", hash = "sha256:3e3d00f5807e83b234dfb6122bf37cfadf4be216c53a49ac059d02414f819170"},
     {file = "virtualenv-20.29.3.tar.gz", hash = "sha256:95e39403fcf3940ac45bc717597dba16110b74506131845d9b687d5e73d947ac"},
@@ -6482,7 +6483,7 @@ description = "Backport of pathlib-compatible object wrapper for zip files"
 optional = true
 python-versions = ">=3.9"
 groups = ["main"]
-markers = "(python_version == \"3.9\" or platform_system == \"Linux\") and (python_version == \"3.9\" or platform_machine == \"aarch64\") and (extra == \"test\" or extra == \"builddocs\" or extra == \"yolo-models\") and python_version < \"3.10\" or python_version >= \"3.10\" and extra == \"builddocs\""
+markers = "python_version == \"3.9\" and (extra == \"test\" or extra == \"builddocs\" or extra == \"yolo-models\") or platform_system == \"Linux\" and platform_machine == \"aarch64\" and python_version < \"3.10\" and (extra == \"builddocs\" or extra == \"test\" or extra == \"yolo-models\") or extra == \"builddocs\""
 files = [
     {file = "zipp-3.21.0-py3-none-any.whl", hash = "sha256:ac1bbe05fd2991f160ebce24ffbac5f6d11d83dc90891255885223d42b3cd931"},
     {file = "zipp-3.21.0.tar.gz", hash = "sha256:2c9958f6430a2040341a52eb608ed6dd93ef4392e02ffe219417c1b28b5dd1f4"},
@@ -6500,9 +6501,10 @@ type = ["pytest-mypy"]
 builddocs = ["datasets", "jupyter", "kornia", "matplotlib", "nbconvert", "pycocotools", "pytest", "torch", "torchmetrics", "torchvision", "tox", "transformers", "ultralytics", "watermark"]
 dev = ["pre-commit", "tox"]
 test = ["hypothesis", "jupytext", "numpydoc", "pyright", "pytest", "pytest-mock", "torch"]
+torchmetrics = ["torchmetrics"]
 yolo-models = ["boto3", "botocore", "matplotlib", "opencv-python-headless", "pandas", "roboflow", "torch", "ultralytics", "yolov5"]
 
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.9"
-content-hash = "41686edd495c8c161e1ea78ab58f1d6cb47eb5f4cdb3d3682dd224b518b43dcf"
+content-hash = "74e09f7c88ce600fdd511dd0ba522510064e0c656aa6e2e54df65fa0c70bab12"

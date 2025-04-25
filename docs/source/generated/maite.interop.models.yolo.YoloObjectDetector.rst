@@ -1,0 +1,10 @@
+﻿maite.interop.models.yolo.YoloObjectDetector
+============================================
+
+.. currentmodule:: maite.interop.models.yolo
+
+.. autoclass:: YoloObjectDetector
+
+   
+   
+   

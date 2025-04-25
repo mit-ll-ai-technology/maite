@@ -95,6 +95,7 @@ exclude_patterns = []
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3/", None),
     "numpy": ("https://numpy.org/doc/stable/", None),
+    "torchmetrics": ("https://torchmetrics.readthedocs.io/en/latest/", None),
 }
 
 # https://www.sphinx-doc.org/en/master/usage/extensions/extlinks.html
