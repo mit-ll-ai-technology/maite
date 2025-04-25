@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional, Union
+from typing import Any, Optional, Union
 
 import numpy as np
 import torch
@@ -33,50 +33,44 @@ class YoloObjectDetector:
     Wrapped YOLO model which adheres to MAITE protocols. This wrapped model is intended
     to be used as-is for basic use cases of object detection.
 
+    Notes
+    -----
+    Only Ultralytics YOLOv5 and YOLOv8 models are currently supported.
+
     Examples
     --------
+
     Import relevant Python libraries.
 
     >>> import numpy as np
+    >>> from typing_extensions import Sequence
     >>> from ultralytics import YOLO
-    >>> from maite.interop.models import YoloObjectDetector
+    >>> from maite.interop.models.yolo import YoloObjectDetector
     >>> from maite.protocols import object_detection as od
 
     Load an Ultralytics-hosted YOLOv5 model, 'yolov5nu',
 
     >>> yolov5_model = YOLO("yolov5nu")
-    >>> wrapped_yolov5_model = YoloObjectDetector(
-    ...     model=yolov5_model,
-    ...     id='YOLOv5nu',
-    ...     index2label=yolov5_model.names
-    ... )
+    >>> metadata = ModelMetadata(id="YOLOv5nu", index2label=yolov5_model.names)
+    >>> wrapped_yolov5_model = YoloObjectDetector(yolov5_model, metadata)
 
     or, load an Ultralytics YOLOv5 model from a local filepath.
 
     >>> yolov5_model = YOLO("./yolov5nu.pt")
-    >>> wrapped_yolov5_model = YoloObjectDetector(
-    ...     model=yolov5_model,
-    ...     id='YOLOv5nu',
-    ...     index2label=yolov5_model.names
-    ... )
+    >>> metadata = ModelMetadata(id="YOLOv5nu", index2label=yolov5_model.names)
+    >>> wrapped_yolov5_model = YoloObjectDetector(yolov5_model, metadata)
 
     Load an Ultralytics-hosted YOLOv8 model, 'yolov8n',
 
     >>> yolov8_model = YOLO("yolov8n")
-    >>> wrapped_yolov8_model = YoloObjectDetector(
-    ...     model=yolov8_model,
-    ...     id='YOLOv8n',
-    ...     index2label=yolov8_model.names
-    ... )
+    >>> metadata = ModelMetadata(id="YOLOv8n", index2label=yolov8_model.names)
+    >>> wrapped_yolov8_model = YoloObjectDetector(yolov8_model, metadata)
 
     or, load an Ultralytics YOLOv8 model from a local filepath.
 
     >>> yolov8_model = YOLO("./yolov8n.pt")
-    >>> wrapped_yolov8_model = YoloObjectDetector(
-    ...     model=yolov8_model,
-    ...     id='YOLOv8n',
-    ...     index2label=yolov8_model.names
-    ... )
+    >>> metadata = ModelMetadata(id="YOLOv8n", index2label=yolov8_model.names)
+    >>> wrapped_yolov8_model = YoloObjectDetector(yolov8_model, metadata)
 
     Perform object detection inference with the model.
 
@@ -88,18 +82,13 @@ class YoloObjectDetector:
     >>> model_results: Sequence[od.TargetType] = wrapped_yolov8_model(batch_data)
     >>> print(model_results)
     [ObjectDetectionTargets(boxes=array([], shape=(0, 4), dtype=float32), labels=array([], dtype=uint8), scores=array([], dtype=float32)), ObjectDetectionTargets(boxes=array([], shape=(0, 4), dtype=float32), labels=array([], dtype=uint8), scores=array([], dtype=float32)), ObjectDetectionTargets(boxes=array([], shape=(0, 4), dtype=float32), labels=array([], dtype=uint8), scores=array([], dtype=float32)), ObjectDetectionTargets(boxes=array([], shape=(0, 4), dtype=float32), labels=array([], dtype=uint8), scores=array([], dtype=float32)), ObjectDetectionTargets(boxes=array([], shape=(0, 4), dtype=float32), labels=array([], dtype=uint8), scores=array([], dtype=float32))]
-
-    Notes
-    -----
-    Only Ultralytics YOLOv5 and YOLOv8 models are currently supported.
     """
 
     def __init__(
         self,
-        model: YOLOModel,
-        id: Optional[str] = None,
-        index2label: Optional[dict[int, str]] = None,
-        **kwargs,
+        model: Union[YOLO, AutoShape],
+        metadata: ModelMetadata,
+        yolo_inference_args: Optional[dict[str, Any]] = None,
     ):
         """
         Parameters
@@ -109,13 +98,10 @@ class YoloObjectDetector:
             `ultralytics` or `yolov5` Python Library. Models must be either YOLOv5 or
             YOLOv8 and must be designed for the object detection task.
 
-        id : Optional[str], (default=None)
-            An id or name identifying the model.
+        metadata : ModelMetadata
+            A typed dictionary containing at least an 'id' field of type str.
 
-        index2label : Optional[dict[int, str]], (default=None)
-            A mapping from integer class index to string name.
-
-        **kwargs
+        yolo_inference_args : Optional[dict[str, Any]], (default=None)
             Additional keyword arguments for configuring the model's prediction process. These arguments
             (such as `verbose`, `conf`, and `device` for YOLOv8), will be passed at inference time to the
             underlying native model.
@@ -127,19 +113,11 @@ class YoloObjectDetector:
             For `yolov5` loaded legacy models, refer to the
             `YOLOv5 model <https://github.com/ultralytics/yolov5/blob/30e4c4f09297b67afedf8b2bcd851833ddc9dead/models/common.py#L243-L252>_
             for allowed keyword arguments, as stated in the `Ultralytics YOLOv5 Docs <https://docs.ultralytics.com/yolov5/tutorials/pytorch_hub_model_loading/#simple-example>`_.
-
         """
         self.model = model
-        self.kwargs = kwargs
-
-        # Add model metadata
-        if id is None:
-            id = "MAITE-wrapped YOLO Model"
-
-        self.metadata: ModelMetadata = (
-            ModelMetadata(id=id)
-            if index2label is None
-            else ModelMetadata(id=id, index2label=index2label)
+        self.metadata = metadata
+        self.yolo_inference_args: dict[str, Any] = (
+            yolo_inference_args if yolo_inference_args is not None else {}
         )
 
     @staticmethod
@@ -200,7 +178,10 @@ class YoloObjectDetector:
         return all_detections
 
     def __call__(self, batch: Sequence[od.InputType]) -> list[ObjectDetectionTargets]:
+        # doc-ignore: EX01
         """
+        Make a model prediction for inputs in input batch.
+
         Parameters
         ----------
         batch : Sequence[od.InputType]
@@ -234,7 +215,7 @@ class YoloObjectDetector:
             batch = [np.array(b).transpose((1, 2, 0)) for b in batch]
 
         # Perform inference on batch
-        results = self.model(batch, **self.kwargs)
+        results = self.model(batch, **self.yolo_inference_args)
 
         try:
             return self._format_results(results)

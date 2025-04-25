@@ -5,7 +5,7 @@ build-backend = "poetry_dynamic_versioning.backend"
 
 [project]
 name = "maite"
-dynamic = ["version"]
+dynamic = []
 description = "Library of common types, protocols (a.k.a. structural subtypes), and utilities to support AI test and evaluation"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -30,6 +30,7 @@ classifiers = [
   "Topic :: Scientific/Engineering",
   "Programming Language :: Python :: 3 :: Only",
 ]
+version = "0.0.0"
 
 [project.optional-dependencies]
 
@@ -84,6 +85,9 @@ yolo-models = [
   "yolov5 (>=7.0.13)"
 ]
 
+# dependencies required to use TorchMetrics metric wrappers
+torchmetrics = ["torchmetrics (>=1.7.0,<2.0.0)"]
+
 [project.urls]
 "Homepage" = "https://github.com/mit-ll-ai-technology/maite"
 "Bug Reports" = "https://github.com/mit-ll-ai-technology/maite/issues"
@@ -91,7 +95,6 @@ yolo-models = [
 
 
 [tool.poetry]
-version = "0.0.0"
 
 [tool.poetry.requires-plugins]
 poetry-dynamic-versioning = { version = ">=1.0.0,<2.0.0", extras = ["plugin"] }

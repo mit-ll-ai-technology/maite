@@ -9,7 +9,7 @@ Reference
 
 Encyclopedia MAITEanica.
 
-COMING SOON! All reference documentation includes detailed Examples sections. Please scroll to the 
+COMING SOON! All reference documentation includes detailed Examples sections. Please scroll to the
 bottom of any given reference page to see the examples.
 
 .. toctree::
@@ -76,6 +76,16 @@ Workflows
    workflows.evaluate
    workflows.predict
 
++++++++
+Interop
++++++++
+
+.. autosummary::
+   :toctree: generated/
+
+   interop.metrics.torchmetrics.TMClassificationMetric
+   interop.models.yolo.YoloObjectDetector
+
 +++++++++++++++++++++++++++++
 Validation and Error Handling
 +++++++++++++++++++++++++++++
@@ -89,7 +99,7 @@ Validation and Error Handling
    check_domain
    check_one_of
    chain_validators
-   
+
 
 .. currentmodule:: maite.errors
 
@@ -111,7 +121,7 @@ Testing Tools
    validate_docstring
    NumpyDocErrorCode
    NumPyDocResults
-   
+
 
 .. currentmodule:: maite.testing.pyright
 
