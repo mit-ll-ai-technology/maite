@@ -45,23 +45,29 @@ The design of the MAITE standard is structured around the following objectives:
 4) **Safety** - Compatibility of AI components should be clear, and compatible components should be usable together as expected.
 5) **Reproducibility** - The MAITE standard should make AI T&E pipelines easily reproducible to support future updates or result audits. [#reproducibility]_
 
-Interoperable Object Concepts: "Components" and "Tasks"
-===========================================================
+Interoperable Object Concepts: "Components", "Tasks", and "Primitives"
+======================================================================
 
 In the context of AI T&E libraries, the term "component" may be referring to AI-relevant objects (e.g., a Model, Dataset, Metric, etc.) or simply AI-relevant procedures (e.g., ``augment_dataset(...)``, ``evaluate_model(...)``, etc.).
-MAITE provides AI-task-specific [#mltask]_ behavioral expectations [#behavioral_expectations]_ for several recognizable objects [#ml_component_list]_ and refers to objects meeting one or more of these definitions as "MAITE components".
-Alternatively, procedures ("callables" in Python nomenclature) that accept some number of (arbitrary) [#arbitrary]_ MAITE component implementers and return some number of MAITE component implementers are termed "MAITE tasks".
+MAITE provides AI-task-specific [#mltask]_ behavioral expectations [#behavioral_expectations]_ for several recognizable objects [#ml_component_list]_ and refers to objects meeting one of these definitions as "MAITE components".
+Alternatively, procedures ("callables" in Python nomenclature) that accept and return (arbitrary) [#arbitrary]_ MAITE component implementers are termed "MAITE tasks".
 
-.. admonition:: **MAITE component**
+To be more precise, more rigorous definitions are included below:
 
-    A Python object that satisfies a MAITE-defined behavioral contract [#protocol_classes]_
+**MAITE component**
+  Implementer of a MAITE-defined Python protocol class (Dataloader, Dataset, Augmentation, Model, or Metric) that follows prescribed semantics [#protocol_classes]_
+  
+**MAITE task**
+  A Python callable that:
 
-.. admonition:: **MAITE task**
-    
-    A callable exclusively accepting objects of MAITE component types and returning MAITE components [#specialized_tasks]_
+  * accepts only arguments typed as MAITE components [#includes_containers]_ or MAITE primitives [#includes_containers]_
+  * returns MAITE components [#includes_containers]_, MAITE primitives [#includes_containers]_, and/or Python objects of built-in/broadly-accepted [#common_structures]_ types with well-documented semantics [#non_consumables]_
+  
+**MAITE primitive**
+  Object with class and semantics of a member variable type, argument type, or return type of a MAITE-defined Python protocol class
 
-The "MAITE component" and "MAITE task" abstractions are useful because they permit quantifying a library's broader interoperability in a simple and accurate way: :bolditalic:`interoperability is the degree to which a library exposes MAITE components and MAITE tasks`.
-That's it. Regardless of a library's potentially complex inner workings, a highly-interoperable library should provide such components and tasks to guarantee broad interoperability for integrators.
+Defining these abstractions is useful because they permit quantifying a library's broader interoperability in a simple and accurate way: :bolditalic:`interoperability is the degree to which a library exposes MAITE components and MAITE tasks`.
+That's it. Regardless of a library's potentially complex inner workings, a highly-interoperable library should expose such components and tasks to enable broad interoperability for integrators.
 
 Structural Subtypes and Static Type Checking: Mechanisms for Defining and Verifying Standards
 =============================================================================================
@@ -103,11 +109,15 @@ Footnotes
 
 .. [#ml_component_list] viz. ``Dataset``, ``Dataloader``, ``Augmentation``, ``Model``, ``Metric``
 
-.. [#arbitrary] The "arbitrary" modifier is necessary if we care about callable interoperability because a callable that doesn't accept *certain* varieties of MAITE-conforming AI data structures isn't generally interoperable. It doesn't accept MAITE-conforming AI data structures per se, only more specialized structures that happen to be MAITE-conforming. This is a consequence of callable type contravariance with respect to argument types.
+.. [#arbitrary] The "arbitrary" modifier is necessary if we care about callable interoperability because a callable that doesn't accept *certain* varieties of MAITE-conforming AI objects isn't generally interoperable. It doesn't accept MAITE-conforming AI objects per se, only more specialized structures that happen to be MAITE-conforming. This is a consequence of callable type contravariance with respect to argument types.
 
 .. [#protocol_classes] In practice, these contracts are defined using Python classes that obey structural subtyping (viz. Python protocol classes or Python ``TypedDict`` classes). All object variables, methods, and type signatures can be checked via a static type checker. Semantic conditions of these contracts cannot be checked via a static type checker, but are documented in the protocol class definitions themselves. 
 
-.. [#specialized_tasks] Some procedures may require more specialized components than what is required by the behavioral standards defined within MAITE. While these procedures do not meet the offered definition of "tasks", they are likely still be useful albeit in a less interoperable way. These specialized tasks provide a path for new AI components to develop and enter the MAITE standard.
+.. [#includes_containers] This includes built-in containers thereof.
+
+.. [#common_structures] This includes numpy.ndarray, pandas.Series, and pandas.DataFrame.
+
+.. [#non_consumables] The use of this last return type precludes downstream consumption by other MAITE tasks.
 
 .. [#python_structural_types]  In structural types (as opposed to nominal types), object subtyping relationships are determined from member variables and method type signatures (i.e., "how the object behaves"), rather than nominal inheritance (i.e., an object's "ancestry"). This means that structural types can be used to define some behavioral expectations for an object. See the Python typing spec for more details: https://typing.readthedocs.io/en/latest/spec/concepts.html#nominal-and-structural-types
 
