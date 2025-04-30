@@ -44,7 +44,7 @@ TaskName: TypeAlias = Literal["object-detection", "image-classification"]
 
 # Write aliases for openly-typed components that are not meant to be directly
 # exposed in any overloads signatures, but are nonetheless needed in
-# the signature of task-agnostic workflow implementations. We consider this
+# the signature of problem-agnostic task implementations. We consider this
 # aliasing better than directly "Any-typing" arguments to implementations
 
 OpenModelType = gen.Model[Any, Any]

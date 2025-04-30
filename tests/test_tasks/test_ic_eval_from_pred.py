@@ -10,7 +10,7 @@ import pytest
 import maite._internals.protocols.image_classification as ic
 from maite._internals.protocols.generic import MetricComputeReturnType, MetricMetadata
 from maite._internals.protocols.image_classification import ArrayLike
-from maite.workflows import evaluate_from_predictions
+from maite.tasks import evaluate_from_predictions
 
 
 class SimpleAccuracyMetric:

@@ -69,7 +69,7 @@ from maite.protocols.generic import (
     Augmentation,
 )
 
-from maite.workflows import evaluate
+from maite.tasks import evaluate
 
 from typing import cast
 
