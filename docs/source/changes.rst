@@ -8,6 +8,23 @@ Changelog
 This is a record of all past maite releases and what went into them, in reverse 
 chronological order.
 
+.. _v0.8.0:
+
+---------------------
+0.8.0 - 2025-04-30
+---------------------
+
+- Add torchmetrics image classification wrapper to `interop` submodule
+- Add yolo object detection wrapper to `interop` submodule
+- Add `evaluate_from_predictions` MAITE task that accepts precalculated model predictions to compute metrics against ground truth
+- Expand `ObjectDetectionTarget` semantics to permit optionally returning scores for multiple classes
+- Roll back documented requirement to have normalized (i.e. sum to 1, all greater than 0) model outputs
+- Implement MAITE tasks (i.e. `evaluate`, `predict`, `evaluate_from_predictions`) as generic functions capable of using static typechecker to validate inter-component compatibility at development time
+- Update sphinx doc-building dependencies
+- Update the word we use to describe maite-compatible callables, preferring 'task' name to 'workflow' name with broader connotation
+- Author "MAITE Vision" explainer, describing the broader goal of MAITE and defining "MAITE tasks/components" formally
+- Switch package build back end to poetry; include poetry.lock file in repository
+
 .. _v0.7.3:
 
 ---------------------
