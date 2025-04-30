@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 
 from maite._internals.protocols import generic as gen
-from maite.workflows import evaluate, predict
+from maite.tasks import evaluate, predict
 from tests.component_impls import (
     ic_simple_component_impls as ici,
     od_simple_component_impls as odi,
@@ -34,7 +34,7 @@ def test_simple_ic_structural(
 
 
 def test_simple_ic_evaluate():
-    # Run types through "evaluate" workflow
+    # Run types through "evaluate" task
 
     ic_simple_model = ici.ModelImpl()
     ic_simple_dataset = ici.DatasetImpl()
@@ -64,7 +64,7 @@ def test_simple_ic_predict(
     ic_simple_model,
     ic_simple_metric,
 ):
-    # Run types through "predict" workflow
+    # Run types through "predict" task
 
     predict(
         model=ic_simple_model,
@@ -106,7 +106,7 @@ def test_simple_od_evaluate(
     od_simple_model,
     od_simple_metric,
 ):
-    # Run types through "evaluate" workflow
+    # Run types through "evaluate" task
 
     od_simple_model = odi.ModelImpl()
     od_simple_dataset = odi.DatasetImpl()
@@ -135,7 +135,7 @@ def test_simple_od_predict(
     od_simple_dataloader,
     od_simple_model,
 ):
-    # Run types through "predict" workflow
+    # Run types through "predict" task
 
     predict(
         model=od_simple_model,
@@ -158,7 +158,7 @@ def test_simple_bad_evaluate(
     od_simple_model,
     od_simple_metric,
 ):
-    # Run types through "evaluate" workflow
+    # Run types through "evaluate" task
 
     evaluate(
         model=od_simple_model,
@@ -182,7 +182,7 @@ def test_simple_bad_predict(
     od_simple_dataloader,
     od_simple_model,
 ):
-    # Run types through "predict" workflow
+    # Run types through "predict" task
 
     predict(
         model=od_simple_model,

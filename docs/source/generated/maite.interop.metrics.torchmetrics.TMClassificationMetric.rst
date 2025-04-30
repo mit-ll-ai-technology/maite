@@ -7,12 +7,4 @@
 
    
    
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      
-        ~TMClassificationMetric.SUPPORTED_METRICS
-      
-   
    

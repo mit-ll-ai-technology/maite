@@ -10,7 +10,7 @@ import pytest
 
 from maite._internals.protocols.generic import MetricComputeReturnType, MetricMetadata
 from maite.protocols import object_detection as od
-from maite.workflows import evaluate_from_predictions
+from maite.tasks import evaluate_from_predictions
 
 N_CLASSES: int = 2  # Number pf possible classes that can be detected
 

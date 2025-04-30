@@ -66,15 +66,16 @@ Metrics
    protocols.image_classification.Metric
    protocols.object_detection.Metric
 
-+++++++++
-Workflows
-+++++++++
++++++
+Tasks
++++++
 
 .. autosummary::
    :toctree: generated/
 
-   workflows.evaluate
-   workflows.predict
+   tasks.evaluate
+   tasks.predict
+   tasks.evaluate_from_predictions
 
 +++++++
 Interop
