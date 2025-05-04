@@ -1,0 +1,10 @@
+﻿maite.interop.metrics.torchmetrics.TMClassificationMetric
+=========================================================
+
+.. currentmodule:: maite.interop.metrics.torchmetrics
+
+.. autoclass:: TMClassificationMetric
+
+   
+   
+   
