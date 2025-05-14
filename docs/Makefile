@@ -42,7 +42,7 @@ notebook_rst: $(GENERATED_RST_FILES)
 
 html: notebook_rst
 	cp -r $(SOURCEDIR)/. $(BUILDDIR)/source
-	# $GENERATED_RST_FILES already generated in $(BUILDDIR)/source
+	# GENERATED_RST_FILES already populated in $(BUILDDIR)/source
 	sphinx-build -b html -v $(SPHINXOPTS) $(BUILDDIR)/source $(BUILDDIR)/html
 
 

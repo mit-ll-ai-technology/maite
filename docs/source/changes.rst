@@ -8,6 +8,15 @@ Changelog
 This is a record of all past maite releases and what went into them, in reverse 
 chronological order.
 
+.. _v0.8.1:
+
+---------------------
+0.8.1 - 2025-05-14
+---------------------
+
+- Add torchmetrics object detection wrapper to `interop` submodule
+- Include 'tests' directory in built source distribution to enable conda-forge testing prior to deployment
+
 .. _v0.8.0:
 
 ---------------------
