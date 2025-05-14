@@ -54,7 +54,7 @@ builddocs = [
   "nbconvert",
   "kornia",
   "matplotlib",
-  "torchmetrics",
+  "torchmetrics[detection]",
   "torchvision",
   "pycocotools",
   "datasets>=3",
@@ -85,7 +85,7 @@ yolo-models = [
 ]
 
 # dependencies required to use TorchMetrics metric wrappers
-torchmetrics = ["torchmetrics (>=1.7.0,<2.0.0)"]
+torchmetrics = ["torchmetrics[detection] (>=1.7.0,<2.0.0)"]
 
 [project.urls]
 "Homepage" = "https://github.com/mit-ll-ai-technology/maite"

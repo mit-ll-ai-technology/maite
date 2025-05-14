@@ -9,143 +9,95 @@ Reference
 
 Encyclopedia MAITEanica.
 
-COMING SOON! All reference documentation includes detailed Examples sections. Please scroll to the
-bottom of any given reference page to see the examples.
-
-.. toctree::
-
 .. currentmodule:: maite
 
-+++++++++
-Protocols
-+++++++++
-
-Data, Datasets, & DataLoaders
------------------------------
+protocols
+---------
 
 .. autosummary::
+   :caption: protocols
    :toctree: generated/
-   :template: obj_no_autosummary_attrs.rst
+   :template: protocol_class.rst
 
    protocols.ArrayLike
 
-   protocols.image_classification.Dataset
+   protocols.image_classification.Augmentation
    protocols.image_classification.DataLoader
-
-   protocols.object_detection.ObjectDetectionTarget
-   protocols.object_detection.Dataset
-   protocols.object_detection.DataLoader
-
-Models
-------
-
-.. autosummary::
-   :toctree: generated/
-   :template: obj_no_autosummary_attrs.rst
-
+   protocols.image_classification.Dataset
+   protocols.image_classification.Metric
    protocols.image_classification.Model
+
+   protocols.object_detection.Augmentation
+   protocols.object_detection.ObjectDetectionTarget
+   protocols.object_detection.DataLoader
+   protocols.object_detection.Dataset
+   protocols.object_detection.Metric
    protocols.object_detection.Model
 
-Augmentations
--------------
+tasks
+-----
 
-.. autosummary::
+.. autosummary:: 
+   :caption: tasks
    :toctree: generated/
-   :template: obj_no_autosummary_attrs.rst
-
-   protocols.image_classification.Augmentation
-   protocols.object_detection.Augmentation
-
-Metrics
--------
-
-.. autosummary::
-   :toctree: generated/
-   :template: obj_no_autosummary_attrs.rst
-
-   protocols.image_classification.Metric
-   protocols.object_detection.Metric
-
-+++++
-Tasks
-+++++
-
-.. autosummary::
-   :toctree: generated/
+   :template: protocol_class.rst
 
    tasks.evaluate
    tasks.predict
    tasks.evaluate_from_predictions
 
-+++++++
-Interop
-+++++++
+interop
+-------
 
 .. autosummary::
+   :caption: interop
    :toctree: generated/
 
    interop.metrics.torchmetrics.TMClassificationMetric
+   interop.metrics.torchmetrics.TMDetectionMetric
    interop.models.yolo.YoloObjectDetector
 
-+++++++++++++++++++++++++++++
-Validation and Error Handling
-+++++++++++++++++++++++++++++
+utils
+-----
 
 .. currentmodule:: maite.utils.validation
 
 .. autosummary::
    :toctree: generated/
+   :caption: utils
 
    check_type
    check_domain
    check_one_of
    chain_validators
 
+errors
+------
 
 .. currentmodule:: maite.errors
 
 .. autosummary::
    :toctree: generated/
+   :caption: errors
 
    MaiteException
    InvalidArgument
 
-+++++++++++++
-Testing Tools
-+++++++++++++
+testing
+-------
 
-.. currentmodule:: maite.testing.docs
-
-.. autosummary::
-   :toctree: generated/
-
-   validate_docstring
-   NumpyDocErrorCode
-   NumPyDocResults
-
-
-.. currentmodule:: maite.testing.pyright
+.. currentmodule:: maite.testing
 
 .. autosummary::
+   :caption: testing
    :toctree: generated/
 
-   pyright_analyze
-   PyrightOutput
-   list_error_messages
-
-
-.. currentmodule:: maite.testing.pytest
-
-.. autosummary::
-   :toctree: generated/
-
-   cleandir
-
-
-.. currentmodule:: maite.testing.project
-
-.. autosummary::
-   :toctree: generated/
-
-   ModuleScan
-   get_public_symbols
+   docs.validate_docstring
+   docs.NumpyDocErrorCode
+   docs.NumPyDocResults
+   pyright.pyright_analyze
+   pyright.PyrightOutput
+   pyright.list_error_messages
+   pytest.cleandir
+   project.ModuleScan
+   project.get_public_symbols

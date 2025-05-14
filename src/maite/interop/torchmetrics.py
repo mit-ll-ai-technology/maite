@@ -7,12 +7,11 @@ import warnings
 from maite._internals.import_utils import is_torchmetrics_available
 
 if is_torchmetrics_available():
-    from maite._internals.interop.metrics.torchmetrics import TMClassificationMetric
     from maite._internals.interop.metrics.torchmetrics_detection import (
         TMDetectionMetric,
     )
 
-    __all__ = ["TMClassificationMetric", "TMDetectionMetric"]
+    __all__ = ["TMDetectionMetric"]
 else:
     warnings.warn(
         "The TorchMetrics wrapper requires the torchmetrics package, "

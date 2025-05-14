@@ -63,6 +63,7 @@ numpydoc_class_members_toctree = False
 # in the source, and thus an autodoc-populated page is never generated for them.)
 # Class members are typically documented directly in protocol class docstrings where
 # no member-specific page is needed.
+numpydoc_show_class_members = False
 
 # Strip input prompts:
 # https://sphinx-copybutton.readthedocs.io/en/latest/#strip-and-configure-input-prompts-for-code-cells
@@ -73,6 +74,7 @@ copybutton_prompt_is_regexp = True
 default_role = "py:obj"
 
 autodoc_typehints = "none"
+autoclass_content = "both"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -122,6 +124,32 @@ html_theme_options = {
     "collapse_navigation": True,
     "navigation_depth": 4,
     "navbar_align": "left",
+    "show_nav_level": 2,
+    "header_links_before_dropdown": 5,
+    # "show_nav_level": 0,  # This lets navigation links be collapsed in LHS sidebar under "captions"
+    "icon_links": [
+        {
+            "name": "GitHub",
+            "url": "https://github.com/mit-ll-ai-technology/maite",
+            "icon": "fa-brands fa-github",
+        },
+        {
+            "name": "PyPI",
+            "url": "https://pypi.org/project/maite/",
+            "icon": "fa-custom fa-pypi",
+        },
+        {
+            "name": "Anaconda",
+            "url": "https://anaconda.org/conda-forge/maite",
+            "icon": "fa-custom fa-anaconda",
+        },
+        ## Elect not to use conda-forge icon (an anvil) bc it's less recognizable
+        # {
+        #     "name": "Conda-forge",
+        #     "url": "https://anaconda.org/conda-forge/maite",
+        #     "icon": "fa-custom fa-condaforge",
+        # },
+    ],
     # "favicons": [
     #     {
     #         "rel": "icon",
@@ -134,14 +162,10 @@ html_theme_options = {
     #         "href": "maite_favicon_64x64.png",
     #     },
     # ],
-    # "icon_links": [
-    #     {
-    #         "name": "GitHub",
-    #         "url": "https://github.com/mit-ll-responsible-ai/maite",
-    #         "icon": "fab fa-github-square",
-    #     },
-    # ],
 }
+
+# hide "Section Navigation" LHS in changelog section (would be empty anyway)
+html_sidebars = {"changes": []}
 
 
 def setup(app):
@@ -156,5 +180,6 @@ def setup(app):
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
+html_js_files = ["pypi_icon.js", "condaforge_icon.js", "anaconda_icon.js"]
 
 myst_heading_anchors = 3
