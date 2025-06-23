@@ -11,6 +11,7 @@ from importlib.util import find_spec
 from pathlib import Path
 
 import hypothesis.strategies as st
+import pytest
 from hypothesis import settings
 
 from maite._internals import import_utils
@@ -86,3 +87,25 @@ if not import_utils.is_torchmetrics_available():
 
 if not import_utils.is_torcheval_available():
     collect_ignore_glob.append("*torcheval*.py")
+
+
+def pytest_addoption(parser):
+    parser.addoption(
+        "--skip-slow",
+        action="store_true",
+        default=False,
+        help="skip running slow tests",
+    )
+
+
+def pytest_configure(config):
+    # Register the marker so pytest doesn't complain about unknown markers.
+    config.addinivalue_line("markers", "slow: mark test as slow")
+
+
+def pytest_collection_modifyitems(config: pytest.Config, items):
+    if config.getoption("--skip-slow"):
+        skip_slow = pytest.mark.skip(reason="--skip-slow set")
+        for item in items:
+            if "slow" in item.keywords:
+                item.add_marker(skip_slow)

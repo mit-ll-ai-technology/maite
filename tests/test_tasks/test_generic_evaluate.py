@@ -147,6 +147,7 @@ TYPESPECS_TO_TEST_FAIL = [
 ]
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize(
     """
     dataloader_input_typespec,
