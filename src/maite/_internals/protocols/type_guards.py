@@ -2,9 +2,11 @@
 # Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).
 # SPDX-License-Identifier: MIT
 
-from typing import Any, TypedDict, TypeVar
+from typing import Any, TypeVar
 
 from typing_extensions import TypeGuard
+
+from ..compat import TypedDict
 
 
 # Can't bound typevar with TypedDict directly because it is actually a metaclass,
@@ -85,7 +87,7 @@ def is_typed_dict(object: Any, target: type[Td]) -> TypeGuard[Td]:
 
     Examples
     --------
-    >>> from typing import TypedDict
+    >>> from typing_extensions import TypedDict
     >>> class Foo(TypedDict):
     ...     a: int
     >>> is_typed_dict({"a": 1}, Foo)

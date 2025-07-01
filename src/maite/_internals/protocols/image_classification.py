@@ -67,7 +67,8 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
     this lightweight dataset protocol:
 
     >>> import numpy as np
-    >>> from typing import Any, TypedDict
+    >>> from typing import Any
+    >>> from typing_extensions import TypedDict
     >>> from maite.protocols import ArrayLike, DatasetMetadata
 
     Assume we have 5 classes, 10 datapoints, and 10 target labels, and that we want

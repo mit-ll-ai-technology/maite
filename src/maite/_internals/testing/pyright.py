@@ -15,9 +15,9 @@ import textwrap
 from collections import Counter, defaultdict
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, DefaultDict, Literal, TypedDict, Union
+from typing import Any, DefaultDict, Literal, Union
 
-from typing_extensions import NotRequired
+from typing_extensions import NotRequired, TypedDict
 
 
 def notebook_to_py_text(path_to_nb: Path) -> str:
