@@ -5,11 +5,12 @@
 from __future__ import annotations
 
 from itertools import chain
-from typing import Protocol, TypedDict
+from typing import Protocol
 
 import pytest
 from pytest import param
 
+from maite._internals.compat import TypedDict
 from maite._internals.testing.docs import _get_numpy_tags
 from maite.errors import InvalidArgument
 from maite.testing.docs import validate_docstring

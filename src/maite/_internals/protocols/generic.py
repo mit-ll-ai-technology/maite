@@ -9,12 +9,13 @@ from typing import (
     Callable,
     Generic,
     Protocol,
-    TypedDict,
     TypeVar,
     runtime_checkable,
 )
 
 from typing_extensions import NotRequired, ReadOnly, Required, TypeAlias
+
+from ..compat import TypedDict
 
 # Note
 # (1) the use of each generic variable can differ in generic components

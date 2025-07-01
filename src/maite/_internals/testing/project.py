@@ -9,7 +9,7 @@ from copy import deepcopy
 from functools import _CacheInfo as CacheInfo, lru_cache
 from importlib import import_module
 from pathlib import Path
-from typing import Any, Literal, TypedDict, Union, get_args
+from typing import Any, Literal, Union, get_args
 
 from typing_extensions import NotRequired
 
@@ -17,6 +17,7 @@ from maite._internals.testing.pyright import PYRIGHT_PATH, Diagnostic, PyrightOu
 from maite.errors import InvalidArgument
 from maite.utils.validation import check_one_of, check_type
 
+from ..compat import TypedDict
 from ..utils import is_typed_dict
 
 Category = Literal[

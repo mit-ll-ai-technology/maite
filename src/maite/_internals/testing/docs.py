@@ -11,23 +11,14 @@ from collections import defaultdict
 from collections.abc import Collection
 from inspect import getsource, isclass
 from itertools import chain, zip_longest
-from typing import (
-    Any,
-    Callable,
-    Literal,
-    Protocol,
-    TypedDict,
-    Union,
-    cast,
-    get_args,
-    overload,
-)
+from typing import Any, Callable, Literal, Protocol, Union, cast, get_args, overload
 
 from typing_extensions import NotRequired, ReadOnly, TypeAlias
 
 from maite._internals.validation import check_type
 from maite.errors import InvalidArgument
 
+from ..compat import TypedDict
 from ..utils import is_typed_dict
 
 NumpyDocErrorCode: TypeAlias = Literal[
