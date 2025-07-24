@@ -298,7 +298,7 @@ class Metric(gen.Metric[TargetType], Protocol):
     ...        # Compare classes and update running counts
     ...        same = (model_classes == truth_classes)
     ...        self._total += len(same)
-    ...        self._correct += same.sum()
+    ...        self._correct += same.sum().item()
     ...
     ...    def compute(self) -> dict[str, Any]:
     ...        if self._total > 0:

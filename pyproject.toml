@@ -11,7 +11,7 @@ readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
   "typing-extensions >= 4.5, != 4.6",
-  "numpy >= 1.24.2, < 2",
+  "numpy >= 1.24.2",
 ]
 
 license = { file = "LICENSE.txt" }

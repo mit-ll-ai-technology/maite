@@ -459,7 +459,7 @@ class Metric(gen.Metric[TargetType], Protocol):
     ...         for pred_box, tgt_box in zip(self.pred_boxes, self.target_boxes):
     ...             single_img_ious = self.iou_vec(pred_box.boxes, tgt_box.boxes)
     ...             mean_iou_by_img.append(float(np.mean(single_img_ious)))
-    ...         return {"mean_iou": np.mean(np.array(mean_iou_by_img))}
+    ...         return {"mean_iou": np.mean(np.array(mean_iou_by_img)).item()}
     ...
 
     Now we can instantiate our IoU Metric class:
