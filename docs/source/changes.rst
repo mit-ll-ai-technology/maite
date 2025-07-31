@@ -8,6 +8,19 @@ Changelog
 This is a record of all past maite releases and what went into them, in reverse 
 chronological order.
 
+.. _v0.8.2:
+
+---------------------
+0.8.2 - 2025-07-31
+---------------------
+
+- Relax numpy \"<2\" constraint
+- State support for (and test against) python 3.12
+- Remove stated support for (and test against) python 3.9
+- Updated torchvision object-detection tutorial with more accurate type hinting
+- Mark long running test in CI/CD (permitting manual bipass)
+- Use _compat.py shim to enable access to TypedDict features introduced in 3.12 (importing from typing_extensions if not available)
+
 .. _v0.8.1:
 
 ---------------------
