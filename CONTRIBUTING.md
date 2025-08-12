@@ -4,6 +4,7 @@ code base.
 
 - [Maintaining MAITE](#maintaining-maite)
   - [Project dependencies, metadata, and versioning](#project-dependencies-metadata-and-versioning)
+    - [Upgrading locked packages](#upgrading-locked-packages)
   - [Branching and Merging](#branching-and-merging)
   - [Tooling configuration](#tooling-configuration)
   - [CI/CD Overview](#cicd-overview)
@@ -11,24 +12,29 @@ code base.
 
 ## Contributor Basics
 
+### Installing uv
+
+MAITE uses uv for dependency management. Follow the [installation instructions](https://docs.astral.sh/uv/getting-started/installation/) to install uv. This ensures all developer's local installs are backed by the consistent set of dependency versions listed in the `uv.lock` file.
+
+### Installing tox
+
+CI uses tox and it's helpful to run tox locally. If you want to manage your tox installation with uv, install tox with `uv tool install tox --with tox-uv`. To run tox use `uvx tox`.
+
 ### Installing poetry
 
-MAITE uses [poetry](https://python-poetry.org/) for packaging and dependency management. Follow the [installation instructions](https://python-poetry.org/docs/#installation) to install poetry. This ensures all developer's local installs are backed by the consistent set of dependency versions listed in the `poetry.lock` file.
+MAITE uses [poetry](https://python-poetry.org/) as a build backend. MAITE also maintains a poetry.lock file for upstream verification of dependencies. Modifying the lock file by poetry can take up to an hour when run internally on our development network. When adding dependencies and you want to ensure the lock file is up to date you must install poetry. Follow the [installation instructions](https://python-poetry.org/docs/#installation).
 
 ### Installing MAITE for development
 
 Install MAITE along with all development dependencies; checkout the repo, navigate to its top level and run
 
 ```shell
-poetry sync --all-extras
+uv sync --all-extras
 ```
 
-This [poetry] command ensures that any local changes that you make to the project's source code will be reflected in your install (similar to `pip install -e`) and that you will use a the same set of dependency versions as all other developers.
-If you wish to install all dependencies **and not remove any existing non-conflicting dependencies that are already installed** you can instead use `poetry install ...` instead of `poetry sync ...`.
+This command ensures that any local changes that you make to the project's source code will be reflected in your install (similar to `pip install -e`) and that you will use a the same set of dependency versions as all other developers.  If you want the virtual environment created somewhere besides ./.venv set [$UV_PROJECT_ENVIRONMENT](https://docs.astral.sh/uv/concepts/projects/config/#project-environment-path) before running the command.
 
-Going forward in this document, any console commands run as a developer (e.g. `pytest`, `tox`, `black`, etc.) are assumed to be run within the poetry-managed environment.
-To ensure this, individual commands can be prefixed with `poetry run ...` or the environment can be first activated in bash/Zsh/Csh via `eval $(poetry env activate)`. See [this section](https://python-poetry.org/docs/managing-environments/#activating-the-environment) in the poetry docs for more information on activating the poetry-managed environment.
-Note: if you're using poetry properly **poetry should not be installed alongside `maite` or its dependencies**.
+Going forward in this document, any console commands run as a developer (e.g. `pytest`, `tox`, `black`, etc.) are assumed to be run within the uv created virtual environment. To activate the virtual enivonrment, run `source .venv/bin/activate`.
 
 ### Pre-Commit Hooks (Required)
 
@@ -68,7 +74,7 @@ pytest tests/
 If you want to quickly run through the test suite, just to verify that it runs without error, you can run:
 
 ```console
-tox -e py
+uvx tox -e py # or tox -e py
 ```
 
 Additional Resources to Learn About Our Approach to Automated Testing, see: https://github.com/rsokl/testing-tutorial
@@ -281,6 +287,10 @@ In the case that a new dependency is added, [poetry add](https://python-poetry.o
 
 The project's version (e.g. `v0.3.0`) is managed by [poetry-dynamic-versioning](https://github.com/mtkennerly/poetry-dynamic-versioning), meaning that the `maite.__version__` attribute is not set manually, rather it is derived from the project's latest git-commit tag of the form `vX.Y.Z`. See [Creating a new release and publishing to PyPI](#creating-a-new-release-and-publishing-to-pypi) for more details.
 
+### Upgrading locked packages
+
+To make sure the uv lockfile contains the latest versions of packages follow the [uv documentation](https://docs.astral.sh/uv/concepts/projects/sync/#upgrading-locked-package-versions) and run `uv lock --upgrade`.
+
 ## Branching and Merging
 
 We use the [github-flow](https://guides.github.com/introduction/flow/) branching model. This means that all changes are made on a branch that is branched off of the `main` branch. When working on a feature or bug fix, developers should create an issue in the project's issue tracker and reference it in the commit message or pull request. This helps to ensure that all work is tracked and that team members can easily see what issues have been worked on and what still needs to be done. Once the changes are ready to be merged, a pull request is opened against the `main` branch. The pull request must be approved by at least one other developer before it can be merged.  Every pull request will trigger a CI run that will run the test suite, check the codebase for formatting errors, and check the docs for spelling errors.  If any of these checks fail, the pull request cannot be merged. Lastly, a merge must be a fast-forward merge, meaning that the `main` branch must be up-to-date with the `main` branch of the upstream repo.
@@ -309,7 +319,9 @@ well as on a platform like GitHub Actions. Some tasks that tox runs are:
 - Run commandline commands within said environment.
 - Save specified artifacts.
 
-The `tox` package is already installed in the poetry-managed development environment, however if you use `conda` to manage Python environments already, you can have `tox` use `conda` as its environment manager by installing `tox-conda`:
+It's recommended to use a globally installed `uvx tox` as described in Contributor Basics in place of the `tox` package installed with the development environment to take advantage of the fast environment creation provided by `tox-uv`.
+
+The `tox` package is already installed in the uv-managed development environment, however if you use `conda` to manage Python environments already, you can have `tox` use `conda` as its environment manager by installing `tox-conda`:
 
 ```console
 $ pip install tox-conda
@@ -320,13 +332,13 @@ The library's tox config is located under the `[tool.tox]` entry in the pyprojec
 As an example, to run the test suite in Python 3.10 environment, run:
 
 ```console
-tox -e py310
+uvx tox -e py310
 ```
 
 by default, we have configured this to run the test suite in a parallelized fashion according to the number of available CPUs. To run the tests in serial, instead run:
 
 ```console
-tox -e py310 -- -n 0
+uvx tox -e py310 -- -n 0
 ```
 
 Consult the descriptions section of each environment to understand what they do.
