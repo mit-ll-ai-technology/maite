@@ -1,0 +1,845 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.19: https://docutils.sourceforge.io/" name="generator"/>
+<title>Overview of MAITE Protocols — maite 0.6.1 documentation</title>
+<script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+<!-- Loaded before other Sphinx assets -->
+<link href="../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet"/>
+<link href="../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet"/>
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet"/>
+<link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet"/>
+<link as="font" crossorigin="" href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" rel="preload" type="font/woff2"/>
+<link as="font" crossorigin="" href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" rel="preload" type="font/woff2"/>
+<link as="font" crossorigin="" href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" rel="preload" type="font/woff2"/>
+<link href="../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/copybutton.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" rel="stylesheet" type="text/css"/>
+<!-- Pre-loaded scripts that we'll load fully later -->
+<link as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" rel="preload"/>
+<link as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" rel="preload"/>
+<script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+<script src="../_static/doctools.js"></script>
+<script src="../_static/sphinx_highlight.js"></script>
+<script src="../_static/clipboard.min.js"></script>
+<script src="../_static/copybutton.js"></script>
+<script async="async" src="https://www.googletagmanager.com/gtag/js?id=UA-115029372-2"></script>
+<script src="../_static/gtag.js"></script>
+<script src="../_static/design-tabs.js"></script>
+<script>DOCUMENTATION_OPTIONS.pagename = 'explanation/protocol_overview';</script>
+<link href="../genindex.html" rel="index" title="Index"/>
+<link href="../search.html" rel="search" title="Search"/>
+<link href="type_hints_for_API_design.html" rel="next" title="A Primer on Python Typing: Relevant Language Features, Methods, and Tools for the T&amp;E Framework"/>
+<link href="../explanation.html" rel="prev" title="Explanation"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="en" name="docsearch:language"/>
+</head>
+<body data-bs-root-margin="0px 0px -60%" data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-default-mode="" data-offset="180">
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<input class="sidebar-toggle" id="__primary" name="__primary" type="checkbox"/>
+<label class="overlay overlay-primary" for="__primary"></label>
+<input class="sidebar-toggle" id="__secondary" name="__secondary" type="checkbox"/>
+<label class="overlay overlay-secondary" for="__secondary"></label>
+<div class="search-button__wrapper">
+<div class="search-button__overlay"></div>
+<div class="search-button__search-container">
+<form action="../search.html" class="bd-search d-flex align-items-center" method="get">
+<i class="fa-solid fa-magnifying-glass"></i>
+<input aria-label="Search the docs ..." autocapitalize="off" autocomplete="off" autocorrect="off" class="form-control" id="search-input" name="q" placeholder="Search the docs ..." spellcheck="false" type="search"/>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+</div>
+<nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+<label class="sidebar-toggle primary-toggle" for="__primary">
+<span class="fa-solid fa-bars"></span>
+</label>
+<div class="navbar-header-items__start">
+<div class="navbar-item">
+<a class="navbar-brand logo" href="../index.html">
+<p class="title logo__title">maite 0.6.1 documentation</p>
+</a></div>
+</div>
+<div class="col-lg-9 navbar-header-items">
+<div class="me-auto navbar-header-items__center">
+<div class="navbar-item"><nav class="navbar-nav">
+<p aria-label="Site Navigation" aria-level="1" class="sidebar-header-items__title" role="heading">
+    Site Navigation
+  </p>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../tutorials.html">
+                        Tutorials
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../how_tos.html">
+                        How-To Guides
+                      </a>
+</li>
+<li class="nav-item current active">
+<a class="nav-link nav-internal" href="../explanation.html">
+                        Explanation
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../api_reference.html">
+                        Reference
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../changes.html">
+                        Changelog
+                      </a>
+</li>
+</ul>
+</nav></div>
+</div>
+<div class="navbar-header-items__end">
+<div class="navbar-item navbar-persistent--container">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+</div>
+<div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+</div>
+</div>
+<div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+</div>
+<label class="sidebar-toggle secondary-toggle" for="__secondary">
+<span class="fa-solid fa-outdent"></span>
+</label>
+</div>
+</nav>
+<div class="bd-container">
+<div class="bd-container__inner bd-page-width">
+<div class="bd-sidebar-primary bd-sidebar">
+<div class="sidebar-header-items sidebar-primary__section">
+<div class="sidebar-header-items__center">
+<div class="navbar-item"><nav class="navbar-nav">
+<p aria-label="Site Navigation" aria-level="1" class="sidebar-header-items__title" role="heading">
+    Site Navigation
+  </p>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../tutorials.html">
+                        Tutorials
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../how_tos.html">
+                        How-To Guides
+                      </a>
+</li>
+<li class="nav-item current active">
+<a class="nav-link nav-internal" href="../explanation.html">
+                        Explanation
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../api_reference.html">
+                        Reference
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../changes.html">
+                        Changelog
+                      </a>
+</li>
+</ul>
+</nav></div>
+</div>
+<div class="sidebar-header-items__end">
+<div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+</div>
+</div>
+<div class="sidebar-primary-items__start sidebar-primary__section">
+<div class="sidebar-primary-item"><nav aria-label="Section Navigation" class="bd-docs-nav bd-links">
+<p aria-level="1" class="bd-links__title" role="heading">Section Navigation</p>
+<div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Overview of MAITE Protocols</a></li>
+<li class="toctree-l1"><a class="reference internal" href="type_hints_for_API_design.html">A Primer on Python Typing: Relevant Language Features, Methods, and Tools for the T&amp;E Framework</a></li>
+</ul>
+</div>
+</nav></div>
+</div>
+<div class="sidebar-primary-items__end sidebar-primary__section">
+</div>
+<div id="rtd-footer-container"></div>
+</div>
+<main class="bd-main" id="main-content">
+<div class="bd-content">
+<div class="bd-article-container">
+<div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+<div class="header-article-items__start">
+<div class="header-article-item">
+<nav aria-label="Breadcrumbs">
+<ul aria-label="Breadcrumb" class="bd-breadcrumbs" role="navigation">
+<li class="breadcrumb-item breadcrumb-home">
+<a aria-label="Home" class="nav-link" href="../index.html">
+<i class="fa-solid fa-home"></i>
+</a>
+</li>
+<li class="breadcrumb-item"><a class="nav-link" href="../explanation.html">Explanation</a></li>
+<li aria-current="page" class="breadcrumb-item active">Overview of MAITE Protocols</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+</div>
+<div id="searchbox"></div>
+<article class="bd-article" role="main">
+<section id="overview-of-maite-protocols">
+<h1>Overview of MAITE Protocols<a class="headerlink" href="#overview-of-maite-protocols" title="Permalink to this heading">#</a></h1>
+<p>MAITE provides protocols for the following AI components:</p>
+<ul class="simple">
+<li><p>models</p></li>
+<li><p>datasets</p></li>
+<li><p>dataloaders</p></li>
+<li><p>augmentations</p></li>
+<li><p>metrics</p></li>
+</ul>
+<p>MAITE protocols specify expected interfaces of these components (i.e, a minimal set of required attributes, methods, and method type signatures) to promote interoperability in test and evaluation (T&amp;E). This enables the creation of higher-level workflows (e.g., an <code class="docutils literal notranslate"><span class="pre">evaluate</span></code> utility) that can interact with any components that conform to the protocols.</p>
+<section id="concept-bridging-arraylikes">
+<h2>1 Concept: Bridging ArrayLikes<a class="headerlink" href="#concept-bridging-arraylikes" title="Permalink to this heading">#</a></h2>
+<p>MAITE defines a protocol called <code class="docutils literal notranslate"><span class="pre">ArrayLike</span></code> (inspired by NumPy’s <a class="reference external" href="https://numpy.org/devdocs/user/basics.interoperability.html">interoperability approach</a>) that helps components that natively use different flavors of tensors (e.g., NumPy ndarray, PyTorch Tensor, JAX ndarray) work together.</p>
+<p>In this example, the functions “type narrow” from <code class="docutils literal notranslate"><span class="pre">ArrayLike</span></code> to the type they want to work with internally. Note that this doesn’t necessarily require a conversion depending on the actual input type.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="https://numpy.org/doc/stable/reference/index.html#module-numpy" title="numpy"><span class="nn">numpy</span></a> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="kn">from</span> <span class="nn">maite.protocols</span> <span class="kn">import</span> <a class="sphinx-codeautolink-a" href="../generated/maite.protocols.ArrayLike.html#maite.protocols.ArrayLike" title="maite._internals.protocols.ArrayLike"><span class="n">ArrayLike</span></a>
+
+<span class="k">def</span> <span class="nf">my_numpy_fn</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="../generated/maite.protocols.ArrayLike.html#maite.protocols.ArrayLike" title="maite._internals.protocols.ArrayLike"><span class="n">x</span></a><span class="p">:</span> <a class="sphinx-codeautolink-a" href="../generated/maite.protocols.ArrayLike.html#maite.protocols.ArrayLike" title="maite._internals.protocols.ArrayLike"><span class="n">ArrayLike</span></a><span class="p">)</span> <span class="o">-&gt;</span> <a class="sphinx-codeautolink-a" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray"><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span></a><span class="p">:</span>
+    <span class="n">arr</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="https://numpy.org/doc/stable/reference/generated/numpy.asarray.html#numpy.asarray" title="numpy.asarray"><span class="n">np</span><span class="o">.</span><span class="n">asarray</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../generated/maite.protocols.ArrayLike.html#maite.protocols.ArrayLike" title="maite._internals.protocols.ArrayLike"><span class="n">x</span></a><span class="p">)</span>
+    <span class="c1"># ...</span>
+    <span class="k">return</span> <span class="n">arr</span>
+
+<span class="k">def</span> <span class="nf">my_torch_fn</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="../generated/maite.protocols.ArrayLike.html#maite.protocols.ArrayLike" title="maite._internals.protocols.ArrayLike"><span class="n">x</span></a><span class="p">:</span> <a class="sphinx-codeautolink-a" href="../generated/maite.protocols.ArrayLike.html#maite.protocols.ArrayLike" title="maite._internals.protocols.ArrayLike"><span class="n">ArrayLike</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+    <span class="n">tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="../generated/maite.protocols.ArrayLike.html#maite.protocols.ArrayLike" title="maite._internals.protocols.ArrayLike"><span class="n">x</span></a><span class="p">)</span>
+    <span class="c1"># ...</span>
+    <span class="k">return</span> <span class="n">tensor</span>
+
+<span class="c1"># can apply NumPy function to PyTorch Tensor</span>
+<span class="n">np_out</span> <span class="o">=</span> <span class="n">my_numpy_fn</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+
+<span class="c1"># can apply PyTorch function to NumPy array</span>
+<span class="n">torch_out</span> <span class="o">=</span> <span class="n">my_torch_fn</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="https://numpy.org/doc/stable/reference/random/generated/numpy.random.rand.html#numpy.random.rand" title="numpy.random.rand"><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span></a><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+
+<span class="c1"># note: no performance hit from conversion when all `ArrayLike`s are from same library</span>
+<span class="c1"># or when can share the same underlying memory</span>
+<span class="n">torch_out</span> <span class="o">=</span> <span class="n">my_torch_fn</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>By using bridging, we MAITE can permit implementers of the protocol to internally interact with their own types while exposing a more open interface to other MAITE-compliant components.</p>
+</section>
+<section id="data-types">
+<h2>2 Data Types<a class="headerlink" href="#data-types" title="Permalink to this heading">#</a></h2>
+<p>MAITE represents an <em>individual</em> data item as a tuple of:</p>
+<ul class="simple">
+<li><p>input (i.e., image),</p></li>
+<li><p>target (i.e., label), and</p></li>
+<li><p>metadata (at the datum level)</p></li>
+</ul>
+<p>and a <em>batch</em> of data items as a tuple of:</p>
+<ul class="simple">
+<li><p>input batches,</p></li>
+<li><p>target batches, and</p></li>
+<li><p>metadata batches.</p></li>
+</ul>
+<p>MAITE provides versions of <code class="docutils literal notranslate"><span class="pre">Model</span></code>, <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>, <code class="docutils literal notranslate"><span class="pre">DataLoader</span></code>, <code class="docutils literal notranslate"><span class="pre">Augmentation</span></code>, and <code class="docutils literal notranslate"><span class="pre">Metric</span></code> protocols that correspond to different machine learning tasks (e.g. image classification, object detection) by parameterizing protocol interfaces on the particular input, target, and metadata types associated with that task.</p>
+<section id="image-classification">
+<h3>2.1 Image Classification<a class="headerlink" href="#image-classification" title="Permalink to this heading">#</a></h3>
+<p>For image classification with <code class="docutils literal notranslate"><span class="pre">Cl</span></code> image classes, we have:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">InputType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">ArrayLike</span>  <span class="c1"># shape-(C, H, W) tensor with single image</span>
+<span class="n">TargetType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">ArrayLike</span>  <span class="c1"># shape-(Cl) tensor of one-hot encoded true class or predicted probabilities</span>
+<span class="n">DatumMetadataType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Dict</span><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+
+<span class="n">InputBatchType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">ArrayLike</span><span class="p">]</span>  <span class="c1"># element shape-(C, H, W) tensor of N images</span>
+<span class="n">TargetBatchType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">ArrayLike</span><span class="p">]</span>  <span class="c1"># element shape-(Cl,)</span>
+<span class="n">DatumMetadataBatchType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">DatumMetadataType</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Notes:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">TargetType</span></code> is used for both ground truth (coming from a dataset) and predictions (output from a model). So for a problem with 4 classes,</p>
+<ul>
+<li><p>true label of class 2 would be one-hot encoded as <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">1,</span> <span class="pre">0]</span></code></p></li>
+<li><p>prediction from a model would be a vector of pseudo-probabilities, e.g., <code class="docutils literal notranslate"><span class="pre">[0.1,</span> <span class="pre">0.0,</span> <span class="pre">0.7,</span> <span class="pre">0.2]</span></code></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">InputType</span></code> and <code class="docutils literal notranslate"><span class="pre">InputBatchType</span></code> are shown with shapes following PyTorch channels-first convention</p></li>
+</ul>
+<p>These type aliases along with the versions of the various component protocols that use these types can be imported from <code class="docutils literal notranslate"><span class="pre">maite.protocols.image_classification</span></code> (if necessary):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># import protocol classes</span>
+<span class="kn">from</span> <span class="nn">maite.protocols.image_classification</span> <span class="kn">import</span> <span class="p">(</span>
+    <a class="sphinx-codeautolink-a" href="../generated/maite.protocols.image_classification.Dataset.html#maite.protocols.image_classification.Dataset" title="maite._internals.protocols.image_classification.Dataset"><span class="n">Dataset</span></a><span class="p">,</span>
+    <a class="sphinx-codeautolink-a" href="../generated/maite.protocols.image_classification.DataLoader.html#maite.protocols.image_classification.DataLoader" title="maite._internals.protocols.image_classification.DataLoader"><span class="n">DataLoader</span></a><span class="p">,</span>
+    <a class="sphinx-codeautolink-a" href="../generated/maite.protocols.image_classification.Model.html#maite.protocols.image_classification.Model" title="maite._internals.protocols.image_classification.Model"><span class="n">Model</span></a><span class="p">,</span>
+    <a class="sphinx-codeautolink-a" href="../generated/maite.protocols.image_classification.Augmentation.html#maite.protocols.image_classification.Augmentation" title="maite._internals.protocols.image_classification.Augmentation"><span class="n">Augmentation</span></a><span class="p">,</span>
+    <a class="sphinx-codeautolink-a" href="../generated/maite.protocols.image_classification.Metric.html#maite.protocols.image_classification.Metric" title="maite._internals.protocols.image_classification.Metric"><span class="n">Metric</span></a>
+<span class="p">)</span>
+
+<span class="c1"># import type aliases</span>
+<span class="kn">from</span> <span class="nn">maite.protocols.image_classification</span> <span class="kn">import</span> <span class="p">(</span>
+    <a class="sphinx-codeautolink-a" href="../generated/maite.protocols.ArrayLike.html#maite.protocols.ArrayLike" title="maite._internals.protocols.ArrayLike"><span class="n">InputType</span></a><span class="p">,</span>
+    <a class="sphinx-codeautolink-a" href="../generated/maite.protocols.ArrayLike.html#maite.protocols.ArrayLike" title="maite._internals.protocols.ArrayLike"><span class="n">TargetType</span></a><span class="p">,</span>
+    <span class="n">DatumMetadataType</span><span class="p">,</span>
+    <span class="n">InputBatchType</span><span class="p">,</span>
+    <span class="n">TargetBatchType</span><span class="p">,</span>
+    <span class="n">DatumMetadataBatchType</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Alternatively, image classification components and types can be accessed via the module directly:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">maite.protocols.image_classification</span> <span class="k">as</span> <span class="nn">ic</span>
+
+<span class="c1"># model: ic.Model = load_model(...)</span>
+</pre></div>
+</div>
+</section>
+<section id="object-detection">
+<h3>2.2 Object Detection<a class="headerlink" href="#object-detection" title="Permalink to this heading">#</a></h3>
+<p>For object detection with <code class="docutils literal notranslate"><span class="pre">D_i</span></code> detections in an image <code class="docutils literal notranslate"><span class="pre">i</span></code>, we have:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ObjectDetectionTarget</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+    <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#property" title="property"><span class="nd">@property</span></a> 
+    <span class="k">def</span> <span class="nf">boxes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ArrayLike</span><span class="p">:</span> <span class="o">...</span>  <span class="c1"># shape-(D_i, 4) tensor of bounding boxes w/format X0, Y0, X1, Y1</span>
+
+    <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#property" title="property"><span class="nd">@property</span></a>
+    <span class="k">def</span> <span class="nf">labels</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ArrayLike</span><span class="p">:</span> <span class="o">...</span> <span class="c1"># shape-(D_i) tensor of labels for each box</span>
+
+    <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#property" title="property"><span class="nd">@property</span></a>
+    <span class="k">def</span> <span class="nf">scores</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ArrayLike</span><span class="p">:</span> <span class="o">...</span> <span class="c1"># shape-(D_i) tensor of scores for each box (e.g., probabilities)</span>
+
+<span class="n">InputType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">ArrayLike</span>  <span class="c1"># shape-(C, H, W) tensor with single image</span>
+<span class="n">TargetType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">ObjectDetectionTarget</span>
+<span class="n">DatumMetadataType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Dict</span><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+
+<span class="n">InputBatchType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">ArrayLike</span><span class="p">]</span>  <span class="c1"># sequence of N ArrayLikes each of shape (C, H, W)</span>
+<span class="n">TargetBatchType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">TargetType</span><span class="p">]</span>   <span class="c1"># sequence of object detection "target" objects</span>
+<span class="n">DatumMetadataBatchType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">DatumMetadataType</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Notes:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ObjectDetectionTarget</span></code> contains a single label and score per box</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">InputType</span></code> and <code class="docutils literal notranslate"><span class="pre">InputBatchType</span></code> are shown with shapes following PyTorch channels-first convention</p></li>
+</ul>
+</section>
+</section>
+<section id="models">
+<h2>3 Models<a class="headerlink" href="#models" title="Permalink to this heading">#</a></h2>
+<p>All models implement a <code class="docutils literal notranslate"><span class="pre">__call__</span></code> method that takes the <code class="docutils literal notranslate"><span class="pre">InputBatchType</span></code> and produces the <code class="docutils literal notranslate"><span class="pre">TargetBatchType</span></code> appropriate for the given machine learning task.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">maite.protocols.image_classification</span> <span class="k">as</span> <span class="nn">ic</span>
+<a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="n">ic</span><span class="o">.</span><span class="n">Model</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>    A model protocol for the image classification ML subproblem.
+
+    Implementers must provide a `__call__` method that operates on a batch of model
+    inputs (as `Sequence[ArrayLike]) and returns a batch of model targets (as
+    `Sequence[ArrayLike]`)
+
+    Methods
+    -------
+
+    __call__(input_batch: Sequence[ArrayLike]) -&gt; Sequence[ArrayLike]
+        Make a model prediction for inputs in input batch. Input batch is expected to
+        be `Sequence[ArrayLike]` with each element of shape `(C, H, W)`.
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">maite.protocols.object_detection</span> <span class="k">as</span> <span class="nn">od</span>
+<a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="n">od</span><span class="o">.</span><span class="n">Model</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>    A model protocol for the object detection ML subproblem.
+
+    Implementers must provide a `__call__` method that operates on a batch of model inputs
+    (as `Sequence[ArrayLike]`s) and returns a batch of model targets (as
+    `Sequence[ObjectDetectionTarget]`)
+
+    Methods
+    -------
+
+    __call__(input_batch: Sequence[ArrayLike]) -&gt; Sequence[ObjectDetectionTarget]
+        Make a model prediction for inputs in input batch. Elements of input batch
+        are expected in the shape `(C, H, W)`.
+</pre></div>
+</div>
+</section>
+<section id="datasets-and-dataloaders">
+<h2>4 Datasets and DataLoaders<a class="headerlink" href="#datasets-and-dataloaders" title="Permalink to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Dataset</span></code>s provide access to single data items and <code class="docutils literal notranslate"><span class="pre">DataLoader</span></code>s  provide access to batches of data with the input, target, and metadata types corresponding to the given machine learning task.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="n">ic</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>    A dataset protocol for image classification ML subproblem providing datum-level
+    data access.
+
+    Implementers must provide index lookup (via `__getitem__(ind: int)` method) and
+    support `len` (via `__len__()` method). Data elements looked up this way correspond
+    to individual examples (as opposed to batches).
+
+    Indexing into or iterating over the an image_classification dataset returns a
+    `Tuple` of types `ArrayLike`, `ArrayLike`, and `Dict[str,Any]`.
+    These correspond to the model input type, model target type, and datum-level
+    metadata, respectively.
+
+    Methods
+    -------
+
+    __getitem__(ind: int) -&gt; Tuple[ArrayLike, ArrayLike, Dict[str, Any]]
+        Provide map-style access to dataset elements. Returned tuple elements
+        correspond to model input type, model target type, and datum-specific metadata type,
+        respectively.
+
+    __len__() -&gt; int
+        Return the number of data elements in the dataset.
+
+    Examples
+    --------
+
+    We create a dummy set of data and use it to create a class that implements
+    this lightweight dataset protocol:
+
+    &gt;&gt;&gt; import numpy as np
+    &gt;&gt;&gt; from typing import List, Dict, Any, Tuple
+    &gt;&gt;&gt; from maite.protocols import ArrayLike
+
+    Assume we have 5 classes, 10 datapoints, and 10 target labels, and that we want
+    to simply have an integer 'id' field in each datapoint's metadata:
+
+    &gt;&gt;&gt; N_CLASSES: int = 5
+    &gt;&gt;&gt; N_DATUM: int = 10
+    &gt;&gt;&gt; images: List[np.ndarray] = [np.random.rand(3, 32, 16) for _ in range(N_DATUM)]
+    &gt;&gt;&gt; targets: np.ndarray = np.eye(N_CLASSES)[np.random.choice(N_CLASSES, N_DATUM)]
+    &gt;&gt;&gt; metadata: List[Dict] = [{'id': i} for i in range(N_DATUM)]
+
+    Constructing a compliant dataset just involves a simple wrapper that fetches
+    individual datapoints, where a datapoint is a single image, target, metadata 3-tuple.
+
+    &gt;&gt;&gt; class ImageDataset:
+    ...     def __init__(self,
+    ...                  images: List[np.ndarray],
+    ...                  targets: np.ndarray,
+    ...                  metadata: List[Dict[str, Any]]):
+    ...         self.images = images
+    ...         self.targets = targets
+    ...         self.metadata = metadata
+    ...     def __len__(self) -&gt; int:
+    ...         return len(images)
+    ...     def __getitem__(self, ind: int) -&gt; Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
+    ...         return self.images[ind], self.targets[ind], self.metadata[ind]
+
+    We can instantiate this class and typehint it as an image_classification.Dataset.
+    By using typehinting, we permit a static typechecker to verify protocol compliance.
+
+    &gt;&gt;&gt; from maite.protocols import image_classification as ic
+    &gt;&gt;&gt; dataset: ic.Dataset = ImageDataset(images, targets, metadata)
+
+    Note that when writing a Dataset implementer, return types may be narrower than the
+    return types promised by the protocol (np.ndarray is a subtype of ArrayLike), but
+    the argument types must be at least as general as the argument types promised by the
+    protocol.
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="n">ic</span><span class="o">.</span><span class="n">DataLoader</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>    A dataloader protocol for the image classification ML subproblem providing
+    batch-level data access.
+
+    Implementers must provide an iterable object (returning an iterator via the
+    `__iter__` method) that yields tuples containing batches of data. These tuples
+    contain types `Sequence[ArrayLike]` (elements of shape `(C, H, W)`),
+    `Sequence[ArrayLike]` (elements shape `(Cl, )`), and `Sequence[Dict[str, Any]]`,
+    which correspond to model input batch, model target type batch, and a datum metadata batch.
+
+    Note: Unlike Dataset, this protocol does not require indexing support, only iterating.
+
+    Methods
+    -------
+
+    __iter__ -&gt; Iterator[tuple[Sequence[ArrayLike], Sequence[ArrayLike], Sequence[Dict[str, Any]]]]
+        Return an iterator over batches of data, where each batch contains a tuple of
+        of model input batch (as `Sequence[ArrayLike]`), model target batch (as
+        `Sequence[ArrayLike]`), and batched datum-level metadata
+        (as `Sequence[Dict[str,Any]]`), respectively.
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="n">od</span><span class="o">.</span><span class="n">DataLoader</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>    A dataloader protocol for the object detection ML subproblem providing
+    batch-level data access.
+
+    Implementers must provide an iterable object (returning an iterator via the
+    `__iter__` method) that yields tuples containing batches of data. These tuples
+    contain types `Sequence[ArrayLike]` (elements of shape `(C, H, W)`),
+    `Sequence[ObjectDetectionTarget]`, and `Sequence[Dict[str, Any]]`,
+    which correspond to model input batch, model target type batch, and a datum metadata batch.
+
+    Note: Unlike Dataset, this protocol does not require indexing support, only iterating.
+
+
+    Methods
+    -------
+
+    __iter__ -&gt; Iterator[tuple[Sequence[ArrayLike], Sequence[ObjectDetectionTarget], Sequence[Dict[str, Any]]]]
+        Return an iterator over batches of data, where each batch contains a tuple of
+        of model input batch (as `Sequence[ArrayLike]`), model target batch (as
+        `Sequence[ObjectDetectionTarget]`), and batched datum-level metadata
+        (as `Sequence[Dict[str,Any]]`), respectively.
+</pre></div>
+</div>
+</section>
+<section id="augmentations">
+<h2>5 Augmentations<a class="headerlink" href="#augmentations" title="Permalink to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Augmentation</span></code>s take in and return a batch of data with the <code class="docutils literal notranslate"><span class="pre">InputBatchType</span></code>, <code class="docutils literal notranslate"><span class="pre">TargetBatchType</span></code>, and <code class="docutils literal notranslate"><span class="pre">DatumMetadataBatchType</span></code> types corresponding to the given machine learning task.</p>
+<p>Augmentations can access the datum-level metadata associated with each data item to potentially tailor the augmentation to individual items. Augmentations can also associate new datum-level metadata with each data item, e.g., documenting aspects of the actual change that was applied (e.g., the actual rotation angle sampled from a range of possible angles).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="n">ic</span><span class="o">.</span><span class="n">Augmentation</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>    An augmentation protocol for the image classification subproblem.
+
+    An augmentation is expected to take a batch of data and return a modified version of
+    that batch. Implementers must provide a single method that takes and returns a
+    labeled data batch, where a labeled data batch is represented by a tuple of types
+    `Sequence[ArrayLike]` (with elements of shape `(C, H, W)`), `Sequence[ArrayLike]`
+    (with elements of shape `(Cl, )`), and `Sequence[Dict[str,Any]]`. These correspond
+    to the model input batch type, model target batch type, and datum-level metadata
+    batch type, respectively.
+
+    Methods
+    -------
+
+    __call__(datum: Tuple[Sequence[ArrayLike], Sequence[ArrayLike], Sequence[dict[str, Any]]]) -&gt;          Tuple[Sequence[ArrayLike], Sequence[ArrayLike], Sequence[dict[str, Any]]])
+        Return a modified version of original data batch. A data batch is represented
+        by a tuple of model input batch (as `Sequence[ArrayLike]` with elements of shape
+        `(C, H, W)`), model target batch (as an `Sequence[ArrayLike]` of shape `(N, Cl)`),
+        and batch metadata (as `Sequence[Dict[str, Any]]`), respectively.
+
+    Examples
+    --------
+
+    We can write an implementer of the augmentation class as either a function or a class.
+    The only requirement is that the object provide a __call__ method that takes objects
+    at least as general as the types promised in the protocol signature and return types
+    at least as specific.
+
+    &gt;&gt;&gt; import copy
+    &gt;&gt;&gt; import numpy as np
+    &gt;&gt;&gt; from typing import Dict, Any, Tuple, Sequence
+    &gt;&gt;&gt; from maite.protocols import ArrayLike
+    &gt;&gt;&gt;
+    &gt;&gt;&gt; class ImageAugmentation:
+    ...     def __call__(
+    ...         self,
+    ...         data_batch: Tuple[Sequence[ArrayLike], Sequence[ArrayLike], Sequence[Dict[str, Any]]]
+    ...     ) -&gt; Tuple[Sequence[np.ndarray], Sequence[np.ndarray], Sequence[Dict[str, Any]]]:
+    ...         inputs, targets, mds = data_batch
+    ...         # We copy data passed into the constructor to avoid mutating original inputs
+    ...         # By using np.ndarray constructor, the static type-checker will let us treat
+    ...         # generic ArrayLike as a more narrow return type
+    ...         inputs_aug = [copy.copy(np.array(input)) for input in inputs]
+    ...         targets_aug = [copy.copy(np.array(target)) for target in targets]
+    ...         mds_aug = copy.deepcopy(mds)  # deepcopy in case of nested structure
+    ...         # Modify inputs_aug, targets_aug, or mds_aug as needed
+    ...         # In this example, we just add a new metadata field
+    ...         for i, md in enumerate(mds_aug):
+    ...             md['new_key'] = i
+    ...         return inputs_aug, targets_aug, mds_aug
+
+    We can typehint an instance of the above class as an Augmentation in the
+    image_classification domain:
+
+    &gt;&gt;&gt; from maite.protocols import image_classification as ic
+    &gt;&gt;&gt; im_aug: ic.Augmentation = ImageAugmentation()
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="n">od</span><span class="o">.</span><span class="n">Augmentation</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>    An augmentation protocol for the object detection subproblem.
+
+    An augmentation is expected to take a batch of data and return a modified version of
+    that batch. Implementers must provide a single method that takes and returns a
+    labeled data batch, where a labeled data batch is represented by a tuple of types
+    `Sequence[ArrayLike]`, `Sequence[ObjectDetectionTarget]`, and `Sequence[Dict[str,Any]]`.
+    These correspond to the model input batch type, model target batch type, and datum-level
+    metadata batch type, respectively.
+
+    Methods
+    -------
+
+    __call__(datum: Tuple[Sequence[ArrayLike], Sequence[ObjectDetectionTarget], Sequence[dict[str, Any]]]) -&gt;          Tuple[Sequence[ArrayLike], Sequence[ObjectDetectionTarget], Sequence[dict[str, Any]]]
+        Return a modified version of original data batch. A data batch is represented
+        by a tuple of model input batch (as `Sequence ArrayLike` with elements of shape
+        `(C, H, W)`), model target batch (as `Sequence[ObjectDetectionTarget]`), and
+        batch metadata (as `Sequence[Dict[str,Any]]`), respectively.
+</pre></div>
+</div>
+</section>
+<section id="metrics">
+<h2>6 Metrics<a class="headerlink" href="#metrics" title="Permalink to this heading">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">Metric</span></code> protocol is inspired by the design of existing libraries like Torchmetrics and Torcheval. The <code class="docutils literal notranslate"><span class="pre">update</span></code> method operates on batches of predictions and truth labels by either caching them for later computation of the metric (via <code class="docutils literal notranslate"><span class="pre">compute</span></code>) or updating sufficient statistics in an online fashion.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="n">ic</span><span class="o">.</span><span class="n">Metric</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>    A metric protocol for the image classification ML subproblem.
+
+    A metric in this sense is expected to measure the level of agreement between model
+    predictions and ground-truth labels.
+
+    Methods
+    -------
+
+    update(preds: Sequence[ArrayLike], targets: Sequence[ArrayLike]) -&gt; None
+        Add predictions and targets to metric's cache for later calculation. Both
+        preds and targets are expected to be sequences with elements of shape `(Cl,)`.
+
+    compute() -&gt; Dict[str, Any]
+        Compute metric value(s) for currently cached predictions and targets, returned as
+        a dictionary.
+
+    reset() -&gt; None
+        Clear contents of current metric's cache of predictions and targets.
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="n">od</span><span class="o">.</span><span class="n">Metric</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>    A metric protocol for the object detection ML subproblem.
+
+     A metric in this sense is expected to measure the level of agreement between model
+     predictions and ground-truth labels.
+
+     Methods
+     -------
+
+     update(preds: Sequence[ObjectDetectionTarget], targets: Sequence[ObjectDetectionTarget]) -&gt; None
+         Add predictions and targets to metric's cache for later calculation.
+
+     compute() -&gt; Dict[str, Any]
+         Compute metric value(s) for currently cached predictions and targets, returned as
+         a dictionary.
+
+     reset() -&gt; None
+         Clear contents of current metric's cache of predictions and targets.
+</pre></div>
+</div>
+</section>
+<section id="workflows">
+<h2>7 Workflows<a class="headerlink" href="#workflows" title="Permalink to this heading">#</a></h2>
+<p>MAITE provides high-level utilities for common workflows such as <code class="docutils literal notranslate"><span class="pre">evaluate</span></code> and <code class="docutils literal notranslate"><span class="pre">predict</span></code>. They can be called with either <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>s or <code class="docutils literal notranslate"><span class="pre">DataLoader</span></code>s, and with optional <code class="docutils literal notranslate"><span class="pre">Augmentation</span></code>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">evaluate</span></code> function can optionally return the model predictions and (potentially-augmented) data batches used during inference.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">predict</span></code> function returns the model predictions and (potentially-augmented) data batches used during inference, essentially calling <code class="docutils literal notranslate"><span class="pre">evaluate</span></code> with a dummy metric.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">maite.workflows</span> <span class="kn">import</span> <a class="sphinx-codeautolink-a" href="../generated/maite.workflows.evaluate.html#maite.workflows.evaluate" title="maite.workflows.evaluate"><span class="n">evaluate</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../generated/maite.workflows.predict.html#maite.workflows.predict" title="maite.workflows.predict"><span class="n">predict</span></a>
+<span class="c1"># we can also import from object_detection module</span>
+<span class="c1"># where the function call signature is the same</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="n">evaluate</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>    Evaluate a model's performance on data according to some metric with optional augmentation.
+
+    Some data source (either a dataloader or a dataset) must be provided
+    or an InvalidArgument exception is raised.
+
+    Parameters
+    ----------
+    model : SomeModel
+        Maite Model object.
+
+    metric : Optional[SomeMetric], (default=None)
+        Compatible maite Metric.
+
+    dataloader : Optional[SomeDataloader], (default=None)
+        Compatible maite dataloader.
+
+    dataset : Optional[SomeDataset], (default=None)
+        Compatible maite dataset.
+
+    batch_size : int, (default=1)
+        Batch size for use with dataset (ignored if dataset=None).
+
+    augmentation : Optional[SomeAugmentation], (default=None)
+        Compatible maite augmentation.
+
+    return_augmented_data : bool, (default=False)
+        Set to True to return post-augmentation data as a function output.
+
+    return_preds : bool, (default=False)
+        Set to True to return raw predictions as a function output.
+
+    Returns
+    -------
+    Tuple[Dict[str, Any], Sequence[TargetType], Sequence[Tuple[InputBatchType, TargetBatchType, DatumMetadataBatchType]]]
+        Tuple of returned metric value, sequence of model predictions, and
+        sequence of data batch tuples fed to the model during inference. The actual
+        types represented by InputBatchType, TargetBatchType, and DatumMetadataBatchType will vary
+        by the domain of the components provided as input arguments (e.g. image
+        classification or object detection.)
+        Note that the second and third return arguments will be empty if
+        return_augmented_data is False or return_preds is False, respectively.
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="n">predict</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>    Make predictions for a given model &amp; data source with optional augmentation.
+
+    Some data source (either a dataloader or a dataset) must be provided
+    or an InvalidArgument exception is raised.
+
+    Parameters
+    ----------
+    model : SomeModel
+        Maite Model object.
+
+    dataloader : Optional[SomeDataloader], (default=None)
+        Compatible maite dataloader.
+
+    dataset : Optional[SomeDataset], (default=None)
+        Compatible maite dataset.
+
+    batch_size : int, (default=1)
+        Batch size for use with dataset (ignored if dataset=None).
+
+    augmentation : Optional[SomeAugmentation], (default=None)
+        Compatible maite augmentation.
+
+    Returns
+    -------
+    Tuple[Sequence[SomeTargetBatchType], Sequence[Tuple[SomeInputBatchType, SomeTargetBatchType, SomeMetadataBatchType]],
+        A tuple of the predictions (as a sequence of batches) and a sequence
+        of tuples containing the information associated with each batch.
+</pre></div>
+</div>
+</section>
+</section>
+</article>
+<footer class="bd-footer-article">
+<div class="footer-article-items footer-article__inner">
+<div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+<a class="left-prev" href="../explanation.html" title="previous page">
+<i class="fa-solid fa-angle-left"></i>
+<div class="prev-next-info">
+<p class="prev-next-subtitle">previous</p>
+<p class="prev-next-title">Explanation</p>
+</div>
+</a>
+<a class="right-next" href="type_hints_for_API_design.html" title="next page">
+<div class="prev-next-info">
+<p class="prev-next-subtitle">next</p>
+<p class="prev-next-title">A Primer on Python Typing: Relevant Language Features, Methods, and Tools for the T&amp;E Framework</p>
+</div>
+<i class="fa-solid fa-angle-right"></i>
+</a>
+</div></div>
+</div>
+</footer>
+</div>
+<div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+<div class="sidebar-secondary-item">
+<div class="page-toc tocsection onthispage">
+<i class="fa-solid fa-list"></i> On this page
+  </div>
+<nav class="bd-toc-nav page-toc">
+<ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#concept-bridging-arraylikes">1 Concept: Bridging ArrayLikes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#data-types">2 Data Types</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#image-classification">2.1 Image Classification</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#object-detection">2.2 Object Detection</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#models">3 Models</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datasets-and-dataloaders">4 Datasets and DataLoaders</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#augmentations">5 Augmentations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#metrics">6 Metrics</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#workflows">7 Workflows</a></li>
+</ul>
+</nav></div>
+<div class="sidebar-secondary-item">
+<div class="tocsection sourcelink">
+<a href="../_sources/explanation/protocol_overview.md.txt">
+<i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+</div>
+</div>
+</div></div>
+</div>
+<footer class="bd-footer-content">
+</footer>
+</main>
+</div>
+</div>
+<!-- Scripts loaded after <body> so the DOM is not blocked -->
+<script src="../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+<footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+<div class="footer-items__start">
+<div class="footer-item">
+<p class="copyright">
+    
+      © Copyright 2024 Massachusetts Institute of Technology.
+      <br/>
+</p>
+</div>
+<div class="footer-item">
+<p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.2.1.
+    <br/>
+</p>
+</div>
+</div>
+<div class="footer-items__end">
+<div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+</p></div>
+</div>
+</div>
+</footer>
+</body>
+</html>
