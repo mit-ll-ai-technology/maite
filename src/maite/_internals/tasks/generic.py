@@ -45,8 +45,7 @@ class _DummyMetric(Metric):
     def __init__(self):
         self.metadata = MetricMetadata({"id": "dummy_metric"})
 
-    def reset(self) -> None:
-        ...
+    def reset(self) -> None: ...
 
     def update(
         self,

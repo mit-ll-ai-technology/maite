@@ -69,13 +69,13 @@ def assert_metrics_equal(
     for k in k1:
         v1 = dict1[k]
         v2 = dict2[k]
-        assert type(v1) is type(
-            v2
-        ), f"Values for key {k} has different types: {type(v1)} and {type(v2)}"
+        assert type(v1) is type(v2), (
+            f"Values for key {k} has different types: {type(v1)} and {type(v2)}"
+        )
         if isinstance(v1, torch.Tensor):
-            assert torch.isclose(
-                v1, v2, rtol=1e-05, atol=1e-08
-            ), f"Values for key {k} are different: {v1} and {v2}"
+            assert torch.isclose(v1, v2, rtol=1e-05, atol=1e-08), (
+                f"Values for key {k} are different: {v1} and {v2}"
+            )
         else:
             assert v1 == v2, f"Values for key {k} are different: {v1} and {v2}"
 

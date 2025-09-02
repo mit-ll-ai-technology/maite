@@ -29,24 +29,18 @@ def _safe_name(x: Any, ticked: bool = True) -> str:
 
 @runtime_checkable
 class Comparable(Protocol):
-    def __eq__(self, __x: Any) -> bool:
-        ...
+    def __eq__(self, __x: Any) -> bool: ...
 
-    def __lt__(self: C, __x: C) -> bool:
-        ...
+    def __lt__(self: C, __x: C) -> bool: ...
 
-    def __gt__(self: C, __x: C) -> bool:
-        ...
+    def __gt__(self: C, __x: C) -> bool: ...
 
-    def __le__(self: C, __x: C) -> bool:
-        ...
+    def __le__(self: C, __x: C) -> bool: ...
 
-    def __ge__(self: C, __x: C) -> bool:
-        ...
+    def __ge__(self: C, __x: C) -> bool: ...
 
 
-class Unsatisfiable(AssertionError):
-    ...
+class Unsatisfiable(AssertionError): ...
 
 
 def check_type(
@@ -83,19 +77,21 @@ def check_type(
     Examples
     --------
     >>> from maite.utils.validation import check_type
-    >>> check_type('apple', 1, int)
+    >>> check_type("apple", 1, int)
     1
 
     >>> try:
-    ...     check_type('apple', 1, bool)
+    ...     check_type("apple", 1, bool)
     ... except:
-    ...     print("maite.errors.InvalidArgument: Expected `apple` to be of type `bool`. Got `1` (type: `int`).")
+    ...     print(
+    ...         "maite.errors.InvalidArgument: Expected `apple` to be of type `bool`. Got `1` (type: `int`)."
+    ...     )
     maite.errors.InvalidArgument: Expected `apple` to be of type `bool`. Got `1` (type: `int`).
 
-    >>> check_type('apple', 1, (int, bool))
+    >>> check_type("apple", 1, (int, bool))
     1
 
-    >>> print(check_type('apple', None, (int, bool), optional=True))
+    >>> print(check_type("apple", None, (int, bool), optional=True))
     None
     """
     if optional and arg is None:
@@ -125,8 +121,7 @@ def check_domain(
     incl_up: bool = ...,
     lower_name: str = ...,
     upper_name: str = ...,
-) -> C:
-    ...
+) -> C: ...
 
 
 @overload
@@ -140,8 +135,7 @@ def check_domain(
     incl_up: bool = ...,
     lower_name: str = ...,
     upper_name: str = ...,
-) -> C:
-    ...
+) -> C: ...
 
 
 def check_domain(
@@ -208,7 +202,9 @@ def check_domain(
     >>> try:
     ...     check_domain("x", 1, lower=20)
     ... except:
-    ...     print("maite.errors.InvalidArgument: `x` must satisfy `20 <= x`.  Got: `1`.")
+    ...     print(
+    ...         "maite.errors.InvalidArgument: `x` must satisfy `20 <= x`.  Got: `1`."
+    ...     )
     maite.errors.InvalidArgument: `x` must satisfy `20 <= x`.  Got: `1`.
 
     >>> try:
@@ -217,7 +213,7 @@ def check_domain(
     ...     print("maite.errors.InvalidArgument: `x` must satisfy `1 < x`.  Got: `1`.")
     maite.errors.InvalidArgument: `x` must satisfy `1 < x`.  Got: `1`.
 
-    >>> check_domain("x", 1, lower=1, incl_low=True) # ok
+    >>> check_domain("x", 1, lower=1, incl_low=True)  # ok
     1
 
     >>> check_domain("x", 0.0, lower=-10, upper=10)  # ok
@@ -269,8 +265,7 @@ def check_domain(
 
 
 class SupportsEq(Protocol):
-    def __eq__(self, __o: object) -> bool:
-        ...
+    def __eq__(self, __o: object) -> bool: ...
 
 
 def check_one_of(
@@ -323,7 +318,9 @@ def check_one_of(
     >>> try:
     ...     check_one_of("foo", None, [1, 2])
     ... except:
-    ...     print("maite.errors.InvalidArgument: Expected `foo` to be one of: 1, 2. Got `None`.")
+    ...     print(
+    ...         "maite.errors.InvalidArgument: Expected `foo` to be one of: 1, 2. Got `None`."
+    ...     )
     maite.errors.InvalidArgument: Expected `foo` to be one of: 1, 2. Got `None`.
 
     Including `None` as an acceptable value
@@ -352,7 +349,9 @@ def check_one_of(
     >>> try:
     ...     check_one_of("bar", 88, Pet)
     ... except:
-    ...     print("maite.errors.InvalidArgument: Expected `bar` to be one of: Pet.cat, Pet.dog. Got `88`.")
+    ...     print(
+    ...         "maite.errors.InvalidArgument: Expected `bar` to be one of: Pet.cat, Pet.dog. Got `88`."
+    ...     )
     maite.errors.InvalidArgument: Expected `bar` to be one of: Pet.cat, Pet.dog. Got `88`.
     >>> check_one_of("bar", Pet.cat, Pet)
     <Pet.cat: 1>
@@ -409,12 +408,16 @@ def chain_validators(*validators: Callable[[str, Any], Any]) -> Callable[[str, T
     >>> try:
     ...     check_pos_int("foo", ["a"])
     ... except:
-    ...     print("maite.errors.InvalidArgument: Expected `foo` to be of type `int`. Got `['a']` (type: `list`).")
+    ...     print(
+    ...         "maite.errors.InvalidArgument: Expected `foo` to be of type `int`. Got `['a']` (type: `list`)."
+    ...     )
     maite.errors.InvalidArgument: Expected `foo` to be of type `int`. Got `['a']` (type: `list`).
     >>> try:
     ...     check_pos_int("foo", -1)
     ... except:
-    ...     print("maite.errors.InvalidArgument: `foo` must satisfy `0 <= foo`.  Got: `-1`.")
+    ...     print(
+    ...         "maite.errors.InvalidArgument: `foo` must satisfy `0 <= foo`.  Got: `-1`."
+    ...     )
     maite.errors.InvalidArgument: `foo` must satisfy `0 <= foo`.  Got: `-1`.
     """
 

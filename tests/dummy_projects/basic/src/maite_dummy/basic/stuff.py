@@ -22,8 +22,7 @@ CONSTANT: Final = 22
 Alias: TypeAlias = Literal["a", "b"]
 
 
-def a_func(x: int) -> None:
-    ...
+def a_func(x: int) -> None: ...
 
 
 @dataclass
@@ -33,11 +32,9 @@ class ADataClass:
 
 class AClass:
     @staticmethod
-    def static_meth() -> None:
-        ...
+    def static_meth() -> None: ...
 
-    def meth(self) -> None:
-        ...
+    def meth(self) -> None: ...
 
 
 class ATypedDict(TypedDict):
@@ -45,5 +42,4 @@ class ATypedDict(TypedDict):
 
 
 class AProtocol(Protocol):
-    def meth(self) -> None:
-        ...
+    def meth(self) -> None: ...

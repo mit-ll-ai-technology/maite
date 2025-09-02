@@ -81,9 +81,9 @@ def test_known_scan():
         "maite.utils",
         "maite",
     } <= modules
-    assert not any(
-        name.split(".")[-1].startswith("_") for name in modules
-    ), "reported module is private"
+    assert not any(name.split(".")[-1].startswith("_") for name in modules), (
+        "reported module is private"
+    )
 
 
 @pytest.mark.parametrize("submodule", ["", "maite.testing.project"])

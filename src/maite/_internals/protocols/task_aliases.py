@@ -21,7 +21,11 @@ from typing_extensions import TypeAlias
 
 from maite._internals.protocols import (
     generic as gen,
+)
+from maite._internals.protocols import (
     image_classification as ic,
+)
+from maite._internals.protocols import (
     object_detection as od,
 )
 

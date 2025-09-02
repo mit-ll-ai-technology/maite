@@ -157,7 +157,9 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
 
     >>> def generate_random_annotation(max_num_detections: int = 2) -> np.ndarray:
     ...     num_detections = np.random.choice(max_num_detections + 1)
-    ...     annotation = [generate_random_bbox(N_CLASSES) for _ in range(num_detections)]
+    ...     annotation = [
+    ...         generate_random_bbox(N_CLASSES) for _ in range(num_detections)
+    ...     ]
     ...     return np.vstack(annotation) if num_detections > 0 else np.empty(0)
 
     We now create the dummy dataset of images, corresponding annotations, and metadata.
@@ -192,17 +194,22 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
     ...     # Set up required dataset-level metadata
     ...     metadata: DatasetMetadata = {
     ...         "id": "Dummy Dataset",
-    ...         "index2label": {i: f"class_name_{i}" for i in range(N_CLASSES)}
+    ...         "index2label": {i: f"class_name_{i}" for i in range(N_CLASSES)},
     ...     }
+    ...
     ...     def __init__(self, dataset: list[tuple[np.ndarray, np.ndarray, int]]):
     ...         self.dataset = dataset
+    ...
     ...     def __len__(self) -> int:
     ...         return len(self.dataset)
+    ...
     ...     def __getitem__(
     ...         self, index: int
     ...     ) -> tuple[np.ndarray, od.ObjectDetectionTarget, od.DatumMetadataType]:
     ...         if index < 0 or index >= len(self):
-    ...             raise IndexError(f"Index {index} is out of range for the dataset, which has length {len(self)}.")
+    ...             raise IndexError(
+    ...                 f"Index {index} is out of range for the dataset, which has length {len(self)}."
+    ...             )
     ...         image, annotations, hour_of_day = self.dataset[index]
     ...         # Structure ground truth target
     ...         boxes, labels = [], []
@@ -213,10 +220,15 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
     ...                 boxes.append(bbox)
     ...                 labels.append(label)
     ...         od_target = MyObjectDetectionTarget(
-    ...             boxes=np.array(boxes), labels=np.array(labels), scores=np.ones(len(boxes))
+    ...             boxes=np.array(boxes),
+    ...             labels=np.array(labels),
+    ...             scores=np.ones(len(boxes)),
     ...         )
     ...         # Structure datum-level metadata
-    ...         datum_metadata: MyDatumMetadata = {"id": str(index), "hour_of_day": hour_of_day}
+    ...         datum_metadata: MyDatumMetadata = {
+    ...             "id": str(index),
+    ...             "hour_of_day": hour_of_day,
+    ...         }
     ...         return image, od_target, datum_metadata
 
     We can instantiate this class and type hint it as an object_detection.Dataset. By
@@ -306,7 +318,6 @@ class Model(gen.Model[InputType, TargetType], Protocol):
     ...     boxes: np.ndarray
     ...     labels: np.ndarray
     ...     scores: np.ndarray
-    ...
 
     Specify parameters that will be used to create a dummy dataset.
 
@@ -346,7 +357,6 @@ class Model(gen.Model[InputType, TargetType], Protocol):
     ...             predictions = MyObjectDetectionTarget(boxes, labels, scores)
     ...             all_predictions.append(predictions)
     ...         return all_predictions
-    ...
 
     We can instantiate this class and typehint it as a maite object detection model.
     By using typehinting, we permit a static typechecker to verify protocol compliance.
@@ -408,14 +418,11 @@ class Metric(gen.Metric[TargetType], Protocol):
     >>> import numpy as np
 
     >>> class MyIoUMetric:
-    ...
     ...     def __init__(self, id: str):
     ...         self.pred_boxes = []  # elements correspond to predicted boxes in single image
     ...         self.target_boxes = []  # elements correspond to ground truth boxes in single image
     ...         # Store provided id for this metric instance
-    ...         self.metadata = MetricMetadata(
-    ...             id=id
-    ...         )
+    ...         self.metadata = MetricMetadata(id=id)
     ...
     ...     def reset(self) -> None:
     ...         self.pred_boxes = []
@@ -436,16 +443,22 @@ class Metric(gen.Metric[TargetType], Protocol):
     ...         x0b, y0b, x1b, y1b = np.split(boxes_b, 4, axis=1)
     ...         # Calculate intersections
     ...         xi_0, yi_0 = np.split(
-    ...             np.maximum(np.append(x0a, y0a, axis=1), np.append(x0b, y0b, axis=1)),
+    ...             np.maximum(
+    ...                 np.append(x0a, y0a, axis=1), np.append(x0b, y0b, axis=1)
+    ...             ),
     ...             2,
     ...             axis=1,
     ...         )
     ...         xi_1, yi_1 = np.split(
-    ...             np.minimum(np.append(x1a, y1a, axis=1), np.append(x1b, y1b, axis=1)),
+    ...             np.minimum(
+    ...                 np.append(x1a, y1a, axis=1), np.append(x1b, y1b, axis=1)
+    ...             ),
     ...             2,
     ...             axis=1,
     ...         )
-    ...         ints: np.ndarray = np.maximum(0, xi_1 - xi_0) * np.maximum(0, yi_1 - yi_0)
+    ...         ints: np.ndarray = np.maximum(0, xi_1 - xi_0) * np.maximum(
+    ...             0, yi_1 - yi_0
+    ...         )
     ...         # Calculate unions (as sum of areas minus their intersection)
     ...         unions: np.ndarray = (
     ...             (x1a - x0a) * (y1a - y0a)
@@ -460,7 +473,6 @@ class Metric(gen.Metric[TargetType], Protocol):
     ...             single_img_ious = self.iou_vec(pred_box.boxes, tgt_box.boxes)
     ...             mean_iou_by_img.append(float(np.mean(single_img_ious)))
     ...         return {"mean_iou": np.mean(np.array(mean_iou_by_img)).item()}
-    ...
 
     Now we can instantiate our IoU Metric class:
 

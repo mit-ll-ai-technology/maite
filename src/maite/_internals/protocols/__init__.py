@@ -14,5 +14,4 @@ ArrayLike: TypeAlias = NumpyArrayLike
 @runtime_checkable
 class DatumMetadata(Protocol):
     @property
-    def uuid(self) -> int:
-        ...
+    def uuid(self) -> int: ...

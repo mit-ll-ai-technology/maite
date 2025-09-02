@@ -9,6 +9,8 @@ from maite._internals.protocols import generic as gen
 from maite.tasks import evaluate, predict
 from tests.component_impls import (
     ic_simple_component_impls as ici,
+)
+from tests.component_impls import (
     od_simple_component_impls as odi,
 )
 
@@ -22,14 +24,14 @@ def test_simple_ic_structural(
 ):
     # verify types pass isinstance checks
 
-    assert isinstance(
-        ic_simple_augmentation, gen.Augmentation
-    ), "augmentation structural check fail"
+    assert isinstance(ic_simple_augmentation, gen.Augmentation), (
+        "augmentation structural check fail"
+    )
     assert isinstance(ic_simple_metric, gen.Metric), "metric structural check fail"
     assert isinstance(ic_simple_dataset, gen.Dataset), "dataset structural check fail"
-    assert isinstance(
-        ic_simple_dataloader, gen.DataLoader
-    ), "dataloader structural check fail"
+    assert isinstance(ic_simple_dataloader, gen.DataLoader), (
+        "dataloader structural check fail"
+    )
     assert isinstance(ic_simple_model, gen.Model), "model structural check fail"
 
 
@@ -88,14 +90,14 @@ def test_simple_od_structural(
 ):
     # verify types pass isinstance checks
 
-    assert isinstance(
-        od_simple_augmentation, gen.Augmentation
-    ), "augmentation structural check fail"
+    assert isinstance(od_simple_augmentation, gen.Augmentation), (
+        "augmentation structural check fail"
+    )
     assert isinstance(od_simple_metric, gen.Metric), "metric structural check fail"
     assert isinstance(od_simple_dataset, gen.Dataset), "dataset structural check fail"
-    assert isinstance(
-        od_simple_dataloader, gen.DataLoader
-    ), "dataloader structural check fail"
+    assert isinstance(od_simple_dataloader, gen.DataLoader), (
+        "dataloader structural check fail"
+    )
     assert isinstance(od_simple_model, gen.Model), "model structural check fail"
 
 
@@ -213,15 +215,15 @@ def test_ic_predict_return_data_flag(
 
             # Verify num returned predictions
             n = len(ic_mock_dataset)
-            assert (
-                len(preds) == n
-            ), "should return same number of predictions as dataset length when batch_size is 1"
+            assert len(preds) == n, (
+                "should return same number of predictions as dataset length when batch_size is 1"
+            )
 
             # Verify num returned data points
             expected_data_len = n if return_augmented_data else 0
-            assert (
-                len(data) == expected_data_len
-            ), f"should return {expected_data_len} data points when `return_augmented_data` is {return_augmented_data} and batch_size is 1"
+            assert len(data) == expected_data_len, (
+                f"should return {expected_data_len} data points when `return_augmented_data` is {return_augmented_data} and batch_size is 1"
+            )
 
             # Verify returned data has augmentation applied
             if use_aug and return_augmented_data:
@@ -230,15 +232,15 @@ def test_ic_predict_return_data_flag(
                 x = xb[0]  # get first (only) element out of size-1 batch
                 x = np.asarray(x)  # bridge
                 expected_value = (i + 1) % 10
-                assert (
-                    x[0][0][0] == expected_value
-                ), f"mock augmentation should bump first value in data point {i} from {i} to {expected_value}"
+                assert x[0][0][0] == expected_value, (
+                    f"mock augmentation should bump first value in data point {i} from {i} to {expected_value}"
+                )
 
             # Verify model applied to correct data (original or augmented)
             i = 3
             y = preds[i][0]  # get ith prediction out of ith size-1 batch
             y = np.asarray(y)  # bridge
             expected_class = (i + 1) % 10 if use_aug else i % 10
-            assert (
-                y[expected_class] == 1
-            ), f"mock model should predict class {expected_class} for {'augmented' if use_aug else 'original'} data point {i}"
+            assert y[expected_class] == 1, (
+                f"mock model should predict class {expected_class} for {'augmented' if use_aug else 'original'} data point {i}"
+            )

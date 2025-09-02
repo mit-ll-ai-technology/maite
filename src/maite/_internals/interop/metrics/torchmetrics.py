@@ -143,11 +143,21 @@ class TMClassificationMetric:
     >>> from maite.protocols import image_classification as ic, MetricMetadata
     >>> from maite.interop.metrics.torchmetrics import TMClassificationMetric
     >>>
-    >>> preds: Sequence[ic.TargetType] = [torch.tensor([0.1, 0.8, 0.1]), torch.tensor([0.6, 0.2, 0.2]), torch.tensor([0.4, 0.3, 0.3])]
-    >>> target: Sequence[ic.TargetType] = [torch.tensor([0, 1, 0]), torch.tensor([1, 0, 0]), torch.tensor([0, 0, 1])]
+    >>> preds: Sequence[ic.TargetType] = [
+    ...     torch.tensor([0.1, 0.8, 0.1]),
+    ...     torch.tensor([0.6, 0.2, 0.2]),
+    ...     torch.tensor([0.4, 0.3, 0.3]),
+    ... ]
+    >>> target: Sequence[ic.TargetType] = [
+    ...     torch.tensor([0, 1, 0]),
+    ...     torch.tensor([1, 0, 0]),
+    ...     torch.tensor([0, 0, 1]),
+    ... ]
     >>>
     >>> # Create native TorchMetrics metric
-    >>> classification_metric = torchmetrics.classification.MulticlassAccuracy(num_classes=3)
+    >>> classification_metric = torchmetrics.classification.MulticlassAccuracy(
+    ...     num_classes=3
+    ... )
     >>>
     >>> # Add additional field to base MetricMetadata
     >>> class MyMetricMetadata(MetricMetadata):
@@ -162,7 +172,9 @@ class TMClassificationMetric:
     >>> result = wrapped_classification_metric.compute()
     >>> result  # doctest: +SKIP
     {'MulticlassAccuracy': tensor(0.6667)}
-    >>> print(f"{result['MulticlassAccuracy'].item():0.3f}")  # consistent formatting for doctest
+    >>> print(
+    ...     f"{result['MulticlassAccuracy'].item():0.3f}"
+    ... )  # consistent formatting for doctest
     0.667
     """
 

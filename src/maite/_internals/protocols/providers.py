@@ -15,8 +15,14 @@ from typing_extensions import Self, TypeAlias
 
 from maite._internals.protocols import (
     generic as gen,
+)
+from maite._internals.protocols import (
     image_classification as ic,
+)
+from maite._internals.protocols import (
     object_detection as od,
+)
+from maite._internals.protocols import (
     task_aliases as al,
 )
 
@@ -77,14 +83,12 @@ class ModelProvider(Protocol):
     @overload
     def load_model(
         self, model_name: str, task: Literal["image-classification"]
-    ) -> ic.Model:
-        ...
+    ) -> ic.Model: ...
 
     @overload
     def load_model(
         self, model_name: str, task: Literal["object-detection"]
-    ) -> od.Model:
-        ...
+    ) -> od.Model: ...
 
     def load_model(self, model_name: str, task: al.TaskName) -> al.SomeModel:
         """
@@ -152,8 +156,7 @@ class DatasetProvider(Protocol):
         dataset_name: str,
         task: Literal["image-classification"],
         split: str | None = None,
-    ) -> ic.Dataset:
-        ...
+    ) -> ic.Dataset: ...
 
     @overload
     def load_dataset(
@@ -162,8 +165,7 @@ class DatasetProvider(Protocol):
         dataset_name: str,
         task: Literal["object-detection"],
         split: str | None = None,
-    ) -> od.Dataset:
-        ...
+    ) -> od.Dataset: ...
 
     def load_dataset(
         self,
@@ -238,12 +240,10 @@ class MetricProvider(Protocol):
         ...
 
     @overload
-    def load_metric(self, metric_name: str) -> ic.Metric:
-        ...
+    def load_metric(self, metric_name: str) -> ic.Metric: ...
 
     @overload
-    def load_metric(self, metric_name: str) -> od.Metric:
-        ...
+    def load_metric(self, metric_name: str) -> od.Metric: ...
 
     def load_metric(self, metric_name: str) -> al.SomeMetric:
         # load_metric must return a supertype of all task-specific metrics

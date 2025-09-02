@@ -22,7 +22,7 @@ def person(name: str, age: int) -> None:
     Examples
     --------
     >>> from maite.testing.documentation.documentation_dependencies import person
-    >>> person('Brad', 22)
+    >>> person("Brad", 22)
     """
 
     return
