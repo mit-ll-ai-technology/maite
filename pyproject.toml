@@ -119,6 +119,59 @@ known_first_party = ["maite", "tests"]
 profile = "black"
 combine_as_imports = true
 
+[tool.ruff]
+exclude = [
+  ".devcontainer",
+  ".github",
+  ".vscode",
+  ".jupyter_cache",
+  "*env*",
+  "output",
+  "_build",
+  ".tox",
+  "prototype",
+]
+
+indent-width = 4
+target-version = "py310"
+extend-include = ["*.ipynb"]
+
+
+
+[tool.ruff.lint]
+# TODO https://gitlab.jatic.net/jatic/cdao/maite/-/issues/815: The suggested lints will
+# cause a large diff. We will investigate the lints individually and add them in smaller pieces.
+#select = ["F", "E", "W", "C90", "I", "N", "D1", "D200", "D201", "D211", "D403", "D419", "UP",
+#          "YTT", "ANN", "S",  "BLE", "B", "A", "COM", "C4", "T10", "ISC", "ICN", "PYI", "PT", "Q",
+#          "RSE", "RET", "SLF", "SIM", "TID252", "ARG", "FIX", "PD", "FLY", "NPY", "RUF027",
+#          "RUF100", "PERF"]
+#ignore = ["ANN101","ANN102","C408","C416"]
+fixable = ["ALL"]
+unfixable = []
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+extend-select = ["I"]
+
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+docstring-code-format = true
+docstring-code-line-length = "dynamic"
+
+
+[tool.ruff.lint.isort]
+known-first-party = ["maite"]
+
+[tool.ruff.lint.mccabe]
+# Flag errors (`C901`) whenever the complexity level exceeds 5.
+max-complexity = 5
+
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
 [tool.codespell]
 skip = '*.svg'
 

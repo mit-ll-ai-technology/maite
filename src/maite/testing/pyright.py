@@ -5,6 +5,7 @@
 """
 Functions for type-checking code using pyright.
 """
+
 from maite._internals.testing.pyright import (
     Diagnostic,
     PyrightOutput,

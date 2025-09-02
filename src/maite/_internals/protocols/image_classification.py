@@ -84,35 +84,49 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
 
     >>> class MyDatumMetadata(DatumMetadata):
     ...     hour_of_day: float
-    ...
-    >>> datum_metadata = [ MyDatumMetadata(id = i, hour_of_day=np.random.rand()*24) for i in range(N_DATUM) ]
+    >>> datum_metadata = [
+    ...     MyDatumMetadata(id=i, hour_of_day=np.random.rand() * 24)
+    ...     for i in range(N_DATUM)
+    ... ]
 
     Constructing a compliant dataset just involves a simple wrapper that fetches
     individual datapoints, where a datapoint is a single image, target, metadata 3-tuple.
 
     >>> class ImageDataset:
-    ...     def __init__(self,
-    ...                  dataset_name: str,
-    ...                  index2label: dict[int,str],
-    ...                  images: list[np.ndarray],
-    ...                  targets: np.ndarray,
-    ...                  datum_metadata: list[MyDatumMetadata]):
+    ...     def __init__(
+    ...         self,
+    ...         dataset_name: str,
+    ...         index2label: dict[int, str],
+    ...         images: list[np.ndarray],
+    ...         targets: np.ndarray,
+    ...         datum_metadata: list[MyDatumMetadata],
+    ...     ):
     ...         self.images = images
     ...         self.targets = targets
-    ...         self.metadata = DatasetMetadata({'id': dataset_name, 'index2label': index2label})
+    ...         self.metadata = DatasetMetadata(
+    ...             {"id": dataset_name, "index2label": index2label}
+    ...         )
     ...         self._datum_metadata = datum_metadata
+    ...
     ...     def __len__(self) -> int:
     ...         return len(images)
-    ...     def __getitem__(self, ind: int) -> tuple[np.ndarray, np.ndarray, MyDatumMetadata]:
+    ...
+    ...     def __getitem__(
+    ...         self, ind: int
+    ...     ) -> tuple[np.ndarray, np.ndarray, MyDatumMetadata]:
     ...         return self.images[ind], self.targets[ind], self._datum_metadata[ind]
 
     We can instantiate this class and typehint it as an image_classification.Dataset.
     By using typehinting, we permit a static typechecker to verify protocol compliance.
 
     >>> from maite.protocols import image_classification as ic
-    >>> dataset: ic.Dataset = ImageDataset('a_dataset',
-    ...                                    {i: f"class_name_{i}" for i in range(N_CLASSES)},
-    ...                                    images, targets, datum_metadata)
+    >>> dataset: ic.Dataset = ImageDataset(
+    ...     "a_dataset",
+    ...     {i: f"class_name_{i}" for i in range(N_CLASSES)},
+    ...     images,
+    ...     targets,
+    ...     datum_metadata,
+    ... )
 
     Note that when writing a Dataset implementer, return types may be narrower than the
     return types promised by the protocol (np.ndarray is a subtype of ArrayLike), but
@@ -204,7 +218,9 @@ class Model(gen.Model[InputType, TargetType], Protocol):
     ...
     ...         # Send input batch through model
     ...         out = batch_np @ self.weights + self.bias
-    ...         out = np.exp(out) / np.sum(np.exp(out), axis=1, keepdims=True) # softmax
+    ...         out = np.exp(out) / np.sum(
+    ...             np.exp(out), axis=1, keepdims=True
+    ...         )  # softmax
     ...
     ...         # Restructure to sequence of shape-(10,) probabilities
     ...         return [row for row in out]
@@ -213,14 +229,18 @@ class Model(gen.Model[InputType, TargetType], Protocol):
 
     >>> batch_size = 8
     >>> rng = np.random.default_rng(12345678)
-    >>> batch: Sequence[ArrayLike] = [-0.2 + 0.4 * rng.random((3, 32, 32)) for _ in range(batch_size)]
+    >>> batch: Sequence[ArrayLike] = [
+    ...     -0.2 + 0.4 * rng.random((3, 32, 32)) for _ in range(batch_size)
+    ... ]
     >>>
     >>> model: ic.Model = LinearClassifier()
     >>> out = model(batch)
 
     We can now show the class probabilities returned by the model for each image in the batch.
 
-    >>> np.set_printoptions(floatmode='fixed', precision=2)  # for reproducible output for doctest
+    >>> np.set_printoptions(
+    ...     floatmode="fixed", precision=2
+    ... )  # for reproducible output for doctest
     >>> for probs in out:  # doctest: +NORMALIZE_WHITESPACE
     ...     print(np.round(probs, 2))
     [0.16 0.10 0.16 0.14 0.04 0.02 0.06 0.04 0.17 0.10]
@@ -277,34 +297,36 @@ class Metric(gen.Metric[TargetType], Protocol):
     >>> from maite.protocols import image_classification as ic
 
     >>> class MyAccuracy:
-    ...    metadata: MetricMetadata = {'id': 'Example Multiclass Accuracy'}
+    ...     metadata: MetricMetadata = {"id": "Example Multiclass Accuracy"}
     ...
-    ...    def __init__(self):
-    ...        self._total = 0
-    ...        self._correct = 0
+    ...     def __init__(self):
+    ...         self._total = 0
+    ...         self._correct = 0
     ...
-    ...    def reset(self) -> None:
-    ...        self._total = 0
-    ...        self._correct = 0
+    ...     def reset(self) -> None:
+    ...         self._total = 0
+    ...         self._correct = 0
     ...
-    ...    def update(self, preds: Sequence[ArrayLike], targets: Sequence[ArrayLike]) -> None:
-    ...        model_preds = [np.array(r) for r in preds]
-    ...        true_onehot = [np.array(r) for r in targets]
+    ...     def update(
+    ...         self, preds: Sequence[ArrayLike], targets: Sequence[ArrayLike]
+    ...     ) -> None:
+    ...         model_preds = [np.array(r) for r in preds]
+    ...         true_onehot = [np.array(r) for r in targets]
     ...
-    ...        # Stack into single array, convert to class indices
-    ...        model_classes = np.vstack(model_preds).argmax(axis=1)
-    ...        truth_classes = np.vstack(true_onehot).argmax(axis=1)
+    ...         # Stack into single array, convert to class indices
+    ...         model_classes = np.vstack(model_preds).argmax(axis=1)
+    ...         truth_classes = np.vstack(true_onehot).argmax(axis=1)
     ...
-    ...        # Compare classes and update running counts
-    ...        same = (model_classes == truth_classes)
-    ...        self._total += len(same)
-    ...        self._correct += same.sum().item()
+    ...         # Compare classes and update running counts
+    ...         same = model_classes == truth_classes
+    ...         self._total += len(same)
+    ...         self._correct += same.sum().item()
     ...
-    ...    def compute(self) -> dict[str, Any]:
-    ...        if self._total > 0:
-    ...            return {"accuracy": self._correct / self._total}
-    ...        else:
-    ...            raise Exception("No batches processed yet.")
+    ...     def compute(self) -> dict[str, Any]:
+    ...         if self._total > 0:
+    ...             return {"accuracy": self._correct / self._total}
+    ...         else:
+    ...             raise Exception("No batches processed yet.")
 
     Instantiate this class and typehint it as an image_classification.Metric.
     By using typehinting, permits a static typechecker to check protocol compliance.
@@ -314,15 +336,27 @@ class Metric(gen.Metric[TargetType], Protocol):
     To use the metric call update() for each batch of predictions and truth values and call compute() to calculate the final metric values.
 
     >>> # batch 1
-    >>> model_preds = [np.array([0.8, 0.1, 0.0, 0.1]), np.array([0.1, 0.2, 0.6, 0.1])] # predicted classes: 0, 2
-    >>> true_onehot = [np.array([1.0, 0.0, 0.0, 0.0]), np.array([0.0, 1.0, 0.0, 0.0])] # true classes: 0, 1
+    >>> model_preds = [
+    ...     np.array([0.8, 0.1, 0.0, 0.1]),
+    ...     np.array([0.1, 0.2, 0.6, 0.1]),
+    ... ]  # predicted classes: 0, 2
+    >>> true_onehot = [
+    ...     np.array([1.0, 0.0, 0.0, 0.0]),
+    ...     np.array([0.0, 1.0, 0.0, 0.0]),
+    ... ]  # true classes: 0, 1
     >>> accuracy.update(model_preds, true_onehot)
     >>> print(accuracy.compute())
     {'accuracy': 0.5}
     >>>
     >>> # batch 2
-    >>> model_preds = [np.array([0.1, 0.1, 0.7, 0.1]), np.array([0.0, 0.1, 0.0, 0.9])] # predicted classes: 2, 3
-    >>> true_onehot = [np.array([0.0, 0.0, 1.0, 0.0]), np.array([0.0, 0.0, 0.0, 1.0])] # true classes: 2, 3
+    >>> model_preds = [
+    ...     np.array([0.1, 0.1, 0.7, 0.1]),
+    ...     np.array([0.0, 0.1, 0.0, 0.9]),
+    ... ]  # predicted classes: 2, 3
+    >>> true_onehot = [
+    ...     np.array([0.0, 0.0, 1.0, 0.0]),
+    ...     np.array([0.0, 0.0, 0.0, 1.0]),
+    ... ]  # true classes: 2, 3
     >>> accuracy.update(model_preds, true_onehot)
     >>>
     >>> print(accuracy.compute())

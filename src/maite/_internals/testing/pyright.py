@@ -461,7 +461,9 @@ def pyright_analyze(
     ...     3
     ...     '''
     ...     return x + 1
-    >>> pyright_analyze(plus_1, scan_docstring=True)[0]["summary"]["errorCount"]    # nested notional example has fake import --> # doctest: +SKIP
+    >>> pyright_analyze(plus_1, scan_docstring=True)[0]["summary"][
+    ...     "errorCount"
+    ... ]  # nested notional example has fake import --> # doctest: +SKIP
     1
 
     Fixing the docstring issue
@@ -475,7 +477,9 @@ def pyright_analyze(
     ...     3
     ...     '''
     ...     return x + 1
-    >>> pyright_analyze(plus_1, scan_docstring=True)[0]["summary"]["errorCount"]    # nested notional example has fake import --> # doctest: +SKIP
+    >>> pyright_analyze(plus_1, scan_docstring=True)[0]["summary"][
+    ...     "errorCount"
+    ... ]  # nested notional example has fake import --> # doctest: +SKIP
     0
     """
     if path_to_pyright is None:  # pragma: no cover
@@ -493,9 +497,9 @@ def pyright_analyze(
         pyright_config["pythonVersion"] = python_version
 
     if report_unnecessary_type_ignore_comment is not None:
-        pyright_config[
-            "reportUnnecessaryTypeIgnoreComment"
-        ] = report_unnecessary_type_ignore_comment
+        pyright_config["reportUnnecessaryTypeIgnoreComment"] = (
+            report_unnecessary_type_ignore_comment
+        )
 
     if type_checking_mode is not None:
         pyright_config["typeCheckingMode"] = type_checking_mode

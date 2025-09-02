@@ -14,7 +14,8 @@ from ultralytics import YOLO
 from ultralytics.engine.results import Results
 from yolov5.models.common import AutoShape, Detections
 
-from maite.protocols import ModelMetadata, object_detection as od
+from maite.protocols import ModelMetadata
+from maite.protocols import object_detection as od
 
 YOLOObjectDetectionResults: TypeAlias = Union[Detections, list[Results]]
 YOLOModel: TypeAlias = Union[YOLO, AutoShape]
@@ -54,28 +55,40 @@ class YoloObjectDetector:
 
     Load an Ultralytics-hosted YOLOv5 model, 'yolov5nu',
 
-    >>> with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+    >>> with (
+    ...     contextlib.redirect_stdout(io.StringIO()),
+    ...     contextlib.redirect_stderr(io.StringIO()),
+    ... ):
     ...     yolov5_model = YOLO("yolov5nu")
     >>> metadata = ModelMetadata(id="YOLOv5nu", index2label=yolov5_model.names)
     >>> wrapped_yolov5_model = YoloObjectDetector(yolov5_model, metadata)
 
     or, load an Ultralytics YOLOv5 model from a local filepath.
 
-    >>> with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+    >>> with (
+    ...     contextlib.redirect_stdout(io.StringIO()),
+    ...     contextlib.redirect_stderr(io.StringIO()),
+    ... ):
     ...     yolov5_model = YOLO("./yolov5nu.pt")
     >>> metadata = ModelMetadata(id="YOLOv5nu", index2label=yolov5_model.names)
     >>> wrapped_yolov5_model = YoloObjectDetector(yolov5_model, metadata)
 
     Load an Ultralytics-hosted YOLOv8 model, 'yolov8n',
 
-    >>> with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+    >>> with (
+    ...     contextlib.redirect_stdout(io.StringIO()),
+    ...     contextlib.redirect_stderr(io.StringIO()),
+    ... ):
     ...     yolov8_model = YOLO("yolov8n")
     >>> metadata = ModelMetadata(id="YOLOv8n", index2label=yolov8_model.names)
     >>> wrapped_yolov8_model = YoloObjectDetector(yolov8_model, metadata)
 
     or, load an Ultralytics YOLOv8 model from a local filepath.
 
-    >>> with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+    >>> with (
+    ...     contextlib.redirect_stdout(io.StringIO()),
+    ...     contextlib.redirect_stderr(io.StringIO()),
+    ... ):
     ...     yolov8_model = YOLO("./yolov8n.pt")
     >>> metadata = ModelMetadata(id="YOLOv8n", index2label=yolov8_model.names)
     >>> wrapped_yolov8_model = YoloObjectDetector(yolov8_model, metadata)

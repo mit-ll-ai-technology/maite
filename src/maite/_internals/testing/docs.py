@@ -65,8 +65,7 @@ NumpyDocErrorCode: TypeAlias = Literal[
 ERRORCODES: set[NumpyDocErrorCode] = set(get_args(NumpyDocErrorCode))
 
 
-class _C:
-    ...
+class _C: ...
 
 
 AUTO_INIT_DOC = _C.__init__.__doc__
@@ -122,8 +121,7 @@ def validate_docstring(
     property_ignore: Collection[NumpyDocErrorCode] | None = ...,
     include_ignored_errors: Literal[True] = ...,
     ignore_via_comments_allowed: bool = ...,
-) -> NumPyDocResultsWithIgnored:
-    ...
+) -> NumPyDocResultsWithIgnored: ...
 
 
 @overload
@@ -134,8 +132,7 @@ def validate_docstring(
     property_ignore: Collection[NumpyDocErrorCode] | None = ...,
     include_ignored_errors: bool = ...,
     ignore_via_comments_allowed: bool = ...,
-) -> NumPyDocResults:
-    ...
+) -> NumPyDocResults: ...
 
 
 def validate_docstring(

@@ -23,8 +23,7 @@ def test_pyright_catches_errors():
 
 def test_pyright_scans_clean():
     def f():
-        def g(x: int):
-            ...
+        def g(x: int): ...
 
         g(1)
         g(2)
@@ -34,8 +33,7 @@ def test_pyright_scans_clean():
 
 
 def test_pyright_basic():
-    def f(x):
-        ...
+    def f(x): ...
 
     results = pyright_analyze(f, type_checking_mode="basic")
     assert results[0]["summary"]["errorCount"] == 0
@@ -97,7 +95,7 @@ def test_scan_docstring():
         Examples
         --------
         >>> x = 1
-        >>> y = x + 'a'  # pyright should catch this
+        >>> y = x + "a"  # pyright should catch this
         """
         return
 
@@ -165,9 +163,9 @@ rst_bad_2 = """
 def test_scan_rst(src: str, expected_num_error: int):
     Path("file.rst").write_text(src)  # file will be written to a tmp dir
     results = pyright_analyze("file.rst")
-    assert (
-        results[0]["summary"]["errorCount"] == expected_num_error
-    ), list_error_messages(results[0])
+    assert results[0]["summary"]["errorCount"] == expected_num_error, (
+        list_error_messages(results[0])
+    )
 
 
 md_good_1 = """
@@ -241,9 +239,9 @@ md_bad_2 = """
 def test_scan_md(src: str, expected_num_error: int):
     Path("file.md").write_text(src)  # file will be written to a tmp dir
     results = pyright_analyze("file.md")
-    assert (
-        results[0]["summary"]["errorCount"] == expected_num_error
-    ), list_error_messages(results[0])
+    assert results[0]["summary"]["errorCount"] == expected_num_error, (
+        list_error_messages(results[0])
+    )
 
 
 @pytest.mark.filterwarnings("ignore:the imp module is deprecate")
@@ -256,9 +254,9 @@ def test_scan_ipynb(src, expected_num_error):
     jupytext.write(jupytext.reads(src, fmt=".py"), "file.ipynb", fmt=".ipynb")
 
     results = pyright_analyze("file.ipynb")
-    assert (
-        results[0]["summary"]["errorCount"] == expected_num_error
-    ), list_error_messages(results[0])
+    assert results[0]["summary"]["errorCount"] == expected_num_error, (
+        list_error_messages(results[0])
+    )
 
 
 @pytest.mark.usefixtures("cleandir")
@@ -296,8 +294,7 @@ def test_analyze_missing_file(suffix):
 
 
 def test_bad_path_to_pyright():
-    def f():
-        ...
+    def f(): ...
 
     bad_path = Path("not/a/path/pyright")
     with pytest.raises(

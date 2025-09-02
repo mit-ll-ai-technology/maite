@@ -150,6 +150,7 @@ class MetricMetadata(TypedDict):
     id : str
         Identifier for a single Metric instance
     """
+
     id: Required[ReadOnly[str]]
 
 
@@ -163,6 +164,7 @@ class AugmentationMetadata(TypedDict):
     id : str
         Identifier for a single Augmentation instance
     """
+
     id: Required[ReadOnly[str]]
 
 
@@ -172,11 +174,9 @@ class Dataset(Protocol, Generic[InputType_co, TargetType_co, DatumMetadataType_c
 
     def __getitem__(
         self, __ind: int
-    ) -> tuple[InputType_co, TargetType_co, DatumMetadataType_co]:
-        ...
+    ) -> tuple[InputType_co, TargetType_co, DatumMetadataType_co]: ...
 
-    def __len__(self) -> int:
-        ...
+    def __len__(self) -> int: ...
 
 
 @runtime_checkable
@@ -189,8 +189,7 @@ class DataLoader(Protocol, Generic[InputType_co, TargetType_co, DatumMetadataTyp
             Sequence[TargetType_co],
             Sequence[DatumMetadataType_co],
         ]
-    ]:
-        ...
+    ]: ...
 
     # no longer having Dataloader operate as the Iterator, just using it as an iterable
     # so it doesn't need to return itself from the __iter__ method nor have a __next__ method
@@ -205,26 +204,22 @@ class Model(
 
     def __call__(
         self, __batch_input: Sequence[InputType_cn]
-    ) -> Sequence[TargetType_co]:
-        ...
+    ) -> Sequence[TargetType_co]: ...
 
 
 @runtime_checkable
 class Metric(Protocol, Generic[TargetType_cn]):
     metadata: MetricMetadata
 
-    def reset(self) -> None:
-        ...
+    def reset(self) -> None: ...
 
     def update(
         self,
         __preds_batch: Sequence[TargetType_cn],
         __targets_batch: Sequence[TargetType_cn],
-    ) -> None:
-        ...
+    ) -> None: ...
 
-    def compute(self) -> MetricComputeReturnType:
-        ...
+    def compute(self) -> MetricComputeReturnType: ...
 
     # don't believe Metric needs to guarantee a 'to' method exists
     # if all inputs to update are on GPU, operation should happen in framework specific way
@@ -253,8 +248,7 @@ class Augmentation(
         ],
     ) -> tuple[
         Sequence[InputType_co], Sequence[TargetType_co], Sequence[DatumMetadataType_co]
-    ]:
-        ...
+    ]: ...
 
 
 T_in = TypeVar("T_in")

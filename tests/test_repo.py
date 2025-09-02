@@ -18,9 +18,9 @@ def test_version():
 
     assert isinstance(maite.__version__, str)
     assert maite.__version__
-    assert (
-        "unknown" not in maite.__version__
-    ), f"{maite.__version__=:} _version.py={txt}"
+    assert "unknown" not in maite.__version__, (
+        f"{maite.__version__=:} _version.py={txt}"
+    )
 
 
 def test_xfail_strict(pytestconfig: Config):

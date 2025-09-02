@@ -6,7 +6,8 @@ import json
 import subprocess
 from collections.abc import Collection, Generator, Mapping
 from copy import deepcopy
-from functools import _CacheInfo as CacheInfo, lru_cache
+from functools import _CacheInfo as CacheInfo
+from functools import lru_cache
 from importlib import import_module
 from pathlib import Path
 from typing import Any, Literal, Union, get_args
@@ -144,7 +145,9 @@ class ModuleScan:
     {'filesAnalyzed': ..., 'errorCount': ..., 'warningCount': ..., 'informationCount': ..., 'timeInSec': ...}
     >>> results["typeCompleteness"]["packageName"]
     'maite'
-    >>> results["typeCompleteness"]["symbols"]     # will change as MAITE changes --> # doctest: +SKIP
+    >>> results["typeCompleteness"][
+    ...     "symbols"
+    ... ]  # will change as MAITE changes --> # doctest: +SKIP
     [{'category': 'class',
       'name': 'maite.errors.MaiteException',
       'referenceCount': 3,
@@ -302,8 +305,16 @@ def get_public_symbols(
     list[Symbol]
         Each symbol is a dict containing the following key-value pairs::
 
-            category: Literal["class", "constant", "function", "method",
-                                "module", "symbol", "type alias", "variable"]
+            category: Literal[
+                "class",
+                "constant",
+                "function",
+                "method",
+                "module",
+                "symbol",
+                "type alias",
+                "variable",
+            ]
             name: str
             referenceCount: int
             isExported: bool
@@ -318,7 +329,7 @@ def get_public_symbols(
     >>> from maite.testing.project import get_public_symbols, ModuleScan
     >>> scanner = ModuleScan()
     >>> results = scanner("maite")
-    >>> get_public_symbols(results)    # will change as MAITE changes --> # doctest: +SKIP
+    >>> get_public_symbols(results)  # will change as MAITE changes --> # doctest: +SKIP
     [{'category': 'class',
       'name': 'maite.errors.MaiteException',
       'referenceCount': 3,
@@ -416,7 +427,7 @@ def import_public_symbols(
     >>> from maite.testing.project import import_public_symbols, ModuleScan
     >>> scanner = ModuleScan()
     >>> results = scanner("pyright")
-    >>> list(import_public_symbols(results))[:2] # doctest: +ELLIPSIS
+    >>> list(import_public_symbols(results))[:2]  # doctest: +ELLIPSIS
     [<function entrypoint at ...>, <function main at ...>]
     """
 

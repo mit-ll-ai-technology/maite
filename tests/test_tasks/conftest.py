@@ -11,6 +11,8 @@ import maite.protocols.image_classification as ic
 import maite.protocols.object_detection as od
 from tests.component_impls import (
     ic_simple_component_impls as ici,
+)
+from tests.component_impls import (
     od_simple_component_impls as odi,
 )
 

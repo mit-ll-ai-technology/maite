@@ -68,8 +68,7 @@ def make_func(
     see_also: str = "",
     examples: str = "",
 ):
-    def f(x, y):
-        ...
+    def f(x, y): ...
 
     f.__doc__ = form_doc(summary, extended, params, returns, see_also, examples)
     return f
@@ -84,19 +83,16 @@ def make_class(
     class Class:
         if init_doc is not None:
 
-            def __init__(self, x: int) -> None:
-                ...
+            def __init__(self, x: int) -> None: ...
 
         if method_doc:
 
-            def method(self, y: str):
-                ...
+            def method(self, y: str): ...
 
         if property_doc:
 
             @property
-            def prop(self):
-                ...
+            def prop(self): ...
 
     if class_doc is not None:
         Class.__doc__ = class_doc
@@ -405,8 +401,7 @@ def test_validates_respects_comments(obj, num_err):
 
 
 class Parent:
-    def f(self):
-        ...
+    def f(self): ...
 
 
 class Child(Parent):
@@ -417,8 +412,7 @@ class Child(Parent):
 
 
 class AProtocol(Protocol):
-    def meth(self):
-        ...
+    def meth(self): ...
 
 
 class ATypedDict(TypedDict):

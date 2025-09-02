@@ -91,7 +91,7 @@ def mock_target_batches() -> Sequence[Sequence[od.TargetType]]:
 
 
 def _create_od_target_batch(
-    boxes: list[tuple[int, int, int, int]]
+    boxes: list[tuple[int, int, int, int]],
 ) -> Sequence[od.TargetType]:
     """
     Creates a single instance of an ObjectDetectionTarget, from the input boxes.

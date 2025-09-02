@@ -32,6 +32,7 @@ def cleandir() -> Iterable[str]:
     >>> @pytest.mark.usefixtures("cleandir")
     ... def test_writes_some_file():
     ...     from pathlib import Path
+    ...
     ...     Path("dummy.txt").touch()  # file will be written to a tmp dir
     """
     with tempfile.TemporaryDirectory() as tmpdirname:

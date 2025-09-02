@@ -1,19 +1,12 @@
 repos:
--   repo: https://github.com/psf/black-pre-commit-mirror
-    rev: 23.12.1
-    hooks:
-    - id: black
-      language_version: python3
--   repo: https://github.com/PyCQA/flake8
-    rev: 6.0.0
-    hooks:
-    - id: flake8
--   repo: https://github.com/pre-commit/mirrors-isort
-    rev: v5.10.1
-    hooks:
-    -   id: isort
--   repo: https://github.com/codespell-project/codespell
-    rev: v2.2.6
-    hooks:
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.12.4
+  hooks:
+    - id: ruff-check
+      args: [ --fix ]
+    - id: ruff-format
+- repo: https://github.com/codespell-project/codespell
+  rev: v2.2.6
+  hooks:
     - id: codespell
-      exclude: \.(ipynb|lock)$
+      exclude: \.(ipynb|lock|svg)$

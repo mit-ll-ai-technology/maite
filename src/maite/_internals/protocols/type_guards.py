@@ -11,8 +11,7 @@ from ..compat import TypedDict
 
 # Can't bound typevar with TypedDict directly because it is actually a metaclass,
 # So we can create an empty TypedDict for this
-class TypedDictClass(TypedDict):
-    ...
+class TypedDictClass(TypedDict): ...
 
 
 K = TypeVar("K")

@@ -14,8 +14,10 @@ from typing import (
     NamedTuple,
     TypeVar,
     Union,
-    get_args as get_type_args,
     overload,
+)
+from typing import (
+    get_args as get_type_args,
 )
 
 from maite._internals.protocols.providers import (
@@ -115,12 +117,9 @@ class _ProviderRegistry:
         >>> from collections.abc import Iterable
         >>> from maite.protocols.image_classification import Dataset
         >>> class SimpleProvider:
-        ...     def help(self, name) -> str:
-        ...         ...
-        ...     def list_datasets(self) -> Iterable[str]:
-        ...         ...
-        ...     def load_dataset(self) -> Dataset:
-        ...         ...
+        ...     def help(self, name) -> str: ...
+        ...     def list_datasets(self) -> Iterable[str]: ...
+        ...     def load_dataset(self) -> Dataset: ...
         >>> _ProviderRegistry.register_impl(SimpleProvider, key="simple_provider")
         """
         if key in cls.registered_providers:
@@ -232,25 +231,23 @@ PT = TypeVar("PT", bound=AnyProvider)
 
 
 @overload
-def register_provider(provider_type: type[PT], *, key: str | None = None) -> type[PT]:
-    ...
+def register_provider(
+    provider_type: type[PT], *, key: str | None = None
+) -> type[PT]: ...
 
 
 @overload
 def register_provider(
     provider_type: None,
-) -> Callable[[type[PT]], type[PT]]:
-    ...
+) -> Callable[[type[PT]], type[PT]]: ...
 
 
 @overload
-def register_provider(*, key: str | None = None) -> Callable[[type[PT]], type[PT]]:
-    ...
+def register_provider(*, key: str | None = None) -> Callable[[type[PT]], type[PT]]: ...
 
 
 @overload
-def register_provider(provider_type: type[PT]) -> type[PT]:
-    ...
+def register_provider(provider_type: type[PT]) -> type[PT]: ...
 
 
 def register_provider(
@@ -287,16 +284,19 @@ def register_provider(
     ...     def __init__(self, data: Dataset, name: str):
     ...         self.dataset = data
     ...         self.name = name
+    ...
     ...     def help(self, name):
     ...         return "This provider only has one dataset, there is no information about it"
+    ...
     ...     def list_datasets(self):
     ...         return [self.name]
+    ...
     ...     def load_dataset(self):
     ...         return self.dataset
 
     The type can be registered with an explicit key, by calling the function
 
-    >>> register_provider(SimpleProvider, key="simple") # type: ignore
+    >>> register_provider(SimpleProvider, key="simple")  # type: ignore
     <class 'src.maite._internals.interop.provider_registry.SimpleProvider'>
 
     Classes which define the ``PROVIDER_REGISTRY_KEY`` attribute can be registered
@@ -304,31 +304,30 @@ def register_provider(
 
     >>> class SimpleProviderWithKeyDef(SimpleProvider):
     ...     PROVIDER_REGISTRY_KEY = "another_simple"
-    >>> register_provider(SimpleProviderWithKeyDef) # type: ignore
+    >>> register_provider(SimpleProviderWithKeyDef)  # type: ignore
     <class 'src.maite._internals.interop.provider_registry.SimpleProviderWithKeyDef'>
 
     This function can also act as a decorator on the class definition
 
-    >>> @register_provider # type: ignore
+    >>> @register_provider  # type: ignore
     ... class SimpleProviderWithKeyDefDecorated(SimpleProvider):
     ...     PROVIDER_REGISTRY_KEY = "decorated_simple"
 
     Or without implying the key from the class attribute
 
-    >>> @register_provider(key="key_decorated") # type: ignore
-    ... class SimpleProviderDecorated(SimpleProvider):
-    ...     ...
+    >>> @register_provider(key="key_decorated")  # type: ignore
+    ... class SimpleProviderDecorated(SimpleProvider): ...
 
     All of these implement the DatasetProvider protocol so they will be registered with
     the factory and associated with "dataset" protocol.
 
-    >>> list_providers(enforce_protocol='dataset')  # doctest: +SKIP
+    >>> list_providers(enforce_protocol="dataset")  # doctest: +SKIP
     ['simple', 'another_simple', 'decorated_simple', 'key_decorated'] NOTE: registration of providers with a singleton (i.e. the registry) is creating a coupling between tests, need to figure out how to handle it
 
     However, they will not be associated with other artifact types as they don't
     implement the necessary interface.
 
-    >>> list_providers(enforce_protocol='model')
+    >>> list_providers(enforce_protocol="model")
     []
     """
 
@@ -389,16 +388,19 @@ def list_providers(enforce_protocol: ArtifactName | None = None) -> list[str]:
     ...     def __init__(self, data: Dataset, name: str):
     ...         self.dataset = data
     ...         self.name = name
+    ...
     ...     def help(self, name):
     ...         return "This provider only has one dataset, there is no information about it"
+    ...
     ...     def list_datasets(self):
     ...         return [self.name]
+    ...
     ...     def load_dataset(self):
     ...         return self.dataset
 
-    >>> register_provider(MyProvider, key='my_provider') # type: ignore
+    >>> register_provider(MyProvider, key="my_provider")  # type: ignore
     <class 'src.maite._internals.interop.provider_registry.MyProvider'>
-    >>> 'my_provider' in list_providers()
+    >>> "my_provider" in list_providers()
     True
     """
     return _ProviderRegistry.list_registered(enforce_protocol)
@@ -430,15 +432,12 @@ def get_provider_type(
     Examples
     --------
     >>> class MyProvider:
-    ...     def list_datasets(self):
-    ...         ...
-    ...     def load_dataset(self):
-    ...         ...
-    ...     def help(self):
-    ...         ...
-    >>> register_provider(MyProvider, key='my_provider') # type: ignore
+    ...     def list_datasets(self): ...
+    ...     def load_dataset(self): ...
+    ...     def help(self): ...
+    >>> register_provider(MyProvider, key="my_provider")  # type: ignore
     <class 'src.maite._internals.interop.provider_registry.MyProvider'>
-    >>> get_provider_type('my_provider') is MyProvider
+    >>> get_provider_type("my_provider") is MyProvider
     True
     """
     return _ProviderRegistry.get_impl(key, enforce_protocol)
@@ -481,21 +480,19 @@ def create_provider(
 
     Examples
     --------
-    >>> @register_provider(key='my_provider') # type: ignore
+    >>> @register_provider(key="my_provider")  # type: ignore
     ... class MyProvider:
-    ...    def __init__(self, arg1, arg2):
-    ...        self.arg1 = arg1
-    ...        self.arg2 = arg2
-    ...    def list_datasets(self):
-    ...         ...
-    ...    def load_dataset(self):
-    ...         ...
-    ...    def help(self):
-    ...         ...
-    >>> p = create_provider(key='my_provider', provider_args=('a', 'b'))
-    >>> p.arg1 # type: ignore
+    ...     def __init__(self, arg1, arg2):
+    ...         self.arg1 = arg1
+    ...         self.arg2 = arg2
+    ...
+    ...     def list_datasets(self): ...
+    ...     def load_dataset(self): ...
+    ...     def help(self): ...
+    >>> p = create_provider(key="my_provider", provider_args=("a", "b"))
+    >>> p.arg1  # type: ignore
     'a'
-    >>> p.arg2 # type: ignore
+    >>> p.arg2  # type: ignore
     'b'
     """
     _args = provider_args or ()

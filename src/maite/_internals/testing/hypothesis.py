@@ -37,7 +37,7 @@ def image_data(
     --------
     >>> import hypothesis.strategies as st
     >>> from maite.testing.hypothesis import image_data
-    >>> st.composite(image_data)().example()    # nondeterministic --> # doctest: +SKIP
+    >>> st.composite(image_data)().example()  # nondeterministic --> # doctest: +SKIP
     array([[[  0,  10,  20]]])
     """
     # Generate a random width and height for the image
