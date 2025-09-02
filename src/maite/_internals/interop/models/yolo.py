@@ -42,33 +42,41 @@ class YoloObjectDetector:
 
     Import relevant Python libraries.
 
+    >>> import io
+    >>> import contextlib
     >>> import numpy as np
     >>> from typing_extensions import Sequence
     >>> from ultralytics import YOLO
     >>> from maite.interop.models.yolo import YoloObjectDetector
     >>> from maite.protocols import object_detection as od
 
+    In the following code, we capture stdout and stderr to make automated docstring testing easier. This is not necessary for typical use.
+
     Load an Ultralytics-hosted YOLOv5 model, 'yolov5nu',
 
-    >>> yolov5_model = YOLO("yolov5nu")
+    >>> with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+    ...     yolov5_model = YOLO("yolov5nu")
     >>> metadata = ModelMetadata(id="YOLOv5nu", index2label=yolov5_model.names)
     >>> wrapped_yolov5_model = YoloObjectDetector(yolov5_model, metadata)
 
     or, load an Ultralytics YOLOv5 model from a local filepath.
 
-    >>> yolov5_model = YOLO("./yolov5nu.pt")
+    >>> with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+    ...     yolov5_model = YOLO("./yolov5nu.pt")
     >>> metadata = ModelMetadata(id="YOLOv5nu", index2label=yolov5_model.names)
     >>> wrapped_yolov5_model = YoloObjectDetector(yolov5_model, metadata)
 
     Load an Ultralytics-hosted YOLOv8 model, 'yolov8n',
 
-    >>> yolov8_model = YOLO("yolov8n")
+    >>> with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+    ...     yolov8_model = YOLO("yolov8n")
     >>> metadata = ModelMetadata(id="YOLOv8n", index2label=yolov8_model.names)
     >>> wrapped_yolov8_model = YoloObjectDetector(yolov8_model, metadata)
 
     or, load an Ultralytics YOLOv8 model from a local filepath.
 
-    >>> yolov8_model = YOLO("./yolov8n.pt")
+    >>> with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+    ...     yolov8_model = YOLO("./yolov8n.pt")
     >>> metadata = ModelMetadata(id="YOLOv8n", index2label=yolov8_model.names)
     >>> wrapped_yolov8_model = YoloObjectDetector(yolov8_model, metadata)
 
