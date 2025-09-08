@@ -37,11 +37,12 @@ protocols
 tasks
 -----
 
-.. autosummary:: 
+.. autosummary::
    :caption: tasks
    :toctree: generated/
    :template: protocol_class.rst
 
+   tasks.augment_dataloader
    tasks.evaluate
    tasks.predict
    tasks.evaluate_from_predictions
