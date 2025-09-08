@@ -5,14 +5,41 @@
 import numpy as np
 import pytest
 
+import maite.protocols.image_classification as ic
 from maite._internals.protocols import generic as gen
-from maite.tasks import evaluate, predict
+from maite._internals.tasks.generic import _SimpleDataLoader
+from maite.tasks import augment_dataloader, evaluate, predict
 from tests.component_impls import (
     ic_simple_component_impls as ici,
 )
 from tests.component_impls import (
     od_simple_component_impls as odi,
 )
+
+
+def test_ic_augment_dataloader(
+    ic_mock_dataset: ic.Dataset,
+    ic_mock_augmentation: ic.Augmentation,
+):
+    ic_mock_dataloader = _SimpleDataLoader(ic_mock_dataset, 2)
+
+    dataloader = augment_dataloader(
+        augmentation=ic_mock_augmentation, dataloader=ic_mock_dataloader
+    )
+    batches = list(dataloader)
+    inputs = [item for batch in batches for item in batch[0]]
+
+    assert len(ic_mock_dataset) == len(inputs), (
+        "size dataloader should match dataset size"
+    )
+
+    i = 3
+    x = inputs[i]
+    x = np.asarray(x)  # bridge
+    expected_value = (i + 1) % 10
+    assert x[0][0][0] == expected_value, (
+        f"mock augmentation should bump first value in data point {i} from {i} to {expected_value}"
+    )
 
 
 def test_simple_ic_structural(

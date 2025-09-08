@@ -64,6 +64,7 @@ class _DummyMetric(Metric):
 T_input = TypeVar("T_input")
 T_target = TypeVar("T_target")
 T_metadata = TypeVar("T_metadata")
+T_metadata_aug = TypeVar("T_metadata_aug")
 
 
 def default_collate_fn(
@@ -143,6 +144,41 @@ class _SimpleDataLoader(Generic[T_input, T_target, T_metadata]):
 
             return ceil(len(self.dataset) / self.batch_size)
         return len(self.dataset)
+
+
+def augment_dataloader(
+    *,
+    augmentation: Augmentation[
+        T_input,
+        T_target,
+        T_metadata_aug,
+        T_input,
+        T_target,
+        T_metadata,
+    ],
+    dataloader: DataLoader[T_input, T_target, T_metadata],
+) -> DataLoader[T_input, T_target, T_metadata_aug]:
+    # doc-ignore: EX01, YD01
+    # YD01 We prefer to document the function as returning a DataLoader, rather than yielding augmented batch elements.
+    """
+    Create an `DataLoader` of augmented inputs from a `Dataset` or `DataLoader`.
+
+    Parameters
+    ----------
+    augmentation : Augmentation
+        Compatible maite augmentation.
+
+    dataloader : Dataloader
+        Compatible maite dataloader.
+
+    Returns
+    -------
+    DataLoader[InputType, TargetType, DatumMetadataType]
+        DataLoader for augmented inputs.
+    """
+    for input_batch in add_progress_bar(dataloader):
+        augmented_batch = augmentation(input_batch)
+        yield augmented_batch
 
 
 # begin all overloads for evaluate function

@@ -3,6 +3,16 @@
 # SPDX-License-Identifier: MIT
 
 
-from maite._internals.tasks.generic import evaluate, evaluate_from_predictions, predict
+from maite._internals.tasks.generic import (
+    augment_dataloader,
+    evaluate,
+    evaluate_from_predictions,
+    predict,
+)
 
-__all__ = ["evaluate", "evaluate_from_predictions", "predict"]
+__all__ = [
+    "augment_dataloader",
+    "evaluate",
+    "evaluate_from_predictions",
+    "predict",
+]

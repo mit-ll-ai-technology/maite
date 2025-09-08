@@ -32,7 +32,7 @@ This dynamic sets up the JATIC ecosystem to be a rich, modular, and extensible s
    :width: 600
    :align: center
 
-Above: MAITE standards permit compatible components and tasks to be reused in multiple T&E pipelines with minimal shim code written by an integrator. 
+Above: MAITE standards permit compatible components and tasks to be reused in multiple T&E pipelines with minimal shim code written by an integrator.
 
 Design Objectives
 =================
@@ -48,7 +48,7 @@ The design of the MAITE standard is structured around the following objectives:
 Interoperable Object Concepts: "Components", "Tasks", and "Primitives"
 ======================================================================
 
-In the context of AI T&E libraries, the term "component" may be referring to AI-relevant objects (e.g., a Model, Dataset, Metric, etc.) or simply AI-relevant procedures (e.g., ``augment_dataset(...)``, ``evaluate_model(...)``, etc.).
+In the context of AI T&E libraries, the term "component" may be referring to AI-relevant objects (e.g., a Model, Dataset, Metric, etc.) or simply AI-relevant procedures (e.g., ``augment_dataloader(...)``, ``evaluate_model(...)``, etc.).
 MAITE provides AI-task-specific [#mltask]_ behavioral expectations [#behavioral_expectations]_ for several recognizable objects [#ml_component_list]_ and refers to objects meeting one of these definitions as "MAITE components".
 Alternatively, procedures ("callables" in Python nomenclature) that accept and return (arbitrary) [#arbitrary]_ MAITE component implementers are termed "MAITE tasks".
 
@@ -56,13 +56,13 @@ To be more precise, more rigorous definitions are included below:
 
 **MAITE component**
   Implementer of a MAITE-defined Python protocol class (Dataloader, Dataset, Augmentation, Model, or Metric) that follows prescribed semantics [#protocol_classes]_
-  
+
 **MAITE task**
   A Python callable that:
 
   * accepts only arguments typed as MAITE components [#includes_containers]_ or MAITE primitives [#includes_containers]_
   * returns MAITE components [#includes_containers]_, MAITE primitives [#includes_containers]_, and/or Python objects of built-in/broadly-accepted [#common_structures]_ types with well-documented semantics [#non_consumables]_
-  
+
 **MAITE primitive**
   Object with class and semantics of a member variable type, argument type, or return type of a MAITE-defined Python protocol class
 
@@ -111,7 +111,7 @@ Footnotes
 
 .. [#arbitrary] The "arbitrary" modifier is necessary if we care about callable interoperability because a callable that doesn't accept *certain* varieties of MAITE-conforming AI objects isn't generally interoperable. It doesn't accept MAITE-conforming AI objects per se, only more specialized structures that happen to be MAITE-conforming. This is a consequence of callable type contravariance with respect to argument types.
 
-.. [#protocol_classes] In practice, these contracts are defined using Python classes that obey structural subtyping (viz. Python protocol classes or Python ``TypedDict`` classes). All object variables, methods, and type signatures can be checked via a static type checker. Semantic conditions of these contracts cannot be checked via a static type checker, but are documented in the protocol class definitions themselves. 
+.. [#protocol_classes] In practice, these contracts are defined using Python classes that obey structural subtyping (viz. Python protocol classes or Python ``TypedDict`` classes). All object variables, methods, and type signatures can be checked via a static type checker. Semantic conditions of these contracts cannot be checked via a static type checker, but are documented in the protocol class definitions themselves.
 
 .. [#includes_containers] This includes built-in containers thereof.
 
