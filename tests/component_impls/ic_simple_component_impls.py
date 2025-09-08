@@ -169,6 +169,10 @@ class MockDataset:
     """CIFAR-10 shaped dummy dataset with image_i[:,:,:] = i and class_i = (i % 10)."""
 
     def __init__(self, size: int = 8):
+        # Require dataset size to be even so expected accuracy easier to predict when modifying odd instances
+        assert size % 2 == 0, (
+            "size of mock dataset must be even to support tests more easily"
+        )
         self.size = size
         self.metadata = DatasetMetadata(id="MockDataset")
 
@@ -205,7 +209,7 @@ class MockModel:
 
 
 class MockAugmentation:
-    """Changes x[0,0,0] to x[0,0,0] + 1 for each input x in batch."""
+    """Changes x[0,0,0] to x[0,0,0] + 1 for each input x in batch where int(x[0,0,0]) % 2 is 1."""
 
     def __init__(self):
         self.metadata = AugmentationMetadata(id="MockAugmentation")
@@ -220,6 +224,37 @@ class MockAugmentation:
         xb_aug = []
         for x in xb:
             x_aug = np.array(x)  # copy
-            x_aug[0, 0, 0] += 1
+            x_aug[0, 0, 0] += 1 if int(x_aug[0, 0, 0]) % 2 == 1 else 0
             xb_aug.append(x_aug)
         return xb_aug, yb, mdb
+
+
+class SimpleAccuracyMetric:
+    metadata: MetricMetadata = {"id": "A simple accuracy metric"}
+
+    def __init__(self) -> None:
+        self._total = 0
+        self._correct = 0
+
+    def reset(self) -> None:
+        self._total = 0
+        self._correct = 0
+
+    def update(self, preds: Sequence[ArrayLike], targets: Sequence[ArrayLike]) -> None:
+        model_probs = [np.array(r) for r in preds]
+        true_onehot = [np.array(r) for r in targets]
+
+        # Stack into single array, convert to class indices
+        model_classes = np.vstack(model_probs).argmax(axis=1)
+        truth_classes = np.vstack(true_onehot).argmax(axis=1)
+
+        # Compare classes and update running counts
+        same = model_classes == truth_classes
+        self._total += len(same)
+        self._correct += same.sum()
+
+    def compute(self) -> dict[str, Any]:
+        if self._total > 0:
+            return {"accuracy": self._correct / self._total}
+        else:
+            raise RuntimeError("No batches processed yet.")

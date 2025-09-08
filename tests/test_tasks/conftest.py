@@ -83,3 +83,9 @@ def od_simple_model() -> od.Model:
 @pytest.fixture(scope="module")
 def od_simple_metric() -> od.Metric:
     return odi.MetricImpl()
+
+
+# --- ic component fixtures for "functional" evaluate tests ---
+@pytest.fixture(scope="module")
+def ic_accuracy_metric() -> ic.Metric:
+    return ici.SimpleAccuracyMetric()
