@@ -9,4 +9,9 @@ repos:
   rev: v2.2.6
   hooks:
     - id: codespell
-      exclude: \.(ipynb|lock|svg)$
+      exclude: \.(ipynb|lock)$
+- repo: https://github.com/kynan/nbstripout
+  rev: 0.8.1
+  hooks:
+    - id: nbstripout
+      args: ['--extra-keys=metadata.kernelspec metadata.language_info']
