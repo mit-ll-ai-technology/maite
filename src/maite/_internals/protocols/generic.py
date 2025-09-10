@@ -4,14 +4,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable, Iterator, Sequence
-from typing import (
-    Any,
-    Callable,
-    Generic,
-    Protocol,
-    TypeVar,
-    runtime_checkable,
-)
+from typing import Any, Callable, Generic, Protocol, TypeVar, runtime_checkable
 
 from typing_extensions import NotRequired, ReadOnly, Required, TypeAlias
 

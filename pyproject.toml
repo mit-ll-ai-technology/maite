@@ -69,7 +69,7 @@ builddocs = [
 # (in addition to those listed in 'test' and 'builddocs' extras)
 dev = [
   "tox",
-  "pre-commit"
+  "pre-commit",
 ]
 
 # dependencies required to use YOLO model wrappers
