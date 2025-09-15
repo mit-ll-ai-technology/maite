@@ -11,7 +11,6 @@ import torchmetrics
 import torchmetrics.classification
 
 import maite.protocols.image_classification as ic
-from maite.errors import InvalidArgument
 from maite.protocols import ArrayLike, MetricMetadata
 
 
@@ -216,7 +215,7 @@ class TMClassificationMetric:
         TMClassificationMetric._assert_valid_classification_metric(metric)
 
         if output_key is not None and output_transform is not None:
-            raise InvalidArgument(
+            raise ValueError(
                 "Only one of `output_key` and `output_transform` may be provided"
             )
 

@@ -11,8 +11,6 @@ from enum import Enum, EnumMeta
 from itertools import chain
 from typing import Any, Callable, Protocol, TypeVar, Union, overload, runtime_checkable
 
-from maite.errors import InvalidArgument
-
 T = TypeVar("T")
 N = TypeVar("N", int, float)
 C = TypeVar("C", bound="Comparable")
@@ -71,7 +69,7 @@ def check_type(
 
     Raises
     ------
-    InvalidArgument
+    ValueError
         `arg` is not of the expected type.
 
     Examples
@@ -84,9 +82,9 @@ def check_type(
     ...     check_type("apple", 1, bool)
     ... except:
     ...     print(
-    ...         "maite.errors.InvalidArgument: Expected `apple` to be of type `bool`. Got `1` (type: `int`)."
+    ...         "ValueError: Expected `apple` to be of type `bool`. Got `1` (type: `int`)."
     ...     )
-    maite.errors.InvalidArgument: Expected `apple` to be of type `bool`. Got `1` (type: `int`).
+    ValueError: Expected `apple` to be of type `bool`. Got `1` (type: `int`).
 
     >>> check_type("apple", 1, (int, bool))
     1
@@ -103,7 +101,7 @@ def check_type(
         else:
             clause = f"of type {_safe_name(type_)}"
 
-        raise InvalidArgument(
+        raise ValueError(
             f"Expected `{name}` to be {'`None` or ' if optional else ''}{clause}. Got "
             f"`{arg}` (type: {_safe_name(type(arg))})."
         )
@@ -189,7 +187,7 @@ def check_domain(
 
     Raises
     ------
-    InvalidArgument
+    ValueError
         `arg` does not satisfy the inequality.
 
     Unsatisfiable
@@ -202,16 +200,14 @@ def check_domain(
     >>> try:
     ...     check_domain("x", 1, lower=20)
     ... except:
-    ...     print(
-    ...         "maite.errors.InvalidArgument: `x` must satisfy `20 <= x`.  Got: `1`."
-    ...     )
-    maite.errors.InvalidArgument: `x` must satisfy `20 <= x`.  Got: `1`.
+    ...     print("ValueError: `x` must satisfy `20 <= x`.  Got: `1`.")
+    ValueError: `x` must satisfy `20 <= x`.  Got: `1`.
 
     >>> try:
     ...     check_domain("x", 1, lower=1, incl_low=False)
     ... except:
-    ...     print("maite.errors.InvalidArgument: `x` must satisfy `1 < x`.  Got: `1`.")
-    maite.errors.InvalidArgument: `x` must satisfy `1 < x`.  Got: `1`.
+    ...     print("ValueError: `x` must satisfy `1 < x`.  Got: `1`.")
+    ValueError: `x` must satisfy `1 < x`.  Got: `1`.
 
     >>> check_domain("x", 1, lower=1, incl_low=True)  # ok
     1
@@ -260,7 +256,7 @@ def check_domain(
 
         err_msg += f"`.  Got: `{arg}`."
 
-        raise InvalidArgument(err_msg)
+        raise ValueError(err_msg)
     return arg
 
 
@@ -306,7 +302,7 @@ def check_one_of(
 
     Raises
     ------
-    InvalidArgument
+    ValueError
         `arg` is not of a member of `collections` nor `vals`.
 
     Unsatisfiable
@@ -318,10 +314,8 @@ def check_one_of(
     >>> try:
     ...     check_one_of("foo", None, [1, 2])
     ... except:
-    ...     print(
-    ...         "maite.errors.InvalidArgument: Expected `foo` to be one of: 1, 2. Got `None`."
-    ...     )
-    maite.errors.InvalidArgument: Expected `foo` to be one of: 1, 2. Got `None`.
+    ...     print("ValueError: Expected `foo` to be one of: 1, 2. Got `None`.")
+    ValueError: Expected `foo` to be one of: 1, 2. Got `None`.
 
     Including `None` as an acceptable value
 
@@ -336,8 +330,8 @@ def check_one_of(
     >>> try:
     ...     check_one_of("foo", 1, [True], requires_identity=True)
     ... except:
-    ...     print("maite.errors.InvalidArgument: Expected `foo` to be: True. Got `1`.")
-    maite.errors.InvalidArgument: Expected `foo` to be: True. Got `1`.
+    ...     print("ValueError: Expected `foo` to be: True. Got `1`.")
+    ValueError: Expected `foo` to be: True. Got `1`.
 
     Support for enums:
 
@@ -350,9 +344,9 @@ def check_one_of(
     ...     check_one_of("bar", 88, Pet)
     ... except:
     ...     print(
-    ...         "maite.errors.InvalidArgument: Expected `bar` to be one of: Pet.cat, Pet.dog. Got `88`."
+    ...         "ValueError: Expected `bar` to be one of: Pet.cat, Pet.dog. Got `88`."
     ...     )
-    maite.errors.InvalidArgument: Expected `bar` to be one of: Pet.cat, Pet.dog. Got `88`.
+    ValueError: Expected `bar` to be one of: Pet.cat, Pet.dog. Got `88`.
     >>> check_one_of("bar", Pet.cat, Pet)
     <Pet.cat: 1>
     """
@@ -370,7 +364,7 @@ def check_one_of(
     if not values:
         raise Unsatisfiable("`collections` and `args` are both empty.")
 
-    raise InvalidArgument(
+    raise ValueError(
         f"Expected `{name}` to be{' one of' if len(values) > 1 else ''}: "
         f"{', '.join(values)}. Got `{arg}`."
     )
@@ -388,7 +382,7 @@ def chain_validators(*validators: Callable[[str, Any], Any]) -> Callable[[str, T
     ----------
     *validators : Callable[[str, T], T]
         Accepts `name` and `arg`, and returns `arg` if it is a valid input, otherwise
-        should raise `InvalidArgument`.
+        should raise `ValueError`.
 
     Returns
     -------
@@ -409,16 +403,14 @@ def chain_validators(*validators: Callable[[str, Any], Any]) -> Callable[[str, T
     ...     check_pos_int("foo", ["a"])
     ... except:
     ...     print(
-    ...         "maite.errors.InvalidArgument: Expected `foo` to be of type `int`. Got `['a']` (type: `list`)."
+    ...         "ValueError: Expected `foo` to be of type `int`. Got `['a']` (type: `list`)."
     ...     )
-    maite.errors.InvalidArgument: Expected `foo` to be of type `int`. Got `['a']` (type: `list`).
+    ValueError: Expected `foo` to be of type `int`. Got `['a']` (type: `list`).
     >>> try:
     ...     check_pos_int("foo", -1)
     ... except:
-    ...     print(
-    ...         "maite.errors.InvalidArgument: `foo` must satisfy `0 <= foo`.  Got: `-1`."
-    ...     )
-    maite.errors.InvalidArgument: `foo` must satisfy `0 <= foo`.  Got: `-1`.
+    ...     print("ValueError: `foo` must satisfy `0 <= foo`.  Got: `-1`.")
+    ValueError: `foo` must satisfy `0 <= foo`.  Got: `-1`.
     """
 
     def chain(name: str, arg: T) -> T:

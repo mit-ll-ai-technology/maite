@@ -16,7 +16,6 @@ from typing import Any, Callable, Literal, Protocol, Union, cast, get_args, over
 from typing_extensions import NotRequired, ReadOnly, TypeAlias
 
 from maite._internals.validation import check_type
-from maite.errors import InvalidArgument
 
 from ..compat import TypedDict
 from ..utils import is_typed_dict
@@ -135,6 +134,31 @@ def validate_docstring(
 ) -> NumPyDocResults: ...
 
 
+def person(name: str, age: int) -> None:
+    """
+    Enter person ID info.
+
+    Parameters
+    ----------
+    name : str
+        The person's first name.
+    age : int
+        The person's age.
+
+    Returns
+    -------
+    None
+        Nothing.
+
+    Examples
+    --------
+    >>> from maite._internals.testing.docs import person
+    >>> person("Brad", 22)
+    """
+
+    return
+
+
 def validate_docstring(
     obj: Any,
     ignore: Collection[NumpyDocErrorCode] = ("SA01",),
@@ -147,10 +171,10 @@ def validate_docstring(
     """
     Validate an object's docstring against the NumPy docstring standard [1]_.
 
-    The body of a function or class can include a comment of the format:: 
+    The body of a function or class can include a comment of the format::
 
        # doc-ignore: <CODE1> <CODE2> [...]
-    
+
     where each <CODEN> is any error code listed in the Notes section. This will cause
     `validate_docstring` to ignore said error code during its analysis.
 
@@ -186,8 +210,8 @@ def validate_docstring(
 
     ignore_via_comments_allowed : bool, optional (default=True)
         If `True` then the source code of `obj` will be parsed for comments of the form
-        # doc-ignore: <CODE1> <CODE2> [...] to extract additional error codes that 
-        will be ignored during the validation process. Class properties are not 
+        # doc-ignore: <CODE1> <CODE2> [...] to extract additional error codes that
+        will be ignored during the validation process. Class properties are not
         supported.
 
     Returns
@@ -248,14 +272,14 @@ def validate_docstring(
 
     Examples
     --------
-    >>> from maite.testing.docs import validate_docstring
-    >>> from maite.testing.documentation.documentation_dependencies import person
-    
+    >>> from maite._internals.testing.docs import validate_docstring
+    >>> from maite._internals.testing.docs import person
+
     Let's ignore the need for an Extended Summary and a See Also section.
 
     >>> validate_docstring(person, ignore=('ES01', 'SA01'), include_ignored_errors=True)
     {'error_count': 0, 'errors': {}, ...'ignored_errors': {'ES01': ['No extended summary found'], 'SA01': ['See Also section not found']}...
-    
+
     Using comments to skip validation.
 
     >>> def f():
@@ -299,7 +323,7 @@ def validate_docstring(
     ]:
         if not _codes <= ERRORCODES:
             unknown = ", ".join(sorted(_codes - ERRORCODES))
-            raise InvalidArgument(
+            raise ValueError(
                 f"`{_name}` contains the following elements that are not valid error "
                 f"code(s): {unknown}"
             )

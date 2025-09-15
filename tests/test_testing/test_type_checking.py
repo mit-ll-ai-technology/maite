@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pytest
 
-from maite.testing.pyright import list_error_messages, pyright_analyze
+from maite._internals.testing.pyright import list_error_messages, pyright_analyze
 
 
 def test_pyright_catches_errors():
@@ -113,9 +113,9 @@ rst_good_1 = """
     .. code-block:: python
 
        from pathlib import Path
-   
+
        def print_file(x: Path) -> None:
-           with x.open("r") as f: 
+           with x.open("r") as f:
                print(f.read())
 """
 
@@ -125,7 +125,7 @@ rst_good_2 = """
        >>> from pathlib import Path
        >>>
        >>> def print_file(x: Path) -> None:
-       ...     with x.open("r") as f: 
+       ...     with x.open("r") as f:
        ...         print(f.read())
 """
 
@@ -133,9 +133,9 @@ rst_bad_1 = """
     .. code-block:: python
 
        from pathlib import Path
-   
+
        def print_file(x: int) -> None:
-           with x.open("r") as f: 
+           with x.open("r") as f:
                print(f.read())
 """
 
@@ -145,7 +145,7 @@ rst_bad_2 = """
        >>> from pathlib import Path
        >>>
        >>> def print_file(x: int) -> None:
-       ...     with x.open("r") as f: 
+       ...     with x.open("r") as f:
        ...         print(f.read())
 """
 
@@ -173,9 +173,9 @@ md_good_1 = """
 
     ```python
        from pathlib import Path
-   
+
        def print_file(x: Path) -> None:
-           with x.open("r") as f: 
+           with x.open("r") as f:
                print(f.read())
     ```
     ya ya
@@ -195,7 +195,7 @@ md_good_2 = """
     >>> from pathlib import Path
     >>>
     >>> def print_file(x: Path) -> None:
-    ...     with x.open("r") as f: 
+    ...     with x.open("r") as f:
     ...         print(f.read())
     ```
     ``pycon
@@ -206,9 +206,9 @@ md_good_2 = """
 md_bad_1 = """
     ```python
        from pathlib import Path
-   
+
        def print_file(x: int) -> None:
-           with x.open("r") as f: 
+           with x.open("r") as f:
                print(f.read())
     ```
 """
@@ -220,7 +220,7 @@ md_bad_2 = """
     >>> from pathlib import Path
     >>>
     >>> def print_file(x: int) -> None:
-    ...     with x.open("r") as f: 
+    ...     with x.open("r") as f:
     ...         print(f.read())
     ```
 """

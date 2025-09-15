@@ -15,7 +15,6 @@ from typing import Any, Literal, Union, get_args
 from typing_extensions import NotRequired
 
 from maite._internals.testing.pyright import PYRIGHT_PATH, Diagnostic, PyrightOutput
-from maite.errors import InvalidArgument
 from maite.utils.validation import check_one_of, check_type
 
 from ..compat import TypedDict
@@ -71,7 +70,7 @@ class CompletenessSection(TypedDict):
 class ModuleScanResults(PyrightOutput):
     """The schema for the JSON output of a type completeness scan.
 
-    The output type of `maite.testing.project.ModuleScan.__call__"""
+    The output type of `maite._internals.testing.project.ModuleScan.__call__"""
 
     # doc-ignore: NOQA
     typeCompleteness: CompletenessSection
@@ -138,7 +137,7 @@ class ModuleScan:
 
     Examples
     --------
-    >>> from maite.testing.project import ModuleScan
+    >>> from maite._internals.testing.project import ModuleScan
     >>> scanner = ModuleScan()
     >>> results = scanner("maite")
     >>> results["summary"]
@@ -148,21 +147,7 @@ class ModuleScan:
     >>> results["typeCompleteness"][
     ...     "symbols"
     ... ]  # will change as MAITE changes --> # doctest: +SKIP
-    [{'category': 'class',
-      'name': 'maite.errors.MaiteException',
-      'referenceCount': 3,
-      'isExported': True,
-      'isTypeKnown': True,
-      'isTypeAmbiguous': False,
-      'diagnostics': []},
-     {'category': 'class',
-      'name': 'maite.errors.InternalError',
-      'referenceCount': 1,
-      'isExported': True,
-      'isTypeKnown': True,
-      'isTypeAmbiguous': False,
-      'diagnostics': []},
-     ...]
+    [...]
     """
 
     def __init__(self) -> None:
@@ -285,7 +270,7 @@ def get_public_symbols(
     Return all public symbols (functions, classes, etc.) from a module's API.
 
     This function expects the results of a scan performed by
-    `maite.testing.project.ModuleScan`, which requires that `pyright` is
+    `maite._internals.testing.project.ModuleScan`, which requires that `pyright` is
     installed.
 
     Parameters
@@ -326,30 +311,16 @@ def get_public_symbols(
     --------
     Basic usage.
 
-    >>> from maite.testing.project import get_public_symbols, ModuleScan
+    >>> from maite._internals.testing.project import get_public_symbols, ModuleScan
     >>> scanner = ModuleScan()
     >>> results = scanner("maite")
     >>> get_public_symbols(results)  # will change as MAITE changes --> # doctest: +SKIP
-    [{'category': 'class',
-      'name': 'maite.errors.MaiteException',
-      'referenceCount': 3,
-      'isExported': True,
-      'isTypeKnown': True,
-      'isTypeAmbiguous': False,
-      'diagnostics': []},
-     {'category': 'class',
-      'name': 'maite.errors.InternalError',
-      'referenceCount': 1,
-      'isExported': True,
-      'isTypeKnown': True,
-      'isTypeAmbiguous': False,
-      'diagnostics': []},
-     ...]
+    [...]
 
     Accessing symbols from the `docs` submodule.
 
-    >>> get_public_symbols(results, submodule="maite.testing.docs")
-    [{'category': 'type alias', 'name': 'maite.testing.docs.NumpyDocErrorCode', 'referenceCount': 1, 'isExported': True, 'isTypeKnown': True, 'isTypeAmbiguous': False, 'diagnostics': []}, {'category': 'class', 'name': 'maite.testing.docs.NumPyDocResults', 'referenceCount': 1, 'isExported': True, 'isTypeKnown': True, 'isTypeAmbiguous': False, 'diagnostics'...
+    >>> get_public_symbols(results, submodule="maite.protocols")[0]
+    {'category': 'type alias', 'name': 'maite.protocols.ArrayLike', 'referenceCount': 1, 'isExported': True, 'isTypeKnown': True, 'isTypeAmbiguous': False, 'diagnostics': []}
     """
     check_type("scan", scan, Mapping)
     check_type("submodule", submodule, str)
@@ -363,7 +334,7 @@ def get_public_symbols(
         out = (x for x in out if not _is_dunder(x["name"]))
     if submodule:
         if any(not x.isidentifier() for x in submodule.split(".")):
-            raise InvalidArgument(f"{submodule} is not a valid module name.")
+            raise ValueError(f"{submodule} is not a valid module name.")
 
         _out = [x for x in out if x["name"].startswith(submodule)]
 
@@ -381,7 +352,7 @@ def import_public_symbols(
     Import and yield all public symbols (functions, classes, etc.) from a module's API.
 
     This function expects the results of a scan performed by
-    `maite.testing.project.ModuleScan`, which requires that `pyright` is
+    `maite._internals.testing.project.ModuleScan`, which requires that `pyright` is
     installed.
 
     Parameters
@@ -424,7 +395,7 @@ def import_public_symbols(
     --------
     Basic usage.
 
-    >>> from maite.testing.project import import_public_symbols, ModuleScan
+    >>> from maite._internals.testing.project import import_public_symbols, ModuleScan
     >>> scanner = ModuleScan()
     >>> results = scanner("pyright")
     >>> list(import_public_symbols(results))[:2]  # doctest: +ELLIPSIS

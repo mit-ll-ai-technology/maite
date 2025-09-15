@@ -12,7 +12,6 @@ import hypothesis.strategies as st
 import pytest
 from hypothesis import assume, given, settings
 
-from maite.errors import InvalidArgument
 from maite.utils.validation import (
     chain_validators,
     check_domain,
@@ -39,7 +38,7 @@ any_types = st.from_type(type)
     arg=st.shared(any_types, key="target_type").flatmap(everything_except),
 )
 def test_check_type_catches_bad_type(name, target_type, arg):
-    with pytest.raises(InvalidArgument):
+    with pytest.raises(ValueError):
         check_type(name, arg=arg, type_=target_type)
 
 
@@ -116,13 +115,13 @@ def test_min_max_ordering(kwargs):
     [
         pytest.param(
             {"arg": 1, "lower": 1, "incl_low": False},
-            marks=pytest.mark.xfail(raises=InvalidArgument, strict=True),
+            marks=pytest.mark.xfail(raises=ValueError, strict=True),
             id="lower:1 < arg:1",
         ),
         pytest.param({"arg": 1, "lower": 1, "incl_low": True}, id="lower:1 <= arg:1"),
         pytest.param(
             {"arg": 1, "upper": 1, "incl_up": False},
-            marks=pytest.mark.xfail(raises=InvalidArgument, strict=True),
+            marks=pytest.mark.xfail(raises=ValueError, strict=True),
             id="arg:1 < upper:1",
         ),
         pytest.param({"arg": 1, "upper": 1, "incl_up": True}, id="arg:1 <= upper:1"),
@@ -223,7 +222,7 @@ def test_check_one_of_catches_bad_inputs(arg, collection, vals, requires_identit
     if not collection and not vals:
         assume(False)
 
-    with pytest.raises(InvalidArgument):
+    with pytest.raises(ValueError):
         check_one_of("foo", arg, collection, *vals, requires_identity=requires_identity)
 
 

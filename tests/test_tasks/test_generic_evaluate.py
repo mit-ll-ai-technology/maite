@@ -14,8 +14,12 @@ from pathlib import Path
 
 import pytest
 
-from maite._internals.testing.pyright import chdir
-from maite.testing.pyright import PyrightOutput, list_error_messages, pyright_analyze
+from maite._internals.testing.pyright import (
+    PyrightOutput,
+    chdir,
+    list_error_messages,
+    pyright_analyze,
+)
 
 
 class TypeEnum(Enum):

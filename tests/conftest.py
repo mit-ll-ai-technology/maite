@@ -15,7 +15,7 @@ import pytest
 from hypothesis import settings
 
 from maite._internals import import_utils
-from maite.testing.pytest import cleandir  # noqa: F401
+from maite._internals.testing.pytest import cleandir  # noqa: F401
 from tests import all_dummy_subpkgs
 
 st.register_type_strategy(st.DataObject, st.data())
