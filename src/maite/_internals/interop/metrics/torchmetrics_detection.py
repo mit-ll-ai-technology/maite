@@ -96,7 +96,8 @@ class TMDetectionMetric:
     ...         scores=torch.Tensor([1.0]),
     ...     )
     ... ]
-    >>> wrapped_detect_metric.update(preds, targets)
+    >>> metadatas: Sequence[od.DatumMetadataType] = [{"id": 1}]
+    >>> wrapped_detect_metric.update(preds, targets, metadatas)
     >>> results = wrapped_detect_metric.compute()
     >>> print(results)
     {'MAP': tensor(1.)}
@@ -209,8 +210,9 @@ class TMDetectionMetric:
 
     def update(
         self,
-        preds: Sequence[od.TargetType],
-        targets: Sequence[od.TargetType],
+        pred_batch: Sequence[od.TargetType],
+        target_batch: Sequence[od.TargetType],
+        metadata_batch: Sequence[od.DatumMetadataType],
     ) -> None:
         # doc-ignore: EX01
         """
@@ -223,13 +225,15 @@ class TMDetectionMetric:
 
         Parameters
         ----------
-        preds : Sequence[od.TargetType]
+        pred_batch : Sequence[od.TargetType]
             Batch of predicted object detection targets.
-        targets : Sequence[od.TargetType]
+        target_batch : Sequence[od.TargetType]
             Batch of ground truth object detection targets.
+        metadata_batch : Sequence[ic.DatumMetadataType]
+            Batch of metadata.
         """
-        preds_tm = [self._format_for_tm(arr) for arr in preds]
-        targets_tm = [self._format_for_tm(arr) for arr in targets]
+        preds_tm = [self._format_for_tm(arr) for arr in pred_batch]
+        targets_tm = [self._format_for_tm(arr) for arr in target_batch]
         self.metric.update(preds_tm, targets_tm)
 
     def compute(self) -> dict[str, Any]:

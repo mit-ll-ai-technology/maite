@@ -259,7 +259,7 @@ class Model(gen.Model[InputType, TargetType], Protocol):
     """
 
 
-class Metric(gen.Metric[TargetType], Protocol):
+class Metric(gen.Metric[TargetType, DatumMetadataType], Protocol):
     """
     A metric protocol for the image classification AI task.
 
@@ -269,9 +269,9 @@ class Metric(gen.Metric[TargetType], Protocol):
     Methods
     -------
 
-    update(preds: Sequence[ArrayLike], targets: Sequence[ArrayLike]) -> None
-        Add predictions and targets to metric's cache for later calculation. Both
-        preds and targets are expected to be sequences with elements of shape `(Cl,)`.
+    update(pred_batch: Sequence[ArrayLike], target_batch: Sequence[ArrayLike], metadata_batch: Sequence[DatumMetadataType]) -> None
+        Add predictions and targets (and metadata if applicable) to metric's cache for later calculation. Both
+        predictions and targets are expected to be sequences with elements of shape `(Cl,)`.
 
     compute() -> dict[str, Any]
         Compute metric value(s) for currently cached predictions and targets, returned as
@@ -308,10 +308,13 @@ class Metric(gen.Metric[TargetType], Protocol):
     ...         self._correct = 0
     ...
     ...     def update(
-    ...         self, preds: Sequence[ArrayLike], targets: Sequence[ArrayLike]
+    ...         self,
+    ...         pred_batch: Sequence[ArrayLike],
+    ...         target_batch: Sequence[ArrayLike],
+    ...         metadata_batch: Sequence[DatumMetadataType],
     ...     ) -> None:
-    ...         model_preds = [np.array(r) for r in preds]
-    ...         true_onehot = [np.array(r) for r in targets]
+    ...         model_preds = [np.array(r) for r in pred_batch]
+    ...         true_onehot = [np.array(r) for r in target_batch]
     ...
     ...         # Stack into single array, convert to class indices
     ...         model_classes = np.vstack(model_preds).argmax(axis=1)
@@ -344,7 +347,8 @@ class Metric(gen.Metric[TargetType], Protocol):
     ...     np.array([1.0, 0.0, 0.0, 0.0]),
     ...     np.array([0.0, 1.0, 0.0, 0.0]),
     ... ]  # true classes: 0, 1
-    >>> accuracy.update(model_preds, true_onehot)
+    >>> metadatas: list[ic.DatumMetadataType] = [{"id": 1}, {"id": 2}]
+    >>> accuracy.update(model_preds, true_onehot, metadatas)
     >>> print(accuracy.compute())
     {'accuracy': 0.5}
     >>>
@@ -357,7 +361,8 @@ class Metric(gen.Metric[TargetType], Protocol):
     ...     np.array([0.0, 0.0, 1.0, 0.0]),
     ...     np.array([0.0, 0.0, 0.0, 1.0]),
     ... ]  # true classes: 2, 3
-    >>> accuracy.update(model_preds, true_onehot)
+    >>> metadatas: list[ic.DatumMetadataType] = [{"id": 3}, {"id": 4}]
+    >>> accuracy.update(model_preds, true_onehot, metadatas)
     >>>
     >>> print(accuracy.compute())
     {'accuracy': 0.75}

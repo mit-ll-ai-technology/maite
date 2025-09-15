@@ -34,9 +34,9 @@ class TypeEnum(Enum):
     @staticmethod
     def class_def_code_block():
         return """
-class ClsSub: ...
-class Cls(ClsSub): ...
-class ClsSup(Cls): ...
+class ClsSup: ...
+class Cls(ClsSup): ...
+class ClsSub(Cls): ...
         """
 
 
@@ -56,6 +56,7 @@ def gen_evaluate_static_validation_code(
     model_input_typespec: TypeEnum,
     model_target_typespec: TypeEnum,
     metric_target_typespec: TypeEnum,
+    metric_metadata_typespec: TypeEnum,
 ) -> str:
     # Generate the final code using a formatted multi-line string
     return f"""
@@ -104,7 +105,7 @@ class AnAugmentation(
 class AModel(Model[{model_input_typespec.type_name},
                    {model_target_typespec.type_name}]): ...
 
-class AMetric(Metric[{metric_target_typespec.type_name}]): ...
+class AMetric(Metric[{metric_target_typespec.type_name}, {metric_metadata_typespec.type_name}]): ...
 
 # Cast simple integers as above types (we only want to check static validity)
 model: AModel = cast(AModel, 0)
@@ -133,12 +134,12 @@ evaluate(
 # all components and for both subclass and superclass perturbation "directions".
 
 TYPESPECS_TO_TEST = (
-    [[TypeEnum(0) for _ in range(15)]]
-    + [[TypeEnum(0) if i != j else TypeEnum(1) for i in range(15)] for j in range(15)]
-    + [[TypeEnum(0) if i != j else TypeEnum(-1) for i in range(15)] for j in range(15)]
+    [[TypeEnum(0) for _ in range(16)]]
+    + [[TypeEnum(0) if i != j else TypeEnum(-1) for i in range(16)] for j in range(16)]
+    + [[TypeEnum(0) if i != j else TypeEnum(1) for i in range(16)] for j in range(16)]
 )
-xpass_indices = set([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 14, 25, 26, 27, 28, 30])
-xfail_indices = set(range(31)) - xpass_indices
+xpass_indices = set([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 14, 26, 27, 28, 29, 31])
+xfail_indices = set(range(32)) - xpass_indices
 
 TYPESPECS_TO_TEST_PASS = [TYPESPECS_TO_TEST[pi] for pi in xpass_indices]
 TYPESPECS_TO_TEST_FAIL = [
@@ -164,7 +165,9 @@ TYPESPECS_TO_TEST_FAIL = [
     augmentation_metadatacn_typespec,
     model_input_typespec,
     model_target_typespec,
-    metric_target_typespec""",
+    metric_target_typespec,
+    metric_metadata_typespec,
+    """,
     TYPESPECS_TO_TEST_PASS + TYPESPECS_TO_TEST_FAIL,
 )
 def test_static_evaluate(
@@ -183,6 +186,7 @@ def test_static_evaluate(
     model_input_typespec: TypeEnum,
     model_target_typespec: TypeEnum,
     metric_target_typespec: TypeEnum,
+    metric_metadata_typespec: TypeEnum,
 ):
     # generate code
     val_code_str: str = gen_evaluate_static_validation_code(
@@ -201,6 +205,7 @@ def test_static_evaluate(
         model_input_typespec,
         model_target_typespec,
         metric_target_typespec,
+        metric_metadata_typespec=metric_metadata_typespec,
     )
 
     # write code to temp file

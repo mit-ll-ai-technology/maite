@@ -38,7 +38,7 @@ class AMetric:
     def reset(self):
         pass
 
-    def update(self, pred, target):
+    def update(self, pred, target, metadatas):
         self.pred = pred
         self.target = target
         self._count += 1

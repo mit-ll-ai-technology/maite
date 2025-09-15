@@ -53,7 +53,7 @@ TaskName: TypeAlias = Literal["object-detection", "image-classification"]
 
 OpenModelType = gen.Model[Any, Any]
 OpenDatasetType = gen.Dataset[Any, Any, Any]
-OpenMetricType = gen.Metric[Any]
+OpenMetricType = gen.Metric[Any, Any]
 OpenDataLoaderType = gen.DataLoader[Any, Any, Any]
 OpenAugmentationType = gen.Augmentation[Any, Any, Any, Any, Any, Any]
 OpenCollateFnType = gen.CollateFn[Any, Any, Any]

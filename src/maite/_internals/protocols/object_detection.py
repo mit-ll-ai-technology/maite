@@ -373,7 +373,7 @@ class Model(gen.Model[InputType, TargetType], Protocol):
     ...
 
 
-class Metric(gen.Metric[TargetType], Protocol):
+class Metric(gen.Metric[TargetType, DatumMetadataType], Protocol):
     """
     A metric protocol for the object detection AI task.
 
@@ -383,8 +383,8 @@ class Metric(gen.Metric[TargetType], Protocol):
     Methods
     -------
 
-    update(preds: Sequence[ObjectDetectionTarget], targets: Sequence[ObjectDetectionTarget]) -> None
-         Add predictions and targets to metric's cache for later calculation.
+    update(pred_batch: Sequence[ObjectDetectionTarget], target_batch: Sequence[ObjectDetectionTarget], metadata_batch: Sequence[DatumMetadataType]) -> None
+         Add predictions and targets (and metadata if applicable) to metric's cache for later calculation.
 
     compute() -> dict[str, Any]
          Compute metric value(s) for currently cached predictions and targets, returned as
@@ -432,6 +432,7 @@ class Metric(gen.Metric[TargetType], Protocol):
     ...         self,
     ...         pred_batch: Sequence[od.ObjectDetectionTarget],
     ...         target_batch: Sequence[od.ObjectDetectionTarget],
+    ...         metadata_batch: Sequence[od.DatumMetadataType],
     ...     ) -> None:
     ...         self.pred_boxes.extend(pred_batch)
     ...         self.target_boxes.extend(target_batch)
@@ -518,10 +519,11 @@ class Metric(gen.Metric[TargetType], Protocol):
     ...         boxes=np.array(target_boxes), labels=fake_labels, scores=fake_scores
     ...     )
     ... ]
+    >>> metadata_batch: Sequence[od.DatumMetadataType] = [{"id": 1}]
 
     Finally, we call `update` using this one-element batch, compute the metric value, and print it:
 
-    >>> iou_metric.update(pred_batch, target_batch)
+    >>> iou_metric.update(pred_batch, target_batch, metadata_batch)
     >>> print(iou_metric.compute())
     {'mean_iou': 0.6802112029384757}
     """

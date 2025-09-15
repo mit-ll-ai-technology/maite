@@ -153,7 +153,7 @@ class TMClassificationMetric:
     ...     torch.tensor([1, 0, 0]),
     ...     torch.tensor([0, 0, 1]),
     ... ]
-    >>>
+    >>> metadatas: Sequence[ic.DatumMetadataType] = [{"id": 1}, {"id": 2}, {"id": 3}]
     >>> # Create native TorchMetrics metric
     >>> classification_metric = torchmetrics.classification.MulticlassAccuracy(
     ...     num_classes=3
@@ -168,7 +168,7 @@ class TMClassificationMetric:
     >>> wrapped_classification_metric: ic.Metric = TMClassificationMetric(
     ...     classification_metric, metadata=metadata
     ... )
-    >>> wrapped_classification_metric.update(preds, target)
+    >>> wrapped_classification_metric.update(preds, target, metadatas)
     >>> result = wrapped_classification_metric.compute()
     >>> result  # doctest: +SKIP
     {'MulticlassAccuracy': tensor(0.6667)}
@@ -265,8 +265,9 @@ class TMClassificationMetric:
 
     def update(
         self,
-        preds: Sequence[ic.TargetType],
-        targets: Sequence[ic.TargetType],
+        pred_batch: Sequence[ic.TargetType],
+        target_batch: Sequence[ic.TargetType],
+        metadata_batch: Sequence[ic.DatumMetadataType],
     ) -> None:
         # doc-ignore: EX01
         """
@@ -278,18 +279,20 @@ class TMClassificationMetric:
 
         Parameters
         ----------
-        preds : ic.TargetBatchType
+        pred_batch : ic.TargetBatchType
             Batch of predicted classificaton values.
-        targets : ic.TargetBatchType
+        target_batch : ic.TargetBatchType
             Batch of ground truth classification values.
+        metadata_batch : Sequence[ic.DatumMetadataType]
+            Batch of metadata.
         """
         preds_tm = [
             _arraylike_as_tensor(arr, device=self.device, dtype=self.dtype)
-            for arr in preds
+            for arr in pred_batch
         ]
         targets_tm = [
             _arraylike_as_tensor(arr, device=self.device, dtype=self.dtype)
-            for arr in targets
+            for arr in target_batch
         ]
 
         self._assert_valid_dims(preds_tm)

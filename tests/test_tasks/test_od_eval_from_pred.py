@@ -47,11 +47,12 @@ class MatchingBoxesPercentageMetric:
 
     def update(
         self,
-        predictions_batch: Sequence[od.ObjectDetectionTarget],
-        targets_batch: Sequence[od.ObjectDetectionTarget],
+        pred_batch: Sequence[od.ObjectDetectionTarget],
+        target_batch: Sequence[od.ObjectDetectionTarget],
+        metadata_batch: Sequence[od.DatumMetadataType],
     ) -> None:
-        self._prediction_boxes.extend(predictions_batch)
-        self._target_boxes.extend(targets_batch)
+        self._prediction_boxes.extend(pred_batch)
+        self._target_boxes.extend(target_batch)
 
     def compute(self) -> dict[str, Any]:
         exact_matches_per_image: list[bool] = []
@@ -90,6 +91,11 @@ def mock_target_batches() -> Sequence[Sequence[od.TargetType]]:
     return [_create_od_target_batch(target_boxes)]
 
 
+@pytest.fixture
+def mock_metadata_batches() -> Sequence[Sequence[od.DatumMetadataType]]:
+    return [[{"id": 1}]]
+
+
 def _create_od_target_batch(
     boxes: list[tuple[int, int, int, int]],
 ) -> Sequence[od.TargetType]:
@@ -113,15 +119,20 @@ def _create_od_target_batch(
 
 
 def test_simple_od_evaluate_from_predictions(
-    matching_boxes_percentage_metric, mock_prediction_batches, mock_target_batches
+    matching_boxes_percentage_metric,
+    mock_prediction_batches,
+    mock_target_batches,
+    mock_metadata_batches,
 ) -> None:
     metric: od.Metric = matching_boxes_percentage_metric
     predictions: Sequence[Sequence[od.TargetType]] = mock_prediction_batches
     targets: Sequence[Sequence[od.TargetType]] = mock_target_batches
+    metadata_batches = mock_metadata_batches
     metric_return: MetricComputeReturnType = evaluate_from_predictions(
         metric=metric,
-        predictions=predictions,
-        targets=targets,
+        pred_batches=predictions,
+        target_batches=targets,
+        metadata_batches=metadata_batches,
     )
 
     # Evaluate the results.
