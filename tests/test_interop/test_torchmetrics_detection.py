@@ -19,6 +19,7 @@ from maite._internals.interop.metrics.torchmetrics_detection import (
     TMDetectionMetric,
 )
 from maite.protocols import ArrayLike
+from maite.protocols.object_detection import DatumMetadataType
 
 
 @dataclass
@@ -45,13 +46,16 @@ cioutest_target = [
         torch.tensor([1]).numpy(),
     )
 ]
+cioutest_metadata: list[DatumMetadataType] = [
+    {"id": i} for i, _ in enumerate(cioutest_preds)
+]
 
 
 def test_ciou():
     tm_metric = CompleteIntersectionOverUnion()
     wrapper = TMDetectionMetric(tm_metric, device="cpu")
     wrapper.reset()
-    wrapper.update(cioutest_preds, cioutest_target)
+    wrapper.update(cioutest_preds, cioutest_target, cioutest_metadata)
     out = wrapper.compute()
     assert torch.isclose(out["ciou"], torch.tensor(0.861140727))
 
@@ -64,7 +68,7 @@ def test_output_transform():
         output_transform=lambda res: f"complete_iou={res['ciou']:0.3}",
     )
     wrapper.reset()
-    wrapper.update(cioutest_preds, cioutest_target)
+    wrapper.update(cioutest_preds, cioutest_target, cioutest_metadata)
     out = wrapper.compute()
     assert out == {"CompleteIntersectionOverUnion": "complete_iou=0.861"}
 
@@ -73,7 +77,7 @@ def test_output_key():
     tm_metric = CompleteIntersectionOverUnion()
     wrapper = TMDetectionMetric(tm_metric, device="cpu", output_key="output_key")
     wrapper.reset()
-    wrapper.update(cioutest_preds, cioutest_target)
+    wrapper.update(cioutest_preds, cioutest_target, cioutest_metadata)
     out = wrapper.compute()
     assert torch.isclose(out["output_key"]["ciou"], torch.tensor(0.861140727))
 
@@ -83,7 +87,7 @@ def test_wrapper(metric_name):
     tm_metric = TM_DETECTION_METRIC_WHITELIST[metric_name]()
 
     wrapper = TMDetectionMetric(tm_metric, device="cpu")
-    wrapper.update(cioutest_preds, cioutest_target)
+    wrapper.update(cioutest_preds, cioutest_target, cioutest_metadata)
     wrapper.compute()
 
 

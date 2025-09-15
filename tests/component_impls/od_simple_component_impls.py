@@ -219,7 +219,10 @@ class MetricImpl:
         return None
 
     def update(
-        self, __pred_batch: Sequence[TargetType], __target_batch: Sequence[TargetType]
+        self,
+        __pred_batch: Sequence[TargetType],
+        __target_batch: Sequence[TargetType],
+        __metadata_batch: Sequence[DatumMetadataType],
     ) -> None:
         return None
 

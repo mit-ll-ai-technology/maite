@@ -201,15 +201,16 @@ class Model(
 
 
 @runtime_checkable
-class Metric(Protocol, Generic[TargetType_cn]):
+class Metric(Protocol, Generic[TargetType_cn, DatumMetadataType_cn]):
     metadata: MetricMetadata
 
     def reset(self) -> None: ...
 
     def update(
         self,
-        __preds_batch: Sequence[TargetType_cn],
-        __targets_batch: Sequence[TargetType_cn],
+        __pred_batch: Sequence[TargetType_cn],
+        __target_batch: Sequence[TargetType_cn],
+        __metadata_batch: Sequence[DatumMetadataType_cn],
     ) -> None: ...
 
     def compute(self) -> MetricComputeReturnType: ...

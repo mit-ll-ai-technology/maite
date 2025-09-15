@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import Sequence
+from typing import Any, Sequence
 
 import numpy as np
 import pytest
@@ -13,12 +13,18 @@ import torchmetrics
 import torchmetrics.classification
 from numpy import ndarray
 
+import maite.protocols.image_classification as ic
 from maite._internals.interop.metrics.torchmetrics import (
     TM_CLASSIFICATION_METRIC_WHITELIST,
     TMClassificationMetric,
     _get_valid_classification_metrics,
 )
 from maite.protocols import ArrayLike
+
+
+def make_metadata_batch(xs: Sequence[Any]):
+    r: list[ic.DatumMetadataType] = [{"id": i} for i, _ in enumerate(xs)]
+    return r
 
 
 def test__get_valid_classification_metrics():
@@ -91,7 +97,7 @@ def test_multiclass_accuracy():
     mca = torchmetrics.classification.MulticlassAccuracy(num_classes=3)
     wrapper = TMClassificationMetric(mca)
     wrapper.reset()  # Not necessary
-    wrapper.update(preds.tolist(), targets)
+    wrapper.update(preds.tolist(), targets, make_metadata_batch(targets))
 
     assert_metrics_equal(
         wrapper.compute(),
@@ -111,7 +117,7 @@ def test_output_transform():
         return {"metric_result": [float(metric_result_tensor)]}
 
     wrapper = TMClassificationMetric(mca, output_transform=output_transform)
-    wrapper.update(preds.tolist(), targets)
+    wrapper.update(preds.tolist(), targets, make_metadata_batch(targets))
 
     assert_metrics_equal(
         {"metric_result": [1.0]},
@@ -126,7 +132,7 @@ def test_output_key():
 
     mca = torchmetrics.classification.MulticlassAccuracy(num_classes=3)
     wrapper = TMClassificationMetric(mca, output_key="metric_result")
-    wrapper.update(preds.tolist(), targets)
+    wrapper.update(preds.tolist(), targets, make_metadata_batch(targets))
 
     assert_metrics_equal(
         {"metric_result": torch.tensor(1.0)},
@@ -168,7 +174,7 @@ def do_batches(
         t = torch.stack([torch.as_tensor(t) for t in targets]).argmax(dim=1)
         metric.update(p, t)
 
-        maite_metric.update(predicted, targets)
+        maite_metric.update(predicted, targets, make_metadata_batch(targets))
 
     metric_results = metric.compute()
     d = maite_metric.compute()

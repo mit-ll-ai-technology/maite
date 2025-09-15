@@ -157,7 +157,10 @@ class MetricImpl:
         return None
 
     def update(
-        self, __pred_batch: Sequence[TargetType], __target_batch: Sequence[TargetType]
+        self,
+        __pred_batch: Sequence[TargetType],
+        __target_batch: Sequence[TargetType],
+        __metadata_batch: Sequence[DatumMetadataType],
     ) -> None:
         return None
 
@@ -240,9 +243,14 @@ class SimpleAccuracyMetric:
         self._total = 0
         self._correct = 0
 
-    def update(self, preds: Sequence[ArrayLike], targets: Sequence[ArrayLike]) -> None:
-        model_probs = [np.array(r) for r in preds]
-        true_onehot = [np.array(r) for r in targets]
+    def update(
+        self,
+        pred_batch: Sequence[ArrayLike],
+        target_batch: Sequence[ArrayLike],
+        metadata_batch: Sequence[DatumMetadataType],
+    ) -> None:
+        model_probs = [np.array(r) for r in pred_batch]
+        true_onehot = [np.array(r) for r in target_batch]
 
         # Stack into single array, convert to class indices
         model_classes = np.vstack(model_probs).argmax(axis=1)
