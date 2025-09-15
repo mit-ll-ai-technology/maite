@@ -7,8 +7,7 @@ from pathlib import Path
 import pytest
 from pytest import param
 
-from maite.errors import InvalidArgument
-from maite.testing.project import (
+from maite._internals.testing.project import (
     CompletenessSection,
     ModuleScan,
     ModuleScanResults,
@@ -17,7 +16,7 @@ from maite.testing.project import (
     get_public_symbols,
     import_public_symbols,
 )
-from maite.testing.pyright import Summary
+from maite._internals.testing.pyright import Summary
 from tests import module_scan
 
 ParameterSet = type(param("s"))
@@ -72,11 +71,6 @@ def test_known_scan():
     modules = {v["name"] for v in results["modules"]}
     # must update this if project's modules are renamed
     assert {
-        "maite.testing.docs",
-        "maite.testing.project",
-        "maite.testing.pyright",
-        "maite.testing.pytest",
-        "maite.testing",
         "maite.utils.validation",
         "maite.utils",
         "maite",
@@ -86,16 +80,13 @@ def test_known_scan():
     )
 
 
-@pytest.mark.parametrize("submodule", ["", "maite.testing.project"])
+@pytest.mark.parametrize("submodule", ["", "maite.protocols.image_classification"])
 def test_public_symbols(submodule):
     symbols = get_public_symbols(
         module_scan("maite"), submodule=submodule, include_dunder_names=False
     )
     names = {s["name"] for s in symbols}
-    assert {
-        "maite.testing.project.ModuleScan",
-        "maite.testing.project.get_public_symbols",
-    } <= names
+    assert {"maite.protocols.image_classification.TargetType"} <= names
     for symbol in symbols:
         *_, name = symbol["name"].split(".")
 
@@ -105,7 +96,7 @@ def test_public_symbols(submodule):
 
 def test_invalid_submodule():
     results = module_scan("maite")
-    with pytest.raises(InvalidArgument, match="11 is not a valid module name."):
+    with pytest.raises(ValueError, match="11 is not a valid module name."):
         get_public_symbols(results, submodule="maite.11")
 
 
@@ -243,7 +234,7 @@ def test_validate_import_public_symbols_input():
     results = module_scan("maite_dummy.basic")
 
     with pytest.raises(
-        InvalidArgument,
+        ValueError,
         match=r"Expected `skip_module_not_found` to be one of: False, True, pytest-skip. Got `pytest-blah`.",
     ):
         list(import_public_symbols(results, skip_module_not_found="pytest-blah"))  # type: ignore

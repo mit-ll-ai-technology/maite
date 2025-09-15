@@ -18,7 +18,6 @@ from maite._internals.protocols.generic import (
     Model,
 )
 from maite._internals.utils import add_progress_bar
-from maite.errors import InvalidArgument
 from maite.protocols import MetricMetadata
 
 # TODO: Permit returned predictions to be of type tuple[InputDataType, TargetDataType, DatumMetadataType].
@@ -268,7 +267,7 @@ def evaluate(
 
     Raises
     ------
-    InvalidArgument
+    ValueError
         If neither a dataloader nor a dataset is provided
     """
 
@@ -288,15 +287,15 @@ def evaluate(
         metric = _DummyMetric()
 
     if dataloader is not None and dataset is not None:
-        raise InvalidArgument("Do not provide both a dataloader and a dataset")
+        raise ValueError("Do not provide both a dataloader and a dataset")
 
     if dataloader is None and dataset is None:
         # user provided neither a dataloader nor a dataset
-        raise InvalidArgument("One of dataloader and dataset must be provided")
+        raise ValueError("One of dataloader and dataset must be provided")
 
     if dataloader is None and dataset is not None:
         if collate_fn is None:
-            raise InvalidArgument(
+            raise ValueError(
                 "If dataset is provided, then collate_fn is required"
                 + "to permit building a dataloader"
             )
@@ -393,26 +392,26 @@ def evaluate_from_predictions(
 
     Raises
     ------
-    InvalidArgument
+    ValueError
         If predictions or targets arguments have zero length (i.e. no batches), differing lengths,
         or corresponding elements (batches) have differing lengths.
     """
     # Checks for argument compliance.
 
     if len(pred_batches) != len(target_batches):
-        raise InvalidArgument(
+        raise ValueError(
             "Arguments predictions and truth_datum are expected to have the same number of elements (batches)"
         )
 
     if len(pred_batches) < 1 or len(target_batches) < 1:
-        raise InvalidArgument("Predictions and targets must have at least one element.")
+        raise ValueError("Predictions and targets must have at least one element.")
 
     metric.reset()
     for pred_batch, target_batch, metadata_batch in zip(
         pred_batches, target_batches, metadata_batches
     ):
         if len(pred_batch) != len(target_batch):
-            raise InvalidArgument(
+            raise ValueError(
                 "Corresponding prediction and target batches must have the same length."
             )
         metric.update(pred_batch, target_batch, metadata_batch)
@@ -474,7 +473,7 @@ def predict(
 
     Raises
     ------
-    InvalidArgument
+    ValueError
         If neither a dataloader nor a dataset is provided.
     """
 

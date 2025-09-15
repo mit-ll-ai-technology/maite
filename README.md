@@ -56,16 +56,6 @@ $ pip install .
 
 The `protocols` subpackage defines common types – such as an inference-mode object detector – to be leveraged across JATIC projects. These are specifically designed to be [Python protocol classes](https://peps.python.org/pep-0544/), which support structural subtyping. As a result, developers and users can satisfy MAITE-typed interfaces without having to explicitly subclass. This ability helps to promote common interfaces across JATIC projects without introducing explicit inter-dependencies between them.
 
-## maite.testing
-
-*Support for rigorous software testing*
-
-The `testing` subpackage is designed to help developers create a rigorous automated test suite for their project. These include:
-
-- Pytest fixtures for initializing test functions with common models, datasets, and other inputs that are useful for testing machine learning code.
-- Functions running static type checking tests using [pyright](https://github.com/microsoft/pyright) in a pytest test suite, including scans of both source code and example documentation code blocks.
-- [Hypothesis strategies](https://hypothesis.readthedocs.io/en/latest/) for driving property-based tests of interfaces that leverage MAITE protocols.
-
 ### Pyright Static Type Checking in Code
 
 ```python

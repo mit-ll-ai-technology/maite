@@ -423,7 +423,7 @@ def pyright_analyze(
     Here pyright will record an error when scan a function that attempts to add a
     string-annotated variable to an integer.
 
-    >>> from maite.testing.pyright import pyright_analyze
+    >>> from maite._internals.testing.pyright import pyright_analyze
     >>> def f(x: str):
     ...     return 1 + x
     >>> pyright_analyze(f)[0]

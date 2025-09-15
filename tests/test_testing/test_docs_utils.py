@@ -11,9 +11,7 @@ import pytest
 from pytest import param
 
 from maite._internals.compat import TypedDict
-from maite._internals.testing.docs import _get_numpy_tags
-from maite.errors import InvalidArgument
-from maite.testing.docs import validate_docstring
+from maite._internals.testing.docs import _get_numpy_tags, validate_docstring
 
 
 def form_doc(
@@ -297,7 +295,7 @@ def test_bad_doc(obj, ignore_codes, error_codes):
 
 
 def test_bad_error_code():
-    with pytest.raises(InvalidArgument, match=r"NOTACODE"):
+    with pytest.raises(ValueError, match=r"NOTACODE"):
         validate_docstring(make_class(), ignore=["NOTACODE"])  # type: ignore
 
 

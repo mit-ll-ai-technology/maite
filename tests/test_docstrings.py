@@ -4,9 +4,9 @@
 
 import pytest
 
-from maite.testing.docs import validate_docstring
-from maite.testing.project import get_public_symbols, import_public_symbols
-from maite.testing.pyright import list_error_messages, pyright_analyze
+from maite._internals.testing.docs import validate_docstring
+from maite._internals.testing.project import get_public_symbols, import_public_symbols
+from maite._internals.testing.pyright import list_error_messages, pyright_analyze
 from tests import module_scan
 
 # Generates a string that imports all symbols from the maite's public API.

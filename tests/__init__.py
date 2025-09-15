@@ -4,7 +4,7 @@
 
 from pathlib import Path
 
-from maite.testing.project import ModuleScan
+from maite._internals.testing.project import ModuleScan
 
 module_scan = ModuleScan()
 
