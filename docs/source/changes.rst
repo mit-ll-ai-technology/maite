@@ -8,6 +8,21 @@ Changelog
 This is a record of all past maite releases and what went into them, in reverse 
 chronological order.
 
+.. _v0.9.1:
+
+---------------------
+0.9.0 - 2025-09-24
+---------------------
+
+- Modify `Metric.update` to accept batch metadata
+- Add `augment_dataloader` MAITE task that modifies a `DataLoader` with a user-defined augmentation
+- Add unit tests for `evaluate` / `predict` tasks that cover more edge cases, verifying advertised exception handling
+- Handle additional YOLO outputs that broke internal doctesting in CI (for recent YOLO releases)
+- Update CONTRIBUTING.md to describe using `uv` to maintain a project environment and run `tox` jobs
+- Use ruff linter instead of flake8, isort, and black
+- Deprecate select legacy source code
+- Automatically remove extraneous metadata from Jupyter notebooks in CI
+
 .. _v0.8.2:
 
 ---------------------
