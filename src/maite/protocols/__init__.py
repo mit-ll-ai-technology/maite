@@ -3,8 +3,17 @@
 # SPDX-License-Identifier: MIT
 
 
-from maite._internals.protocols import ArrayLike
-from maite._internals.protocols.generic import (
+from maite._internals.protocols import ArrayLike as _ArrayLike
+
+# This assignment is necessary to get sphinx/VSCode language server to display docstring around our ArrayLike TypeAlias
+# (can't be done in ArrayLike first definition _internals or sphinx doesn't pick it up)
+ArrayLike = _ArrayLike
+"""
+Object coercible into a NumPy ndarray (alias of `numpy.typing.ArrayLike`)
+"""
+
+# E402 because ruff complains assignments above imports, but one example in project.py relies on ArrayLike being first imported
+from maite._internals.protocols.generic import (  # noqa: E402
     Augmentation,
     AugmentationMetadata,
     DataLoader,
