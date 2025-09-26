@@ -72,9 +72,13 @@ class ObjectDetectionTarget(Protocol):
 #       concrete Dataset classes (like object_detection.Dataset) are ArrayLike, ObjectDetectionTarget, DatumMetadataType
 #       so users can see an expected return type of Tuple[ArrayLike, ObjectDetectionTarget, DatumMetadataType]
 
-InputType: TypeAlias = ArrayLike  # shape (C, H, W)
+InputType: TypeAlias = ArrayLike
+"""ArrayLike following (C, H, W) shape semantics"""
+
 TargetType: TypeAlias = ObjectDetectionTarget
+
 DatumMetadataType: TypeAlias = DatumMetadata
+"""TypedDict that requires a readonly 'id' field of type `int|str`"""
 
 Datum: TypeAlias = tuple[InputType, TargetType, DatumMetadataType]
 
@@ -91,7 +95,8 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
     Indexing into or iterating over the an object detection dataset returns a `Tuple` of
     types `ArrayLike`, `ObjectDetectionTarget`, and `DatumMetadataType`. These
     correspond to the model input type, model target type, and datum-level metadata,
-    respectively.
+    respectively. The `ArrayLike` protocol implementers associated with model input and
+    model target types are expected to follow (C, H, W) shape semantics.
 
     Methods
     -------
