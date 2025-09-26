@@ -2,14 +2,23 @@
 # Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).
 # SPDX-License-Identifier: MIT
 
+from pathlib import Path
 from typing import Any, Literal, Sequence
 
 import numpy as np
 import pytest
 
 import maite.protocols.image_classification as ic
+import maite.protocols.object_detection as od
 from maite._internals.protocols import generic as gen
+from maite._internals.protocols import image_semantic_segmentation as iseg
 from maite._internals.tasks.generic import _SimpleDataLoader
+from maite._internals.testing.pyright import (
+    PyrightOutput,
+    chdir,
+    list_error_messages,
+    pyright_analyze,
+)
 from maite.tasks import augment_dataloader, evaluate, predict
 from tests.component_impls import (
     ic_simple_component_impls as ici,
@@ -259,7 +268,7 @@ def test_ic_predict_return_data_flag(
                 i = 3
                 xb, yb, mdb = data[i]  # get ith batch
                 x = xb[0]  # get first (only) element out of size-1 batch
-                x = np.asarray(x)  # bridge
+                x = np.asarray(x)  # bridgex
                 expected_value = (i + 1) % 10
                 assert x[0][0][0] == expected_value, (
                     f"mock augmentation should bump first value in data point {i} from {i} to {expected_value}"
@@ -714,3 +723,97 @@ def test_predict_no_model(ic_mock_dataset):
 def test_predict_no_dataset_or_dataloader(ic_mock_model):
     with pytest.raises(Exception):
         _, _ = predict(model=ic_mock_model)
+
+
+@pytest.mark.parametrize("""module_obj""", [ic, od, iseg])
+def test_valid_AI_subproblems(module_obj):
+    """
+    Test whether the components defined in a provided module form a valid AI task
+    by letting static typechecker validate an evaluate call with those types provided
+    """
+    val_code_str = f"""
+
+from maite.tasks import evaluate
+from {module_obj.__name__} import Dataset, DataLoader, Model, Metric, Augmentation
+
+from typing import cast
+
+model: Model = cast(Model, 0)
+metric: Metric = cast(Metric, 1)
+dataLoader: DataLoader = cast(DataLoader, 2)
+augmentation: Augmentation = cast(Augmentation, 3)
+dataset: Dataset = cast(Dataset, 4)
+
+evaluate(
+    model=model,
+    metric=metric,
+    dataset=dataset,
+    dataloader=dataLoader,
+    augmentation=augmentation,
+)
+""".strip()  # Remove leading/trailing whitespace
+
+    with chdir():
+        cwd = Path.cwd()
+        out_path = cwd / "test_valid_aitask.py"
+        out_path.write_text(val_code_str, encoding="utf-8")
+
+        # run pyright_analyze
+        scan: PyrightOutput = pyright_analyze(out_path)[0]
+        if scan["summary"]["errorCount"] != 0:
+            raise ValueError(
+                "\n"
+                + "Pyright typing error encountered in checking components from module module_obj.__name__ form a valid AI task"
+                + "\n"
+                + "\n".join(list_error_messages(scan))
+            )
+
+
+# Note: we don't test mixing ic/iseg modules. This is because the types
+# used in these two subproblems are indistinguishable (at present) to the static typechecker.
+# (ArrayLike input and target types are used in both cases, shape semantics are not
+# visible to the static typechecker.)
+@pytest.mark.parametrize("""module1_obj, module2_obj""", [(ic, od), (od, iseg)])
+def test_invalid_AI_subproblems(module1_obj, module2_obj):
+    """
+    Test whether the components defined in a provided module form an invalid AI task
+    by letting static typechecker validate an evaluate call with those types provided
+    """
+    val_code_str = f"""
+
+from maite.tasks import evaluate
+from {module1_obj.__name__} import Dataset, DataLoader
+from {module2_obj.__name__} import Model, Metric, Augmentation
+
+from typing import cast
+
+model: Model = cast(Model, 0)
+metric: Metric = cast(Metric, 1)
+dataLoader: DataLoader = cast(DataLoader, 2)
+augmentation: Augmentation = cast(Augmentation, 3)
+dataset: Dataset = cast(Dataset, 4)
+
+evaluate(
+    model=model,
+    metric=metric,
+    dataset=dataset,
+    dataloader=dataLoader,
+    augmentation=augmentation,
+)
+""".strip()  # Remove leading/trailing whitespace
+
+    with pytest.raises(ValueError):
+        with chdir():
+            cwd = Path.cwd()
+            out_path = cwd / "test_invalid_aitask.py"
+            out_path.write_text(val_code_str, encoding="utf-8")
+
+            # run pyright_analyze
+            scan: PyrightOutput = pyright_analyze(out_path)[0]
+            if scan["summary"]["errorCount"] != 0:
+                raise ValueError(
+                    "\n"
+                    + "Pyright typing error encountered in checking components from module module_obj.__name__ form valid AI task"
+                    + "\n"
+                    + "\n".join(list_error_messages(scan))
+                )
