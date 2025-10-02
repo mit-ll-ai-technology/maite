@@ -14,6 +14,9 @@
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
+import re
+from typing import Mapping
+
 import maite
 
 # -- Project information -----------------------------------------------------
@@ -167,6 +170,22 @@ html_theme_options = {
 # hide "Section Navigation" LHS in changelog section (would be empty anyway)
 html_sidebars = {"changes": []}
 
+# Modify elements of docstrings that don't natively crosslink to be fully-qualified
+# in restructured text before sphinx attempts to build html from them
+DOCSTRING_REPLACEMENT_MAP: Mapping[str, str] = {
+    r"`Sequence\[([\w]{,32})\]`": r":class:`~collections.abc.Sequence` [`\1`]",
+    "`ArrayLike`": ":py:type:`~maite.protocols.ArrayLike`",
+}
+
+
+def process_docstring(app, what, name, obj, options, lines: list[str]):
+    """Hook into autodoc-process-docstring event to modify docstrings properly"""
+    for k, v in DOCSTRING_REPLACEMENT_MAP.items():
+        p = re.compile(k)
+        for i, line in enumerate(lines):
+            lines[i] = p.sub(v, lines[i])
+    return
+
 
 def setup(app):
     app.add_js_file(
@@ -174,6 +193,7 @@ def setup(app):
         loading_method="async",
     )
     app.add_js_file("gtag.js")
+    app.connect("autodoc-process-docstring", process_docstring)
 
 
 # Add any paths that contain custom static files (such as style sheets) here,
