@@ -173,7 +173,7 @@ class Model(gen.Model[InputType, TargetType], Protocol):
     A model protocol for the image classification AI task.
 
     Implementers must provide a `__call__` method that operates on a batch of model
-    inputs (as `Sequence[ArrayLike]) and returns a batch of model targets (as
+    inputs (as `Sequence[ArrayLike]`) and returns a batch of model targets (as
     `Sequence[ArrayLike]`)
 
     Methods
@@ -181,7 +181,8 @@ class Model(gen.Model[InputType, TargetType], Protocol):
 
     __call__(input_batch: Sequence[ArrayLike]) -> Sequence[ArrayLike]
         Make a model prediction for inputs in input batch. Input batch is expected to
-        be `Sequence[ArrayLike]` with each element of shape `(C, H, W)`.
+        be `Sequence[ArrayLike]` with each element of shape `(C, H, W)`. Target batch
+        is expected to be `Sequence[ArrayLike]` with each element of shape `(Cl,)`.
 
     Attributes
     ----------
