@@ -10,8 +10,8 @@ from typing import Any, Optional, Union
 import numpy as np
 import torch
 from typing_extensions import Sequence, TypeAlias, cast
-from ultralytics import YOLO
 from ultralytics.engine.results import Results
+from ultralytics.models import YOLO
 from yolov5.models.common import AutoShape, Detections
 
 from maite.protocols import ModelMetadata
@@ -47,7 +47,7 @@ class YoloObjectDetector:
     >>> import contextlib
     >>> import numpy as np
     >>> from typing_extensions import Sequence
-    >>> from ultralytics import YOLO
+    >>> from ultralytics.models import YOLO
     >>> from maite.interop.models.yolo import YoloObjectDetector
     >>> from maite.protocols import object_detection as od
 
