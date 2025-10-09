@@ -1,0 +1,740 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>object_detection.Augmentation &#8212; maite 0.8.2 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-codeautolink.css?v=b2176991" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=87e54e7c" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=dbee5847"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=30646c52"></script>
+    <script async="async" src="https://www.googletagmanager.com/gtag/js?id=UA-115029372-2"></script>
+    <script src="../_static/gtag.js"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/maite.protocols.object_detection.Augmentation';</script>
+    <script src="../_static/pypi_icon.js?v=74687d30"></script>
+    <script src="../_static/condaforge_icon.js?v=19caf20c"></script>
+    <script src="../_static/anaconda_icon.js?v=e3074ad8"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="object_detection.ObjectDetectionTarget" href="maite.protocols.object_detection.ObjectDetectionTarget.html" />
+    <link rel="prev" title="image_classification.Model" href="maite.protocols.image_classification.Model.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.8" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">maite 0.8.2 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorials.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../how_tos.html">
+    How-To Guides
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../explanation.html">
+    Explanation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api_reference.html">
+    Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changes.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/mit-ll-ai-technology/maite" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/maite/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-custom fa-pypi fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://anaconda.org/conda-forge/maite" title="Anaconda" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-custom fa-anaconda fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Anaconda</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorials.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../how_tos.html">
+    How-To Guides
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../explanation.html">
+    Explanation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api_reference.html">
+    Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changes.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/mit-ll-ai-technology/maite" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/maite/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-custom fa-pypi fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://anaconda.org/conda-forge/maite" title="Anaconda" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-custom fa-anaconda fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Anaconda</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">protocols</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.ArrayLike.html">ArrayLike</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.image_classification.Augmentation.html">image_classification.Augmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.image_classification.DataLoader.html">image_classification.DataLoader</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.image_classification.Dataset.html">image_classification.Dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.image_classification.Metric.html">image_classification.Metric</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.image_classification.Model.html">image_classification.Model</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">object_detection.Augmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.object_detection.ObjectDetectionTarget.html">object_detection.ObjectDetectionTarget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.object_detection.DataLoader.html">object_detection.DataLoader</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.object_detection.Dataset.html">object_detection.Dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.object_detection.Metric.html">object_detection.Metric</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.object_detection.Model.html">object_detection.Model</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">tasks</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.tasks.evaluate.html">evaluate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.tasks.predict.html">predict</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.tasks.evaluate_from_predictions.html">evaluate_from_predictions</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">interop</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.interop.metrics.torchmetrics.TMClassificationMetric.html">metrics.torchmetrics.TMClassificationMetric</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.interop.metrics.torchmetrics.TMDetectionMetric.html">metrics.torchmetrics.TMDetectionMetric</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.interop.models.yolo.YoloObjectDetector.html">models.yolo.YoloObjectDetector</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">utils</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.utils.validation.check_type.html">validation.check_type</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.utils.validation.check_domain.html">validation.check_domain</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.utils.validation.check_one_of.html">validation.check_one_of</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.utils.validation.chain_validators.html">validation.chain_validators</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">errors</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.errors.MaiteException.html">MaiteException</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.errors.InvalidArgument.html">InvalidArgument</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">testing</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.docs.validate_docstring.html">docs.validate_docstring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.docs.NumpyDocErrorCode.html">docs.NumpyDocErrorCode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.docs.NumPyDocResults.html">docs.NumPyDocResults</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.pyright.pyright_analyze.html">pyright.pyright_analyze</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.pyright.PyrightOutput.html">pyright.PyrightOutput</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.pyright.list_error_messages.html">pyright.list_error_messages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.pytest.cleandir.html">pytest.cleandir</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.project.ModuleScan.html">project.ModuleScan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.project.get_public_symbols.html">project.get_public_symbols</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api_reference.html" class="nav-link">Reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">object_detection.Augmentation</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="object-detection-augmentation">
+<h1>object_detection.Augmentation<a class="headerlink" href="#object-detection-augmentation" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="maite.protocols.object_detection.Augmentation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">maite.protocols.object_detection.</span></span><span class="sig-name descname"><span class="pre">Augmentation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/maite/_internals/protocols/object_detection.html#Augmentation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#maite.protocols.object_detection.Augmentation" title="Link to this definition">#</a></dt>
+<dd><p>An augmentation protocol for the object detection AI task.</p>
+<p>An augmentation is expected to take a batch of data and return a modified version of
+that batch. Implementers must provide a single method that takes and returns a
+labeled data batch, where a labeled data batch is represented by a tuple of types
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">Sequence[ArrayLike]</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">Sequence[ObjectDetectionTarget]</span></code>, and <code class="xref py py-obj docutils literal notranslate"><span class="pre">Sequence[DatumMetadataType]</span></code>.
+These correspond to the model input batch type, model target batch type, and datum-level
+metadata batch type, respectively.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>metadata</strong><span class="classifier">AugmentationMetadata</span></dt><dd><p>A typed dictionary containing at least an ‘id’ field of type str</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p><strong>__call__(datum: Tuple[Sequence[ArrayLike], Sequence[ObjectDetectionTarget], Sequence[DatumMetadataType]]) -&gt;          Tuple[Sequence[ArrayLike], Sequence[ObjectDetectionTarget], Sequence[DatumMetadataType]]</strong></p></td>
+<td><p>Return a modified version of original data batch. A data batch is represented by a tuple of model input batch (as <code class="xref py py-obj docutils literal notranslate"><span class="pre">Sequence</span> <span class="pre">ArrayLike</span></code> with elements of shape <code class="xref py py-obj docutils literal notranslate"><span class="pre">(C,</span> <span class="pre">H,</span> <span class="pre">W)</span></code>), model target batch (as <code class="xref py py-obj docutils literal notranslate"><span class="pre">Sequence[ObjectDetectionTarget]</span></code>), and batch metadata (as <code class="xref py py-obj docutils literal notranslate"><span class="pre">Sequence[DatumMetadataType]</span></code>), respectively.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p class="rubric">Examples</p>
+<p>We can write an implementer of the augmentation class as either a function or a class.
+The only requirement is that the object provide a <code class="xref py py-obj docutils literal notranslate"><span class="pre">__call__</span></code> method that takes objects
+at least as general as the types promised in the protocol signature and return types
+at least as specific.</p>
+<p>We create a dummy set of data and use it to create a class the implements this
+lightweight protocol and augments the data:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">maite.protocols</span><span class="w"> </span><span class="kn">import</span> <span class="n">AugmentationMetadata</span><span class="p">,</span> <span class="n">object_detection</span> <span class="k">as</span> <span class="n">od</span>
+</pre></div>
+</div>
+<p>First, we specify parameters that will be used to create the dummy dataset.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">N_DATAPOINTS</span> <span class="o">=</span> <span class="mi">3</span>  <span class="c1"># datapoints in dataset</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">N_CLASSES</span> <span class="o">=</span> <span class="mi">2</span>  <span class="c1"># possible classes that can be detected</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">C</span> <span class="o">=</span> <span class="mi">3</span>  <span class="c1"># number of color channels</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">H</span> <span class="o">=</span> <span class="mi">10</span>  <span class="c1"># img height</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">W</span> <span class="o">=</span> <span class="mi">10</span>  <span class="c1"># img width</span>
+</pre></div>
+</div>
+<p>Next, we create the input data to be used by the Augmentation. In this example, we
+create the following batch of object detection data:</p>
+<ul class="simple">
+<li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">xb</span></code> is the input batch data. Our batch will include <code class="xref py py-obj docutils literal notranslate"><span class="pre">N_DATAPOINTS</span></code> number of samples. Note
+that we initialize all of the data to zeros in this example to demonstrate the augmentations
+better.</p></li>
+<li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">yb</span></code> is the object detection target data, which in this example represents zero object
+detections for each input datum (by having empty bounding boxes and class labels and scores).</p></li>
+<li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mdb</span></code> is the associated metadata for each input datum.</p></li>
+</ul>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nd">@dataclass</span>
+<span class="gp">... </span><span class="k">class</span><span class="w"> </span><span class="nc">MyObjectDetectionTarget</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">boxes</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+<span class="gp">... </span>    <span class="n">labels</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+<span class="gp">... </span>    <span class="n">scores</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">xb</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">od</span><span class="o">.</span><span class="n">InputType</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N_DATAPOINTS</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">W</span><span class="p">)))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">yb</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">od</span><span class="o">.</span><span class="n">TargetType</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">MyObjectDetectionTarget</span><span class="p">(</span><span class="n">boxes</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">labels</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">scores</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<span class="gp">... </span>    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N_DATAPOINTS</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mdb</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">od</span><span class="o">.</span><span class="n">DatumMetadataType</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">({</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">i</span><span class="p">}</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N_DATAPOINTS</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Display the first datum in batch, first color channel, and only first 5 rows and cols</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">set_printoptions</span><span class="p">(</span><span class="n">floatmode</span><span class="o">=</span><span class="s1">&#39;fixed&#39;</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>  <span class="c1"># for reproducible output for doctest</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">xb</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="mi">0</span><span class="p">][:</span><span class="mi">5</span><span class="p">,</span> <span class="p">:</span><span class="mi">5</span><span class="p">]</span>  
+<span class="go">array([[0.000, 0.000, 0.000, 0.000, 0.000],</span>
+<span class="go">       [0.000, 0.000, 0.000, 0.000, 0.000],</span>
+<span class="go">       [0.000, 0.000, 0.000, 0.000, 0.000],</span>
+<span class="go">       [0.000, 0.000, 0.000, 0.000, 0.000],</span>
+<span class="go">       [0.000, 0.000, 0.000, 0.000, 0.000]])</span>
+</pre></div>
+</div>
+<p>Now we create the Augmentation, which will apply random noise (rounded to 3 decimal
+places) to the input data using the <a class="reference external" href="https://numpy.org/doc/stable/reference/random/generated/numpy.random.random.html#numpy.random.random" title="(in NumPy v2.3)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.random.random</span></code></a> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">np.round</span></code> functions.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np_noise</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">shape</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">shape</span><span class="p">),</span> <span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span><span class="w"> </span><span class="nc">ImageAugmentation</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">aug_func</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="n">AugmentationMetadata</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">aug_func</span> <span class="o">=</span> <span class="n">aug_func</span>
+<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span>
+<span class="gp">... </span>    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="bp">self</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="n">batch</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">od</span><span class="o">.</span><span class="n">InputType</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">od</span><span class="o">.</span><span class="n">TargetType</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">od</span><span class="o">.</span><span class="n">DatumMetadataType</span><span class="p">]],</span>
+<span class="gp">... </span>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">od</span><span class="o">.</span><span class="n">InputType</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">od</span><span class="o">.</span><span class="n">TargetType</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">od</span><span class="o">.</span><span class="n">DatumMetadataType</span><span class="p">]]:</span>
+<span class="gp">... </span>        <span class="n">xb</span><span class="p">,</span> <span class="n">yb</span><span class="p">,</span> <span class="n">mdb</span> <span class="o">=</span> <span class="n">batch</span>
+<span class="gp">... </span>        <span class="c1"># Copy data passed into the constructor to avoid mutating original inputs</span>
+<span class="gp">... </span>        <span class="n">xb_aug</span> <span class="o">=</span> <span class="p">[</span><span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span> <span class="k">for</span> <span class="nb">input</span> <span class="ow">in</span> <span class="n">xb</span><span class="p">]</span>
+<span class="gp">... </span>        <span class="c1"># Add random noise to the input batch data, xb</span>
+<span class="gp">... </span>        <span class="c1"># (Note that all batch data dimensions (shapes) are the same in this example)</span>
+<span class="gp">... </span>        <span class="n">shape</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">xb</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">shape</span>
+<span class="gp">... </span>        <span class="n">xb_aug</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">aug_func</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">xb</span><span class="p">]</span>
+<span class="gp">... </span>        <span class="c1"># Note that this example augmentation only affects inputs--not targets</span>
+<span class="gp">... </span>        <span class="k">return</span> <span class="n">xb_aug</span><span class="p">,</span> <span class="n">yb</span><span class="p">,</span> <span class="n">mdb</span>
+</pre></div>
+</div>
+<p>We can typehint an instance of the above class as an Augmentation in the object
+detection domain:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">noise</span><span class="p">:</span> <span class="n">od</span><span class="o">.</span><span class="n">Augmentation</span> <span class="o">=</span> <span class="n">ImageAugmentation</span><span class="p">(</span><span class="n">np_noise</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;np_rand_noise&quot;</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>Now we can apply the <code class="xref py py-obj docutils literal notranslate"><span class="pre">noise</span></code> augmentation to our 3-tuple batch of data. Recall that
+our data was initialized to all zeros, so any non-zero values in the augmented data
+is a result of the augmentation.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">xb_aug</span><span class="p">,</span> <span class="n">yb_aug</span><span class="p">,</span> <span class="n">mdb_aug</span> <span class="o">=</span> <span class="n">noise</span><span class="p">((</span><span class="n">xb</span><span class="p">,</span> <span class="n">yb</span><span class="p">,</span> <span class="n">mdb</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Display the first datum in batch, first color channel, and only first 5 rows and cols</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">xb_aug</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="mi">0</span><span class="p">][:</span><span class="mi">5</span><span class="p">,</span> <span class="p">:</span><span class="mi">5</span><span class="p">]</span>  
+<span class="go">array([[0.417, 0.720, 0.000, 0.302, 0.147],</span>
+<span class="go">       [0.419, 0.685, 0.204, 0.878, 0.027],</span>
+<span class="go">       [0.801, 0.968, 0.313, 0.692, 0.876],</span>
+<span class="go">       [0.098, 0.421, 0.958, 0.533, 0.692],</span>
+<span class="go">       [0.989, 0.748, 0.280, 0.789, 0.103]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="maite.protocols.image_classification.Model.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">image_classification.Model</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="maite.protocols.object_detection.ObjectDetectionTarget.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">object_detection.ObjectDetectionTarget</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#maite.protocols.object_detection.Augmentation"><code class="docutils literal notranslate"><span class="pre">Augmentation</span></code></a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/generated/maite.protocols.object_detection.Augmentation.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024 Massachusetts Institute of Technology.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
