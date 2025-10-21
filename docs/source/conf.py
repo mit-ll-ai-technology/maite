@@ -175,6 +175,7 @@ html_sidebars = {"changes": []}
 DOCSTRING_REPLACEMENT_MAP: Mapping[str, str] = {
     r"`Sequence\[([\w]{,32})\]`": r":class:`~collections.abc.Sequence` [`\1`]",
     "`ArrayLike`": ":py:type:`~maite.protocols.ArrayLike`",
+    "`DatumMetadata`": ":py:type:`~maite.protocols.DatumMetadata`",
 }
 
 

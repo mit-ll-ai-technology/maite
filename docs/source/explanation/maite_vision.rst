@@ -16,7 +16,7 @@ MAITE's Vision for Interoperability in AI Test and Evaluation
 The Problem
 ===========
 
-The landscape of open source AI test and evaluation (T&E) tools is expansive and constantly growing -- not only in terms of the variety of components available (models, datasets, augmentations, and metrics), but also in terms of library authors, frameworks (e.g., PyTorch, Tensorflow, JAX), modalities (e.g., images, sound, text, internet traffic), AI tasks (e.g., image classification, object detection, text classification), and applications (e.g., cat identification, network activity classification, facial recognition).
+The landscape of open source AI test and evaluation (T&E) tools is expansive and constantly growing -- not only in terms of the variety of components available (models, datasets, augmentations, and metrics), but also in terms of library authors, frameworks (e.g., PyTorch, Tensorflow, JAX), modalities (e.g., images, sound, text, internet traffic), AI problems (e.g., image classification, object detection, text classification), and applications (e.g., cat identification, network activity classification, facial recognition).
 
 This highly dynamic ecosystem of T&E tools has tremendous potential, but the breadth of options available can easily become a liability that hinders or halts integration efforts.
 Separately-developed software tools that work on the same problem rarely work seamlessly together, creating a need for ad-hoc compatibility shims that can be time consuming, fragile, or poorly documented.
@@ -44,6 +44,8 @@ The design of the MAITE standard is structured around the following objectives:
 3) **Simplicity** - Expectations comprising the MAITE standard should be as simple as possible to promote implementation of MAITE-compliant AI components, while still being detailed enough to provide useful guarantees to those integrating AI components within a T&E workflow.
 4) **Safety** - Compatibility of AI components should be clear, and compatible components should be usable together as expected.
 5) **Reproducibility** - The MAITE standard should make AI T&E pipelines easily reproducible to support future updates or result audits. [#reproducibility]_
+
+.. _components_tasks_primitives:
 
 Interoperable Object Concepts: "Components", "Tasks", and "Primitives"
 ======================================================================
@@ -77,9 +79,9 @@ The Python structural types provide strict, consistent, and machine-readable def
 The MAITE-provided structural type definitions permit static type checkers to verify Python objects fulfill required behavioral expectations at development time whenever the object is assigned to an object type hinted as the MAITE structural type. [#assignability]_
 After assignment to the structural type and validation by a typechecker, downstream procedures can treat the object as an arbitrary instance of the broader structural type without regard for specific implementation details.
 
-In practice, MAITE defines five component types within each supported AI task.
+In practice, MAITE defines five component types within each supported AI problem.
 These are ``Dataset``, ``DataLoader``, ``Augmentation``, ``Model``, and ``Metric``. A high-level UML class diagram of MAITE components (these are the classes with the "protocol" stereotype applied) is shown below.
-The diagram is templated on types which vary based on AI task.
+The diagram is templated on types which vary based on AI problem.
 
 .. image:: ../_static/images/maite_class_diagram.svg
     :width: 800
@@ -103,7 +105,7 @@ Footnotes
 
 .. [#reproducibility] Currently, no standards exist on how pipelines should be constructed, and thus no centralized record-keeping construct exists. This is nonetheless a goal that we'd like the MAITE protocols to enable.
 
-.. [#mltask] An AI task will have the types of model inputs, model predictions, minimum datum metadata, and batching procedure all defined.
+.. [#mltask] A specific AI problem will have the types of model inputs, model predictions, minimum datum metadata, and batching procedure all defined.
 
 .. [#behavioral_expectations] Instead of the clunky-but-accurate phrase "expected object semantics, variable names, variable types, method names, and method type signatures" we often will use "behavioral expectations" or "behavioral contract" which is shorter, but more abstract. If an object meets or exceeds behavioral expectations of a given component protocol, it is termed an "implementer" of that protocol and will pass static type checking when type hinted as the protocol type (even without nominal inheritance, because protocols are structural types [#python_structural_types]_).
 

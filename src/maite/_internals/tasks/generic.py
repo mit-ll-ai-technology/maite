@@ -59,7 +59,7 @@ class _DummyMetric(Metric):
 
 
 # Note: These 3 TypeVars don't capture coupling constraints between
-# types of each (i.e. all should be drawn from same AI task).
+# types of each (i.e. all should be drawn from same AI problem).
 
 T_input = TypeVar("T_input")
 T_target = TypeVar("T_target")
@@ -94,7 +94,7 @@ class _SimpleDataLoader(Generic[T_input, T_target, T_metadata]):
     Simple dataloader to create by default should a user not provide their own
     dataloader but does provide a Dataset.
 
-    Preconditions: dataset and collate_fn come from same AI task domain
+    Preconditions: dataset and collate_fn come from same AI problem domain
     """
 
     def __init__(
@@ -260,7 +260,7 @@ def evaluate(
         Tuple of returned metric value, sequence of model predictions, and
         sequence of data batch tuples fed to the model during inference. The actual
         types represented by InputType, TargetType, and DatumMetadataType will vary
-        by the AI task of the components provided as input arguments (e.g., image
+        by the AI problem of the components provided as input arguments (e.g., image
         classification or object detection.)
         Note that the second and third return arguments will be empty if
         return_augmented_data is False or return_preds is False, respectively.

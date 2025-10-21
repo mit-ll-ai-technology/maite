@@ -78,8 +78,8 @@ MetricComputeReturnType = dict[str, Any]
 
 
 # Define component metadata types
-# (currently these are completely AI task agnostic, but it is
-# possible to make each generic to support specializing by AI task)
+# (currently these are completely AI problem agnostic, but it is
+# possible to make each generic to support specializing by AI problem)
 
 
 # If we created some 'standard' set of required component fields, we could
@@ -163,6 +163,25 @@ class AugmentationMetadata(TypedDict):
 
 @runtime_checkable
 class Dataset(Protocol, Generic[InputType_co, TargetType_co, DatumMetadataType_co]):
+    """
+    Generic version of a protocol that specifies datum-level random access to a data source.
+
+    Implementers must provide index lookup (via `__getitem__(ind: int, /)` method) and
+    support `len` (via `__len__()` method). Data elements returned via `__getitem__`
+    correspond to tuples of `InputType`, `TargetType`, and `DatumMetadataType`. The
+    shape/value semantics of these three types are dictated by the concrete types used
+    to specialize this generic.
+
+    Additionally, Datasets are expected to contain a metadata attribute of type
+    `DatasetMetadata` with general information about the data source.
+
+    Note: In practice, this class is specialized within AI-problem specific submodules
+    using structural types for `InputType`, `TargetType`, and `DatumMetadataType`.
+    Implementing this class directly (i.e., without specializing on concrete types) is not
+    recommended. Static type checkers will effectively consider all non-specified type parameters
+    as `Any`-type, effectively masking potential type incompatibilities.
+    """
+
     metadata: DatasetMetadata
 
     def __getitem__(
@@ -174,6 +193,21 @@ class Dataset(Protocol, Generic[InputType_co, TargetType_co, DatumMetadataType_c
 
 @runtime_checkable
 class DataLoader(Protocol, Generic[InputType_co, TargetType_co, DatumMetadataType_co]):
+    """
+    Generic version of a protocol that specifies batch-level access to a data source.
+
+    Implementers must provide an iterable object (returning an iterator via the
+    `__iter__` method) that yields tuples containing batches of data. These tuples
+    contain types `Sequence[InputType]`, `Sequence[TargetType]`, and `Sequence[DatumMetadataType]`,
+    which correspond to model input batch, model target type batch, and a datum metadata batch.
+
+    Note: In practice, this class is specialized within AI-problem specific submodules
+    using structural types for `InputType`, `TargetType`, and `DatumMetadataType`.
+    Implementing this class directly (i.e., without specializing on concrete types) is not
+    recommended. Static type checkers will effectively consider all non-specified type parameters
+    as `Any`-type, effectively masking potential type incompatibilities.
+    """
+
     def __iter__(
         self,
     ) -> Iterator[
@@ -193,6 +227,20 @@ class Model(
     Protocol,
     Generic[InputType_cn, TargetType_co],
 ):
+    """
+    Generic version of a protocol that specifies inference behavior on data batches.
+
+    Implementers must provide a `__call__` method that operates on a batch of model
+    inputs (as `Sequence[InputType]`) and returns a batch of model targets (as
+    `Sequence[TargetType]`).
+
+    Note: In practice, this class is specialized within AI-problem specific submodules
+    using structural types for `InputType` and `TargetType`.
+    Implementing this class directly (i.e., without specializing on concrete types) is not
+    recommended. Static type checkers will effectively consider all non-specified type parameters
+    as `Any`-type, effectively masking potential type incompatibilities.
+    """
+
     metadata: ModelMetadata
 
     def __call__(
@@ -202,6 +250,39 @@ class Model(
 
 @runtime_checkable
 class Metric(Protocol, Generic[TargetType_cn, DatumMetadataType_cn]):
+    """
+    Generic version of a protocol that specifies a model/data alignment calculation behavior on data batches.
+
+    Implementers must provide `update`, `compute`, and `reset` methods as specified in below "Methods" section.
+    Briefly, these methods are designed to update a cache based on a batch of model inference predictions and their
+    intended targets, compute a metric based on current cache contents, and clear the current cache, respectively.
+
+    Note: In practice, this class is specialized within AI-problem specific submodules
+    using structural types for `TargetType` and `DatumMetadataType`.
+    Implementing this class directly (i.e., without specializing on concrete types) is not
+    recommended. Static type checkers will effectively consider all non-specified type parameters
+    as `Any`-type, effectively masking potential type incompatibilities.
+
+    Methods
+    -------
+
+    update(pred_batch: Sequence[InputType], target_batch: Sequence[TargetType], metadata_batch: Sequence[DatumMetadataType]) -> None
+        Add predictions and targets (and metadata if applicable) to metric's cache for later calculation.
+
+    compute() -> dict[str, Any]
+        Compute metric value(s) for currently cached predictions and targets, returned as
+        a dictionary.
+
+    reset() -> None
+        Clear contents of current metric's cache of predictions and targets.
+
+    Attributes
+    ----------
+
+    metadata : MetricMetadata
+        A typed dictionary containing at least an 'id' field of type str.
+    """
+
     metadata: MetricMetadata
 
     def reset(self) -> None: ...
@@ -231,6 +312,26 @@ class Augmentation(
         DatumMetadataType_cn,
     ],
 ):
+    """
+    Generic version of a protocol that specifies a batch-level perturbation to data.
+
+    An augmentation is expected to take a batch of data and return a modified version of
+    that batch. Implementers must provide a single method that takes and returns a
+    labeled data batch, where a labeled data batch is represented by a tuple of types
+    `Sequence[InputType]`, `Sequence[TargetType]`, and `Sequence[DatumMetadataType]`.
+    Elements of this tuple correspond to the model input batch, model target batch,
+    and datum-level metadata batch, respectively.
+
+    Additionally, `Augmentation` protocol implementers are expected to contain a metadata attribute of type
+    `AugmentationMetadata` with general information about the augmentation.
+
+    Note: In practice, this class is specialized within AI-problem specific submodules
+    using structural types for `TargetType` and `DatumMetadataType`.
+    Implementing this class directly (i.e., without specializing on concrete types) is not
+    recommended. Static type checkers will effectively consider all non-specified type parameters
+    as `Any`-type, effectively masking potential type incompatibilities.
+    """
+
     metadata: AugmentationMetadata
 
     def __call__(

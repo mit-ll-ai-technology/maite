@@ -36,7 +36,7 @@ Datum: TypeAlias = tuple[InputType, TargetType, DatumMetadataType]
 
 class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
     """
-    A dataset protocol for image classification AI task providing datum-level
+    A dataset protocol for image classification AI problem providing datum-level
     data access.
 
     Implementers must provide index lookup (via `__getitem__(ind: int)` method) and
@@ -44,7 +44,7 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
     to individual examples (as opposed to batches).
 
     Indexing into or iterating over an image_classification dataset returns a
-    `tuple` of types `ArrayLike`, `ArrayLike`, and `DatumMetadataType`.
+    `tuple` of types `ArrayLike`, `ArrayLike`, and `DatumMetadata`.
     These correspond to the model input type, model target type, and datum-level
     metadata, respectively. The `ArrayLike` protocol implementers associated with
     model input and model target types are expected to follow (C, H, W) shape semantics.
@@ -52,7 +52,7 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
     Methods
     -------
 
-    __getitem__(ind: int) -> tuple[ArrayLike, ArrayLike, DatumMetadataType]
+    __getitem__(ind: int) -> tuple[ArrayLike, ArrayLike, DatumMetadata]
         Provide map-style access to dataset elements. Returned tuple elements
         correspond to model input type, model target type, and datum-specific metadata type,
         respectively.
@@ -145,13 +145,13 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
 
 class DataLoader(gen.DataLoader[InputType, TargetType, DatumMetadataType], Protocol):
     """
-    A dataloader protocol for the image classification AI task providing
+    A dataloader protocol for the image classification AI problem providing
     batch-level data access.
 
     Implementers must provide an iterable object (returning an iterator via the
     `__iter__` method) that yields tuples containing batches of data. These tuples
     contain types `Sequence[ArrayLike]` (elements of shape `(C, H, W)`),
-    `Sequence[ArrayLike]` (elements shape `(Cl, )`), and `Sequence[DatumMetadataType]`,
+    `Sequence[ArrayLike]` (elements shape `(Cl, )`), and `Sequence[DatumMetadata]`,
     which correspond to model input batch, model target type batch, and a datum metadata batch.
 
     Note: Unlike Dataset, this protocol does not require indexing support, only iterating.
@@ -159,18 +159,18 @@ class DataLoader(gen.DataLoader[InputType, TargetType, DatumMetadataType], Proto
     Methods
     -------
 
-    __iter__ -> Iterator[tuple[Sequence[ArrayLike], Sequence[ArrayLike], Sequence[DatumMetadataType]]]
+    __iter__ -> Iterator[tuple[Sequence[ArrayLike], Sequence[ArrayLike], Sequence[DatumMetadata]]]
         Return an iterator over batches of data, where each batch contains a tuple of
         of model input batch (as `Sequence[ArrayLike]`), model target batch (as
         `Sequence[ArrayLike]`), and batched datum-level metadata
-        (as `Sequence[DatumMetadataType]`), respectively.
+        (as `Sequence[DatumMetadata]`), respectively.
 
     """
 
 
 class Model(gen.Model[InputType, TargetType], Protocol):
     """
-    A model protocol for the image classification AI task.
+    A model protocol for the image classification AI problem.
 
     Implementers must provide a `__call__` method that operates on a batch of model
     inputs (as `Sequence[ArrayLike]`) and returns a batch of model targets (as
@@ -266,9 +266,9 @@ class Model(gen.Model[InputType, TargetType], Protocol):
     """
 
 
-class Metric(gen.Metric[TargetType, DatumMetadataType], Protocol):
+class Metric(gen.Metric[TargetType, DatumMetadata], Protocol):
     """
-    A metric protocol for the image classification AI task.
+    A metric protocol for the image classification AI problem.
 
     A metric in this sense is expected to measure the level of agreement between model
     predictions and ground-truth labels.
@@ -276,7 +276,7 @@ class Metric(gen.Metric[TargetType, DatumMetadataType], Protocol):
     Methods
     -------
 
-    update(pred_batch: Sequence[ArrayLike], target_batch: Sequence[ArrayLike], metadata_batch: Sequence[DatumMetadataType]) -> None
+    update(pred_batch: Sequence[ArrayLike], target_batch: Sequence[ArrayLike], metadata_batch: Sequence[DatumMetadata]) -> None
         Add predictions and targets (and metadata if applicable) to metric's cache for later calculation. Both
         predictions and targets are expected to be sequences with elements of shape `(Cl,)`.
 
@@ -300,7 +300,7 @@ class Metric(gen.Metric[TargetType, DatumMetadataType], Protocol):
 
     >>> from typing import Any, Sequence
     >>> import numpy as np
-    >>> from maite.protocols import ArrayLike
+    >>> from maite.protocols import ArrayLike, DatumMetadata
     >>> from maite.protocols import image_classification as ic
 
     >>> class MyAccuracy:
@@ -318,7 +318,7 @@ class Metric(gen.Metric[TargetType, DatumMetadataType], Protocol):
     ...         self,
     ...         pred_batch: Sequence[ArrayLike],
     ...         target_batch: Sequence[ArrayLike],
-    ...         metadata_batch: Sequence[DatumMetadataType],
+    ...         metadata_batch: Sequence[DatumMetadata],
     ...     ) -> None:
     ...         model_preds = [np.array(r) for r in pred_batch]
     ...         true_onehot = [np.array(r) for r in target_batch]
@@ -354,7 +354,7 @@ class Metric(gen.Metric[TargetType, DatumMetadataType], Protocol):
     ...     np.array([1.0, 0.0, 0.0, 0.0]),
     ...     np.array([0.0, 1.0, 0.0, 0.0]),
     ... ]  # true classes: 0, 1
-    >>> metadatas: list[ic.DatumMetadataType] = [{"id": 1}, {"id": 2}]
+    >>> metadatas: list[DatumMetadata] = [{"id": 1}, {"id": 2}]
     >>> accuracy.update(model_preds, true_onehot, metadatas)
     >>> print(accuracy.compute())
     {'accuracy': 0.5}
@@ -368,7 +368,7 @@ class Metric(gen.Metric[TargetType, DatumMetadataType], Protocol):
     ...     np.array([0.0, 0.0, 1.0, 0.0]),
     ...     np.array([0.0, 0.0, 0.0, 1.0]),
     ... ]  # true classes: 2, 3
-    >>> metadatas: list[ic.DatumMetadataType] = [{"id": 3}, {"id": 4}]
+    >>> metadatas: list[DatumMetadata] = [{"id": 3}, {"id": 4}]
     >>> accuracy.update(model_preds, true_onehot, metadatas)
     >>>
     >>> print(accuracy.compute())
@@ -390,25 +390,25 @@ class Augmentation(
     Protocol,
 ):
     """
-    An augmentation protocol for the image classification AI task.
+    An augmentation protocol for the image classification AI problem.
 
     An augmentation is expected to take a batch of data and return a modified version of
     that batch. Implementers must provide a single method that takes and returns a
     labeled data batch, where a labeled data batch is represented by a tuple of types
     `Sequence[ArrayLike]` (with elements of shape `(C, H, W)`), `Sequence[ArrayLike]`
-    (with elements of shape `(Cl, )`), and `Sequence[DatumMetadataType]`. These correspond
+    (with elements of shape `(Cl, )`), and `Sequence[DatumMetadata]`. These correspond
     to the model input batch type, model target batch type, and datum-level metadata
     batch type, respectively.
 
     Methods
     -------
 
-    __call__(datum: tuple[Sequence[ArrayLike], Sequence[ArrayLike], Sequence[DatumMetadataType]]) ->\
-          tuple[Sequence[ArrayLike], Sequence[ArrayLike], Sequence[DatumMetadataType]])
+    __call__(datum: tuple[Sequence[ArrayLike], Sequence[ArrayLike], Sequence[DatumMetadata]]) ->\
+          tuple[Sequence[ArrayLike], Sequence[ArrayLike], Sequence[DatumMetadata]])
         Return a modified version of original data batch. A data batch is represented
         by a tuple of model input batch (as `Sequence[ArrayLike]` with elements of shape
         `(C, H, W)`), model target batch (as `Sequence[ArrayLike]` with elements of shape
-        `(Cl,)`), and batch metadata (as `Sequence[DatumMetadataType]`), respectively.
+        `(Cl,)`), and batch metadata (as `Sequence[DatumMetadata]`), respectively.
 
     Attributes
     ----------
