@@ -146,10 +146,7 @@ xpass_indices = set([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 14, 26, 27, 28, 29, 31])
 xfail_indices = set(range(32)) - xpass_indices
 
 TYPESPECS_TO_TEST_PASS = [TYPESPECS_TO_TEST[pi] for pi in xpass_indices]
-TYPESPECS_TO_TEST_FAIL = [
-    pytest.param(*TYPESPECS_TO_TEST[fi], marks=pytest.mark.xfail)
-    for fi in xfail_indices
-]
+TYPESPECS_TO_TEST_FAIL = [pytest.param(*TYPESPECS_TO_TEST[fi]) for fi in xfail_indices]
 
 
 @pytest.mark.slow
@@ -172,9 +169,108 @@ TYPESPECS_TO_TEST_FAIL = [
     metric_target_typespec,
     metric_metadata_typespec,
     """,
-    TYPESPECS_TO_TEST_PASS + TYPESPECS_TO_TEST_FAIL,
+    TYPESPECS_TO_TEST_PASS,
 )
 def test_static_evaluate(
+    dataloader_input_typespec: TypeEnum,
+    dataloader_target_typespec: TypeEnum,
+    dataloader_metadata_typespec: TypeEnum,
+    dataset_input_typespec: TypeEnum,
+    dataset_target_typespec: TypeEnum,
+    dataset_metadata_typespec: TypeEnum,
+    augmentation_inputco_typespec: TypeEnum,
+    augmentation_targetco_typespec: TypeEnum,
+    augmentation_metadataco_typespec: TypeEnum,
+    augmentation_inputcn_typespec: TypeEnum,
+    augmentation_targetcn_typespec: TypeEnum,
+    augmentation_metadatacn_typespec: TypeEnum,
+    model_input_typespec: TypeEnum,
+    model_target_typespec: TypeEnum,
+    metric_target_typespec: TypeEnum,
+    metric_metadata_typespec: TypeEnum,
+):
+    static_evaluate(
+        dataloader_input_typespec,
+        dataloader_target_typespec,
+        dataloader_metadata_typespec,
+        dataset_input_typespec,
+        dataset_target_typespec,
+        dataset_metadata_typespec,
+        augmentation_inputco_typespec,
+        augmentation_targetco_typespec,
+        augmentation_metadataco_typespec,
+        augmentation_inputcn_typespec,
+        augmentation_targetcn_typespec,
+        augmentation_metadatacn_typespec,
+        model_input_typespec,
+        model_target_typespec,
+        metric_target_typespec,
+        metric_metadata_typespec,
+    )
+
+
+@pytest.mark.slow
+@pytest.mark.parametrize(
+    """
+    dataloader_input_typespec,
+    dataloader_target_typespec,
+    dataloader_metadata_typespec,
+    dataset_input_typespec,
+    dataset_target_typespec,
+    dataset_metadata_typespec,
+    augmentation_inputco_typespec,
+    augmentation_targetco_typespec,
+    augmentation_metadataco_typespec,
+    augmentation_inputcn_typespec,
+    augmentation_targetcn_typespec,
+    augmentation_metadatacn_typespec,
+    model_input_typespec,
+    model_target_typespec,
+    metric_target_typespec,
+    metric_metadata_typespec,
+    """,
+    TYPESPECS_TO_TEST_FAIL,
+)
+def test_static_evaluate_raises(
+    dataloader_input_typespec: TypeEnum,
+    dataloader_target_typespec: TypeEnum,
+    dataloader_metadata_typespec: TypeEnum,
+    dataset_input_typespec: TypeEnum,
+    dataset_target_typespec: TypeEnum,
+    dataset_metadata_typespec: TypeEnum,
+    augmentation_inputco_typespec: TypeEnum,
+    augmentation_targetco_typespec: TypeEnum,
+    augmentation_metadataco_typespec: TypeEnum,
+    augmentation_inputcn_typespec: TypeEnum,
+    augmentation_targetcn_typespec: TypeEnum,
+    augmentation_metadatacn_typespec: TypeEnum,
+    model_input_typespec: TypeEnum,
+    model_target_typespec: TypeEnum,
+    metric_target_typespec: TypeEnum,
+    metric_metadata_typespec: TypeEnum,
+):
+    with pytest.raises(ValueError):
+        static_evaluate(
+            dataloader_input_typespec,
+            dataloader_target_typespec,
+            dataloader_metadata_typespec,
+            dataset_input_typespec,
+            dataset_target_typespec,
+            dataset_metadata_typespec,
+            augmentation_inputco_typespec,
+            augmentation_targetco_typespec,
+            augmentation_metadataco_typespec,
+            augmentation_inputcn_typespec,
+            augmentation_targetcn_typespec,
+            augmentation_metadatacn_typespec,
+            model_input_typespec,
+            model_target_typespec,
+            metric_target_typespec,
+            metric_metadata_typespec,
+        )
+
+
+def static_evaluate(
     dataloader_input_typespec: TypeEnum,
     dataloader_target_typespec: TypeEnum,
     dataloader_metadata_typespec: TypeEnum,

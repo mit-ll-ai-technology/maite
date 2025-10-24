@@ -67,46 +67,49 @@ def test_no_bounds():
     [
         pytest.param(
             {"arg": 1, "lower": 1, "upper": 1, "incl_low": False, "incl_up": False},
-            marks=pytest.mark.xfail(raises=AssertionError, strict=True),
             id="1 < ... < 1",
         ),
         pytest.param(
             {"arg": 1, "lower": 1, "upper": 1, "incl_low": True, "incl_up": False},
-            marks=pytest.mark.xfail(raises=AssertionError, strict=True),
             id="1 <= ... < 1",
         ),
         pytest.param(
-            {"arg": 1, "lower": 1, "upper": 1, "incl_low": True, "incl_up": True},
-            id="1 <= ... <= 1",
-        ),
-        pytest.param(
             {"arg": 1, "lower": 1, "upper": 1, "incl_low": False, "incl_up": True},
-            marks=pytest.mark.xfail(raises=AssertionError, strict=True),
             id="1 < ... <= 1",
         ),
         pytest.param(
             {"arg": 1, "lower": 2, "upper": 1, "incl_low": False, "incl_up": False},
-            marks=pytest.mark.xfail(raises=AssertionError, strict=True),
             id="2 < ... < 1",
         ),
         pytest.param(
             {"arg": 1, "lower": 2, "upper": 1, "incl_low": True, "incl_up": False},
-            marks=pytest.mark.xfail(raises=AssertionError, strict=True),
             id="2 <= ... < 1",
         ),
         pytest.param(
             {"arg": 1, "lower": 2, "upper": 1, "incl_low": False, "incl_up": True},
-            marks=pytest.mark.xfail(raises=AssertionError, strict=True),
             id="2 < ... <= 1",
         ),
         pytest.param(
             {"arg": 1, "lower": 2, "upper": 1, "incl_low": True, "incl_up": True},
-            marks=pytest.mark.xfail(raises=AssertionError, strict=True),
             id="2 <= ... <= 1",
         ),
     ],
 )
-def test_min_max_ordering(kwargs):
+def test_min_max_ordering_outof_range(kwargs):
+    with pytest.raises(AssertionError):
+        check_domain("dummy", **kwargs)
+
+
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        pytest.param(
+            {"arg": 1, "lower": 1, "upper": 1, "incl_low": True, "incl_up": True},
+            id="1 <= ... <= 1",
+        )
+    ],
+)
+def test_min_max_order_inrange(kwargs):
     check_domain("dummy", **kwargs)
 
 
@@ -115,23 +118,31 @@ def test_min_max_ordering(kwargs):
     [
         pytest.param(
             {"arg": 1, "lower": 1, "incl_low": False},
-            marks=pytest.mark.xfail(raises=ValueError, strict=True),
             id="lower:1 < arg:1",
         ),
-        pytest.param({"arg": 1, "lower": 1, "incl_low": True}, id="lower:1 <= arg:1"),
         pytest.param(
             {"arg": 1, "upper": 1, "incl_up": False},
-            marks=pytest.mark.xfail(raises=ValueError, strict=True),
             id="arg:1 < upper:1",
         ),
+    ],
+)
+def test_bad_inequality(kwargs):
+    with pytest.raises(ValueError):
+        check_domain("dummy", **kwargs)
+
+
+@pytest.mark.parametrize(
+    "kwargs",
+    [
         pytest.param({"arg": 1, "upper": 1, "incl_up": True}, id="arg:1 <= upper:1"),
+        pytest.param({"arg": 1, "lower": 1, "incl_low": True}, id="lower:1 <= arg:1"),
         pytest.param(
             {"arg": 1, "lower": 1, "upper": 1, "incl_low": True, "incl_up": True},
             id="lower:1 <= arg:1 <= upper:1",
         ),
     ],
 )
-def test_bad_inequality(kwargs):
+def test_inequality(kwargs):
     check_domain("dummy", **kwargs)
 
 

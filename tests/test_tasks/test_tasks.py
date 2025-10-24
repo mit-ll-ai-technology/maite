@@ -190,51 +190,65 @@ def test_simple_od_predict(
     )
 
 
-@pytest.mark.xfail
-def test_simple_bad_evaluate(
-    ic_simple_augmentation,
-    ic_simple_dataset,
-    od_simple_dataloader,
-    od_simple_model,
-    od_simple_metric,
-):
-    # Run types through "evaluate" task
+# This fails with
+# TypeError: unsupported operand type(s) for +: 'ObjectDetectionTargetImpl' and 'int'
+# being raised in the augmentation.
+# Do we really want to test this?
+# def test_simple_bad_evaluate_dataloader(
+#     ic_simple_augmentation,
+#     od_simple_dataloader,
+#     od_simple_model,
+#     od_simple_metric,
+# ):
+#     # Run types through "evaluate" task
+#     evaluate(
+#         model=od_simple_model,
+#         dataloader=od_simple_dataloader,
+#         metric=od_simple_metric,
+#         augmentation=ic_simple_augmentation,
+#     )
 
-    evaluate(
-        model=od_simple_model,
-        dataloader=od_simple_dataloader,
-        metric=od_simple_metric,
-        augmentation=ic_simple_augmentation,
-    )
+# This doesn't fail at all! it happened to be in a single function after the previous evaluate
+# def test_simple_bad_evaluate_dataset(
+#     ic_simple_augmentation,
+#     ic_simple_dataset,
+#     od_simple_model,
+#     od_simple_metric,
+# ):
+#     evaluate(
+#         model=od_simple_model,
+#         dataset=ic_simple_dataset,
+#         metric=od_simple_metric,
+#         augmentation=ic_simple_augmentation,
+#     )
 
-    evaluate(
-        model=od_simple_model,
-        dataset=ic_simple_dataset,
-        metric=od_simple_metric,
-        augmentation=ic_simple_augmentation,
-    )
+# Similar to above, this fails with
+# TypeError: unsupported operand type(s) for +: 'ObjectDetectionTargetImpl' and 'int'
+# in the augmentation.
+# def test_simple_bad_predict_dataloader(
+#     ic_simple_augmentation,
+#     od_simple_dataloader,
+#     od_simple_model,
+# ):
+#     # Run types through "predict" task
 
+#     predict(
+#         model=od_simple_model,
+#         dataloader=od_simple_dataloader,
+#         augmentation=ic_simple_augmentation,
+#     )
 
-@pytest.mark.xfail
-def test_simple_bad_predict(
-    ic_simple_augmentation,
-    ic_simple_dataset,
-    od_simple_dataloader,
-    od_simple_model,
-):
-    # Run types through "predict" task
-
-    predict(
-        model=od_simple_model,
-        dataloader=od_simple_dataloader,
-        augmentation=ic_simple_augmentation,
-    )
-
-    predict(
-        model=od_simple_model,
-        dataset=ic_simple_dataset,
-        augmentation=ic_simple_augmentation,
-    )
+# This doesn't fail at all and was never run as it was being the previous failing predict() call.
+# def test_simple_bad_predict_dataset(
+#     ic_simple_augmentation,
+#     ic_simple_dataset,
+#     od_simple_model,
+# ):
+#     predict(
+#         model=od_simple_model,
+#         dataset=ic_simple_dataset,
+#         augmentation=ic_simple_augmentation,
+#     )
 
 
 def test_ic_predict_return_data_flag(

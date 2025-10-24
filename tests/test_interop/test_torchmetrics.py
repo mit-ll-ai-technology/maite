@@ -140,7 +140,6 @@ def test_output_key():
     )
 
 
-@pytest.mark.xfail
 def test_both_output_key_and_output_transform():
     # Adds key, converts to float, and puts result in list
     def output_transform(metric_result_tensor):
@@ -148,9 +147,10 @@ def test_both_output_key_and_output_transform():
 
     mca = torchmetrics.classification.MulticlassAccuracy(num_classes=3)
     # Should fail since can't have both output_key and output_transform
-    _ = TMClassificationMetric(
-        mca, output_key="metric_result", output_transform=output_transform
-    )
+    with pytest.raises(ValueError):
+        TMClassificationMetric(
+            mca, output_key="metric_result", output_transform=output_transform
+        )
 
 
 def do_batches(

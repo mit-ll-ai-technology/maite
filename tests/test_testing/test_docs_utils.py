@@ -191,21 +191,23 @@ def make_class(
                 examples=">>> 1+1\n2",
             ),
         ),
-        pytest.param(
-            make_class(),
-            marks=pytest.mark.xfail(raises=AssertionError, strict=True),
-            id="BadClass",
-        ),
-        pytest.param(
-            make_func(),
-            marks=pytest.mark.xfail(raises=AssertionError, strict=True),
-            id="bad_func",
-        ),
     ],
 )
 def test_good_doc(obj):
     results = validate_docstring(obj, ignore=("SA01",))
     assert results["error_count"] == 0, results["errors"]
+
+
+def test_bad_class():
+    obj = make_class()
+    results = validate_docstring(obj, ignore=("SA01",))
+    assert results["error_count"] == 1
+
+
+def test_bad_func():
+    obj = make_func()
+    results = validate_docstring(obj, ignore=("SA01",))
+    assert results["error_count"] == 5
 
 
 bad_doc_func = make_func(
