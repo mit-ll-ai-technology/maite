@@ -1,0 +1,7 @@
+﻿  
+augment\_dataloader
+===================
+
+.. currentmodule:: maite.tasks
+
+.. autofunction:: augment_dataloader

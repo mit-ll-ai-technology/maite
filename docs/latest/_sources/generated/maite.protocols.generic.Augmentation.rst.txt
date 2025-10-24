@@ -1,0 +1,7 @@
+﻿  
+generic.Augmentation
+====================
+
+.. currentmodule:: maite.protocols.generic
+
+.. autoclass:: Augmentation
