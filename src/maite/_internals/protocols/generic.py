@@ -192,6 +192,17 @@ class Dataset(Protocol, Generic[InputType_co, TargetType_co, DatumMetadataType_c
 
 
 @runtime_checkable
+class FieldwiseDataset(
+    Dataset[InputType_co, TargetType_co, DatumMetadataType_co], Protocol
+):
+    def get_input(self, __ind: int, /) -> InputType_co: ...
+
+    def get_target(self, __ind: int, /) -> TargetType_co: ...
+
+    def get_metadata(self, __ind: int, /) -> DatumMetadataType_co: ...
+
+
+@runtime_checkable
 class DataLoader(Protocol, Generic[InputType_co, TargetType_co, DatumMetadataType_co]):
     """
     Generic version of a protocol that specifies batch-level access to a data source.

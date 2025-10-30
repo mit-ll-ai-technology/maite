@@ -40,5 +40,6 @@ components
    protocols.image_classification.Augmentation
    protocols.image_classification.DataLoader
    protocols.image_classification.Dataset
+   protocols.image_classification.FieldwiseDataset
    protocols.image_classification.Metric
    protocols.image_classification.Model

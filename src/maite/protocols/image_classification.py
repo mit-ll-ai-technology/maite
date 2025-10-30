@@ -9,6 +9,7 @@ from maite._internals.protocols.image_classification import (  # isort:skip
     Augmentation,
     DataLoader,
     Dataset,
+    FieldwiseDataset,
     Metric,
     Model,
 )
@@ -20,6 +21,7 @@ __all__ = [
     "Augmentation",
     "DataLoader",
     "Dataset",
+    "FieldwiseDataset",
     "Metric",
     "Model",
 ]

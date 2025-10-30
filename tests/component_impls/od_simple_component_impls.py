@@ -98,6 +98,15 @@ class DatasetImpl:
     ) -> tuple[np.ndarray, ObjectDetectionTargetImpl, DatumMetadata]:
         return (self._data[ind], self._targets[ind], self._data_metadata[ind])
 
+    def get_input(self, index: int, /) -> InputType:
+        return self._data[index]
+
+    def get_target(self, index: int, /) -> ObjectDetectionTargetImpl:
+        return self._targets[index]
+
+    def get_metadata(self, index: int, /) -> DatumMetadata:
+        return self._data_metadata[index]
+
 
 class DataLoaderImpl:
     def __init__(self, dataset: DatasetImpl, batch_size: int = 2):

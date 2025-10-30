@@ -41,5 +41,6 @@ components
    protocols.object_detection.ObjectDetectionTarget
    protocols.object_detection.DataLoader
    protocols.object_detection.Dataset
+   protocols.object_detection.FieldwiseDataset
    protocols.object_detection.Metric
    protocols.object_detection.Model
