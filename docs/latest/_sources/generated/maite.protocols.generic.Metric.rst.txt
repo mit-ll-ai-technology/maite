@@ -1,0 +1,7 @@
+﻿  
+generic.Metric
+==============
+
+.. currentmodule:: maite.protocols.generic
+
+.. autoclass:: Metric

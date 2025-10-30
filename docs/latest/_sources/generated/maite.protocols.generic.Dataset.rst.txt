@@ -1,0 +1,7 @@
+﻿  
+generic.Dataset
+===============
+
+.. currentmodule:: maite.protocols.generic
+
+.. autoclass:: Dataset

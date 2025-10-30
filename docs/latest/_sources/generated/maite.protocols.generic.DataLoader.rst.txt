@@ -1,0 +1,7 @@
+﻿  
+generic.DataLoader
+==================
+
+.. currentmodule:: maite.protocols.generic
+
+.. autoclass:: DataLoader
