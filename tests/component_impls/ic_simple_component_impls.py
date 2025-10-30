@@ -60,6 +60,15 @@ class DatasetImpl:
     def __getitem__(self, ind: int) -> tuple[np.ndarray, np.ndarray, DatumMetadata]:
         return (self._data[ind], self._targets[ind], self._data_metadata[ind])
 
+    def get_input(self, ind, /) -> np.ndarray:
+        return self._data[ind]
+
+    def get_target(self, ind, /) -> np.ndarray:
+        return self._targets[ind]
+
+    def get_metadata(self, ind, /) -> DatumMetadata:
+        return self._data_metadata[ind]
+
 
 class DataLoaderImpl:
     def __init__(self, dataset: DatasetImpl, batch_size=2):

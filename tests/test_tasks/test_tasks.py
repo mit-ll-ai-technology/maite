@@ -28,6 +28,29 @@ from tests.component_impls import (
 )
 
 
+def test_ic_elemaccess_dataset():
+    ds = ici.DatasetImpl()
+
+    def f(fw: ic.FieldwiseDataset):
+        assert np.array_equal(fw.get_input(0), ds._data[0])
+        assert np.array_equal(fw.get_target(0), ds._targets[0])
+        assert fw.get_metadata(0) == ds._data_metadata[0]
+
+    f(ds)
+
+
+def test_od_elemaccess_dataset():
+    ds = odi.DatasetImpl()
+
+    def f(fw_ds: od.FieldwiseDataset):
+        input = fw_ds.get_input(0)
+        assert np.array_equal(input, ds._data[0])
+        assert fw_ds.get_target(0) == ds._targets[0]
+        assert fw_ds.get_metadata(0) == ds._data_metadata[0]
+
+    f(ds)
+
+
 def test_ic_augment_dataloader(
     ic_mock_dataset: ic.Dataset,
     ic_mock_augmentation: ic.Augmentation,

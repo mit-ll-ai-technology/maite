@@ -250,6 +250,95 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
     ...
 
 
+class FieldwiseDataset(
+    Dataset, gen.FieldwiseDataset[InputType, TargetType, DatumMetadataType], Protocol
+):
+    """
+    A specialization of Dataset protocol (i.e., a subprotocol) that specifies additional
+    accessor methods for getting input, target, and metadata individually.
+
+    Methods
+    -------
+
+    __getitem__(ind: int) -> tuple[InputType, TargetType, DatumMetadataType]
+        Provide map-style access to dataset elements. Returned tuple elements
+        correspond to model input type, model target type, and datum-specific metadata type,
+        respectively.
+
+    __len__() -> int
+        Return the number of data elements in the dataset.
+
+    get_input(index: int, /) -> InputType:
+        Get input at the given index.
+
+    get_target(index: int, /) -> ObjectDetectionTarget:
+        Get target at the given index.
+
+    get_metadata(index: int, /) -> DatumMetadataType:
+        Get metadata at the given index.
+
+    Examples
+    --------
+    We create a dummy set of data and use it to create a class that implements
+    the dataset protocol:
+
+    >>> import numpy as np
+    >>> from maite.protocols import (
+    ...     DatumMetadata,
+    ...     DatasetMetadata,
+    ...     object_detection as od,
+    ... )
+
+    Constructing a compliant dataset now just involves a simple wrapper that fetches
+    individual data points, where a data point is a single image, ground truth detection(s),
+    and metadata.
+
+    >>> class ExampleDataset:
+    ...     # Set up required dataset-level metadata
+    ...     metadata: DatasetMetadata = {
+    ...         "id": "Dummy Dataset",
+    ...         "index2label": {i: f"class_{i}" for i in range(5)},
+    ...     }
+    ...
+    ...     def __init__(
+    ...         self,
+    ...         inputs: list[np.ndarray],
+    ...         targets: list[TargetType],
+    ...         metadatas: list[DatumMetadataType],
+    ...     ):
+    ...         self.inputs = inputs
+    ...         self.targets = targets
+    ...         self.metadatas = metadatas
+    ...
+    ...     def __len__(self) -> int:
+    ...         return len(self.inputs)
+    ...
+    ...     def __getitem__(
+    ...         self, index: int
+    ...     ) -> tuple[np.ndarray, od.ObjectDetectionTarget, od.DatumMetadataType]:
+    ...         image = self.inputs[index]
+    ...         target = self.targets[index]
+    ...         metadata = self.metadatas[index]
+    ...         return image, target, metadata
+    ...
+    ...     def get_input(self, index: int, /) -> np.ndarray:
+    ...         return self.inputs[index]
+    ...
+    ...     def get_target(self, index: int, /) -> ObjectDetectionTarget:
+    ...         return self.targets[index]
+    ...
+    ...     def get_metadata(self, index: int, /) -> DatumMetadataType:
+    ...         return self.metadatas[index]
+
+    We can instantiate this class and type hint it as an object_detection.Dataset. By
+    using type hinting, we permit a static typechecker to verify protocol compliance.
+
+    >>> maite_od_dataset: od.FieldwiseDataset = ExampleDataset([], [], [])
+    """
+
+    ...
+
+
 class DataLoader(
     gen.DataLoader[
         InputType,
