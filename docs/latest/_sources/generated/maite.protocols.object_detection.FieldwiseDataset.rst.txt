@@ -1,0 +1,7 @@
+﻿  
+object\_detection.FieldwiseDataset
+==================================
+
+.. currentmodule:: maite.protocols.object_detection
+
+.. autoclass:: FieldwiseDataset

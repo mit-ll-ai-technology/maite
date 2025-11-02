@@ -1,0 +1,7 @@
+﻿  
+DatumMetadata
+=============
+
+.. currentmodule:: maite.protocols
+
+.. autoclass:: DatumMetadata
