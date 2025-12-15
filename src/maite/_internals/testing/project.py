@@ -2,6 +2,7 @@
 # Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).
 # SPDX-License-Identifier: MIT
 
+import importlib
 import json
 import subprocess
 from collections.abc import Collection, Generator, Mapping
@@ -9,16 +10,23 @@ from copy import deepcopy
 from functools import _CacheInfo as CacheInfo
 from functools import lru_cache
 from importlib import import_module
+from importlib.metadata import entry_points
+from itertools import chain
 from pathlib import Path
-from typing import Any, Literal, Union, get_args
+from typing import Any, Literal, Optional, Union, get_args
 
 from typing_extensions import NotRequired
 
-from maite._internals.testing.pyright import PYRIGHT_PATH, Diagnostic, PyrightOutput
+from maite._internals.compat import TypedDict
+from maite._internals.testing.pyright import (
+    PYRIGHT_PATH,
+    Diagnostic,
+    PyrightOutput,
+    chdir,
+    pyright_analyze,
+)
+from maite._internals.utils import is_typed_dict
 from maite.utils.validation import check_one_of, check_type
-
-from ..compat import TypedDict
-from ..utils import is_typed_dict
 
 Category = Literal[
     "class",
@@ -471,3 +479,297 @@ def import_public_symbols(
                     yield param(symbol["name"], marks=marker)  # type: ignore
                 else:
                     continue
+
+
+def generate_implementer_static_verification_code_snippet(
+    class_module: str,
+    class_name: str,
+    protocol_module: str,
+    protocol_name: str,
+) -> str:
+    """Generate a source code snippet for use verifying a candidate protocol implementer class.
+
+    This function creates Python code that imports the specified class and tests its conformance with
+    the provided Protocol.  (Code snippet is meant only to be evaluated statically, not to run.)
+
+    Parameters
+    ----------
+    class_module : str
+        Module path of the entrypoint's class (e.g., ``my_package.module``).
+    class_name : str
+        Name of the class to validate.
+    protocol_module : str
+        Module where the Protocol is defined (e.g., ``maite.protocols.image_classification``).
+    protocol_name : str
+        Name of the Protocol class (e.g., ``Model``).
+
+    Returns
+    -------
+    str
+        A Python script file that can be typechecked to test whether a class' type hints are consistent
+        with those of a MAITE protocol.
+
+    Warnings
+    --------
+    If the type being validated is not fully static (see typing.python.org/en/latest/spec/concepts.html#fully-static-types),
+    then this code snippet may erroneously "pass" static typechecking by masking issues to the typechecker.
+    """
+
+    return f"""
+from {protocol_module} import {protocol_name}
+from {class_module} import {class_name}
+
+def test_protocol_compliance(obj: {protocol_name}):
+    ...
+
+def type_check(class_instance: {class_name}):
+    test_protocol_compliance(class_instance)
+
+"""
+
+
+def load_object(fqname: str):
+    """
+    Load an object into memory from its fully-qualified name
+
+    Parameters
+    ----------
+    fqname: str
+        Fully qualified name for object, with colon separating module name and class name
+        (e.g., ``a_package.module:SomeClass``).
+    """
+
+    module_path, obj_name = fqname.split(":")
+    module = importlib.import_module(module_path)
+    return getattr(module, obj_name)
+
+
+def statically_verify_component_entrypoint_against_protocol(
+    protocol_module: str,
+    protocol_name: str,
+    package_name: Optional[str] = None,
+    entrypoint_group: Optional[str] = None,
+) -> dict[str, bool]:
+    """
+    Verify that classes specified as object references within an entrypoint group (where group name
+    corresponds to the protocol class being implemented) are statically valid implementers.
+
+    This function iterates over all object references within the entrypoint group corresponding to a
+    given protocol class (where the group name is formed by populating the string
+    f'{protocol_module}.{protocol_name}'), statically typechecks each object against the
+    corresponding protocol, and returns a dictionary that maps object names to a boolean indicator
+    of whether they are statically-assignable to the corresponding protocol class.
+
+    Below is an example pyproject.toml snippet advertising an implementer of the protocol
+    "maite.protocols.object_detection.Metric". The implementing class is located in
+    "maite.interop.metrics.torchmetrics" and the implementing class name is "TMDetectionMetric".
+
+    ```
+    [project.entry-points."maite.protocols.object_detection.Metric"]
+    maite_TMDetectionMetric = "maite.interop.metrics.torchmetrics:TMDetectionMetric"
+    ```
+
+    Parameters
+    ----------
+    protocol_module : str
+        Module where the protocol class is defined (e.g., ``maite.protocols.image_classification``).
+
+    protocol_name : str
+        Name of the protocol class (e.g., ``Model``).
+
+    package_name : Optional[str]
+        Name of package to probe for protocol implementations (defaults to all installed packages).
+
+    entrypoint_group : Optional[str]
+        Entrypoint group to check (defaults to f'{protocol_module}:{protocol_name}').
+
+
+    Returns
+    -------
+    Dict[str, bool]
+        A dictionary mapping entry point names to validation results:
+            - ``True``: Statically valid according to the protocol definition.
+            - ``False``: Statically invalid according to protocol definition (or encountered an error during analysis).
+
+    Raises
+    ------
+    ImportError
+        If any entrypoint's module cannot be imported.
+
+    Warnings
+    --------
+    If classes being verified against protocols omit type hints, use 'Any' as a type hint, or use TypeVars in any
+    contained type hints they may be falsely 'verified' against a protocol specification. As such, this function's
+    'verification' result should be understood as a necessary (but not sufficient) condition for entrypoints
+    to conform to specification. In the future, if any of the listed conditions are found to be true of a class
+    being verified against a protocol specification, this function may deem the entrypoint statically invalid.
+    """
+
+    protocol_fq_cls = ":".join(
+        [protocol_module, protocol_name]
+    )  # "fq" => "fully qualified"
+    protocol_cls = load_object(fqname=protocol_fq_cls)
+
+    if entrypoint_group is None:
+        entrypoint_group = str(protocol_cls)
+
+    results = {}
+    eps = entry_points(group=".".join([protocol_module, protocol_name]))
+
+    for ep in eps:
+        if package_name is not None:
+            # guard against case where ep.dist happens to be None
+            if ep.dist is None:
+                raise ValueError(
+                    "Entry point {ep} doesn"
+                    "'t describe a distribution. "
+                    "Unable to filter on distribution."
+                )
+            else:
+                if ep.dist.name != package_name:
+                    continue
+        try:
+            class_module, class_name = ep.module, ep.attr
+
+            # Generate validation code snippet
+            code = generate_implementer_static_verification_code_snippet(
+                protocol_module=protocol_module,
+                protocol_name=protocol_name,
+                class_module=class_module,
+                class_name=class_name,
+            )
+
+            # Save to temporary file and analyze with Pyright
+            with chdir():
+                cwd = Path.cwd()
+                temp_file = f"check_{ep.name}.py"
+                with open(cwd / temp_file, "w") as f:
+                    f.write(code)
+
+                pa_results = pyright_analyze(cwd / temp_file)
+
+            is_valid = False
+            if pa_results[0]["summary"]["errorCount"] == 0:
+                is_valid = True
+
+            results[ep.name] = is_valid
+
+        except Exception as e:
+            print(f"[ERROR] Failed to check {ep.name}: {e}")
+            results[ep.name] = False
+
+    return results
+
+
+def statically_verify_exposed_component_entrypoints(
+    entrypoint_group_prefix: str = "maite.protocols",
+    package_name: Optional[str] = None,
+) -> dict[str, bool]:
+    """
+    Verify that all MAITE component classes advertised via package entrypoints are statically
+    valid implementations of the protocols corresponding to their entrypoint groups.
+
+    This function iterates over all package entrypoints whose 'group' begins with a prescribed
+    prefix (defaults to 'maite.protocols'), interprets the entrypoint group as the fully-qualified
+    name of the protocol being implemented (e.g., 'maite.protocols.image_classification.Model'),
+    interprets the entrypoint's 'object reference' as the component class to check, and verifies
+    that each such component class is statically assignable to designated protocol class.
+
+    Below is an example pyproject.toml snippet advertising an implementer of
+    the protocol "maite.protocols.object_detection.Model". The implementing class is located in
+    "maite.interop.models.yolo" and the class name is "YoloObjectDetector".
+
+    ```
+    [project.entry-points."maite.protocols.object_detection.Model"]
+    maite_YoloObjectDetector = "maite.interop.models.yolo:YoloObjectDetector"
+    ```
+
+    Parameters
+    ----------
+    entrypoint_group_prefix : str
+        Entrypoint group to check (defaults to 'maite.protocols').
+
+    package_name : Optional[str]
+        Name of package to probe for protocol implementations. Setting to None (the default) will include all installed packages.
+
+    Returns
+    -------
+    Dict[str, bool]
+        A dictionary mapping entry point names to validation results:
+            - ``True``: Statically valid according to the protocol definition.
+            - ``False``: Statically invalid according to protocol definition (or encountered an error during analysis).
+
+    Raises
+    ------
+    ImportError
+        If any entrypoint's module cannot be imported.
+
+    Warnings
+    --------
+    If classes being verified against protocols omit type hints, use 'Any' as a type hint, or use TypeVars in any
+    contained type hints they may be falsely 'verified' against a protocol specification. As such, this function's
+    'verification' result should be understood as a necessary (but not sufficient) condition for entrypoints
+    to conform to specification. In the future, if any of the listed conditions are found to be true of a class
+    being verified against a protocol specification, this function may deem the entrypoint statically invalid.
+    """
+
+    results = {}
+
+    # Note: without selection parameters, `entry_points` in python <= 3.10 returns a dict-like
+    # SelectableGroups object whose keys are group-names and values are EntryPoints instances to be iterated over
+    # This guard ensures that even in 3.10, the entrypoints are iterated over consistently
+
+    # (SelectableGroups should be removed after python 3.10, negating the need for this guard)
+    eps = entry_points()
+    if isinstance(eps, Mapping):
+        eps = chain.from_iterable(eps.values())
+
+    for ep in eps:
+        if package_name is not None:
+            # guard against case where ep.dist happens to be None
+            if ep.dist is None:
+                raise ValueError(
+                    "Entry point {ep} doesn"
+                    "'t describe a distribution. "
+                    "Unable to filter on distribution."
+                )
+            else:
+                if ep.dist.name != package_name:
+                    continue
+        if not ep.group.startswith(entrypoint_group_prefix):
+            continue
+
+        try:
+            class_module, class_name = ep.module, ep.attr
+            protocol_module, protocol_name = ep.group.rsplit(
+                ".", 1
+            )  # 'foo.bar.baz' -> 'foo.bar', 'baz'
+
+            # Generate validation code snippet
+            code = generate_implementer_static_verification_code_snippet(
+                protocol_module=protocol_module,
+                protocol_name=protocol_name,
+                class_module=class_module,
+                class_name=class_name,
+            )
+
+            # Save to temporary file and analyze with Pyright
+            with chdir():
+                cwd = Path.cwd()
+                temp_file = f"check_{ep.name}.py"
+                with open(cwd / temp_file, "w") as f:
+                    f.write(code)
+
+                pa_results = pyright_analyze(cwd / temp_file)
+
+            is_valid = False
+            if pa_results[0]["summary"]["errorCount"] == 0:
+                is_valid = True
+
+            results[ep.name] = is_valid
+
+        except Exception as e:
+            print(f"[ERROR] Failed to check {ep.name}: {e}")
+            results[ep.name] = False
+
+    return results
