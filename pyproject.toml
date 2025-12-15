@@ -37,7 +37,7 @@ classifiers = [
 test = [
   "pip",
   "jupytext >= 1.14.0",
-  "numpydoc >= 1.5.0",
+  "numpydoc >= 1.5.0, != 1.10.0", #1.10.0 breaks current CI (see job 1013698)
   "pyright >= 1.1.280, != 1.1.401",  #1.1.401 breaks current CI
   "pytest >= 7.0.0",
   "hypothesis >= 6.61.0, <= 6.113",
@@ -215,3 +215,18 @@ exclude = [
 ]
 reportUnnecessaryTypeIgnoreComment = true
 reportUnnecessaryIsInstance = false
+
+[project.entry-points."maite.tasks"]
+maite_evaluate = "maite.tasks:evaluate"
+maite_predict = "maite.tasks:predict"
+maite_evaluate_from_predictions = "maite.tasks:evaluate_from_predictions"
+maite_augment_dataloader = "maite.tasks:augment_dataloader"
+
+[project.entry-points."maite.protocols.object_detection.Model"]
+maite_YoloObjectDetector = "maite.interop.models.yolo:YoloObjectDetector"
+
+[project.entry-points."maite.protocols.object_detection.Metric"]
+maite_TMDetectionMetric = "maite.interop.metrics.torchmetrics:TMDetectionMetric"
+
+[project.entry-points."maite.protocols.image_classification.Metric"]
+maite_TMClassificationMetric = "maite.interop.metrics.torchmetrics:TMClassificationMetric"

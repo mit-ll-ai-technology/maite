@@ -1726,7 +1726,7 @@ requires-dist = [
     { name = "matplotlib", marker = "extra == 'yolo-models'", specifier = ">=3.7.1" },
     { name = "nbconvert", marker = "extra == 'builddocs'" },
     { name = "numpy", specifier = ">=1.24.2" },
-    { name = "numpydoc", marker = "extra == 'test'", specifier = ">=1.5.0" },
+    { name = "numpydoc", marker = "extra == 'test'", specifier = ">=1.5.0,!=1.10.0" },
     { name = "opencv-python-headless", marker = "extra == 'yolo-models'", specifier = ">=4.6.0" },
     { name = "pandas", marker = "extra == 'yolo-models'", specifier = ">=2.0" },
     { name = "pip", marker = "extra == 'test'" },
