@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable, Iterator, Sequence
-from typing import Any, Callable, Generic, Protocol, TypeVar, runtime_checkable
+from typing import Any, Callable, Generic, Mapping, Protocol, TypeVar, runtime_checkable
 
 from typing_extensions import NotRequired, ReadOnly, Required, TypeAlias
 
@@ -50,7 +50,7 @@ DatumMetadataType_in = TypeVar(
     "DatumMetadataType_in", contravariant=False, covariant=False
 )
 
-MetricComputeReturnType = dict[str, Any]
+MetricComputeReturnType = Mapping[str, Any]
 
 # TODO: Consider whether using Datum as a TypeAlias is more confusing than helpful
 #         It seems we just need 3 typevars in the TypeAlias assignment and the TypeVar
