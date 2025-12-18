@@ -11,6 +11,21 @@ chronological order.
 .. _v0.9.1:
 
 ---------------------
+0.9.1 - 2025-12-18
+---------------------
+
+- Add prototype advertisement/verification mechanism of components/tasks within installed packages (`_internals/testing/project:statically_verify_exposed_component_entrypoints`)
+- Implement selective dataset loading with dataset protocol subclass (`FieldwiseDataset`)
+- Increase use of pytest raises (over 'xfails') for semantically correct exceptions raised in unit testing 
+- Temporarily pin ipykernel dependency until upstream fix implemented (https://github.com/huggingface/xet-core/issues/526)
+- Reorganize API reference section for better scalability and clarity
+- Crosslink type-aliases and generics within docs
+- Add prototype image segmentation protocol definitions (in `_internals`)
+- Add docstrings underneath typealias definitions to give more intuitive tooltip messaging (e.g., expected shape semantics for protocols.image_classification.InputType )
+
+.. _v0.9.0:
+
+---------------------
 0.9.0 - 2025-09-24
 ---------------------
 
