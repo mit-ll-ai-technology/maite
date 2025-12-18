@@ -14,6 +14,7 @@ chronological order.
 0.9.1 - 2025-12-18
 ---------------------
 
+- Change return type of `Metric.compute` from `dict[str,Any]` -> `Mapping[str,Any]` to enable `TypedDict` classes to more easily structurally subclass this return type
 - Add prototype advertisement/verification mechanism of components/tasks within installed packages (`_internals/testing/project:statically_verify_exposed_component_entrypoints`)
 - Implement selective dataset loading with dataset protocol subclass (`FieldwiseDataset`)
 - Increase use of pytest raises (over 'xfails') for semantically correct exceptions raised in unit testing 
