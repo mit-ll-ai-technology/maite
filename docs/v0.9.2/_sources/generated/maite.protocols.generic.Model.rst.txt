@@ -1,0 +1,7 @@
+﻿  
+generic.Model
+=============
+
+.. currentmodule:: maite.protocols.generic
+
+.. autoclass:: Model

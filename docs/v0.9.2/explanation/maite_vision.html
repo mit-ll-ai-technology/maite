@@ -1,0 +1,707 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>MAITE’s Vision for Interoperability in AI Test and Evaluation &#8212; maite 0.9.2 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-codeautolink.css?v=b2176991" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=87e54e7c" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=aa3b121e"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=30646c52"></script>
+    <script async="async" src="https://www.googletagmanager.com/gtag/js?id=UA-115029372-2"></script>
+    <script src="../_static/gtag.js"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'explanation/maite_vision';</script>
+    <script src="../_static/pypi_icon.js?v=74687d30"></script>
+    <script src="../_static/condaforge_icon.js?v=19caf20c"></script>
+    <script src="../_static/anaconda_icon.js?v=e3074ad8"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Reference" href="../api_reference.html" />
+    <link rel="prev" title="A Primer on Python Typing: Relevant Language Features, Methods, and Tools for the T&amp;E Framework" href="type_hints_for_API_design.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.9" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">maite 0.9.2 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorials.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../how_tos.html">
+    How-To Guides
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../explanation.html">
+    Explanation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api_reference.html">
+    Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changes.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/mit-ll-ai-technology/maite" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/maite/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-custom fa-pypi fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://anaconda.org/conda-forge/maite" title="Anaconda" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-custom fa-anaconda fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Anaconda</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorials.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../how_tos.html">
+    How-To Guides
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../explanation.html">
+    Explanation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api_reference.html">
+    Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changes.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/mit-ll-ai-technology/maite" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/maite/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-custom fa-pypi fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://anaconda.org/conda-forge/maite" title="Anaconda" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-custom fa-anaconda fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Anaconda</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="protocol_overview.html">Overview of MAITE Protocols</a></li>
+<li class="toctree-l1"><a class="reference internal" href="type_hints_for_API_design.html">A Primer on Python Typing: Relevant Language Features, Methods, and Tools for the T&amp;E Framework</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">MAITE’s Vision for Interoperability in AI Test and Evaluation</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../explanation.html" class="nav-link">Explanation</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">MAITE’s Vision for Interoperability in AI Test and Evaluation</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <style type="text/css">
+  span.bolditalic {
+    font-weight: bold;
+    font-style: italic;
+  }
+</style><section id="maite-s-vision-for-interoperability-in-ai-test-and-evaluation">
+<h1>MAITE’s Vision for Interoperability in AI Test and Evaluation<a class="headerlink" href="#maite-s-vision-for-interoperability-in-ai-test-and-evaluation" title="Link to this heading">#</a></h1>
+<section id="the-problem">
+<h2>The Problem<a class="headerlink" href="#the-problem" title="Link to this heading">#</a></h2>
+<p>The landscape of open source AI test and evaluation (T&amp;E) tools is expansive and constantly growing – not only in terms of the variety of components available (models, datasets, augmentations, and metrics), but also in terms of library authors, frameworks (e.g., PyTorch, Tensorflow, JAX), modalities (e.g., images, sound, text, internet traffic), AI problems (e.g., image classification, object detection, text classification), and applications (e.g., cat identification, network activity classification, facial recognition).</p>
+<p>This highly dynamic ecosystem of T&amp;E tools has tremendous potential, but the breadth of options available can easily become a liability that hinders or halts integration efforts.
+Separately-developed software tools that work on the same problem rarely work seamlessly together, creating a need for ad-hoc compatibility shims that can be time consuming, fragile, or poorly documented.
+Can model X be used with dataset Y after augmentation Z to test performance with respect to metrics A, B, and C?
+The answer is typically yes, but requires a fair amount of translation from the integrator of all these components that is specific to their task.</p>
+<p>This is the problem that MAITE is trying to solve within the JATIC ecosystem of AI T&amp;E Python libraries.
+The standards introduced by MAITE are meant to enable broad interoperability between components while requiring relatively little of component implementers and even less of those integrating JATIC libraries together in pipelines.
+MAITE aims to induce a virtuous feedback cycle within the JATIC ecosystem; as the benefit of leveraging MAITE-compatible components increases, the number of ecosystem users increases and so does the supply of MAITE-compatible components.
+This dynamic sets up the JATIC ecosystem to be a rich, modular, and extensible supply of tools that enables developers to rapidly assemble reusable and highly-customized T&amp;E procedures.</p>
+<figure class="align-center">
+<a class="reference internal image-reference" href="../_images/maite_paradigm.svg"><img alt="../_images/maite_paradigm.svg" src="../_images/maite_paradigm.svg" style="width: 600px;" />
+</a>
+</figure>
+<p>Above: MAITE standards permit compatible components and tasks to be reused in multiple T&amp;E pipelines with minimal shim code written by an integrator.</p>
+</section>
+<section id="design-objectives">
+<h2>Design Objectives<a class="headerlink" href="#design-objectives" title="Link to this heading">#</a></h2>
+<p>The design of the MAITE standard is structured around the following objectives:</p>
+<ol class="arabic simple">
+<li><p><strong>Modularity/Substitutability</strong> - Two functional components that meet the same expectations should be mutually substitutable in a T&amp;E procedure.</p></li>
+<li><p><strong>Extensibility</strong> - New functional components should be authorable by anyone and require minimal outside imports.</p></li>
+<li><p><strong>Simplicity</strong> - Expectations comprising the MAITE standard should be as simple as possible to promote implementation of MAITE-compliant AI components, while still being detailed enough to provide useful guarantees to those integrating AI components within a T&amp;E workflow.</p></li>
+<li><p><strong>Safety</strong> - Compatibility of AI components should be clear, and compatible components should be usable together as expected.</p></li>
+<li><p><strong>Reproducibility</strong> - The MAITE standard should make AI T&amp;E pipelines easily reproducible to support future updates or result audits. <a class="footnote-reference brackets" href="#reproducibility" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p></li>
+</ol>
+</section>
+<section id="interoperable-object-concepts-components-tasks-and-primitives">
+<span id="components-tasks-primitives"></span><h2>Interoperable Object Concepts: “Components”, “Tasks”, and “Primitives”<a class="headerlink" href="#interoperable-object-concepts-components-tasks-and-primitives" title="Link to this heading">#</a></h2>
+<p>In the context of AI T&amp;E libraries, the term “component” may be referring to AI-relevant objects (e.g., a Model, Dataset, Metric, etc.) or simply AI-relevant procedures (e.g., <code class="docutils literal notranslate"><span class="pre">augment_dataloader(...)</span></code>, <code class="docutils literal notranslate"><span class="pre">evaluate_model(...)</span></code>, etc.).
+MAITE provides AI-task-specific <a class="footnote-reference brackets" href="#mltask" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> behavioral expectations <a class="footnote-reference brackets" href="#behavioral-expectations" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a> for several recognizable objects <a class="footnote-reference brackets" href="#ml-component-list" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a> and refers to objects meeting one of these definitions as “MAITE components”.
+Alternatively, procedures (“callables” in Python nomenclature) that accept and return (arbitrary) <a class="footnote-reference brackets" href="#arbitrary" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a> MAITE component implementers are termed “MAITE tasks”.</p>
+<p>To be more precise, more rigorous definitions are included below:</p>
+<dl class="simple">
+<dt><strong>MAITE component</strong></dt><dd><p>Implementer of a MAITE-defined Python protocol class (Dataloader, Dataset, Augmentation, Model, or Metric) that follows prescribed semantics <a class="footnote-reference brackets" href="#protocol-classes" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></a></p>
+</dd>
+<dt><strong>MAITE task</strong></dt><dd><p>A Python callable that:</p>
+<ul class="simple">
+<li><p>accepts only arguments typed as MAITE components <a class="footnote-reference brackets" href="#includes-containers" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></a> or MAITE primitives <a class="footnote-reference brackets" href="#includes-containers" id="id8" role="doc-noteref"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></a></p></li>
+<li><p>returns MAITE components <a class="footnote-reference brackets" href="#includes-containers" id="id9" role="doc-noteref"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></a>, MAITE primitives <a class="footnote-reference brackets" href="#includes-containers" id="id10" role="doc-noteref"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></a>, and/or Python objects of built-in/broadly-accepted <a class="footnote-reference brackets" href="#common-structures" id="id11" role="doc-noteref"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></a> types with well-documented semantics <a class="footnote-reference brackets" href="#non-consumables" id="id12" role="doc-noteref"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></a></p></li>
+</ul>
+</dd>
+<dt><strong>MAITE primitive</strong></dt><dd><p>Object with class and semantics of a member variable type, argument type, or return type of a MAITE-defined Python protocol class</p>
+</dd>
+</dl>
+<p>Defining these abstractions is useful because they permit quantifying a library’s broader interoperability in a simple and accurate way: <span class="bolditalic">interoperability is the degree to which a library exposes MAITE components and MAITE tasks</span>.
+That’s it. Regardless of a library’s potentially complex inner workings, a highly-interoperable library should expose such components and tasks to enable broad interoperability for integrators.</p>
+</section>
+<section id="structural-subtypes-and-static-type-checking-mechanisms-for-defining-and-verifying-standards">
+<h2>Structural Subtypes and Static Type Checking: Mechanisms for Defining and Verifying Standards<a class="headerlink" href="#structural-subtypes-and-static-type-checking-mechanisms-for-defining-and-verifying-standards" title="Link to this heading">#</a></h2>
+<p>In the case of MAITE components, behavioral expectations are defined using Python structural types (viz. <code class="docutils literal notranslate"><span class="pre">Protocol</span></code> classes and <code class="docutils literal notranslate"><span class="pre">TypedDict</span></code> classes <a class="footnote-reference brackets" href="#python-structural-types" id="id13" role="doc-noteref"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></a>) and verified using a static type checker. <a class="footnote-reference brackets" href="#pyright" id="id14" role="doc-noteref"><span class="fn-bracket">[</span>11<span class="fn-bracket">]</span></a>
+The Python structural types provide strict, consistent, and machine-readable definitions of MAITE components that specify minimum expected member variable names, member variable types, method names, and method type signatures.
+The MAITE-provided structural type definitions permit static type checkers to verify Python objects fulfill required behavioral expectations at development time whenever the object is assigned to an object type hinted as the MAITE structural type. <a class="footnote-reference brackets" href="#assignability" id="id15" role="doc-noteref"><span class="fn-bracket">[</span>12<span class="fn-bracket">]</span></a>
+After assignment to the structural type and validation by a typechecker, downstream procedures can treat the object as an arbitrary instance of the broader structural type without regard for specific implementation details.</p>
+<p>In practice, MAITE defines five component types within each supported AI problem.
+These are <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>, <code class="docutils literal notranslate"><span class="pre">DataLoader</span></code>, <code class="docutils literal notranslate"><span class="pre">Augmentation</span></code>, <code class="docutils literal notranslate"><span class="pre">Model</span></code>, and <code class="docutils literal notranslate"><span class="pre">Metric</span></code>. A high-level UML class diagram of MAITE components (these are the classes with the “protocol” stereotype applied) is shown below.
+The diagram is templated on types which vary based on AI problem.</p>
+<a class="reference internal image-reference" href="../_images/maite_class_diagram.svg"><img alt="../_images/maite_class_diagram.svg" class="align-center" src="../_images/maite_class_diagram.svg" style="width: 800px;" />
+</a>
+<p>As the diagram is depicting, each component protocol implies certain behavioral expectations.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Dataset</span></code> components provide random access to individual data points, which comprise a tuple of input, target, and datum-specific metadata.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DataLoader</span></code> components support iteration and yield sequential access to batches of data points.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Augmentation</span></code> components take, modify, and return batches of data.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Model</span></code> components take batches of inputs and return batches of targets.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Metric</span></code> components compute alignment metrics between two batches of targets (one representing predictions and the other representing ground truth).</p></li>
+</ul>
+<p>Note: MAITE tasks do not currently use structural types for definition or verification.
+As they take and return a variable number of arguments, they are too open a construct to have their definition backed by a particular Python structural type.</p>
+</section>
+<section id="footnotes">
+<h2>Footnotes<a class="headerlink" href="#footnotes" title="Link to this heading">#</a></h2>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="reproducibility" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Currently, no standards exist on how pipelines should be constructed, and thus no centralized record-keeping construct exists. This is nonetheless a goal that we’d like the MAITE protocols to enable.</p>
+</aside>
+<aside class="footnote brackets" id="mltask" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<p>A specific AI problem will have the types of model inputs, model predictions, minimum datum metadata, and batching procedure all defined.</p>
+</aside>
+<aside class="footnote brackets" id="behavioral-expectations" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
+<p>Instead of the clunky-but-accurate phrase “expected object semantics, variable names, variable types, method names, and method type signatures” we often will use “behavioral expectations” or “behavioral contract” which is shorter, but more abstract. If an object meets or exceeds behavioral expectations of a given component protocol, it is termed an “implementer” of that protocol and will pass static type checking when type hinted as the protocol type (even without nominal inheritance, because protocols are structural types <a class="footnote-reference brackets" href="#python-structural-types" id="id16" role="doc-noteref"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></a>).</p>
+</aside>
+<aside class="footnote brackets" id="ml-component-list" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">4</a><span class="fn-bracket">]</span></span>
+<p>viz. <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>, <code class="docutils literal notranslate"><span class="pre">Dataloader</span></code>, <code class="docutils literal notranslate"><span class="pre">Augmentation</span></code>, <code class="docutils literal notranslate"><span class="pre">Model</span></code>, <code class="docutils literal notranslate"><span class="pre">Metric</span></code></p>
+</aside>
+<aside class="footnote brackets" id="arbitrary" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">5</a><span class="fn-bracket">]</span></span>
+<p>The “arbitrary” modifier is necessary if we care about callable interoperability because a callable that doesn’t accept <em>certain</em> varieties of MAITE-conforming AI objects isn’t generally interoperable. It doesn’t accept MAITE-conforming AI objects per se, only more specialized structures that happen to be MAITE-conforming. This is a consequence of callable type contravariance with respect to argument types.</p>
+</aside>
+<aside class="footnote brackets" id="protocol-classes" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id6">6</a><span class="fn-bracket">]</span></span>
+<p>In practice, these contracts are defined using Python classes that obey structural subtyping (viz. Python protocol classes or Python <code class="docutils literal notranslate"><span class="pre">TypedDict</span></code> classes). All object variables, methods, and type signatures can be checked via a static type checker. Semantic conditions of these contracts cannot be checked via a static type checker, but are documented in the protocol class definitions themselves.</p>
+</aside>
+<aside class="footnote brackets" id="includes-containers" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id7">1</a>,<a role="doc-backlink" href="#id8">2</a>,<a role="doc-backlink" href="#id9">3</a>,<a role="doc-backlink" href="#id10">4</a>)</span>
+<p>This includes built-in containers thereof.</p>
+</aside>
+<aside class="footnote brackets" id="common-structures" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id11">8</a><span class="fn-bracket">]</span></span>
+<p>This includes numpy.ndarray, pandas.Series, and pandas.DataFrame.</p>
+</aside>
+<aside class="footnote brackets" id="non-consumables" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id12">9</a><span class="fn-bracket">]</span></span>
+<p>The use of this last return type precludes downstream consumption by other MAITE tasks.</p>
+</aside>
+<aside class="footnote brackets" id="python-structural-types" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id13">1</a>,<a role="doc-backlink" href="#id16">2</a>)</span>
+<p>In structural types (as opposed to nominal types), object subtyping relationships are determined from member variables and method type signatures (i.e., “how the object behaves”), rather than nominal inheritance (i.e., an object’s “ancestry”). This means that structural types can be used to define some behavioral expectations for an object. See the Python typing spec for more details: <a class="reference external" href="https://typing.readthedocs.io/en/latest/spec/concepts.html#nominal-and-structural-types">https://typing.readthedocs.io/en/latest/spec/concepts.html#nominal-and-structural-types</a></p>
+</aside>
+<aside class="footnote brackets" id="pyright" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id14">11</a><span class="fn-bracket">]</span></span>
+<p>MAITE recommends the Pyright static type checker: <a class="reference external" href="https://microsoft.github.io/pyright/#/">https://microsoft.github.io/pyright/#/</a></p>
+</aside>
+<aside class="footnote brackets" id="assignability" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id15">12</a><span class="fn-bracket">]</span></span>
+<p>Type checkers validate any assignment to a type hinted variable. This object’s assignability to a type hinted variable is tested when (a) arguments are provided to a callable (because an object is assigned to a type hinted argument), (b) values are returned from a callable (because an object is assigned to a type hinted return value), or in simple assignment. See Python typing spec glossary <a class="reference external" href="https://typing.readthedocs.io/en/latest/spec/glossary.html#term-assignable">“assignable” entry</a> or the section on <a class="reference external" href="https://typing.readthedocs.io/en/latest/spec/protocol.html#assignability-relationships-with-other-types">protocol assignability to other types</a></p>
+</aside>
+</aside>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="type_hints_for_API_design.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">A Primer on Python Typing: Relevant Language Features, Methods, and Tools for the T&amp;E Framework</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../api_reference.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Reference</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-problem">The Problem</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#design-objectives">Design Objectives</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#interoperable-object-concepts-components-tasks-and-primitives">Interoperable Object Concepts: “Components”, “Tasks”, and “Primitives”</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#structural-subtypes-and-static-type-checking-mechanisms-for-defining-and-verifying-standards">Structural Subtypes and Static Type Checking: Mechanisms for Defining and Verifying Standards</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#footnotes">Footnotes</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/explanation/maite_vision.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024 Massachusetts Institute of Technology.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

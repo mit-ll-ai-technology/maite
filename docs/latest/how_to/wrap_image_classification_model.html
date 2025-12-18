@@ -1,0 +1,632 @@
+
+<!DOCTYPE html>
+
+<html data-content_root="../" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Wrap an Image Classification Model — maite 0.9.2 documentation</title>
+<script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+<!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+<noscript>
+<style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+</noscript>
+<!-- Loaded before other Sphinx assets -->
+<link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet"/>
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet"/>
+<link href="../_static/pygments.css?v=8f2a1f02" rel="stylesheet" type="text/css"/>
+<link href="../_static/copybutton.css?v=76b2166b" rel="stylesheet" type="text/css"/>
+<link href="../_static/sphinx-codeautolink.css?v=b2176991" rel="stylesheet" type="text/css"/>
+<link href="../_static/sphinx-design.min.css?v=87e54e7c" rel="stylesheet" type="text/css"/>
+<!-- So that users can add custom icons -->
+<script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+<!-- Pre-loaded scripts that we'll load fully later -->
+<link as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" rel="preload"/>
+<link as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" rel="preload"/>
+<script src="../_static/documentation_options.js?v=aa3b121e"></script>
+<script src="../_static/doctools.js?v=9a2dae69"></script>
+<script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+<script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+<script src="../_static/copybutton.js?v=30646c52"></script>
+<script async="async" src="https://www.googletagmanager.com/gtag/js?id=UA-115029372-2"></script>
+<script src="../_static/gtag.js"></script>
+<script src="../_static/design-tabs.js?v=f930bc37"></script>
+<script>DOCUMENTATION_OPTIONS.pagename = 'how_to/wrap_image_classification_model';</script>
+<script src="../_static/pypi_icon.js?v=74687d30"></script>
+<script src="../_static/condaforge_icon.js?v=19caf20c"></script>
+<script src="../_static/anaconda_icon.js?v=e3074ad8"></script>
+<link href="../genindex.html" rel="index" title="Index"/>
+<link href="../search.html" rel="search" title="Search"/>
+<link href="wrap_object_detection_dataset.html" rel="next" title="Wrap an Object Detection Dataset"/>
+<link href="wrap_image_classification_dataset.html" rel="prev" title="Wrap an Image Classification Dataset"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="en" name="docsearch:language"/>
+<meta content="0.9" name="docsearch:version"/>
+</head>
+<body data-bs-root-margin="0px 0px -60%" data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-default-mode="" data-offset="180">
+<div class="skip-link d-print-none" id="pst-skip-link"><a href="#main-content">Skip to main content</a></div>
+<div id="pst-scroll-pixel-helper"></div>
+<button class="btn rounded-pill" id="pst-back-to-top" type="button">
+<i class="fa-solid fa-arrow-up"></i>Back to top</button>
+<dialog id="pst-search-dialog">
+<form action="../search.html" class="bd-search d-flex align-items-center" method="get">
+<i class="fa-solid fa-magnifying-glass"></i>
+<input aria-label="Search the docs ..." autocapitalize="off" autocomplete="off" autocorrect="off" class="form-control" name="q" placeholder="Search the docs ..." spellcheck="false" type="search"/>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+</dialog>
+<div class="pst-async-banner-revealer d-none">
+<aside aria-label="Version warning" class="d-none d-print-none" id="bd-header-version-warning"></aside>
+</div>
+<header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+<button aria-label="Site navigation" class="pst-navbar-icon sidebar-toggle primary-toggle">
+<span class="fa-solid fa-bars"></span>
+</button>
+<div class="navbar-header-items__start">
+<div class="navbar-item">
+<a class="navbar-brand logo" href="../index.html">
+<p class="title logo__title">maite 0.9.2 documentation</p>
+</a></div>
+</div>
+<div class="navbar-header-items">
+<div class="me-auto navbar-header-items__center">
+<div class="navbar-item">
+<nav>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../tutorials.html">
+    Tutorials
+  </a>
+</li>
+<li class="nav-item current active">
+<a class="nav-link nav-internal" href="../how_tos.html">
+    How-To Guides
+  </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../explanation.html">
+    Explanation
+  </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../api_reference.html">
+    Reference
+  </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../changes.html">
+    Changelog
+  </a>
+</li>
+</ul>
+</nav></div>
+</div>
+<div class="navbar-header-items__end">
+<div class="navbar-item navbar-persistent--container">
+<button aria-label="Search" class="btn search-button-field search-button__button pst-js-only" data-bs-placement="bottom" data-bs-toggle="tooltip" title="Search">
+<i class="fa-solid fa-magnifying-glass"></i>
+<span class="search-button__default-text">Search</span>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+</div>
+<div class="navbar-item">
+<button aria-label="Color mode" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" data-bs-placement="bottom" data-bs-title="Color mode" data-bs-toggle="tooltip">
+<i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+<i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+<i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+</button></div>
+<div class="navbar-item"><ul aria-label="Icon Links" class="navbar-icon-links">
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://github.com/mit-ll-ai-technology/maite" rel="noopener" target="_blank" title="GitHub"><i aria-hidden="true" class="fa-brands fa-github fa-lg"></i>
+<span class="sr-only">GitHub</span></a>
+</li>
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://pypi.org/project/maite/" rel="noopener" target="_blank" title="PyPI"><i aria-hidden="true" class="fa-custom fa-pypi fa-lg"></i>
+<span class="sr-only">PyPI</span></a>
+</li>
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://anaconda.org/conda-forge/maite" rel="noopener" target="_blank" title="Anaconda"><i aria-hidden="true" class="fa-custom fa-anaconda fa-lg"></i>
+<span class="sr-only">Anaconda</span></a>
+</li>
+</ul></div>
+</div>
+</div>
+<div class="navbar-persistent--mobile">
+<button aria-label="Search" class="btn search-button-field search-button__button pst-js-only" data-bs-placement="bottom" data-bs-toggle="tooltip" title="Search">
+<i class="fa-solid fa-magnifying-glass"></i>
+<span class="search-button__default-text">Search</span>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+</div>
+<button aria-label="On this page" class="pst-navbar-icon sidebar-toggle secondary-toggle">
+<span class="fa-solid fa-outdent"></span>
+</button>
+</div>
+</header>
+<div class="bd-container">
+<div class="bd-container__inner bd-page-width">
+<dialog id="pst-primary-sidebar-modal"></dialog>
+<div class="bd-sidebar-primary bd-sidebar" id="pst-primary-sidebar">
+<div class="sidebar-header-items sidebar-primary__section">
+<div class="sidebar-header-items__center">
+<div class="navbar-item">
+<nav>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../tutorials.html">
+    Tutorials
+  </a>
+</li>
+<li class="nav-item current active">
+<a class="nav-link nav-internal" href="../how_tos.html">
+    How-To Guides
+  </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../explanation.html">
+    Explanation
+  </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../api_reference.html">
+    Reference
+  </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../changes.html">
+    Changelog
+  </a>
+</li>
+</ul>
+</nav></div>
+</div>
+<div class="sidebar-header-items__end">
+<div class="navbar-item">
+<button aria-label="Color mode" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" data-bs-placement="bottom" data-bs-title="Color mode" data-bs-toggle="tooltip">
+<i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+<i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+<i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+</button></div>
+<div class="navbar-item"><ul aria-label="Icon Links" class="navbar-icon-links">
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://github.com/mit-ll-ai-technology/maite" rel="noopener" target="_blank" title="GitHub"><i aria-hidden="true" class="fa-brands fa-github fa-lg"></i>
+<span class="sr-only">GitHub</span></a>
+</li>
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://pypi.org/project/maite/" rel="noopener" target="_blank" title="PyPI"><i aria-hidden="true" class="fa-custom fa-pypi fa-lg"></i>
+<span class="sr-only">PyPI</span></a>
+</li>
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://anaconda.org/conda-forge/maite" rel="noopener" target="_blank" title="Anaconda"><i aria-hidden="true" class="fa-custom fa-anaconda fa-lg"></i>
+<span class="sr-only">Anaconda</span></a>
+</li>
+</ul></div>
+</div>
+</div>
+<div class="sidebar-primary-items__start sidebar-primary__section">
+<div class="sidebar-primary-item">
+<nav aria-label="Section Navigation" class="bd-docs-nav bd-links">
+<p aria-level="1" class="bd-links__title" role="heading">Section Navigation</p>
+<div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="static_typing.html">Enable Static Type Checking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wrap_image_classification_dataset.html">Wrap an Image Classification Dataset</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Wrap an Image Classification Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wrap_object_detection_dataset.html">Wrap an Object Detection Dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wrap_object_detection_model.html">Wrap an Object Detection Model</a></li>
+</ul>
+</div>
+</nav></div>
+</div>
+<div class="sidebar-primary-items__end sidebar-primary__section">
+<div class="sidebar-primary-item">
+<div class="flat" data-ea-manual="true" data-ea-publisher="readthedocs" data-ea-type="readthedocs-sidebar" id="ethical-ad-placement">
+</div></div>
+</div>
+</div>
+<main class="bd-main" id="main-content" role="main">
+<div class="bd-content">
+<div class="bd-article-container">
+<div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+<div class="header-article-items__start">
+<div class="header-article-item">
+<nav aria-label="Breadcrumb" class="d-print-none">
+<ul class="bd-breadcrumbs">
+<li class="breadcrumb-item breadcrumb-home">
+<a aria-label="Home" class="nav-link" href="../index.html">
+<i class="fa-solid fa-home"></i>
+</a>
+</li>
+<li class="breadcrumb-item"><a class="nav-link" href="../how_tos.html">How-To Guides</a></li>
+<li aria-current="page" class="breadcrumb-item active"><span class="ellipsis">Wrap an Image Classification Model</span></li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+</div>
+<div id="searchbox"></div>
+<article class="bd-article">
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Copyright 2025, MASSACHUSETTS INSTITUTE OF TECHNOLOGY
+Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).
+SPDX-License-Identifier: MIT
+</pre></div>
+</div>
+<section id="wrap-an-image-classification-model">
+<h1>Wrap an Image Classification Model<a class="headerlink" href="#wrap-an-image-classification-model" title="Link to this heading">#</a></h1>
+<p>In this how-to, we will show you how to wrap a <a class="reference external" href="https://pytorch.org/vision/stable/models.html#classification">Torchvision
+ResNet50</a>
+to create a MAITE-compliant
+<a class="reference external" href="../generated/maite.protocols.image_classification.Model.html">maite.protocols.image_classification.Model</a>.</p>
+<p>The general steps for wrapping a model are:</p>
+<ul class="simple">
+<li><p>Understand the source (native) model</p></li>
+<li><p>Create a wrapper that makes the source model conform to the MAITE
+model protocol (interface)</p></li>
+<li><p>Verify that the wrapped model works correctly and has no static type
+checking errors</p></li>
+</ul>
+<section id="load-the-pretrained-resnet50-model">
+<h2>1 Load the Pretrained ResNet50 Model<a class="headerlink" href="#load-the-pretrained-resnet50-model" title="Link to this heading">#</a></h2>
+<p>Load the required Python libaries:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/io.html#module-io" title="io"><span class="nn">io</span></a>
+<span class="kn">import</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/json.html#module-json" title="json"><span class="nn">json</span></a>
+<span class="kn">import</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/urllib.request.html#module-urllib.request" title="urllib.request"><span class="nn">urllib.request</span></a>
+<span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#module-typing" title="typing"><span class="nn">typing</span></a><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="typing.Callable"><span class="n">Callable</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="typing.Sequence"><span class="n">Sequence</span></a>
+
+<span class="kn">import</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="https://numpy.org/doc/stable/reference/index.html#module-numpy" title="numpy"><span class="nn">numpy</span></a><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">PIL.Image</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torchvision</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">display</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">maite.protocols.image_classification</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ic</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">maite.protocols</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="../generated/maite.protocols.ArrayLike.html#maite.protocols.ArrayLike" title="maite.protocols.ArrayLike"><span class="n">ArrayLike</span></a><span class="p">,</span> <span class="n">ModelMetadata</span>
+
+<span class="o">%</span><span class="k">load_ext</span> watermark
+<span class="o">%</span><span class="k">watermark</span> -iv -v
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Python</span> <span class="n">implementation</span><span class="p">:</span> <span class="n">CPython</span>
+<span class="n">Python</span> <span class="n">version</span>       <span class="p">:</span> <span class="mf">3.10.19</span>
+<span class="n">IPython</span> <span class="n">version</span>      <span class="p">:</span> <span class="mf">8.37.0</span>
+
+<span class="n">IPython</span>    <span class="p">:</span> <span class="mf">8.37.0</span>
+<span class="n">PIL</span>        <span class="p">:</span> <span class="mf">12.0.0</span>
+<span class="n">json</span>       <span class="p">:</span> <span class="mf">2.0.9</span>
+<span class="n">maite</span>      <span class="p">:</span> <span class="mf">0.9.2</span>
+<span class="n">numpy</span>      <span class="p">:</span> <span class="mf">2.2.6</span>
+<span class="n">torch</span>      <span class="p">:</span> <span class="mf">2.9.1</span>
+<span class="n">torchvision</span><span class="p">:</span> <span class="mf">0.24.1</span>
+</pre></div>
+</div>
+<p>Instantiate the ResNet50 model (pretrained on the <a class="reference external" href="https://image-net.org/">ImageNet
+dataset</a>), following the <a class="reference external" href="https://pytorch.org/vision/stable/models/generated/torchvision.models.resnet50.html#torchvision.models.resnet50">Torchvision
+documentation</a>:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_weights</span> <span class="o">=</span> <span class="n">torchvision</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">ResNet50_Weights</span><span class="o">.</span><span class="n">IMAGENET1K_V2</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">torchvision</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">resnet50</span><span class="p">(</span>
+    <span class="n">weights</span><span class="o">=</span><span class="n">model_weights</span>
+<span class="p">)</span>  <span class="c1"># weights will download automatically</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>  <span class="c1"># set the ResNet50 model to eval mode</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Downloading</span><span class="p">:</span> <span class="s2">"https://download.pytorch.org/models/resnet50-11ad3fa6.pth"</span> <span class="n">to</span> <span class="o">/</span><span class="n">root</span><span class="o">/.</span><span class="n">cache</span><span class="o">/</span><span class="n">torch</span><span class="o">/</span><span class="n">hub</span><span class="o">/</span><span class="n">checkpoints</span><span class="o">/</span><span class="n">resnet50</span><span class="o">-</span><span class="mi">11</span><span class="n">ad3fa6</span><span class="o">.</span><span class="n">pth</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>0%|          | 0.00/97.8M [00:00&lt;?, ?B/s]
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>19%|█▊        | 18.2M/97.8M [00:00&lt;00:00, 191MB/s]
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>42%|████▏     | 40.9M/97.8M [00:00&lt;00:00, 218MB/s]
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>65%|██████▌   | 63.8M/97.8M [00:00&lt;00:00, 227MB/s]
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>88%|████████▊ | 86.4M/97.8M [00:00&lt;00:00, 231MB/s]
+</pre></div>
+</div>
+<p>100%|██████████| 97.8M/97.8M [00:00&lt;00:00, 226MB/s]</p>
+</section>
+<section id="perform-model-inference-on-sample-images">
+<h2>2 Perform Model Inference on Sample Images<a class="headerlink" href="#perform-model-inference-on-sample-images" title="Link to this heading">#</a></h2>
+<p>Download the ImageNet labels and a couple of sample ImageNet images:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">labels_url</span> <span class="o">=</span> <span class="s2">"https://raw.githubusercontent.com/raghakot/keras-vis/refs/heads/master/resources/imagenet_class_index.json"</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">labels_url</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="n">labels</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">))</span>
+
+<span class="n">img_url</span> <span class="o">=</span> <span class="s2">"https://raw.githubusercontent.com/EliSchwartz/imagenet-sample-images/master/n01491361_tiger_shark.JPEG"</span>
+<span class="n">image_data</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">img_url</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="n">example_img_1</span> <span class="o">=</span> <span class="n">PIL</span><span class="o">.</span><span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">image_data</span><span class="p">))</span>
+
+<span class="n">img_url</span> <span class="o">=</span> <span class="s2">"https://raw.githubusercontent.com/EliSchwartz/imagenet-sample-images/master/n01695060_Komodo_dragon.JPEG"</span>
+<span class="n">image_data</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">img_url</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="n">example_img_2</span> <span class="o">=</span> <span class="n">PIL</span><span class="o">.</span><span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">image_data</span><span class="p">))</span>
+
+<span class="n">example_imgs</span> <span class="o">=</span> <span class="p">[</span><span class="n">example_img_1</span><span class="p">,</span> <span class="n">example_img_2</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>The downloaded labels are a dictionary from label number strings to
+lists containing <a class="reference external" href="https://en.wikipedia.org/wiki/ImageNet#Categories">WordNet
+IDs</a> and human
+readable labels:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#dict" title="dict"><span class="nb">dict</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#list" title="list"><span class="nb">list</span></a><span class="p">(</span><span class="n">labels</span><span class="o">.</span><span class="n">items</span><span class="p">())[:</span><span class="mi">4</span><span class="p">])</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">'0'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'n01440764'</span><span class="p">,</span> <span class="s1">'tench'</span><span class="p">],</span>
+ <span class="s1">'1'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'n01443537'</span><span class="p">,</span> <span class="s1">'goldfish'</span><span class="p">],</span>
+ <span class="s1">'2'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'n01484850'</span><span class="p">,</span> <span class="s1">'great_white_shark'</span><span class="p">],</span>
+ <span class="s1">'3'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'n01491361'</span><span class="p">,</span> <span class="s1">'tiger_shark'</span><span class="p">]}</span>
+</pre></div>
+</div>
+<p>Next we check that the model works as expected on the sample images.</p>
+<p>Note the weights for Torchvision models include a <code class="docutils literal notranslate"><span class="pre">transforms()</span></code>
+method that performs model-specific input transformations, such as
+resizing, interpolating, etc., as required by the model. It is important
+to remember that there is no standard way to do this and it can vary for
+every model.</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">prediction_label</span><span class="p">(</span><span class="n">logits</span><span class="p">):</span>
+    <span class="n">logits</span> <span class="o">=</span> <span class="n">logits</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">label_pred</span> <span class="o">=</span> <span class="n">logits</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">label_pred</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">labels</span><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">(</span><span class="n">label_pred</span><span class="p">)]</span><span class="si">}</span><span class="s2">"</span>
+
+
+<span class="n">preprocess</span> <span class="o">=</span> <span class="n">model_weights</span><span class="o">.</span><span class="n">transforms</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">example_img</span> <span class="ow">in</span> <span class="n">example_imgs</span><span class="p">:</span>
+    <span class="nb">input</span> <span class="o">=</span> <span class="n">preprocess</span><span class="p">(</span><span class="n">example_img</span><span class="p">)</span>
+    <span class="n">logits</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="nb">input</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>  <span class="c1"># use unsqueeze to add batch dimension</span>
+
+    <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"""</span>
+<span class="s2">    ResNet50 Outputs</span>
+<span class="s2">    ================</span>
+<span class="s2">    Result Type: </span><span class="si">{</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#type" title="type"><span class="nb">type</span></a><span class="p">(</span><span class="n">logits</span><span class="p">)</span><span class="si">}</span>
+<span class="s2">    Result Shape: </span><span class="si">{</span><span class="n">logits</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span>
+<span class="s2">    Sample Prediction: </span><span class="si">{</span><span class="n">prediction_label</span><span class="p">(</span><span class="n">logits</span><span class="p">)</span><span class="si">}</span>
+<span class="s2">    """</span>
+    <span class="p">)</span>
+
+    <span class="n">display</span><span class="p">(</span><span class="n">example_img</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>ResNet50 Outputs
+================
+Result Type: &lt;class 'torch.Tensor'&gt;
+Result Shape: torch.Size([1, 1000])
+Sample Prediction: 3 ['n01491361', 'tiger_shark']
+</pre></div>
+</div>
+<img alt="../_images/wrap_image_classification_model_12_1.png" src="../_images/wrap_image_classification_model_12_1.png"/>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>ResNet50 Outputs
+================
+Result Type: &lt;class 'torch.Tensor'&gt;
+Result Shape: torch.Size([1, 1000])
+Sample Prediction: 48 ['n01695060', 'Komodo_dragon']
+</pre></div>
+</div>
+<img alt="../_images/wrap_image_classification_model_12_3.png" src="../_images/wrap_image_classification_model_12_3.png"/>
+</section>
+<section id="create-the-maite-model-wrapper">
+<h2>3 Create the MAITE Model Wrapper<a class="headerlink" href="#create-the-maite-model-wrapper" title="Link to this heading">#</a></h2>
+<p>A MAITE
+<a class="reference external" href="../generated/maite.protocols.image_classification.Model.html">maite.protocols.image_classification.Model</a>
+wrapper stores a reference to a model and model metadata. For this model
+we also store the preprocessing function.</p>
+<p>A MAITE-compliant image classification Model need only implement the
+following method:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">__call__(batch:</span> <span class="pre">Sequence[ArrayLike])</span></code> to make a model prediction
+for inputs in an input batch. It must transform its inputs from a
+<code class="docutils literal notranslate"><span class="pre">Sequence[ArrayLike]</span></code> to the format expected by the model, and
+transform the model outputs to a <code class="docutils literal notranslate"><span class="pre">Sequence[ArrayLike]</span></code> containing
+the predictions.</p></li>
+</ul>
+<p>and an attribute:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">metadata</span></code>, which is a typed dictionary containing an <code class="docutils literal notranslate"><span class="pre">id</span></code> field
+for the model.</p></li>
+</ul>
+<p>Note that MAITE requires the dimensions of each image in the input batch
+to be <code class="docutils literal notranslate"><span class="pre">(C,</span> <span class="pre">H,</span> <span class="pre">W)</span></code>, which corresponds to the image’s color channels,
+height, and width, respectively.</p>
+<p>Torchvision’s data preprocessing function, <code class="docutils literal notranslate"><span class="pre">transforms()</span></code>, mentioned
+in Section 2, already accepts <code class="docutils literal notranslate"><span class="pre">torch.Tensors</span></code> of shape <code class="docutils literal notranslate"><span class="pre">(C,</span> <span class="pre">H,</span> <span class="pre">W)</span></code>,
+which are compatible with MAITE <code class="docutils literal notranslate"><span class="pre">ArrayLike</span></code>.</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">TorchvisionResNetModel</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">model</span><span class="p">:</span> <span class="n">torchvision</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">ResNet</span><span class="p">,</span>
+        <span class="n">preprocess</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">pt</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span> <span class="n">pt</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">:</span> <span class="n">ModelMetadata</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">"id"</span><span class="p">:</span> <span class="s2">"Torchvision ResNet ImageNet 1k"</span><span class="p">,</span>
+            <span class="s2">"index2label"</span><span class="p">:</span> <span class="p">{</span>
+                <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">(</span><span class="n">idx</span><span class="p">):</span> <span class="n">label</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="p">[</span><span class="n">_wordnetid</span><span class="p">,</span> <span class="n">label</span><span class="p">]</span> <span class="ow">in</span> <span class="n">labels</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">},</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">preprocess</span> <span class="o">=</span> <span class="n">preprocess</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">ArrayLike</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">pt</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
+        <span class="c1"># Preprocess the inputs to ensure they match the model's input format</span>
+        <span class="n">imgs_chw</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">img_chw</span> <span class="ow">in</span> <span class="n">batch</span><span class="p">:</span>
+            <span class="n">imgs_chw</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">preprocess</span><span class="p">(</span><span class="n">pt</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">img_chw</span><span class="p">)))</span>
+
+        <span class="c1"># Create a shape-(N,C,H,W) tensor from the list of (C,H,W) tensors</span>
+        <span class="c1"># Note: Images have been preprocessed to all have the same shape</span>
+        <span class="n">img_nchw</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">imgs_chw</span><span class="p">)</span>
+
+        <span class="c1"># Call the model</span>
+        <span class="n">logits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">img_nchw</span><span class="p">)</span>
+
+        <span class="c1"># Convert the shape-(N,num_classes) logits tensor into a list of shape-(num_classes,) tensors</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">logits</span><span class="p">]</span>
+
+
+<span class="c1"># Wrap the Torchvision ResNet model</span>
+<span class="n">wrapped_model</span><span class="p">:</span> <span class="n">ic</span><span class="o">.</span><span class="n">Model</span> <span class="o">=</span> <span class="n">TorchvisionResNetModel</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">preprocess</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="examine-the-maite-wrapped-model-output">
+<h2>4 Examine the MAITE-wrapped Model Output<a class="headerlink" href="#examine-the-maite-wrapped-model-output" title="Link to this heading">#</a></h2>
+<p>Build a batch of MAITE <code class="docutils literal notranslate"><span class="pre">ArrayLike</span></code> test images and visualize the
+wrapped model’s output:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">pil_image_to_maite</span><span class="p">(</span><span class="n">img_pil</span><span class="p">):</span>
+    <span class="c1"># Convert the PIL image to a Numpy array</span>
+    <span class="n">img_hwc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">img_pil</span><span class="p">)</span>  <span class="c1"># shape (H, W, C)</span>
+
+    <span class="c1"># Use MAITE array index convention for representing images: (C, H, W)</span>
+    <span class="n">img_chw</span> <span class="o">=</span> <span class="n">img_hwc</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">img_chw</span>
+
+
+<span class="n">batch</span> <span class="o">=</span> <span class="p">[</span><span class="n">pil_image_to_maite</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">example_imgs</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">predictions</span> <span class="o">=</span> <span class="n">wrapped_model</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+
+<a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">"""</span>
+<span class="s2">ResNet50 Outputs</span>
+<span class="s2">================</span>
+<span class="s2">Result Type: </span><span class="si">{</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#type" title="type"><span class="nb">type</span></a><span class="p">(</span><span class="n">predictions</span><span class="p">)</span><span class="si">}</span>
+<span class="s2">Individual Prediction Type: </span><span class="si">{</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#type" title="type"><span class="nb">type</span></a><span class="p">(</span><span class="n">predictions</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span>
+<span class="s2">Individual Prediction Shape: </span><span class="si">{</span><span class="n">pt</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">predictions</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span>
+<span class="s2">Sample Predictions:"""</span>
+<span class="p">)</span>
+<span class="k">for</span> <span class="n">prediction</span><span class="p">,</span> <span class="n">example_img</span> <span class="ow">in</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#zip" title="zip"><span class="nb">zip</span></a><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="n">example_imgs</span><span class="p">):</span>
+    <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">"    Predicted label = </span><span class="si">{</span><span class="n">prediction_label</span><span class="p">(</span><span class="n">prediction</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">display</span><span class="p">(</span><span class="n">example_img</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>ResNet50 Outputs
+================
+Result Type: &lt;class 'list'&gt;
+Individual Prediction Type: &lt;class 'torch.Tensor'&gt;
+Individual Prediction Shape: torch.Size([1000])
+Sample Predictions:
+    Predicted label = 3 ['n01491361', 'tiger_shark']
+</pre></div>
+</div>
+<img alt="../_images/wrap_image_classification_model_20_1.png" src="../_images/wrap_image_classification_model_20_1.png"/>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Predicted</span> <span class="n">label</span> <span class="o">=</span> <span class="mi">48</span> <span class="p">[</span><span class="s1">'n01695060'</span><span class="p">,</span> <span class="s1">'Komodo_dragon'</span><span class="p">]</span>
+</pre></div>
+</div>
+<img alt="../_images/wrap_image_classification_model_20_3.png" src="../_images/wrap_image_classification_model_20_3.png"/>
+</section>
+<section id="conclusion">
+<h2>5 Conclusion<a class="headerlink" href="#conclusion" title="Link to this heading">#</a></h2>
+<p>Wrapping image classification models with MAITE ensures interoperability
+and simplifies integration into test &amp; evaluation (T&amp;E) procedures that
+“know” how to work with MAITE models (since the model’s inputs and
+outputs are standardized). T&amp;E procedures designed around MAITE
+protocols, such as MAITE’s
+<a class="reference external" href="../generated/maite.tasks.evaluate.html">evaluate</a>, will work
+seamlessly across models, including ResNet50.</p>
+<p>The key to model wrapping is to define the following:</p>
+<ul class="simple">
+<li><p>a <code class="docutils literal notranslate"><span class="pre">__call__</span></code> method that receives an input of type
+<code class="docutils literal notranslate"><span class="pre">Sequence[ic.InputType]</span></code> and returns a <code class="docutils literal notranslate"><span class="pre">Sequence[ic.TargetType]</span></code>.</p></li>
+<li><p>a <code class="docutils literal notranslate"><span class="pre">metadata</span></code> typed dictionary attribute with at least an <code class="docutils literal notranslate"><span class="pre">id</span></code>
+field.</p></li>
+</ul>
+</section>
+</section>
+</article>
+<footer class="prev-next-footer d-print-none">
+<div class="prev-next-area">
+<a class="left-prev" href="wrap_image_classification_dataset.html" title="previous page">
+<i class="fa-solid fa-angle-left"></i>
+<div class="prev-next-info">
+<p class="prev-next-subtitle">previous</p>
+<p class="prev-next-title">Wrap an Image Classification Dataset</p>
+</div>
+</a>
+<a class="right-next" href="wrap_object_detection_dataset.html" title="next page">
+<div class="prev-next-info">
+<p class="prev-next-subtitle">next</p>
+<p class="prev-next-title">Wrap an Object Detection Dataset</p>
+</div>
+<i class="fa-solid fa-angle-right"></i>
+</a>
+</div>
+</footer>
+</div>
+<dialog id="pst-secondary-sidebar-modal"></dialog>
+<div class="bd-sidebar-secondary bd-toc" id="pst-secondary-sidebar"><div class="sidebar-secondary-items sidebar-secondary__inner">
+<div class="sidebar-secondary-item">
+<div class="page-toc tocsection onthispage" id="pst-page-navigation-heading-2">
+<i class="fa-solid fa-list"></i> On this page
+  </div>
+<nav aria-labelledby="pst-page-navigation-heading-2" class="bd-toc-nav page-toc">
+<ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-the-pretrained-resnet50-model">1 Load the Pretrained ResNet50 Model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#perform-model-inference-on-sample-images">2 Perform Model Inference on Sample Images</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-the-maite-model-wrapper">3 Create the MAITE Model Wrapper</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#examine-the-maite-wrapped-model-output">4 Examine the MAITE-wrapped Model Output</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conclusion">5 Conclusion</a></li>
+</ul>
+</nav></div>
+<div class="sidebar-secondary-item">
+<div aria-label="source link" role="note">
+<h3>This Page</h3>
+<ul class="this-page-menu">
+<li><a href="../_sources/how_to/wrap_image_classification_model.rst.txt" rel="nofollow">Show Source</a></li>
+</ul>
+</div></div>
+</div></div>
+</div>
+<footer class="bd-footer-content">
+</footer>
+</main>
+</div>
+</div>
+<!-- Scripts loaded after <body> so the DOM is not blocked -->
+<script defer="" src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer="" src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+<footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+<div class="footer-items__start">
+<div class="footer-item">
+<p class="copyright">
+    
+      © Copyright 2024 Massachusetts Institute of Technology.
+      <br/>
+</p>
+</div>
+<div class="footer-item">
+<p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
+    <br/>
+</p>
+</div>
+</div>
+<div class="footer-items__end">
+<div class="footer-item">
+<p class="theme-version">
+<!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+</div>
+</div>
+</footer>
+</body>
+</html>

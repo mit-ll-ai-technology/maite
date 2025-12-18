@@ -1,0 +1,1086 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>maite._internals.protocols.object_detection &#8212; maite 0.7.3 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-codeautolink.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../_static/clipboard.min.js"></script>
+    <script src="../../../../_static/copybutton.js"></script>
+    <script async="async" src="https://www.googletagmanager.com/gtag/js?id=UA-115029372-2"></script>
+    <script src="../../../../_static/gtag.js"></script>
+    <script src="../../../../_static/design-tabs.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/maite/_internals/protocols/object_detection';</script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  <div class="navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+    <p class="title logo__title">maite 0.7.3 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../tutorials.html">
+                        Tutorials
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../how_tos.html">
+                        How-To Guides
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../explanation.html">
+                        Explanation
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../api_reference.html">
+                        Reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../changes.html">
+                        Changelog
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+    </div>
+  
+
+  
+</div>
+
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../tutorials.html">
+                        Tutorials
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../how_tos.html">
+                        How-To Guides
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../explanation.html">
+                        Explanation
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../api_reference.html">
+                        Reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../changes.html">
+                        Changelog
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumbs">
+  <ul class="bd-breadcrumbs" role="navigation" aria-label="Breadcrumb">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">maite._internals.protocols.object_detection</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <h1>Source code for maite._internals.protocols.object_detection</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright 2024, MASSACHUSETTS INSTITUTE OF TECHNOLOGY</span>
+<span class="c1"># Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).</span>
+<span class="c1"># SPDX-License-Identifier: MIT</span>
+
+<span class="c1"># import component generics from generic.py and specialize them for object detection</span>
+<span class="c1"># domain</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Protocol</span><span class="p">,</span> <span class="n">runtime_checkable</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TypeAlias</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">maite._internals.protocols</span><span class="w"> </span><span class="kn">import</span> <span class="n">generic</span> <span class="k">as</span> <span class="n">gen</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">maite.protocols</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArrayLike</span><span class="p">,</span> <span class="n">DatumMetadata</span>
+
+<span class="c1"># We *could* make ArrayLike generic and rely on the subscripts for ArrayLike type</span>
+<span class="c1"># annotations to hint to the user the appropriate shape. No runtime safety would</span>
+<span class="c1"># be added by this approach because type subscripts are effectively invisible</span>
+<span class="c1"># at runtime. No additional static type-checking would occur either, but the</span>
+<span class="c1"># user would get useful type hints when cursoring over required inputs/targets</span>
+<span class="c1"># This would also require python 3.11 unless a `from __future__` import were made</span>
+<span class="c1"># available for earlier versions (which are not available now.)</span>
+
+
+<div class="viewcode-block" id="ObjectDetectionTarget"><a class="viewcode-back" href="../../../../generated/maite.protocols.object_detection.ObjectDetectionTarget.html#maite.protocols.object_detection.ObjectDetectionTarget">[docs]</a><span class="nd">@runtime_checkable</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ObjectDetectionTarget</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An object-detection target protocol.</span>
+
+<span class="sd">    This class is used to encode both predictions and ground-truth labels in the object</span>
+<span class="sd">    detection problem.</span>
+
+<span class="sd">    Implementers must populate the following attributes:</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    boxes : ArrayLike</span>
+<span class="sd">        An array representing object detection boxes in a single image with x0, y0, x1, y1</span>
+<span class="sd">        format and shape `(N_DETECTIONS, 4)`</span>
+
+<span class="sd">    labels : ArrayLike</span>
+<span class="sd">        An array representing the integer labels associated with each detection box of shape</span>
+<span class="sd">        `(N_DETECTIONS,)`</span>
+
+<span class="sd">    scores: ArrayLike</span>
+<span class="sd">        An array representing the scores associated with each box (of shape `(N_DETECTIONS,)`)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">boxes</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ArrayLike</span><span class="p">:</span>  <span class="c1"># shape (N, 4), format X0, Y0, X1, Y1</span>
+        <span class="o">...</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">labels</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ArrayLike</span><span class="p">:</span>  <span class="c1"># label for each box, shape (N,)</span>
+        <span class="o">...</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">scores</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ArrayLike</span><span class="p">:</span>  <span class="c1"># shape (N,)</span>
+        <span class="o">...</span></div>
+
+
+<span class="c1"># TODO: remove typeAlias statements for more user readability (or figure out how to resolve TypeAliases</span>
+<span class="c1">#       to their targets for end-user.) Knowing a dataset returns a tuple of &quot;InputType, TargetType, DatumMetadataType&quot;</span>
+<span class="c1">#       isn&#39;t helpful to implementers, however the aliasing *is* helpful to developers.</span>
+<span class="c1">#</span>
+<span class="c1">#       Perhaps the functionality I want is named TypeVars for generic, so developers can understand that</span>
+<span class="c1">#       e.g. generic.Dataset typevars are &#39;InputType&#39;, &#39;TargetType&#39;, and &#39;MetaDataType&#39; and their values in</span>
+<span class="c1">#       concrete Dataset classes (like object_detection.Dataset) are ArrayLike, ObjectDetectionTarget, DatumMetadataType</span>
+<span class="c1">#       so users can see an expected return type of Tuple[ArrayLike, ObjectDetectionTarget, DatumMetadataType]</span>
+
+<span class="n">InputType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">ArrayLike</span>  <span class="c1"># shape (C, H, W)</span>
+<span class="n">TargetType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">ObjectDetectionTarget</span>
+<span class="n">DatumMetadataType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">DatumMetadata</span>
+
+<span class="n">InputBatchType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Sequence</span><span class="p">[</span>
+    <span class="n">ArrayLike</span>
+<span class="p">]</span>  <span class="c1"># sequence of N ArrayLikes of shape (C, H, W)</span>
+<span class="n">TargetBatchType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">TargetType</span><span class="p">]</span>  <span class="c1"># sequence of N TargetType instances</span>
+<span class="n">DatumMetadataBatchType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">DatumMetadataType</span><span class="p">]</span>
+
+<span class="n">Datum</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">InputType</span><span class="p">,</span> <span class="n">TargetType</span><span class="p">,</span> <span class="n">DatumMetadataType</span><span class="p">]</span>
+<span class="n">DatumBatch</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">InputBatchType</span><span class="p">,</span> <span class="n">TargetBatchType</span><span class="p">,</span> <span class="n">DatumMetadataBatchType</span><span class="p">]</span>
+
+<span class="n">CollateFn</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[</span>
+    <span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="n">Datum</span><span class="p">]],</span>
+    <span class="n">DatumBatch</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="Dataset"><a class="viewcode-back" href="../../../../generated/maite.protocols.object_detection.Dataset.html#maite.protocols.object_detection.Dataset">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">Dataset</span><span class="p">(</span><span class="n">gen</span><span class="o">.</span><span class="n">Dataset</span><span class="p">[</span><span class="n">InputType</span><span class="p">,</span> <span class="n">TargetType</span><span class="p">,</span> <span class="n">DatumMetadataType</span><span class="p">],</span> <span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A dataset protocol for object detection ML subproblem providing datum-level data</span>
+<span class="sd">    access.</span>
+
+<span class="sd">    Implementers must provide index lookup (via `__getitem__(ind: int)` method) and</span>
+<span class="sd">    support `len` (via `__len__()` method). Data elements looked up this way correspond</span>
+<span class="sd">    to individual examples (as opposed to batches).</span>
+
+<span class="sd">    Indexing into or iterating over the an object detection dataset returns a `Tuple` of</span>
+<span class="sd">    types `ArrayLike`, `ObjectDetectionTarget`, and `DatumMetadataType`. These</span>
+<span class="sd">    correspond to the model input type, model target type, and datum-level metadata,</span>
+<span class="sd">    respectively.</span>
+
+<span class="sd">    Methods</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    __getitem__(ind: int) -&gt; Tuple[ArrayLike, ObjectDetectionTarget, DatumMetadataType]</span>
+<span class="sd">        Provide mapping-style access to dataset elements. Returned tuple elements</span>
+<span class="sd">        correspond to model input type, model target type, and datum-specific metadata,</span>
+<span class="sd">        respectively.</span>
+
+<span class="sd">    __len__() -&gt; int</span>
+<span class="sd">        Return the number of data elements in the dataset.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    metadata : DatasetMetadata</span>
+<span class="sd">        A typed dictionary containing at least an &#39;id&#39; field of type str</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    We create a dummy set of a data and use it to create a class the implements this</span>
+<span class="sd">    lightweight dataset protocol:</span>
+
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; from dataclasses import dataclass</span>
+<span class="sd">    &gt;&gt;&gt; from maite.protocols import (</span>
+<span class="sd">    ...     DatumMetadata,</span>
+<span class="sd">    ...     DatasetMetadata,</span>
+<span class="sd">    ...     object_detection as od,</span>
+<span class="sd">    ... )</span>
+
+<span class="sd">    Specify the parameters that will be used to create the dummy dataset.</span>
+
+<span class="sd">    &gt;&gt;&gt; N_DATUM = 5  # data points in dataset</span>
+<span class="sd">    &gt;&gt;&gt; N_CLASSES = 2  # possible classes that can be detected</span>
+<span class="sd">    &gt;&gt;&gt; C = 3  # number of color channels</span>
+<span class="sd">    &gt;&gt;&gt; H = 10  # image height</span>
+<span class="sd">    &gt;&gt;&gt; W = 10  # image width</span>
+
+<span class="sd">    The dummy dataset will consist of a set of images, their associated annotations (detections),</span>
+<span class="sd">    and some image-specific metadata (hour of day each image was taken).</span>
+
+<span class="sd">    We define helper functions to create the dummy annotations. Each image datum will be</span>
+<span class="sd">    randomly assigned zero, one, or two detections. Annotations for each image consist</span>
+<span class="sd">    of randomly generated bounding boxes and class labels.</span>
+
+<span class="sd">    &gt;&gt;&gt; def generate_random_bbox(</span>
+<span class="sd">    ...     n_classes: int, min_size: int = 2, max_size: int = 4</span>
+<span class="sd">    ... ) -&gt; np.ndarray:</span>
+<span class="sd">    ...     # Generate random coordinates for top-left corner of bbox</span>
+<span class="sd">    ...     x1 = np.random.randint(0, W - min_size)</span>
+<span class="sd">    ...     y1 = np.random.randint(0, H - min_size)</span>
+<span class="sd">    ...     # Generate random width and height, ensuring bounding box stays within image boundaries</span>
+<span class="sd">    ...     bbox_width = np.random.randint(min_size, min(max_size, W - x1))</span>
+<span class="sd">    ...     bbox_height = np.random.randint(min_size, min(max_size, H - y1))</span>
+<span class="sd">    ...     # Set coordinates for bottom-right corner of bbox</span>
+<span class="sd">    ...     x2 = x1 + bbox_width</span>
+<span class="sd">    ...     y2 = y1 + bbox_height</span>
+<span class="sd">    ...     # Pick random class label</span>
+<span class="sd">    ...     label = np.random.choice(n_classes)</span>
+<span class="sd">    ...     return np.array([x1, y1, x2, y2, label])</span>
+
+<span class="sd">    &gt;&gt;&gt; def generate_random_annotation(max_num_detections: int = 2) -&gt; np.ndarray:</span>
+<span class="sd">    ...     num_detections = np.random.choice(max_num_detections + 1)</span>
+<span class="sd">    ...     annotation = [generate_random_bbox(N_CLASSES) for _ in range(num_detections)]</span>
+<span class="sd">    ...     return np.vstack(annotation) if num_detections &gt; 0 else np.empty(0)</span>
+
+<span class="sd">    We now create the dummy dataset of images, corresponding annotations, and metadata.</span>
+
+<span class="sd">    &gt;&gt;&gt; images: list[np.ndarray] = list(np.random.rand(N_DATUM, C, H, W))</span>
+<span class="sd">    &gt;&gt;&gt; annotations: list[np.ndarray] = [</span>
+<span class="sd">    ...     generate_random_annotation() for _ in range(N_DATUM)</span>
+<span class="sd">    ... ]</span>
+<span class="sd">    &gt;&gt;&gt; hour_of_day: list[int] = [np.random.choice(24) for _ in range(N_DATUM)]</span>
+<span class="sd">    &gt;&gt;&gt; dataset: list[tuple] = list(zip(images, annotations, hour_of_day))</span>
+
+<span class="sd">    To support our MAITE dataset, we create an object detection target class that defines</span>
+<span class="sd">    the boxes, labels, and scores for each detection in an image.</span>
+
+<span class="sd">    &gt;&gt;&gt; @dataclass</span>
+<span class="sd">    ... class MyObjectDetectionTarget:</span>
+<span class="sd">    ...     boxes: np.ndarray</span>
+<span class="sd">    ...     labels: np.ndarray</span>
+<span class="sd">    ...     scores: np.ndarray</span>
+
+<span class="sd">    Lastly, we extend `maite.protocols.DatumMetadata` to hold datum-specifc metadata to</span>
+<span class="sd">    add the notional hour of day field (in addition to the required unique id).</span>
+
+<span class="sd">    &gt;&gt;&gt; class MyDatumMetadata(DatumMetadata):</span>
+<span class="sd">    ...     hour_of_day: int</span>
+
+<span class="sd">    Constructing a compliant dataset now just involves a simple wrapper that fetches</span>
+<span class="sd">    individual data points, where a data point is a single image, ground truth detection(s),</span>
+<span class="sd">    and metadata.</span>
+
+<span class="sd">    &gt;&gt;&gt; class ImageDataset:</span>
+<span class="sd">    ...     # Set up required dataset-level metadata</span>
+<span class="sd">    ...     metadata: DatasetMetadata = {</span>
+<span class="sd">    ...         &quot;id&quot;: &quot;Dummy Dataset&quot;,</span>
+<span class="sd">    ...         &quot;index2label&quot;: {i: f&quot;class_name_{i}&quot; for i in range(N_CLASSES)}</span>
+<span class="sd">    ...     }</span>
+<span class="sd">    ...     def __init__(self, dataset: list[tuple[np.ndarray, np.ndarray, int]]):</span>
+<span class="sd">    ...         self.dataset = dataset</span>
+<span class="sd">    ...     def __len__(self) -&gt; int:</span>
+<span class="sd">    ...         return len(self.dataset)</span>
+<span class="sd">    ...     def __getitem__(</span>
+<span class="sd">    ...         self, index: int</span>
+<span class="sd">    ...     ) -&gt; tuple[np.ndarray, od.ObjectDetectionTarget, od.DatumMetadataType]:</span>
+<span class="sd">    ...         if index &lt; 0 or index &gt;= len(self):</span>
+<span class="sd">    ...             raise IndexError(f&quot;Index {index} is out of range for the dataset, which has length {len(self)}.&quot;)</span>
+<span class="sd">    ...         image, annotations, hour_of_day = self.dataset[index]</span>
+<span class="sd">    ...         # Structure ground truth target</span>
+<span class="sd">    ...         boxes, labels = [], []</span>
+<span class="sd">    ...         for _, ann in enumerate(annotations):</span>
+<span class="sd">    ...             bbox = ann[:-1]</span>
+<span class="sd">    ...             label = ann[-1:]</span>
+<span class="sd">    ...             if len(bbox) != 0:</span>
+<span class="sd">    ...                 boxes.append(bbox)</span>
+<span class="sd">    ...                 labels.append(label)</span>
+<span class="sd">    ...         od_target = MyObjectDetectionTarget(</span>
+<span class="sd">    ...             boxes=np.array(boxes), labels=np.array(labels), scores=np.ones(len(boxes))</span>
+<span class="sd">    ...         )</span>
+<span class="sd">    ...         # Structure datum-level metadata</span>
+<span class="sd">    ...         datum_metadata: MyDatumMetadata = {&quot;id&quot;: str(index), &quot;hour_of_day&quot;: hour_of_day}</span>
+<span class="sd">    ...         return image, od_target, datum_metadata</span>
+
+<span class="sd">    We can instantiate this class and type hint it as an object_detection.Dataset. By</span>
+<span class="sd">    using type hinting, we permit a static typechecker to verify protocol compliance.</span>
+
+<span class="sd">    &gt;&gt;&gt; maite_od_dataset: od.Dataset = ImageDataset(dataset)</span>
+
+<span class="sd">    Note that when writing a Dataset implementer, return types may be narrower than the</span>
+<span class="sd">    return types promised by the protocol (np.ndarray is a subtype of ArrayLike), but</span>
+<span class="sd">    the argument types must be at least as general as the argument types promised by the</span>
+<span class="sd">    protocol.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="o">...</span></div>
+
+
+<div class="viewcode-block" id="DataLoader"><a class="viewcode-back" href="../../../../generated/maite.protocols.object_detection.DataLoader.html#maite.protocols.object_detection.DataLoader">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">DataLoader</span><span class="p">(</span>
+    <span class="n">gen</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">[</span>
+        <span class="n">InputBatchType</span><span class="p">,</span>
+        <span class="n">TargetBatchType</span><span class="p">,</span>
+        <span class="n">DatumMetadataBatchType</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="n">Protocol</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A dataloader protocol for the object detection ML subproblem providing</span>
+<span class="sd">    batch-level data access.</span>
+
+<span class="sd">    Implementers must provide an iterable object (returning an iterator via the</span>
+<span class="sd">    `__iter__` method) that yields tuples containing batches of data. These tuples</span>
+<span class="sd">    contain types `Sequence[ArrayLike]` (elements of shape `(C, H, W)`),</span>
+<span class="sd">    `Sequence[ObjectDetectionTarget]`, and `Sequence[DatumMetadataType]`,</span>
+<span class="sd">    which correspond to model input batch, model target batch, and a datum metadata batch.</span>
+
+<span class="sd">    Note: Unlike Dataset, this protocol does not require indexing support, only iterating.</span>
+
+
+<span class="sd">    Methods</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    __iter__ -&gt; Iterator[tuple[Sequence[ArrayLike], Sequence[ObjectDetectionTarget], Sequence[DatumMetadataType]]]</span>
+<span class="sd">        Return an iterator over batches of data, where each batch contains a tuple of</span>
+<span class="sd">        of model input batch (as `Sequence[ArrayLike]`), model target batch (as</span>
+<span class="sd">        `Sequence[ObjectDetectionTarget]`), and batched datum-level metadata</span>
+<span class="sd">        (as `Sequence[DatumMetadataType]]`), respectively.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="o">...</span></div>
+
+
+<div class="viewcode-block" id="Model"><a class="viewcode-back" href="../../../../generated/maite.protocols.object_detection.Model.html#maite.protocols.object_detection.Model">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">gen</span><span class="o">.</span><span class="n">Model</span><span class="p">[</span><span class="n">InputBatchType</span><span class="p">,</span> <span class="n">TargetBatchType</span><span class="p">],</span> <span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A model protocol for the object detection ML subproblem.</span>
+
+<span class="sd">    Implementers must provide a `__call__` method that operates on a batch of model inputs</span>
+<span class="sd">    (as `Sequence[ArrayLike]`s) and returns a batch of model targets (as</span>
+<span class="sd">    `Sequence[ObjectDetectionTarget]`)</span>
+
+<span class="sd">    Methods</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    __call__(input_batch: Sequence[ArrayLike]) -&gt; Sequence[ObjectDetectionTarget]</span>
+<span class="sd">        Make a model prediction for inputs in input batch. Elements of input batch</span>
+<span class="sd">        are expected in the shape `(C, H, W)`.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    metadata : ModelMetadata</span>
+<span class="sd">        A typed dictionary containing at least an &#39;id&#39; field of type str</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    We create a simple MAITE-compliant object detection model, note it is a dummy model.</span>
+
+<span class="sd">    &gt;&gt;&gt; from dataclasses import dataclass</span>
+<span class="sd">    &gt;&gt;&gt; from typing import Sequence</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; import maite.protocols.object_detection as od</span>
+<span class="sd">    &gt;&gt;&gt; from maite.protocols import ModelMetadata</span>
+
+<span class="sd">    We define an object detection target dataclass as the output of the object detection model</span>
+
+<span class="sd">    &gt;&gt;&gt; @dataclass</span>
+<span class="sd">    ... class MyObjectDetectionTarget:</span>
+<span class="sd">    ...     boxes: np.ndarray</span>
+<span class="sd">    ...     labels: np.ndarray</span>
+<span class="sd">    ...     scores: np.ndarray</span>
+<span class="sd">    ...</span>
+
+<span class="sd">    Specify parameters that will be used to create a dummy dataset.</span>
+
+<span class="sd">    &gt;&gt;&gt; N_DATAPOINTS = 2  # datapoints in dataset</span>
+<span class="sd">    &gt;&gt;&gt; N_CLASSES = 5  # possible classes that can be detected</span>
+<span class="sd">    &gt;&gt;&gt; C = 3  # number of color channels</span>
+<span class="sd">    &gt;&gt;&gt; H = 32  # img height</span>
+<span class="sd">    &gt;&gt;&gt; W = 32  # img width</span>
+
+<span class="sd">    Now create a batch of data to form the inputs of the MAITE&#39;s object detection model.</span>
+
+<span class="sd">    &gt;&gt;&gt; simple_batch: list[np.ndarray] = [</span>
+<span class="sd">    ...     np.random.rand(C, H, W) for _ in range(N_DATAPOINTS)</span>
+<span class="sd">    ... ]</span>
+
+<span class="sd">    We define a simple object detection model, note here there is not an actual object detection</span>
+<span class="sd">    model. In the __call__ method, it just outputs the MyObjectDetectionTarget.</span>
+
+<span class="sd">    &gt;&gt;&gt; class ObjectDetectionDummyModel:</span>
+<span class="sd">    ...     metadata: ModelMetadata = {&quot;id&quot;: &quot;ObjectDetectionDummyModel&quot;}</span>
+<span class="sd">    ...</span>
+<span class="sd">    ...     def __call__(</span>
+<span class="sd">    ...         self, batch: od.InputBatchType</span>
+<span class="sd">    ...     ) -&gt; Sequence[MyObjectDetectionTarget]:</span>
+<span class="sd">    ...         # For the simplicity, we don&#39;t provide an object detection model here, but the output from a model.</span>
+<span class="sd">    ...         DETECTIONS_PER_IMG = (</span>
+<span class="sd">    ...             2  # number of bounding boxes detections per image/datapoints</span>
+<span class="sd">    ...         )</span>
+<span class="sd">    ...         all_boxes = np.array(</span>
+<span class="sd">    ...             [[1, 3, 5, 9], [2, 5, 8, 12], [4, 10, 8, 20], [3, 5, 6, 15]]</span>
+<span class="sd">    ...         )  # all detection boxes for N_DATAPOINTS</span>
+<span class="sd">    ...         all_predictions = list()</span>
+<span class="sd">    ...         for datum_idx in range(N_DATAPOINTS):</span>
+<span class="sd">    ...             boxes = all_boxes[datum_idx : datum_idx + DETECTIONS_PER_IMG]</span>
+<span class="sd">    ...             labels = np.random.randint(N_CLASSES, size=DETECTIONS_PER_IMG)</span>
+<span class="sd">    ...             scores = np.random.rand(DETECTIONS_PER_IMG)</span>
+<span class="sd">    ...             predictions = MyObjectDetectionTarget(boxes, labels, scores)</span>
+<span class="sd">    ...             all_predictions.append(predictions)</span>
+<span class="sd">    ...         return all_predictions</span>
+<span class="sd">    ...</span>
+
+<span class="sd">    We can instantiate this class and typehint it as a maite object detection model.</span>
+<span class="sd">    By using typehinting, we permit a static typechecker to verify protocol compliance.</span>
+
+<span class="sd">    &gt;&gt;&gt; od_dummy_model: od.Model = ObjectDetectionDummyModel()</span>
+<span class="sd">    &gt;&gt;&gt; od_dummy_model.metadata</span>
+<span class="sd">    {&#39;id&#39;: &#39;ObjectDetectionDummyModel&#39;}</span>
+<span class="sd">    &gt;&gt;&gt; predictions = od_dummy_model(simple_batch)</span>
+<span class="sd">    &gt;&gt;&gt; predictions  # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS</span>
+<span class="sd">    [MyObjectDetectionTarget(boxes=array([[ 1,  3,  5,  9], [ 2,  5,  8, 12]]), labels=array([..., ...]), scores=array([..., ...])),</span>
+<span class="sd">    MyObjectDetectionTarget(boxes=array([[ 2,  5,  8, 12], [ 4, 10,  8, 20]]), labels=array([..., ...]), scores=array([..., ...]))]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="o">...</span></div>
+
+
+<div class="viewcode-block" id="Metric"><a class="viewcode-back" href="../../../../generated/maite.protocols.object_detection.Metric.html#maite.protocols.object_detection.Metric">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">Metric</span><span class="p">(</span><span class="n">gen</span><span class="o">.</span><span class="n">Metric</span><span class="p">[</span><span class="n">TargetBatchType</span><span class="p">],</span> <span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A metric protocol for the object detection ML subproblem.</span>
+
+<span class="sd">    A metric in this sense is expected to measure the level of agreement between model</span>
+<span class="sd">    predictions and ground-truth labels.</span>
+
+<span class="sd">    Methods</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    update(preds: Sequence[ObjectDetectionTarget], targets: Sequence[ObjectDetectionTarget]) -&gt; None</span>
+<span class="sd">         Add predictions and targets to metric&#39;s cache for later calculation.</span>
+
+<span class="sd">    compute() -&gt; dict[str, Any]</span>
+<span class="sd">         Compute metric value(s) for currently cached predictions and targets, returned as</span>
+<span class="sd">         a dictionary.</span>
+
+<span class="sd">    reset() -&gt; None</span>
+<span class="sd">        Clear contents of current metric&#39;s cache of predictions and targets.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    metadata : MetricMetadata</span>
+<span class="sd">        A typed dictionary containing at least an &#39;id&#39; field of type str</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    Below, we write and test a class that implements the Metric protocol for object detection.</span>
+<span class="sd">    For simplicity, the metric will compute the intersection over union (IoU) averaged over</span>
+<span class="sd">    all predicted and associated ground truth boxes for a single image, and then take the mean</span>
+<span class="sd">    over the per-image means.</span>
+
+<span class="sd">    Note that when writing a `Metric` implementer, return types may be narrower than the</span>
+<span class="sd">    return types promised by the protocol, but the argument types must be at least as</span>
+<span class="sd">    general as the argument types promised by the protocol.</span>
+
+<span class="sd">    &gt;&gt;&gt; from dataclasses import dataclass</span>
+<span class="sd">    &gt;&gt;&gt; from maite.protocols import ArrayLike, MetricMetadata</span>
+<span class="sd">    &gt;&gt;&gt; from typing import Any, Sequence</span>
+<span class="sd">    &gt;&gt;&gt; import maite.protocols.object_detection as od</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+
+<span class="sd">    &gt;&gt;&gt; class MyIoUMetric:</span>
+<span class="sd">    ...</span>
+<span class="sd">    ...     def __init__(self, id: str):</span>
+<span class="sd">    ...         self.pred_boxes = []  # elements correspond to predicted boxes in single image</span>
+<span class="sd">    ...         self.target_boxes = []  # elements correspond to ground truth boxes in single image</span>
+<span class="sd">    ...         # Store provided id for this metric instance</span>
+<span class="sd">    ...         self.metadata = MetricMetadata(</span>
+<span class="sd">    ...             id=id</span>
+<span class="sd">    ...         )</span>
+<span class="sd">    ...</span>
+<span class="sd">    ...     def reset(self) -&gt; None:</span>
+<span class="sd">    ...         self.pred_boxes = []</span>
+<span class="sd">    ...         self.target_boxes = []</span>
+<span class="sd">    ...</span>
+<span class="sd">    ...     def update(</span>
+<span class="sd">    ...         self,</span>
+<span class="sd">    ...         pred_batch: Sequence[od.ObjectDetectionTarget],</span>
+<span class="sd">    ...         target_batch: Sequence[od.ObjectDetectionTarget],</span>
+<span class="sd">    ...     ) -&gt; None:</span>
+<span class="sd">    ...         self.pred_boxes.extend(pred_batch)</span>
+<span class="sd">    ...         self.target_boxes.extend(target_batch)</span>
+<span class="sd">    ...</span>
+<span class="sd">    ...     @staticmethod</span>
+<span class="sd">    ...     def iou_vec(boxes_a: ArrayLike, boxes_b: ArrayLike) -&gt; np.ndarray:</span>
+<span class="sd">    ...         # Break up points into separate columns</span>
+<span class="sd">    ...         x0a, y0a, x1a, y1a = np.split(boxes_a, 4, axis=1)</span>
+<span class="sd">    ...         x0b, y0b, x1b, y1b = np.split(boxes_b, 4, axis=1)</span>
+<span class="sd">    ...         # Calculate intersections</span>
+<span class="sd">    ...         xi_0, yi_0 = np.split(</span>
+<span class="sd">    ...             np.maximum(np.append(x0a, y0a, axis=1), np.append(x0b, y0b, axis=1)),</span>
+<span class="sd">    ...             2,</span>
+<span class="sd">    ...             axis=1,</span>
+<span class="sd">    ...         )</span>
+<span class="sd">    ...         xi_1, yi_1 = np.split(</span>
+<span class="sd">    ...             np.minimum(np.append(x1a, y1a, axis=1), np.append(x1b, y1b, axis=1)),</span>
+<span class="sd">    ...             2,</span>
+<span class="sd">    ...             axis=1,</span>
+<span class="sd">    ...         )</span>
+<span class="sd">    ...         ints: np.ndarray = np.maximum(0, xi_1 - xi_0) * np.maximum(0, yi_1 - yi_0)</span>
+<span class="sd">    ...         # Calculate unions (as sum of areas minus their intersection)</span>
+<span class="sd">    ...         unions: np.ndarray = (</span>
+<span class="sd">    ...             (x1a - x0a) * (y1a - y0a)</span>
+<span class="sd">    ...             + (x1b - x0b) * (y1b - y0b)</span>
+<span class="sd">    ...             - (xi_1 - xi_0) * (yi_1 - yi_0)</span>
+<span class="sd">    ...         )</span>
+<span class="sd">    ...         return ints / unions</span>
+<span class="sd">    ...</span>
+<span class="sd">    ...     def compute(self) -&gt; dict[str, Any]:</span>
+<span class="sd">    ...         mean_iou_by_img: list[float] = []</span>
+<span class="sd">    ...         for pred_box, tgt_box in zip(self.pred_boxes, self.target_boxes):</span>
+<span class="sd">    ...             single_img_ious = self.iou_vec(pred_box.boxes, tgt_box.boxes)</span>
+<span class="sd">    ...             mean_iou_by_img.append(float(np.mean(single_img_ious)))</span>
+<span class="sd">    ...         return {&quot;mean_iou&quot;: np.mean(np.array(mean_iou_by_img))}</span>
+<span class="sd">    ...</span>
+
+<span class="sd">    Now we can instantiate our IoU Metric class:</span>
+
+<span class="sd">    &gt;&gt;&gt; iou_metric: od.Metric = MyIoUMetric(id=&quot;IoUMetric&quot;)</span>
+
+<span class="sd">    To use the metric, we populate two lists that encode predicted object detections</span>
+<span class="sd">    and ground truth object detections for a single image. (Ordinarily, predictions</span>
+<span class="sd">    would be produced by a model.)</span>
+
+<span class="sd">    &gt;&gt;&gt; prediction_boxes: list[tuple[int, int, int, int]] = [</span>
+<span class="sd">    ...     (1, 1, 12, 12),</span>
+<span class="sd">    ...     (100, 100, 120, 120),</span>
+<span class="sd">    ...     (180, 180, 270, 270),</span>
+<span class="sd">    ... ]</span>
+
+<span class="sd">    &gt;&gt;&gt; target_boxes: list[tuple[int, int, int, int]] = [</span>
+<span class="sd">    ...     (1, 1, 10, 10),</span>
+<span class="sd">    ...     (100, 100, 120, 120),</span>
+<span class="sd">    ...     (200, 200, 300, 300),</span>
+<span class="sd">    ... ]</span>
+
+<span class="sd">    The MAITE Metric protocol requires the `pred_batch` and `target_batch` arguments to the</span>
+<span class="sd">    `update` method to be assignable to Sequence[ObjectDetectionTarget] (where ObjectDetectionTarget</span>
+<span class="sd">    encodes detections in a single image). We define an implementation of ObjectDetectionTarget and use it</span>
+<span class="sd">    to pass ground truth and predicted detections.</span>
+
+<span class="sd">    &gt;&gt;&gt; @dataclass</span>
+<span class="sd">    ... class ObjectDetectionTargetImpl:</span>
+<span class="sd">    ...     boxes: np.ndarray</span>
+<span class="sd">    ...     labels: np.ndarray</span>
+<span class="sd">    ...     scores: np.ndarray</span>
+
+<span class="sd">    &gt;&gt;&gt; num_boxes = len(target_boxes)</span>
+<span class="sd">    &gt;&gt;&gt; fake_labels = np.random.randint(0, 9, num_boxes)</span>
+<span class="sd">    &gt;&gt;&gt; fake_scores = np.zeros(num_boxes)</span>
+<span class="sd">    &gt;&gt;&gt; pred_batch = [</span>
+<span class="sd">    ...     ObjectDetectionTargetImpl(</span>
+<span class="sd">    ...         boxes=np.array(prediction_boxes), labels=fake_labels, scores=fake_scores</span>
+<span class="sd">    ...     )</span>
+<span class="sd">    ... ]</span>
+<span class="sd">    &gt;&gt;&gt; target_batch: Sequence[ObjectDetectionTargetImpl] = [</span>
+<span class="sd">    ...     ObjectDetectionTargetImpl(</span>
+<span class="sd">    ...         boxes=np.array(target_boxes), labels=fake_labels, scores=fake_scores</span>
+<span class="sd">    ...     )</span>
+<span class="sd">    ... ]</span>
+
+<span class="sd">    Finally, we call `update` using this one-element batch, compute the metric value, and print it:</span>
+
+<span class="sd">    &gt;&gt;&gt; iou_metric.update(pred_batch, target_batch)</span>
+<span class="sd">    &gt;&gt;&gt; print(iou_metric.compute())</span>
+<span class="sd">    {&#39;mean_iou&#39;: 0.6802112029384757}</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Augmentation"><a class="viewcode-back" href="../../../../generated/maite.protocols.object_detection.Augmentation.html#maite.protocols.object_detection.Augmentation">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">Augmentation</span><span class="p">(</span>
+    <span class="n">gen</span><span class="o">.</span><span class="n">Augmentation</span><span class="p">[</span>
+        <span class="n">InputBatchType</span><span class="p">,</span>
+        <span class="n">TargetBatchType</span><span class="p">,</span>
+        <span class="n">DatumMetadataBatchType</span><span class="p">,</span>
+        <span class="n">InputBatchType</span><span class="p">,</span>
+        <span class="n">TargetBatchType</span><span class="p">,</span>
+        <span class="n">DatumMetadataBatchType</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="n">Protocol</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An augmentation protocol for the object detection subproblem.</span>
+
+<span class="sd">    An augmentation is expected to take a batch of data and return a modified version of</span>
+<span class="sd">    that batch. Implementers must provide a single method that takes and returns a</span>
+<span class="sd">    labeled data batch, where a labeled data batch is represented by a tuple of types</span>
+<span class="sd">    `Sequence[ArrayLike]`, `Sequence[ObjectDetectionTarget]`, and `Sequence[DatumMetadataType]`.</span>
+<span class="sd">    These correspond to the model input batch type, model target batch type, and datum-level</span>
+<span class="sd">    metadata batch type, respectively.</span>
+
+<span class="sd">    Methods</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    __call__(datum: Tuple[Sequence[ArrayLike], Sequence[ObjectDetectionTarget], Sequence[DatumMetadataType]]) -&gt;\</span>
+<span class="sd">          Tuple[Sequence[ArrayLike], Sequence[ObjectDetectionTarget], Sequence[DatumMetadataType]]</span>
+<span class="sd">        Return a modified version of original data batch. A data batch is represented</span>
+<span class="sd">        by a tuple of model input batch (as `Sequence ArrayLike` with elements of shape</span>
+<span class="sd">        `(C, H, W)`), model target batch (as `Sequence[ObjectDetectionTarget]`), and</span>
+<span class="sd">        batch metadata (as `Sequence[DatumMetadataType]`), respectively.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    metadata : AugmentationMetadata</span>
+<span class="sd">        A typed dictionary containing at least an &#39;id&#39; field of type str</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    We can write an implementer of the augmentation class as either a function or a class.</span>
+<span class="sd">    The only requirement is that the object provide a `__call__` method that takes objects</span>
+<span class="sd">    at least as general as the types promised in the protocol signature and return types</span>
+<span class="sd">    at least as specific.</span>
+
+<span class="sd">    We create a dummy set of data and use it to create a class the implements this</span>
+<span class="sd">    lightweight protocol and augments the data:</span>
+
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; np.random.seed(1)</span>
+<span class="sd">    &gt;&gt;&gt; import copy</span>
+<span class="sd">    &gt;&gt;&gt; from dataclasses import dataclass</span>
+<span class="sd">    &gt;&gt;&gt; from typing import Any</span>
+<span class="sd">    &gt;&gt;&gt; from maite.protocols import AugmentationMetadata, object_detection as od</span>
+
+<span class="sd">    First, we specify parameters that will be used to create the dummy dataset.</span>
+
+<span class="sd">    &gt;&gt;&gt; N_DATAPOINTS = 3  # datapoints in dataset</span>
+<span class="sd">    &gt;&gt;&gt; N_CLASSES = 2  # possible classes that can be detected</span>
+<span class="sd">    &gt;&gt;&gt; C = 3  # number of color channels</span>
+<span class="sd">    &gt;&gt;&gt; H = 10  # img height</span>
+<span class="sd">    &gt;&gt;&gt; W = 10  # img width</span>
+
+<span class="sd">    Next, we create the input data to be used by the Augmentation. In this example, we</span>
+<span class="sd">    create the following batch of object detection data:</span>
+
+<span class="sd">    • `xb` is the input batch data. Our batch will include `N_DATAPOINTS` number of samples. Note</span>
+<span class="sd">    that we initialize all of the data to zeros in this example to demonstrate the augmentations</span>
+<span class="sd">    better.</span>
+
+<span class="sd">    • `yb` is the object detection target data, which in this example represents zero object</span>
+<span class="sd">    detections for each input datum (by having empty bounding boxes and class labels and scores).</span>
+
+<span class="sd">    • `mdb` is the associated metadata for each input datum.</span>
+
+<span class="sd">    &gt;&gt;&gt; @dataclass</span>
+<span class="sd">    ... class MyObjectDetectionTarget:</span>
+<span class="sd">    ...     boxes: np.ndarray</span>
+<span class="sd">    ...     labels: np.ndarray</span>
+<span class="sd">    ...     scores: np.ndarray</span>
+<span class="sd">    &gt;&gt;&gt; xb: od.InputBatchType = list(np.zeros((N_DATAPOINTS, C, H, W)))</span>
+<span class="sd">    &gt;&gt;&gt; yb: od.TargetBatchType = list(</span>
+<span class="sd">    ...     MyObjectDetectionTarget(boxes=np.empty(0), labels=np.empty(0), scores=np.empty(0))</span>
+<span class="sd">    ...     for _ in range(N_DATAPOINTS)</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &gt;&gt;&gt; mdb: od.DatumMetadataBatchType = list({&quot;id&quot;: i} for i in range(N_DATAPOINTS))</span>
+<span class="sd">    &gt;&gt;&gt; # Display the first datum in batch, first color channel, and only first 5 rows and cols</span>
+<span class="sd">    &gt;&gt;&gt; np.array(xb[0])[0][:5, :5]</span>
+<span class="sd">    array([[0., 0., 0., 0., 0.],</span>
+<span class="sd">           [0., 0., 0., 0., 0.],</span>
+<span class="sd">           [0., 0., 0., 0., 0.],</span>
+<span class="sd">           [0., 0., 0., 0., 0.],</span>
+<span class="sd">           [0., 0., 0., 0., 0.]])</span>
+
+<span class="sd">    Now we create the Augmentation, which will apply random noise (rounded to 3 decimal</span>
+<span class="sd">    places) to the input data using the `numpy.random.random` and `np.round` functions.</span>
+
+<span class="sd">    &gt;&gt;&gt; np_noise = lambda shape: np.round(np.random.random(shape), 3)</span>
+<span class="sd">    &gt;&gt;&gt; class ImageAugmentation:</span>
+<span class="sd">    ...     def __init__(self, aug_func: Any, metadata: AugmentationMetadata):</span>
+<span class="sd">    ...         self.aug_func = aug_func</span>
+<span class="sd">    ...         self.metadata = metadata</span>
+<span class="sd">    ...     def __call__(</span>
+<span class="sd">    ...         self,</span>
+<span class="sd">    ...         batch: tuple[od.InputBatchType, od.TargetBatchType, od.DatumMetadataBatchType],</span>
+<span class="sd">    ...     ) -&gt; tuple[od.InputBatchType, od.TargetBatchType, od.DatumMetadataBatchType]:</span>
+<span class="sd">    ...         xb, yb, mdb = batch</span>
+<span class="sd">    ...         # Copy data passed into the constructor to avoid mutating original inputs</span>
+<span class="sd">    ...         xb_aug = [copy.copy(input) for input in xb]</span>
+<span class="sd">    ...         # Add random noise to the input batch data, xb</span>
+<span class="sd">    ...         # (Note that all batch data dimensions (shapes) are the same in this example)</span>
+<span class="sd">    ...         shape = np.array(xb[0]).shape</span>
+<span class="sd">    ...         xb_aug = [x + self.aug_func(shape) for x in xb]</span>
+<span class="sd">    ...         # Note that this example augmentation only affects inputs--not targets</span>
+<span class="sd">    ...         return xb_aug, yb, mdb</span>
+
+<span class="sd">    We can typehint an instance of the above class as an Augmentation in the object</span>
+<span class="sd">    detection domain:</span>
+
+<span class="sd">    &gt;&gt;&gt; noise: od.Augmentation = ImageAugmentation(np_noise, metadata={&quot;id&quot;: &quot;np_rand_noise&quot;})</span>
+
+<span class="sd">    Now we can apply the `noise` augmentation to our 3-tuple batch of data. Recall that</span>
+<span class="sd">    our data was initialized to all zeros, so any non-zero values in the augmented data</span>
+<span class="sd">    is a result of the augmentation.</span>
+
+<span class="sd">    &gt;&gt;&gt; xb_aug, yb_aug, mdb_aug = noise((xb, yb, mdb))</span>
+<span class="sd">    &gt;&gt;&gt; # Display the first datum in batch, first color channel, and only first 5 rows and cols</span>
+<span class="sd">    &gt;&gt;&gt; np.array(xb_aug[0])[0][:5, :5]</span>
+<span class="sd">    array([[0.417, 0.72 , 0.   , 0.302, 0.147],</span>
+<span class="sd">           [0.419, 0.685, 0.204, 0.878, 0.027],</span>
+<span class="sd">           [0.801, 0.968, 0.313, 0.692, 0.876],</span>
+<span class="sd">           [0.098, 0.421, 0.958, 0.533, 0.692],</span>
+<span class="sd">           [0.989, 0.748, 0.28 , 0.789, 0.103]])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="o">...</span></div>
+</pre></div>
+
+                </article>
+              
+              
+              
+                <footer class="bd-footer-article">
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+</div></div>
+  
+</div>
+
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  <p class="copyright">
+    
+      © Copyright 2024 Massachusetts Institute of Technology.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.2.1.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

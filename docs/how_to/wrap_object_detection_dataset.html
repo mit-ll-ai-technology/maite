@@ -1,0 +1,793 @@
+
+<!DOCTYPE html>
+
+<html data-content_root="../" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Wrap an Object Detection Dataset — maite 0.9.2 documentation</title>
+<script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+<!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+<noscript>
+<style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+</noscript>
+<!-- Loaded before other Sphinx assets -->
+<link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet"/>
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet"/>
+<link href="../_static/pygments.css?v=8f2a1f02" rel="stylesheet" type="text/css"/>
+<link href="../_static/copybutton.css?v=76b2166b" rel="stylesheet" type="text/css"/>
+<link href="../_static/sphinx-codeautolink.css?v=b2176991" rel="stylesheet" type="text/css"/>
+<link href="../_static/sphinx-design.min.css?v=87e54e7c" rel="stylesheet" type="text/css"/>
+<!-- So that users can add custom icons -->
+<script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+<!-- Pre-loaded scripts that we'll load fully later -->
+<link as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" rel="preload"/>
+<link as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" rel="preload"/>
+<script src="../_static/documentation_options.js?v=aa3b121e"></script>
+<script src="../_static/doctools.js?v=9a2dae69"></script>
+<script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+<script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+<script src="../_static/copybutton.js?v=30646c52"></script>
+<script async="async" src="https://www.googletagmanager.com/gtag/js?id=UA-115029372-2"></script>
+<script src="../_static/gtag.js"></script>
+<script src="../_static/design-tabs.js?v=f930bc37"></script>
+<script>DOCUMENTATION_OPTIONS.pagename = 'how_to/wrap_object_detection_dataset';</script>
+<script src="../_static/pypi_icon.js?v=74687d30"></script>
+<script src="../_static/condaforge_icon.js?v=19caf20c"></script>
+<script src="../_static/anaconda_icon.js?v=e3074ad8"></script>
+<link href="../genindex.html" rel="index" title="Index"/>
+<link href="../search.html" rel="search" title="Search"/>
+<link href="wrap_object_detection_model.html" rel="next" title="Wrap an Object Detection Model"/>
+<link href="wrap_image_classification_model.html" rel="prev" title="Wrap an Image Classification Model"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="en" name="docsearch:language"/>
+<meta content="0.9" name="docsearch:version"/>
+</head>
+<body data-bs-root-margin="0px 0px -60%" data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-default-mode="" data-offset="180">
+<div class="skip-link d-print-none" id="pst-skip-link"><a href="#main-content">Skip to main content</a></div>
+<div id="pst-scroll-pixel-helper"></div>
+<button class="btn rounded-pill" id="pst-back-to-top" type="button">
+<i class="fa-solid fa-arrow-up"></i>Back to top</button>
+<dialog id="pst-search-dialog">
+<form action="../search.html" class="bd-search d-flex align-items-center" method="get">
+<i class="fa-solid fa-magnifying-glass"></i>
+<input aria-label="Search the docs ..." autocapitalize="off" autocomplete="off" autocorrect="off" class="form-control" name="q" placeholder="Search the docs ..." spellcheck="false" type="search"/>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+</dialog>
+<div class="pst-async-banner-revealer d-none">
+<aside aria-label="Version warning" class="d-none d-print-none" id="bd-header-version-warning"></aside>
+</div>
+<header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+<button aria-label="Site navigation" class="pst-navbar-icon sidebar-toggle primary-toggle">
+<span class="fa-solid fa-bars"></span>
+</button>
+<div class="navbar-header-items__start">
+<div class="navbar-item">
+<a class="navbar-brand logo" href="../index.html">
+<p class="title logo__title">maite 0.9.2 documentation</p>
+</a></div>
+</div>
+<div class="navbar-header-items">
+<div class="me-auto navbar-header-items__center">
+<div class="navbar-item">
+<nav>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../tutorials.html">
+    Tutorials
+  </a>
+</li>
+<li class="nav-item current active">
+<a class="nav-link nav-internal" href="../how_tos.html">
+    How-To Guides
+  </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../explanation.html">
+    Explanation
+  </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../api_reference.html">
+    Reference
+  </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../changes.html">
+    Changelog
+  </a>
+</li>
+</ul>
+</nav></div>
+</div>
+<div class="navbar-header-items__end">
+<div class="navbar-item navbar-persistent--container">
+<button aria-label="Search" class="btn search-button-field search-button__button pst-js-only" data-bs-placement="bottom" data-bs-toggle="tooltip" title="Search">
+<i class="fa-solid fa-magnifying-glass"></i>
+<span class="search-button__default-text">Search</span>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+</div>
+<div class="navbar-item">
+<button aria-label="Color mode" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" data-bs-placement="bottom" data-bs-title="Color mode" data-bs-toggle="tooltip">
+<i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+<i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+<i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+</button></div>
+<div class="navbar-item"><ul aria-label="Icon Links" class="navbar-icon-links">
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://github.com/mit-ll-ai-technology/maite" rel="noopener" target="_blank" title="GitHub"><i aria-hidden="true" class="fa-brands fa-github fa-lg"></i>
+<span class="sr-only">GitHub</span></a>
+</li>
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://pypi.org/project/maite/" rel="noopener" target="_blank" title="PyPI"><i aria-hidden="true" class="fa-custom fa-pypi fa-lg"></i>
+<span class="sr-only">PyPI</span></a>
+</li>
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://anaconda.org/conda-forge/maite" rel="noopener" target="_blank" title="Anaconda"><i aria-hidden="true" class="fa-custom fa-anaconda fa-lg"></i>
+<span class="sr-only">Anaconda</span></a>
+</li>
+</ul></div>
+</div>
+</div>
+<div class="navbar-persistent--mobile">
+<button aria-label="Search" class="btn search-button-field search-button__button pst-js-only" data-bs-placement="bottom" data-bs-toggle="tooltip" title="Search">
+<i class="fa-solid fa-magnifying-glass"></i>
+<span class="search-button__default-text">Search</span>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+</div>
+<button aria-label="On this page" class="pst-navbar-icon sidebar-toggle secondary-toggle">
+<span class="fa-solid fa-outdent"></span>
+</button>
+</div>
+</header>
+<div class="bd-container">
+<div class="bd-container__inner bd-page-width">
+<dialog id="pst-primary-sidebar-modal"></dialog>
+<div class="bd-sidebar-primary bd-sidebar" id="pst-primary-sidebar">
+<div class="sidebar-header-items sidebar-primary__section">
+<div class="sidebar-header-items__center">
+<div class="navbar-item">
+<nav>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../tutorials.html">
+    Tutorials
+  </a>
+</li>
+<li class="nav-item current active">
+<a class="nav-link nav-internal" href="../how_tos.html">
+    How-To Guides
+  </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../explanation.html">
+    Explanation
+  </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../api_reference.html">
+    Reference
+  </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../changes.html">
+    Changelog
+  </a>
+</li>
+</ul>
+</nav></div>
+</div>
+<div class="sidebar-header-items__end">
+<div class="navbar-item">
+<button aria-label="Color mode" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" data-bs-placement="bottom" data-bs-title="Color mode" data-bs-toggle="tooltip">
+<i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+<i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+<i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+</button></div>
+<div class="navbar-item"><ul aria-label="Icon Links" class="navbar-icon-links">
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://github.com/mit-ll-ai-technology/maite" rel="noopener" target="_blank" title="GitHub"><i aria-hidden="true" class="fa-brands fa-github fa-lg"></i>
+<span class="sr-only">GitHub</span></a>
+</li>
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://pypi.org/project/maite/" rel="noopener" target="_blank" title="PyPI"><i aria-hidden="true" class="fa-custom fa-pypi fa-lg"></i>
+<span class="sr-only">PyPI</span></a>
+</li>
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://anaconda.org/conda-forge/maite" rel="noopener" target="_blank" title="Anaconda"><i aria-hidden="true" class="fa-custom fa-anaconda fa-lg"></i>
+<span class="sr-only">Anaconda</span></a>
+</li>
+</ul></div>
+</div>
+</div>
+<div class="sidebar-primary-items__start sidebar-primary__section">
+<div class="sidebar-primary-item">
+<nav aria-label="Section Navigation" class="bd-docs-nav bd-links">
+<p aria-level="1" class="bd-links__title" role="heading">Section Navigation</p>
+<div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="static_typing.html">Enable Static Type Checking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wrap_image_classification_dataset.html">Wrap an Image Classification Dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wrap_image_classification_model.html">Wrap an Image Classification Model</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Wrap an Object Detection Dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wrap_object_detection_model.html">Wrap an Object Detection Model</a></li>
+</ul>
+</div>
+</nav></div>
+</div>
+<div class="sidebar-primary-items__end sidebar-primary__section">
+<div class="sidebar-primary-item">
+<div class="flat" data-ea-manual="true" data-ea-publisher="readthedocs" data-ea-type="readthedocs-sidebar" id="ethical-ad-placement">
+</div></div>
+</div>
+</div>
+<main class="bd-main" id="main-content" role="main">
+<div class="bd-content">
+<div class="bd-article-container">
+<div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+<div class="header-article-items__start">
+<div class="header-article-item">
+<nav aria-label="Breadcrumb" class="d-print-none">
+<ul class="bd-breadcrumbs">
+<li class="breadcrumb-item breadcrumb-home">
+<a aria-label="Home" class="nav-link" href="../index.html">
+<i class="fa-solid fa-home"></i>
+</a>
+</li>
+<li class="breadcrumb-item"><a class="nav-link" href="../how_tos.html">How-To Guides</a></li>
+<li aria-current="page" class="breadcrumb-item active"><span class="ellipsis">Wrap an Object Detection Dataset</span></li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+</div>
+<div id="searchbox"></div>
+<article class="bd-article">
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Copyright 2025, MASSACHUSETTS INSTITUTE OF TECHNOLOGY
+Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).
+SPDX-License-Identifier: MIT
+</pre></div>
+</div>
+<section id="wrap-an-object-detection-dataset">
+<h1>Wrap an Object Detection Dataset<a class="headerlink" href="#wrap-an-object-detection-dataset" title="Link to this heading">#</a></h1>
+<p>In this how-to, we will show you how to wrap an object detection dataset
+as a
+<a class="reference external" href="../generated/maite.protocols.object_detection.Dataset.html">maite.protocols.object_detection.Dataset</a>.
+The general steps for wrapping a dataset are:</p>
+<ul class="simple">
+<li><p>Understand the source (native) dataset</p></li>
+<li><p>Create a wrapper that makes the source dataset conform to the MAITE
+dataset protocol (interface)</p></li>
+<li><p>Verify that the wrapped dataset works correctly</p></li>
+</ul>
+<p>Note:</p>
+<ul class="simple">
+<li><p>Implementors do not need to have their class inherit from a base
+class like <code class="docutils literal notranslate"><span class="pre">maite.protocols.object_detection.Dataset</span></code> (although
+they can) since MAITE uses Python protocols for defining interfaces.
+This note applies to other MAITE protocols as well, e.g., <code class="docutils literal notranslate"><span class="pre">Model</span></code>
+and <code class="docutils literal notranslate"><span class="pre">Metric</span></code>. See the <a class="reference external" href="../explanation/type_hints_for_API_design.html">Primer on Python
+Typing</a> for more
+background on protocols and structural subtyping.</p></li>
+<li><p>There are multiple ways of implementing a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> class.
+Implementors can start from scratch or leverge dataset utilities
+provided by other libraries such as Torchvision or Hugging Face.</p></li>
+</ul>
+<p>This how-to guide will be using Torchvision’s
+<a class="reference external" href="https://pytorch.org/vision/stable/generated/torchvision.datasets.CocoDetection.html#torchvision.datasets.CocoDetection">datasets.load_dataset.CocoDetection</a>
+class to load images and COCO-formatted annotations from a directory.</p>
+<section id="load-a-subset-of-the-coco-dataset-with-torchvision">
+<h2>1 Load a subset of the COCO dataset with Torchvision<a class="headerlink" href="#load-a-subset-of-the-coco-dataset-with-torchvision" title="Link to this heading">#</a></h2>
+<p>First we load the necessary packages for running this notebook and
+display their versions.</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/json.html#module-json" title="json"><span class="nn">json</span></a>
+<span class="kn">import</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/pprint.html#module-pprint" title="pprint"><span class="nn">pprint</span></a>
+<span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/dataclasses.html#module-dataclasses" title="dataclasses"><span class="nn">dataclasses</span></a><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/dataclasses.html#dataclasses.dataclass" title="dataclasses.dataclass"><span class="n">dataclass</span></a>
+<span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/pathlib.html#module-pathlib" title="pathlib"><span class="nn">pathlib</span></a><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path"><span class="n">Path</span></a>
+<span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#module-typing" title="typing"><span class="nn">typing</span></a><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Any" title="typing.Any"><span class="n">Any</span></a>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchvision.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">CocoDetection</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchvision.ops.boxes</span><span class="w"> </span><span class="kn">import</span> <span class="n">box_convert</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchvision.transforms.functional</span><span class="w"> </span><span class="kn">import</span> <span class="n">pil_to_tensor</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">maite.protocols</span><span class="w"> </span><span class="kn">import</span> <span class="n">DatasetMetadata</span><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../generated/maite.protocols.DatumMetadata.html#maite.protocols.DatumMetadata" title="maite._internals.protocols.generic.DatumMetadata"><span class="n">DatumMetadata</span></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">maite.protocols</span><span class="w"> </span><span class="kn">import</span> <span class="n">object_detection</span> <span class="k">as</span> <span class="n">od</span>
+
+<span class="o">%</span><span class="k">matplotlib</span> inline
+
+<span class="o">%</span><span class="k">load_ext</span> watermark
+<span class="o">%</span><span class="k">watermark</span> -iv -v
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Python</span> <span class="n">implementation</span><span class="p">:</span> <span class="n">CPython</span>
+<span class="n">Python</span> <span class="n">version</span>       <span class="p">:</span> <span class="mf">3.10.19</span>
+<span class="n">IPython</span> <span class="n">version</span>      <span class="p">:</span> <span class="mf">8.37.0</span>
+
+<span class="n">json</span>       <span class="p">:</span> <span class="mf">2.0.9</span>
+<span class="n">maite</span>      <span class="p">:</span> <span class="mf">0.9.2</span>
+<span class="n">matplotlib</span> <span class="p">:</span> <span class="mf">3.10.8</span>
+<span class="n">requests</span>   <span class="p">:</span> <span class="mf">2.32.5</span>
+<span class="n">torch</span>      <span class="p">:</span> <span class="mf">2.9.1</span>
+<span class="n">torchvision</span><span class="p">:</span> <span class="mf">0.24.1</span>
+</pre></div>
+</div>
+<p>In order to make this how-to guide faster to run and not require a large
+download, we’ll work with a subset of the <a class="reference external" href="https://cocodataset.org">Common Objects in Context
+(COCO)</a> dataset. We’ve modified the
+annotations JSON file from the validation split of the COCO 2017 object
+detection dataset to contain only the first 4 images (and will
+dynamically download only those images using the “coco_url”).</p>
+<p>Note that the COCO annotations are licensed under a <a class="reference external" href="https://creativecommons.org/licenses/by/4.0/legalcode">Creative Commons
+Attribution 4.0
+License</a> (see
+COCO <a class="reference external" href="https://cocodataset.org/#termsofuse">terms of use</a>).</p>
+<p>We use the following function and code to download the images:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">download_images</span><span class="p">(</span><span class="n">coco_json_subset</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#dict" title="dict"><span class="nb">dict</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">root</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Download a subset of COCO images.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    coco_json_subset : dict[str, Any]</span>
+<span class="sd">        COCO val2017_first4 JSON file.</span>
+<span class="sd">    root : Path</span>
+<span class="sd">        Location of COCO data.</span>
+<span class="sd">    """</span>
+    <span class="n">root</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="n">coco_json_subset</span><span class="p">[</span><span class="s2">"images"</span><span class="p">]:</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">image</span><span class="p">[</span><span class="s2">"coco_url"</span><span class="p">]</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">root</span><span class="p">)</span> <span class="o">/</span> <span class="n">image</span><span class="p">[</span><span class="s2">"file_name"</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">"skipping </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">"saving </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> ... "</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">""</span><span class="p">)</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+            <span class="k">with</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#open" title="open"><span class="nb">open</span></a><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">"wb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+            <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="s2">"done"</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">COCO_ROOT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"../sample_data/coco/coco_val2017_subset"</span><span class="p">)</span>
+<span class="n">coco_subset_json</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#dict" title="dict"><span class="nb">dict</span></a><span class="p">()</span>
+<span class="n">ann_subset_file</span> <span class="o">=</span> <span class="n">COCO_ROOT</span> <span class="o">/</span> <span class="s2">"instances_val2017_first4.json"</span>
+<span class="n">coco_subset_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#open" title="open"><span class="nb">open</span></a><span class="p">(</span><span class="n">ann_subset_file</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">))</span>
+<span class="n">download_images</span><span class="p">(</span><span class="n">coco_subset_json</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="n">COCO_ROOT</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">saving</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">images</span><span class="o">.</span><span class="n">cocodataset</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">val2017</span><span class="o">/</span><span class="mf">000000397133.</span><span class="n">jpg</span> <span class="n">to</span> <span class="o">../</span><span class="n">sample_data</span><span class="o">/</span><span class="n">coco</span><span class="o">/</span><span class="n">coco_val2017_subset</span><span class="o">/</span><span class="mf">000000397133.</span><span class="n">jpg</span> <span class="o">...</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">done</span>
+<span class="n">saving</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">images</span><span class="o">.</span><span class="n">cocodataset</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">val2017</span><span class="o">/</span><span class="mf">000000037777.</span><span class="n">jpg</span> <span class="n">to</span> <span class="o">../</span><span class="n">sample_data</span><span class="o">/</span><span class="n">coco</span><span class="o">/</span><span class="n">coco_val2017_subset</span><span class="o">/</span><span class="mf">000000037777.</span><span class="n">jpg</span> <span class="o">...</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">done</span>
+<span class="n">saving</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">images</span><span class="o">.</span><span class="n">cocodataset</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">val2017</span><span class="o">/</span><span class="mf">000000252219.</span><span class="n">jpg</span> <span class="n">to</span> <span class="o">../</span><span class="n">sample_data</span><span class="o">/</span><span class="n">coco</span><span class="o">/</span><span class="n">coco_val2017_subset</span><span class="o">/</span><span class="mf">000000252219.</span><span class="n">jpg</span> <span class="o">...</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">done</span>
+<span class="n">saving</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">images</span><span class="o">.</span><span class="n">cocodataset</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">val2017</span><span class="o">/</span><span class="mf">000000087038.</span><span class="n">jpg</span> <span class="n">to</span> <span class="o">../</span><span class="n">sample_data</span><span class="o">/</span><span class="n">coco</span><span class="o">/</span><span class="n">coco_val2017_subset</span><span class="o">/</span><span class="mf">000000087038.</span><span class="n">jpg</span> <span class="o">...</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">done</span>
+</pre></div>
+</div>
+<p>Next we use Torchvision’s <code class="docutils literal notranslate"><span class="pre">CocoDetection</span></code> dataset class to load our
+COCO subset located under
+<code class="docutils literal notranslate"><span class="pre">maite/examples/sample_data/coco/coco_val2017_subset</span></code>. The keyword
+arguments of <code class="docutils literal notranslate"><span class="pre">CocoDetection</span></code> are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">root</span></code>: the location of the folder containing the images</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">annFile</span></code>: the location of the annotation JSON file</p></li>
+</ul>
+<p>Please see Torchvision’s
+<a class="reference external" href="https://pytorch.org/vision/stable/generated/torchvision.datasets.CocoDetection.html#torchvision.datasets.CocoDetection">documentation</a>
+for more information on how to use the <code class="docutils literal notranslate"><span class="pre">CocoDetection</span></code> class.</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tv_dataset</span> <span class="o">=</span> <span class="n">CocoDetection</span><span class="p">(</span>
+    <span class="n">root</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">(</span><span class="n">COCO_ROOT</span><span class="p">),</span>
+    <span class="n">annFile</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">(</span><span class="n">ann_subset_file</span><span class="p">),</span>
+<span class="p">)</span>
+
+<a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="si">{</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#len" title="len"><span class="nb">len</span></a><span class="p">(</span><span class="n">tv_dataset</span><span class="p">)</span><span class="w"> </span><span class="si">= }</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>loading annotations into memory...
+Done (t=0.00s)
+creating index...
+index created!
+
+len(tv_dataset) = 4
+</pre></div>
+</div>
+</section>
+<section id="examine-the-source-dataset">
+<h2>2 Examine the source dataset<a class="headerlink" href="#examine-the-source-dataset" title="Link to this heading">#</a></h2>
+<p>One datum from <code class="docutils literal notranslate"><span class="pre">tv_dataset</span></code> includes an image and its corresponding
+annotations. Let’s get one datum and inspect it further.</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">img</span><span class="p">,</span> <span class="n">annotations</span> <span class="o">=</span> <span class="n">tv_dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c1"># `img` is a PIL Image</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">"off"</span><span class="p">)</span>  <span class="c1"># Optional: Hide the axes</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#type" title="type"><span class="nb">type</span></a><span class="p">(</span><span class="n">img</span><span class="p">)</span><span class="w"> </span><span class="si">= }</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="c1"># `annotations` is a list of dictionaries (corresponding to 14 objects in this case)</span>
+<a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#len" title="len"><span class="nb">len</span></a><span class="p">(</span><span class="n">annotations</span><span class="p">)</span><span class="w"> </span><span class="si">= }</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="c1"># Each annotation dictionary contains the object's bounding box (bbox) plus other info</span>
+<a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">annotations</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span><span class="w"> </span><span class="si">= }</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="c1"># Note that the COCO bounding box format is [x_min, y_min, width, height]</span>
+<a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">annotations</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">'bbox'</span><span class="p">]</span><span class="w"> </span><span class="si">= }</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="c1"># Class/category labels and ids are available via the `cats` attribute on the dataset itself</span>
+<a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">tv_dataset</span><span class="o">.</span><span class="n">coco</span><span class="o">.</span><span class="n">cats</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="si">= }</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="../_images/wrap_object_detection_dataset_10_0.png" src="../_images/wrap_object_detection_dataset_10_0.png"/>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>type(img) = &lt;class 'PIL.Image.Image'&gt;
+len(annotations) = 14
+annotations[0].keys() = dict_keys(['segmentation', 'area', 'iscrowd', 'image_id', 'bbox', 'category_id', 'id'])
+annotations[0]['bbox'] = [102.49, 118.47, 7.9, 17.31]
+tv_dataset.coco.cats[1] = {'supercategory': 'person', 'id': 1, 'name': 'person'}
+</pre></div>
+</div>
+</section>
+<section id="create-a-maite-wrapper-for-the-source-dataset">
+<h2>3 Create a MAITE wrapper for the source dataset<a class="headerlink" href="#create-a-maite-wrapper-for-the-source-dataset" title="Link to this heading">#</a></h2>
+<p>So far we’ve used Torchvision’s <code class="docutils literal notranslate"><span class="pre">CocoDetection</span></code> class to load and
+explore the dataset. It doesn’t comply with
+<code class="docutils literal notranslate"><span class="pre">maite.protocols.object_detection.Dataset</span></code>; however, it can be used as
+a starting point to construct a MAITE-compliant object detection
+dataset.</p>
+<p>A class implementing <code class="docutils literal notranslate"><span class="pre">maite.protocols.object_detection.Dataset</span></code> needs
+the following two methods:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">__getitem__(index:</span> <span class="pre">int)</span></code>: returns a tuple containing a datum’s
+input image, ground truth detections, and metadata.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">__len__()</span></code>: returns the number of data elements in the dataset.</p></li>
+</ul>
+<p>and an attribute:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">metadata</span></code>: a typed dictionary containing an <code class="docutils literal notranslate"><span class="pre">id</span></code> string and an
+optional (but recommended) map from class indexes to labels.</p></li>
+</ul>
+<p>The datum returned by <code class="docutils literal notranslate"><span class="pre">__getitem__</span></code> is of type
+<code class="docutils literal notranslate"><span class="pre">tuple[InputType,</span> <span class="pre">ObjectDetectionTarget,</span> <span class="pre">DatumMetadata]</span></code>.</p>
+<ul class="simple">
+<li><p>MAITE’s <code class="docutils literal notranslate"><span class="pre">InputType</span></code> is an <code class="docutils literal notranslate"><span class="pre">ArrayLike</span></code> (e.g., <code class="docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> or
+<code class="docutils literal notranslate"><span class="pre">torch.Tensor</span></code>) with shape <code class="docutils literal notranslate"><span class="pre">(C,</span> <span class="pre">H,</span> <span class="pre">W)</span></code> representing the channel,
+height, and width of an image. Since <code class="docutils literal notranslate"><span class="pre">tv_dataset</span></code> has images in the
+PIL image format, we need to convert them to a type compatible with
+<code class="docutils literal notranslate"><span class="pre">ArrayLike</span></code>, which we’ll do using the <code class="docutils literal notranslate"><span class="pre">pil_to_tensor</span></code> function.</p></li>
+<li><p>MAITE’s <code class="docutils literal notranslate"><span class="pre">ObjectDetectionTarget</span></code> protocol can be implemenented by
+defining a <code class="docutils literal notranslate"><span class="pre">dataclass</span></code>, <code class="docutils literal notranslate"><span class="pre">CocoDetectionTarget</span></code>, which encodes the
+ground-truth labels of the object detection problem, namely:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">boxes</span></code>: a shape-(N_DETECTIONS, 4) <code class="docutils literal notranslate"><span class="pre">ArrayLike</span></code>, where
+N_DETECTIONS is the number of detections (objects) in the current
+single image, and each row is a bounding box in <code class="docutils literal notranslate"><span class="pre">x0,</span> <span class="pre">y0,</span> <span class="pre">x1,</span> <span class="pre">y1</span></code>
+format</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">labels</span></code>: a shape-(N_DETECTIONS,) <code class="docutils literal notranslate"><span class="pre">ArrayLike</span></code> containing the
+integer label associated with each detection</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">scores</span></code>: a shape-(N_DETECTIONS,) or (N_DETECTIONS, N_CLASSES)
+<code class="docutils literal notranslate"><span class="pre">ArrayLike</span></code> containing the score associated with each detection.
+For a dataset’s ground truth (as opposed to model predictions),
+<code class="docutils literal notranslate"><span class="pre">scores</span></code> are always 1.</p></li>
+</ul>
+</li>
+<li><p>MAITE’s <code class="docutils literal notranslate"><span class="pre">DatumMetadata</span></code> is a <code class="docutils literal notranslate"><span class="pre">TypedDict</span></code> containing metadata
+associated with a single datum. An <code class="docutils literal notranslate"><span class="pre">id</span></code> of type <code class="docutils literal notranslate"><span class="pre">int</span></code> or <code class="docutils literal notranslate"><span class="pre">str</span></code>
+is required.</p></li>
+</ul>
+<p>Putting everything together, below is an implementation of the
+<code class="docutils literal notranslate"><span class="pre">maite.protocols.object_detection.Dataset</span></code> protocol called
+<code class="docutils literal notranslate"><span class="pre">CocoDetectionDataset</span></code>.</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CocoDetectionTarget</span><span class="p">:</span>
+    <span class="n">boxes</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
+    <span class="n">labels</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
+    <span class="n">scores</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">CocoDetectionDataset</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">CocoDetection</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span> <span class="o">=</span> <span class="n">dataset</span>
+
+        <span class="c1"># Get mapping from COCO category to name</span>
+        <span class="n">index2label</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">coco</span><span class="o">.</span><span class="n">cats</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+        <span class="c1"># Add dataset-level metadata attribute, with required id and optional index2label mapping</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">:</span> <span class="n">DatasetMetadata</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">"id"</span><span class="p">:</span> <span class="nb">id</span><span class="p">,</span>
+            <span class="s2">"index2label"</span><span class="p">:</span> <span class="n">index2label</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">:</span>
+        <span class="k">return</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#len" title="len"><span class="nb">len</span></a><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a>
+    <span class="p">)</span> <span class="o">-&gt;</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="tuple"><span class="nb">tuple</span></a><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">CocoDetectionTarget</span><span class="p">,</span> <span class="n">DatumMetadata</span><span class="p">]:</span>
+        <span class="c1"># Get original data item</span>
+        <span class="n">img_pil</span><span class="p">,</span> <span class="n">annotations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+
+        <span class="c1"># Format input</span>
+        <span class="n">img_pt</span> <span class="o">=</span> <span class="n">pil_to_tensor</span><span class="p">(</span><span class="n">img_pil</span><span class="p">)</span>
+
+        <span class="c1"># Format ground truth</span>
+        <span class="n">num_boxes</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#len" title="len"><span class="nb">len</span></a><span class="p">(</span><span class="n">annotations</span><span class="p">)</span>
+        <span class="n">boxes</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_boxes</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">ann</span> <span class="ow">in</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#enumerate" title="enumerate"><span class="nb">enumerate</span></a><span class="p">(</span><span class="n">annotations</span><span class="p">):</span>
+            <span class="n">bbox</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">ann</span><span class="p">[</span><span class="s2">"bbox"</span><span class="p">])</span>
+            <span class="n">boxes</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">box_convert</span><span class="p">(</span><span class="n">bbox</span><span class="p">,</span> <span class="n">in_fmt</span><span class="o">=</span><span class="s2">"xywh"</span><span class="p">,</span> <span class="n">out_fmt</span><span class="o">=</span><span class="s2">"xyxy"</span><span class="p">)</span>
+
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">([</span><span class="n">ann</span><span class="p">[</span><span class="s2">"category_id"</span><span class="p">]</span> <span class="k">for</span> <span class="n">ann</span> <span class="ow">in</span> <span class="n">annotations</span><span class="p">])</span>
+        <span class="n">scores</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">num_boxes</span><span class="p">)</span>
+
+        <span class="c1"># Format metadata</span>
+        <span class="n">datum_metadata</span><span class="p">:</span> <span class="n">DatumMetadata</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">"id"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">ids</span><span class="p">[</span><span class="n">index</span><span class="p">],</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">img_pt</span><span class="p">,</span> <span class="n">CocoDetectionTarget</span><span class="p">(</span><span class="n">boxes</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">scores</span><span class="p">),</span> <span class="n">datum_metadata</span>
+</pre></div>
+</div>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">coco_dataset</span><span class="p">:</span> <span class="n">od</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">=</span> <span class="n">CocoDetectionDataset</span><span class="p">(</span><span class="n">tv_dataset</span><span class="p">,</span> <span class="s2">"COCO Detection Subset"</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We have now created a dataset class that conforms to the
+<code class="docutils literal notranslate"><span class="pre">maite.protocols.object_detection.Dataset</span></code> protocol, and wrapped the
+native dataset with it.</p>
+<p>Here the <code class="docutils literal notranslate"><span class="pre">coco_dataset</span></code> variable has <code class="docutils literal notranslate"><span class="pre">od.Dataset</span></code> as the type hint.
+If your development environment has a static type checker like Pyright
+enabled (see the <a class="reference external" href="./static_typing.html">Enable Static Type Checking</a>
+guide), then the type checker will verify that our wrapped dataset
+conforms to the protocol and indicate a problem if not.</p>
+</section>
+<section id="examine-the-maite-wrapped-dataset">
+<h2>4 Examine the MAITE-wrapped dataset<a class="headerlink" href="#examine-the-maite-wrapped-dataset" title="Link to this heading">#</a></h2>
+<p>Now let’s inspect MAITE-compliant object detection dataset to verify
+that it’s behaving as expected.</p>
+<p>First we verify that the length is 4:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#len" title="len"><span class="nb">len</span></a><span class="p">(</span><span class="n">coco_dataset</span><span class="p">)</span><span class="w"> </span><span class="si">= }</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">len</span><span class="p">(</span><span class="n">coco_dataset</span><span class="p">)</span> <span class="o">=</span> <span class="mi">4</span>
+</pre></div>
+</div>
+<p>We display the dataset-level metadata:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pprint</span><span class="o">.</span><span class="n">pp</span><span class="p">(</span><span class="n">coco_dataset</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">'id'</span><span class="p">:</span> <span class="s1">'COCO Detection Subset'</span><span class="p">,</span>
+ <span class="s1">'index2label'</span><span class="p">:</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="s1">'person'</span><span class="p">,</span>
+                 <span class="mi">2</span><span class="p">:</span> <span class="s1">'bicycle'</span><span class="p">,</span>
+                 <span class="mi">3</span><span class="p">:</span> <span class="s1">'car'</span><span class="p">,</span>
+                 <span class="mi">4</span><span class="p">:</span> <span class="s1">'motorcycle'</span><span class="p">,</span>
+                 <span class="mi">5</span><span class="p">:</span> <span class="s1">'airplane'</span><span class="p">,</span>
+                 <span class="mi">6</span><span class="p">:</span> <span class="s1">'bus'</span><span class="p">,</span>
+                 <span class="mi">7</span><span class="p">:</span> <span class="s1">'train'</span><span class="p">,</span>
+                 <span class="mi">8</span><span class="p">:</span> <span class="s1">'truck'</span><span class="p">,</span>
+                 <span class="mi">9</span><span class="p">:</span> <span class="s1">'boat'</span><span class="p">,</span>
+                 <span class="mi">10</span><span class="p">:</span> <span class="s1">'traffic light'</span><span class="p">,</span>
+                 <span class="mi">11</span><span class="p">:</span> <span class="s1">'fire hydrant'</span><span class="p">,</span>
+                 <span class="mi">13</span><span class="p">:</span> <span class="s1">'stop sign'</span><span class="p">,</span>
+                 <span class="mi">14</span><span class="p">:</span> <span class="s1">'parking meter'</span><span class="p">,</span>
+                 <span class="mi">15</span><span class="p">:</span> <span class="s1">'bench'</span><span class="p">,</span>
+                 <span class="mi">16</span><span class="p">:</span> <span class="s1">'bird'</span><span class="p">,</span>
+                 <span class="mi">17</span><span class="p">:</span> <span class="s1">'cat'</span><span class="p">,</span>
+                 <span class="mi">18</span><span class="p">:</span> <span class="s1">'dog'</span><span class="p">,</span>
+                 <span class="mi">19</span><span class="p">:</span> <span class="s1">'horse'</span><span class="p">,</span>
+                 <span class="mi">20</span><span class="p">:</span> <span class="s1">'sheep'</span><span class="p">,</span>
+                 <span class="mi">21</span><span class="p">:</span> <span class="s1">'cow'</span><span class="p">,</span>
+                 <span class="mi">22</span><span class="p">:</span> <span class="s1">'elephant'</span><span class="p">,</span>
+                 <span class="mi">23</span><span class="p">:</span> <span class="s1">'bear'</span><span class="p">,</span>
+                 <span class="mi">24</span><span class="p">:</span> <span class="s1">'zebra'</span><span class="p">,</span>
+                 <span class="mi">25</span><span class="p">:</span> <span class="s1">'giraffe'</span><span class="p">,</span>
+                 <span class="mi">27</span><span class="p">:</span> <span class="s1">'backpack'</span><span class="p">,</span>
+                 <span class="mi">28</span><span class="p">:</span> <span class="s1">'umbrella'</span><span class="p">,</span>
+                 <span class="mi">31</span><span class="p">:</span> <span class="s1">'handbag'</span><span class="p">,</span>
+                 <span class="mi">32</span><span class="p">:</span> <span class="s1">'tie'</span><span class="p">,</span>
+                 <span class="mi">33</span><span class="p">:</span> <span class="s1">'suitcase'</span><span class="p">,</span>
+                 <span class="mi">34</span><span class="p">:</span> <span class="s1">'frisbee'</span><span class="p">,</span>
+                 <span class="mi">35</span><span class="p">:</span> <span class="s1">'skis'</span><span class="p">,</span>
+                 <span class="mi">36</span><span class="p">:</span> <span class="s1">'snowboard'</span><span class="p">,</span>
+                 <span class="mi">37</span><span class="p">:</span> <span class="s1">'sports ball'</span><span class="p">,</span>
+                 <span class="mi">38</span><span class="p">:</span> <span class="s1">'kite'</span><span class="p">,</span>
+                 <span class="mi">39</span><span class="p">:</span> <span class="s1">'baseball bat'</span><span class="p">,</span>
+                 <span class="mi">40</span><span class="p">:</span> <span class="s1">'baseball glove'</span><span class="p">,</span>
+                 <span class="mi">41</span><span class="p">:</span> <span class="s1">'skateboard'</span><span class="p">,</span>
+                 <span class="mi">42</span><span class="p">:</span> <span class="s1">'surfboard'</span><span class="p">,</span>
+                 <span class="mi">43</span><span class="p">:</span> <span class="s1">'tennis racket'</span><span class="p">,</span>
+                 <span class="mi">44</span><span class="p">:</span> <span class="s1">'bottle'</span><span class="p">,</span>
+                 <span class="mi">46</span><span class="p">:</span> <span class="s1">'wine glass'</span><span class="p">,</span>
+                 <span class="mi">47</span><span class="p">:</span> <span class="s1">'cup'</span><span class="p">,</span>
+                 <span class="mi">48</span><span class="p">:</span> <span class="s1">'fork'</span><span class="p">,</span>
+                 <span class="mi">49</span><span class="p">:</span> <span class="s1">'knife'</span><span class="p">,</span>
+                 <span class="mi">50</span><span class="p">:</span> <span class="s1">'spoon'</span><span class="p">,</span>
+                 <span class="mi">51</span><span class="p">:</span> <span class="s1">'bowl'</span><span class="p">,</span>
+                 <span class="mi">52</span><span class="p">:</span> <span class="s1">'banana'</span><span class="p">,</span>
+                 <span class="mi">53</span><span class="p">:</span> <span class="s1">'apple'</span><span class="p">,</span>
+                 <span class="mi">54</span><span class="p">:</span> <span class="s1">'sandwich'</span><span class="p">,</span>
+                 <span class="mi">55</span><span class="p">:</span> <span class="s1">'orange'</span><span class="p">,</span>
+                 <span class="mi">56</span><span class="p">:</span> <span class="s1">'broccoli'</span><span class="p">,</span>
+                 <span class="mi">57</span><span class="p">:</span> <span class="s1">'carrot'</span><span class="p">,</span>
+                 <span class="mi">58</span><span class="p">:</span> <span class="s1">'hot dog'</span><span class="p">,</span>
+                 <span class="mi">59</span><span class="p">:</span> <span class="s1">'pizza'</span><span class="p">,</span>
+                 <span class="mi">60</span><span class="p">:</span> <span class="s1">'donut'</span><span class="p">,</span>
+                 <span class="mi">61</span><span class="p">:</span> <span class="s1">'cake'</span><span class="p">,</span>
+                 <span class="mi">62</span><span class="p">:</span> <span class="s1">'chair'</span><span class="p">,</span>
+                 <span class="mi">63</span><span class="p">:</span> <span class="s1">'couch'</span><span class="p">,</span>
+                 <span class="mi">64</span><span class="p">:</span> <span class="s1">'potted plant'</span><span class="p">,</span>
+                 <span class="mi">65</span><span class="p">:</span> <span class="s1">'bed'</span><span class="p">,</span>
+                 <span class="mi">67</span><span class="p">:</span> <span class="s1">'dining table'</span><span class="p">,</span>
+                 <span class="mi">70</span><span class="p">:</span> <span class="s1">'toilet'</span><span class="p">,</span>
+                 <span class="mi">72</span><span class="p">:</span> <span class="s1">'tv'</span><span class="p">,</span>
+                 <span class="mi">73</span><span class="p">:</span> <span class="s1">'laptop'</span><span class="p">,</span>
+                 <span class="mi">74</span><span class="p">:</span> <span class="s1">'mouse'</span><span class="p">,</span>
+                 <span class="mi">75</span><span class="p">:</span> <span class="s1">'remote'</span><span class="p">,</span>
+                 <span class="mi">76</span><span class="p">:</span> <span class="s1">'keyboard'</span><span class="p">,</span>
+                 <span class="mi">77</span><span class="p">:</span> <span class="s1">'cell phone'</span><span class="p">,</span>
+                 <span class="mi">78</span><span class="p">:</span> <span class="s1">'microwave'</span><span class="p">,</span>
+                 <span class="mi">79</span><span class="p">:</span> <span class="s1">'oven'</span><span class="p">,</span>
+                 <span class="mi">80</span><span class="p">:</span> <span class="s1">'toaster'</span><span class="p">,</span>
+                 <span class="mi">81</span><span class="p">:</span> <span class="s1">'sink'</span><span class="p">,</span>
+                 <span class="mi">82</span><span class="p">:</span> <span class="s1">'refrigerator'</span><span class="p">,</span>
+                 <span class="mi">84</span><span class="p">:</span> <span class="s1">'book'</span><span class="p">,</span>
+                 <span class="mi">85</span><span class="p">:</span> <span class="s1">'clock'</span><span class="p">,</span>
+                 <span class="mi">86</span><span class="p">:</span> <span class="s1">'vase'</span><span class="p">,</span>
+                 <span class="mi">87</span><span class="p">:</span> <span class="s1">'scissors'</span><span class="p">,</span>
+                 <span class="mi">88</span><span class="p">:</span> <span class="s1">'teddy bear'</span><span class="p">,</span>
+                 <span class="mi">89</span><span class="p">:</span> <span class="s1">'hair drier'</span><span class="p">,</span>
+                 <span class="mi">90</span><span class="p">:</span> <span class="s1">'toothbrush'</span><span class="p">}}</span>
+</pre></div>
+</div>
+<p>Finally we inspect a single datum:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get first datum</span>
+<span class="n">image</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">datum_metadata</span> <span class="o">=</span> <span class="n">coco_dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c1"># Display image</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">"off"</span><span class="p">)</span>  <span class="c1"># Optional: Hide the axes</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1"># Bridge/convert ArrayLike's to PyTorch tensors</span>
+<span class="n">image</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+<span class="n">boxes</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">boxes</span><span class="p">)</span>
+<span class="n">labels</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">labels</span><span class="p">)</span>
+<span class="n">scores</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">scores</span><span class="p">)</span>
+
+<span class="c1"># Print shapes</span>
+<a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="w"> </span><span class="si">= }</span><span class="s2">"</span><span class="p">)</span>  <span class="c1"># image has height 230 and weight 352</span>
+<a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">boxes</span><span class="o">.</span><span class="n">shape</span><span class="w"> </span><span class="si">= }</span><span class="s2">"</span><span class="p">)</span>  <span class="c1"># there are 14 bounding boxes</span>
+<a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">labels</span><span class="o">.</span><span class="n">shape</span><span class="w"> </span><span class="si">= }</span><span class="s2">"</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">scores</span><span class="o">.</span><span class="n">shape</span><span class="w"> </span><span class="si">= }</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="c1"># Print datum-level metadata</span>
+<a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">datum_metadata</span><span class="w"> </span><span class="si">= }</span><span class="s2">"</span><span class="p">)</span>  <span class="c1"># this datum corresponds to image file 000000037777.jpg</span>
+</pre></div>
+</div>
+<img alt="../_images/wrap_object_detection_dataset_20_0.png" src="../_images/wrap_object_detection_dataset_20_0.png"/>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">image</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">230</span><span class="p">,</span> <span class="mi">352</span><span class="p">])</span>
+<span class="n">boxes</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">([</span><span class="mi">14</span><span class="p">,</span> <span class="mi">4</span><span class="p">])</span>
+<span class="n">labels</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">([</span><span class="mi">14</span><span class="p">])</span>
+<span class="n">scores</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">([</span><span class="mi">14</span><span class="p">])</span>
+<span class="n">datum_metadata</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'id'</span><span class="p">:</span> <span class="mi">37777</span><span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="conclusion">
+<h2>5 Conclusion<a class="headerlink" href="#conclusion" title="Link to this heading">#</a></h2>
+<p>In this how-to guide, we demonstrated how to wrap an object detection
+dataset to be MAITE compliant. Key implementation steps included:</p>
+<ul class="simple">
+<li><p>Defining <code class="docutils literal notranslate"><span class="pre">__len__</span></code> and <code class="docutils literal notranslate"><span class="pre">__getitem__</span></code> methods</p></li>
+<li><p>Choosing a specific image <code class="docutils literal notranslate"><span class="pre">InputType</span></code> (e.g., <code class="docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> or
+<code class="docutils literal notranslate"><span class="pre">torch.Tensor</span></code>)</p></li>
+<li><p>Creating a target dataclass that conforms to the
+<code class="docutils literal notranslate"><span class="pre">ObjectDetectionTarget</span></code> protocol</p></li>
+<li><p>Setting up <code class="docutils literal notranslate"><span class="pre">DatasetMetadata</span></code> and <code class="docutils literal notranslate"><span class="pre">DatumMetadata</span></code></p></li>
+</ul>
+<p>More dataset protocol details can be found here:
+<a class="reference external" href="../generated/maite.protocols.object_detection.Dataset.html">maite.protocols.object_detection.Dataset</a>.</p>
+</section>
+</section>
+</article>
+<footer class="prev-next-footer d-print-none">
+<div class="prev-next-area">
+<a class="left-prev" href="wrap_image_classification_model.html" title="previous page">
+<i class="fa-solid fa-angle-left"></i>
+<div class="prev-next-info">
+<p class="prev-next-subtitle">previous</p>
+<p class="prev-next-title">Wrap an Image Classification Model</p>
+</div>
+</a>
+<a class="right-next" href="wrap_object_detection_model.html" title="next page">
+<div class="prev-next-info">
+<p class="prev-next-subtitle">next</p>
+<p class="prev-next-title">Wrap an Object Detection Model</p>
+</div>
+<i class="fa-solid fa-angle-right"></i>
+</a>
+</div>
+</footer>
+</div>
+<dialog id="pst-secondary-sidebar-modal"></dialog>
+<div class="bd-sidebar-secondary bd-toc" id="pst-secondary-sidebar"><div class="sidebar-secondary-items sidebar-secondary__inner">
+<div class="sidebar-secondary-item">
+<div class="page-toc tocsection onthispage" id="pst-page-navigation-heading-2">
+<i class="fa-solid fa-list"></i> On this page
+  </div>
+<nav aria-labelledby="pst-page-navigation-heading-2" class="bd-toc-nav page-toc">
+<ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-a-subset-of-the-coco-dataset-with-torchvision">1 Load a subset of the COCO dataset with Torchvision</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#examine-the-source-dataset">2 Examine the source dataset</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-a-maite-wrapper-for-the-source-dataset">3 Create a MAITE wrapper for the source dataset</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#examine-the-maite-wrapped-dataset">4 Examine the MAITE-wrapped dataset</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conclusion">5 Conclusion</a></li>
+</ul>
+</nav></div>
+<div class="sidebar-secondary-item">
+<div aria-label="source link" role="note">
+<h3>This Page</h3>
+<ul class="this-page-menu">
+<li><a href="../_sources/how_to/wrap_object_detection_dataset.rst.txt" rel="nofollow">Show Source</a></li>
+</ul>
+</div></div>
+</div></div>
+</div>
+<footer class="bd-footer-content">
+</footer>
+</main>
+</div>
+</div>
+<!-- Scripts loaded after <body> so the DOM is not blocked -->
+<script defer="" src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer="" src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+<footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+<div class="footer-items__start">
+<div class="footer-item">
+<p class="copyright">
+    
+      © Copyright 2024 Massachusetts Institute of Technology.
+      <br/>
+</p>
+</div>
+<div class="footer-item">
+<p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
+    <br/>
+</p>
+</div>
+</div>
+<div class="footer-items__end">
+<div class="footer-item">
+<p class="theme-version">
+<!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+</div>
+</div>
+</footer>
+</body>
+</html>

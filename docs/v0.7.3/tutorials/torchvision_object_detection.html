@@ -1,0 +1,897 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.19: https://docutils.sourceforge.io/" name="generator"/>
+<title>Torchvision Object Detection Example — maite 0.7.3 documentation</title>
+<script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+<!-- Loaded before other Sphinx assets -->
+<link href="../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet"/>
+<link href="../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet"/>
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet"/>
+<link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet"/>
+<link as="font" crossorigin="" href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" rel="preload" type="font/woff2"/>
+<link as="font" crossorigin="" href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" rel="preload" type="font/woff2"/>
+<link as="font" crossorigin="" href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" rel="preload" type="font/woff2"/>
+<link href="../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/copybutton.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" rel="stylesheet" type="text/css"/>
+<!-- Pre-loaded scripts that we'll load fully later -->
+<link as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" rel="preload"/>
+<link as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" rel="preload"/>
+<script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+<script src="../_static/doctools.js"></script>
+<script src="../_static/sphinx_highlight.js"></script>
+<script src="../_static/clipboard.min.js"></script>
+<script src="../_static/copybutton.js"></script>
+<script async="async" src="https://www.googletagmanager.com/gtag/js?id=UA-115029372-2"></script>
+<script src="../_static/gtag.js"></script>
+<script src="../_static/design-tabs.js"></script>
+<script>DOCUMENTATION_OPTIONS.pagename = 'tutorials/torchvision_object_detection';</script>
+<link href="../genindex.html" rel="index" title="Index"/>
+<link href="../search.html" rel="search" title="Search"/>
+<link href="../how_tos.html" rel="next" title="How-To Guides"/>
+<link href="hf_image_classification.html" rel="prev" title="Hugging Face Image Classification Example"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="en" name="docsearch:language"/>
+</head>
+<body data-bs-root-margin="0px 0px -60%" data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-default-mode="" data-offset="180">
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<input class="sidebar-toggle" id="__primary" name="__primary" type="checkbox"/>
+<label class="overlay overlay-primary" for="__primary"></label>
+<input class="sidebar-toggle" id="__secondary" name="__secondary" type="checkbox"/>
+<label class="overlay overlay-secondary" for="__secondary"></label>
+<div class="search-button__wrapper">
+<div class="search-button__overlay"></div>
+<div class="search-button__search-container">
+<form action="../search.html" class="bd-search d-flex align-items-center" method="get">
+<i class="fa-solid fa-magnifying-glass"></i>
+<input aria-label="Search the docs ..." autocapitalize="off" autocomplete="off" autocorrect="off" class="form-control" id="search-input" name="q" placeholder="Search the docs ..." spellcheck="false" type="search"/>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+</div>
+<nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+<label class="sidebar-toggle primary-toggle" for="__primary">
+<span class="fa-solid fa-bars"></span>
+</label>
+<div class="navbar-header-items__start">
+<div class="navbar-item">
+<a class="navbar-brand logo" href="../index.html">
+<p class="title logo__title">maite 0.7.3 documentation</p>
+</a></div>
+</div>
+<div class="col-lg-9 navbar-header-items">
+<div class="me-auto navbar-header-items__center">
+<div class="navbar-item"><nav class="navbar-nav">
+<p aria-label="Site Navigation" aria-level="1" class="sidebar-header-items__title" role="heading">
+    Site Navigation
+  </p>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item current active">
+<a class="nav-link nav-internal" href="../tutorials.html">
+                        Tutorials
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../how_tos.html">
+                        How-To Guides
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../explanation.html">
+                        Explanation
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../api_reference.html">
+                        Reference
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../changes.html">
+                        Changelog
+                      </a>
+</li>
+</ul>
+</nav></div>
+</div>
+<div class="navbar-header-items__end">
+<div class="navbar-item navbar-persistent--container">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+</div>
+<div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+</div>
+</div>
+<div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+</div>
+<label class="sidebar-toggle secondary-toggle" for="__secondary">
+<span class="fa-solid fa-outdent"></span>
+</label>
+</div>
+</nav>
+<div class="bd-container">
+<div class="bd-container__inner bd-page-width">
+<div class="bd-sidebar-primary bd-sidebar">
+<div class="sidebar-header-items sidebar-primary__section">
+<div class="sidebar-header-items__center">
+<div class="navbar-item"><nav class="navbar-nav">
+<p aria-label="Site Navigation" aria-level="1" class="sidebar-header-items__title" role="heading">
+    Site Navigation
+  </p>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item current active">
+<a class="nav-link nav-internal" href="../tutorials.html">
+                        Tutorials
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../how_tos.html">
+                        How-To Guides
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../explanation.html">
+                        Explanation
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../api_reference.html">
+                        Reference
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../changes.html">
+                        Changelog
+                      </a>
+</li>
+</ul>
+</nav></div>
+</div>
+<div class="sidebar-header-items__end">
+<div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+</div>
+</div>
+<div class="sidebar-primary-items__start sidebar-primary__section">
+<div class="sidebar-primary-item"><nav aria-label="Section Navigation" class="bd-docs-nav bd-links">
+<p aria-level="1" class="bd-links__title" role="heading">Section Navigation</p>
+<div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="hf_image_classification.html">Hugging Face Image Classification Example</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Torchvision Object Detection Example</a></li>
+</ul>
+</div>
+</nav></div>
+</div>
+<div class="sidebar-primary-items__end sidebar-primary__section">
+</div>
+<div id="rtd-footer-container"></div>
+</div>
+<main class="bd-main" id="main-content">
+<div class="bd-content">
+<div class="bd-article-container">
+<div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+<div class="header-article-items__start">
+<div class="header-article-item">
+<nav aria-label="Breadcrumbs">
+<ul aria-label="Breadcrumb" class="bd-breadcrumbs" role="navigation">
+<li class="breadcrumb-item breadcrumb-home">
+<a aria-label="Home" class="nav-link" href="../index.html">
+<i class="fa-solid fa-home"></i>
+</a>
+</li>
+<li class="breadcrumb-item"><a class="nav-link" href="../tutorials.html">Tutorials</a></li>
+<li aria-current="page" class="breadcrumb-item active">Torchvision Object Detection Example</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+</div>
+<div id="searchbox"></div>
+<article class="bd-article" role="main">
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Copyright 2024, MASSACHUSETTS INSTITUTE OF TECHNOLOGY
+Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).
+SPDX-License-Identifier: MIT
+</pre></div>
+</div>
+<section id="torchvision-object-detection-example">
+<h1>Torchvision Object Detection Example<a class="headerlink" href="#torchvision-object-detection-example" title="Permalink to this heading">#</a></h1>
+<p>The MAITE library provides interfaces for AI components such as
+datasets, models, metrics, and augmentations to make their use more
+consistent across test and evaluation (T&amp;E) tools and workflows.</p>
+<p>In this tutorial, you will use MAITE in conjunction with a set of common
+libraries to:</p>
+<ul class="simple">
+<li><p>Wrap an object detection dataset from Torchvision (COCO),</p></li>
+<li><p>Wrap an object detection model from Torchvision (Faster RCNN),</p></li>
+<li><p>Wrap a metric from Torchmetrics (mean average precision),</p></li>
+<li><p>Compute performance on the clean dataset using MAITE’s <code class="docutils literal notranslate"><span class="pre">evaluate</span></code>
+workflow utility,</p></li>
+<li><p>Wrap an augmenation from Kornia (Gaussian noise), and</p></li>
+<li><p>Compute performance on the perturbed dataset using <code class="docutils literal notranslate"><span class="pre">evaluate</span></code>.</p></li>
+</ul>
+<p>Once complete, you will have a basic understanding of MAITE’s interfaces
+for datasets, models, metric, and augmentations, as well as how to use
+MAITE’s native API for running evaluations.</p>
+<p>This tutorial does not assume any prior knowledge, but some experience
+with Python, machine learning, and the PyTorch framework may be helpful.
+Portions of code are adapted from the object detection example in the
+Torchvision
+<a class="reference external" href="https://pytorch.org/vision/stable/models.html#object-detection">documentation</a>.</p>
+<section id="getting-started">
+<h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this heading">#</a></h2>
+<p>This tutorial uses MAITE, PyTorch, Torchvision, Torchmetrics, Kornia,
+and Matplotlib. You can use the following commands to create a conda
+environment with these dependencies:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">create</span> <span class="o">--</span><span class="n">name</span> <span class="n">torchvision_obj_det</span> <span class="n">python</span><span class="o">=</span><span class="mf">3.10</span>
+<span class="n">conda</span> <span class="n">activate</span> <span class="n">torchvision_obj_det</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">maite</span> <span class="n">jupyter</span> <span class="n">torch</span> <span class="n">torchvision</span> <span class="n">torchmetrics</span> <span class="n">pycocotools</span> <span class="n">kornia</span>
+</pre></div>
+</div>
+<p>Note that the notebook was tested with these exact versions:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">maite</span> <span class="n">jupyter</span><span class="o">==</span><span class="mf">1.0.0</span> <span class="n">torch</span><span class="o">==</span><span class="mf">2.3.1</span> <span class="n">torchvision</span><span class="o">==</span><span class="mf">0.18.1</span> <span class="n">torchmetrics</span><span class="o">==</span><span class="mf">1.4.0</span><span class="o">.</span><span class="n">post0</span> <span class="n">pycocotools</span><span class="o">==</span><span class="mf">2.0.7</span> <span class="n">kornia</span><span class="o">==</span><span class="mf">0.7.2</span>
+</pre></div>
+</div>
+<p>Now that we’ve created an environment, we import the necessary
+libraries:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">kornia.augmentation</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">K</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/dataclasses.html#dataclasses.dataclass" title="dataclasses.dataclass"><span class="n">dataclass</span></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path"><span class="n">Path</span></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchmetrics.detection.mean_ap</span><span class="w"> </span><span class="kn">import</span> <span class="n">MeanAveragePrecision</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchvision.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">CocoDetection</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchvision.models.detection</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">fasterrcnn_resnet50_fpn_v2</span><span class="p">,</span>
+    <span class="n">FasterRCNN_ResNet50_FPN_V2_Weights</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchvision.ops.boxes</span><span class="w"> </span><span class="kn">import</span> <span class="n">box_convert</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchvision.transforms.functional</span><span class="w"> </span><span class="kn">import</span> <span class="n">to_pil_image</span><span class="p">,</span> <span class="n">pil_to_tensor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchvision.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">draw_bounding_boxes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Any" title="typing.Any"><span class="n">Any</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="typing.Callable"><span class="n">Callable</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="typing.Sequence"><span class="n">Sequence</span></a>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">maite.protocols.object_detection</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">od</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">maite.protocols</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <a class="sphinx-codeautolink-a" href="../generated/maite.protocols.ArrayLike.html#maite.protocols.ArrayLike" title="maite.protocols.ArrayLike"><span class="n">ArrayLike</span></a><span class="p">,</span>
+    <span class="n">DatasetMetadata</span><span class="p">,</span>
+    <span class="n">ModelMetadata</span><span class="p">,</span>
+    <span class="n">MetricMetadata</span><span class="p">,</span>
+    <span class="n">AugmentationMetadata</span><span class="p">,</span>
+    <span class="n">DatumMetadata</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">maite.workflows</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="../generated/maite.workflows.evaluate.html#maite.workflows.evaluate" title="maite.workflows.evaluate"><span class="n">evaluate</span></a>
+</pre></div>
+</div>
+</section>
+<section id="wrapping-a-torchvision-dataset">
+<h2>Wrapping a Torchvision Dataset<a class="headerlink" href="#wrapping-a-torchvision-dataset" title="Permalink to this heading">#</a></h2>
+<p>We’ll be wrapping Torchvision’s
+<a class="reference external" href="https://pytorch.org/vision/stable/generated/torchvision.datasets.CocoDetection.html#torchvision.datasets.CocoDetection">CocoDetection</a>
+dataset, which provides support for the COCO object detection dataset.</p>
+<p>In order to make this tutorial faster to run and not require a large
+download, we’ve provided a modified annotations JSON file from the
+validation split of the COCO 2017 Object Detection Task containing only
+the first 4 images (and will dynamically download only those images
+using the “coco_url”).</p>
+<p>Note that the COCO annotations are licensed under a <a class="reference external" href="https://creativecommons.org/licenses/by/4.0/legalcode">Creative Commons
+Attribution 4.0
+License</a> (see
+COCO <a class="reference external" href="https://cocodataset.org/#termsofuse">terms of use</a>).</p>
+<section id="native-dataset">
+<h3>Native Dataset<a class="headerlink" href="#native-dataset" title="Permalink to this heading">#</a></h3>
+<p>First we download the first 4 images of the validation split:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">download_images</span><span class="p">(</span><span class="n">coco_json_subset</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#dict" title="dict"><span class="nb">dict</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">root</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a> <span class="o">|</span> <span class="n">Path</span><span class="p">):</span>
+    <span class="n">root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+    <span class="n">root</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="n">coco_json_subset</span><span class="p">[</span><span class="s2">"images"</span><span class="p">]:</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">image</span><span class="p">[</span><span class="s2">"coco_url"</span><span class="p">]</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">root</span><span class="p">)</span> <span class="o">/</span> <span class="n">image</span><span class="p">[</span><span class="s2">"file_name"</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">"skipping </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">"saving </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> ... "</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">""</span><span class="p">)</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+            <span class="k">with</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#open" title="open"><span class="nb">open</span></a><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">"wb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+            <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">"done"</span><span class="p">)</span>
+
+<span class="n">COCO_ROOT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"coco_val2017_subset"</span><span class="p">)</span>
+<span class="n">ann_subset_file</span> <span class="o">=</span> <span class="n">COCO_ROOT</span> <span class="o">/</span> <span class="s2">"instances_val2017_first4.json"</span>
+<span class="n">coco_subset_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#open" title="open"><span class="nb">open</span></a><span class="p">(</span><span class="n">ann_subset_file</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">))</span>
+
+<span class="n">download_images</span><span class="p">(</span><span class="n">coco_subset_json</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="n">COCO_ROOT</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">saving</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">images</span><span class="o">.</span><span class="n">cocodataset</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">val2017</span><span class="o">/</span><span class="mf">000000397133.</span><span class="n">jpg</span> <span class="n">to</span> <span class="n">coco_val2017_subset</span><span class="o">/</span><span class="mf">000000397133.</span><span class="n">jpg</span> <span class="o">...</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">done</span>
+<span class="n">saving</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">images</span><span class="o">.</span><span class="n">cocodataset</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">val2017</span><span class="o">/</span><span class="mf">000000037777.</span><span class="n">jpg</span> <span class="n">to</span> <span class="n">coco_val2017_subset</span><span class="o">/</span><span class="mf">000000037777.</span><span class="n">jpg</span> <span class="o">...</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">done</span>
+<span class="n">saving</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">images</span><span class="o">.</span><span class="n">cocodataset</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">val2017</span><span class="o">/</span><span class="mf">000000252219.</span><span class="n">jpg</span> <span class="n">to</span> <span class="n">coco_val2017_subset</span><span class="o">/</span><span class="mf">000000252219.</span><span class="n">jpg</span> <span class="o">...</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">done</span>
+<span class="n">saving</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">images</span><span class="o">.</span><span class="n">cocodataset</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">val2017</span><span class="o">/</span><span class="mf">000000087038.</span><span class="n">jpg</span> <span class="n">to</span> <span class="n">coco_val2017_subset</span><span class="o">/</span><span class="mf">000000087038.</span><span class="n">jpg</span> <span class="o">...</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">done</span>
+</pre></div>
+</div>
+<p>Next we create the Torchvision dataset and verify that its reduced
+length is 4:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tv_dataset</span> <span class="o">=</span> <span class="n">CocoDetection</span><span class="p">(</span>
+    <span class="n">root</span><span class="o">=</span><span class="s2">"coco_val2017_subset"</span><span class="p">,</span>
+    <span class="n">annFile</span><span class="o">=</span><span class="s2">"coco_val2017_subset/instances_val2017_first4.json"</span>
+<span class="p">)</span>
+
+<a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="si">{</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#len" title="len"><span class="nb">len</span></a><span class="p">(</span><span class="n">tv_dataset</span><span class="p">)</span><span class="w"> </span><span class="si">= }</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>loading annotations into memory...
+Done (t=0.00s)
+creating index...
+index created!
+
+len(tv_dataset) = 4
+</pre></div>
+</div>
+<p>Each item of the dataset contains an image along with a list of
+annotation dictionaries. The bounding box (<code class="docutils literal notranslate"><span class="pre">bbox</span></code>) format is “xywh”
+and the <code class="docutils literal notranslate"><span class="pre">category_id</span></code> is one of COCO’s 90 categories (each of which
+has a name and a supercategory).</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get first image and its annotations</span>
+<span class="n">img</span><span class="p">,</span> <span class="n">annotations</span> <span class="o">=</span> <span class="n">tv_dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c1"># Explore structure</span>
+<a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#type" title="type"><span class="nb">type</span></a><span class="p">(</span><span class="n">img</span><span class="p">)</span><span class="w"> </span><span class="si">= }</span><span class="s2">"</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#type" title="type"><span class="nb">type</span></a><span class="p">(</span><span class="n">annotations</span><span class="p">)</span><span class="w"> </span><span class="si">= }</span><span class="s2">"</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#type" title="type"><span class="nb">type</span></a><span class="p">(</span><span class="n">annotations</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="w"> </span><span class="si">= }</span><span class="s2">"</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#len" title="len"><span class="nb">len</span></a><span class="p">(</span><span class="n">annotations</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="w"> </span><span class="si">= }</span><span class="s2">"</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">annotations</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span><span class="w"> </span><span class="si">= }</span><span class="s2">"</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">annotations</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">'bbox'</span><span class="p">]</span><span class="w"> </span><span class="si">= }</span><span class="s2">"</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">annotations</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">'category_id'</span><span class="p">]</span><span class="w"> </span><span class="si">= }</span><span class="s2">"</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">tv_dataset</span><span class="o">.</span><span class="n">coco</span><span class="o">.</span><span class="n">cats</span><span class="p">[</span><span class="mi">64</span><span class="p">]</span><span class="w"> </span><span class="si">= }</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>type(img) = &lt;class 'PIL.Image.Image'&gt;
+type(annotations) = &lt;class 'list'&gt;
+type(annotations[0]) = &lt;class 'dict'&gt;
+len(annotations[0]) = 7
+annotations[0].keys() = dict_keys(['segmentation', 'area', 'iscrowd', 'image_id', 'bbox', 'category_id', 'id'])
+annotations[0]['bbox'] = [102.49, 118.47, 7.9, 17.31]
+annotations[0]['category_id'] = 64
+tv_dataset.coco.cats[64] = {'supercategory': 'furniture', 'id': 64, 'name': 'potted plant'}
+</pre></div>
+</div>
+</section>
+<section id="wrapped-dataset">
+<h3>Wrapped Dataset<a class="headerlink" href="#wrapped-dataset" title="Permalink to this heading">#</a></h3>
+<p>In order to facilitate executing T&amp;E workflows with datasets from
+difference sources (e.g., existing libraries like Torchvision or Hugging
+Face or custom datasets), MAITE provides a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> protocol that
+specifies the expected interface (i.e, a minimal set of required
+attributes, methods, and method type signatures).</p>
+<p>At a high level, a MAITE object detection <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> needs to have two
+methods (<code class="docutils literal notranslate"><span class="pre">__len__</span></code> and <code class="docutils literal notranslate"><span class="pre">__getitem__</span></code>) and return the image, target
+(label/class), and metadata associated with a requested dataset index.</p>
+<p>Note: the <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>-implementing class should raise an IndexError when
+<code class="docutils literal notranslate"><span class="pre">__getitem__</span></code> is called with indices beyond container bounds; this
+permits python to create a default <code class="docutils literal notranslate"><span class="pre">__iter__</span></code> implementation on
+objects implementing the <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> protocol. Alternatively, users may
+directly implement their own <code class="docutils literal notranslate"><span class="pre">__iter__</span></code> method to support iteration.</p>
+<p>The following wrapper internally converts from the “native” format of
+the dataset to types compatible with MAITE:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CocoDetectionTarget</span><span class="p">:</span>
+    <span class="n">boxes</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
+    <span class="n">labels</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
+    <span class="n">scores</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
+
+<span class="c1"># Get mapping from COCO category to name</span>
+<span class="n">index2label</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">tv_dataset</span><span class="o">.</span><span class="n">coco</span><span class="o">.</span><span class="n">cats</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MaiteCocoDetection</span><span class="p">:</span>
+    <span class="n">metadata</span><span class="p">:</span> <span class="n">DatasetMetadata</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'id'</span><span class="p">:</span> <span class="s1">'COCO Detection Dataset'</span><span class="p">}</span>
+    <span class="c1"># We can optionally include index2label mapping within DatasetMetadata</span>
+    <span class="n">metadata</span><span class="p">:</span> <span class="n">DatasetMetadata</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">metadata</span><span class="p">,</span> <span class="s1">'index2label'</span><span class="p">:</span> <span class="n">index2label</span><span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">CocoDetection</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span> <span class="o">=</span> <span class="n">dataset</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">:</span>
+        <span class="k">return</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#len" title="len"><span class="nb">len</span></a><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">)</span> <span class="o">-&gt;</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="tuple"><span class="nb">tuple</span></a><span class="p">[</span><span class="n">ArrayLike</span><span class="p">,</span> <span class="n">CocoDetectionTarget</span><span class="p">,</span> <span class="n">DatumMetadata</span><span class="p">]:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># get original data item</span>
+            <span class="n">img_pil</span><span class="p">,</span> <span class="n">annotations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="k">except</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="IndexError"><span class="ne">IndexError</span></a> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="c1"># Here the underlying dataset is raising an IndexError since the index is beyond the</span>
+            <span class="c1"># container's bounds. When wrapping custom datasets, wrappers are responsible to for</span>
+            <span class="c1"># raising an IndexError in `__getitem__` when an index exceeds the container's bounds;</span>
+            <span class="c1"># this enables iteration on the wrapper to properly terminate.</span>
+            <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">"The index number </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2"> is out of range for the dataset which has length </span><span class="si">{</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#len" title="len"><span class="nb">len</span></a><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">raise</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+        <span class="c1"># format input</span>
+        <span class="n">img_pt</span> <span class="o">=</span> <span class="n">pil_to_tensor</span><span class="p">(</span><span class="n">img_pil</span><span class="p">)</span>
+
+        <span class="c1"># format ground truth</span>
+        <span class="n">num_boxes</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#len" title="len"><span class="nb">len</span></a><span class="p">(</span><span class="n">annotations</span><span class="p">)</span>
+        <span class="n">boxes</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_boxes</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">ann</span> <span class="ow">in</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#enumerate" title="enumerate"><span class="nb">enumerate</span></a><span class="p">(</span><span class="n">annotations</span><span class="p">):</span>
+            <span class="n">bbox</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">ann</span><span class="p">[</span><span class="s2">"bbox"</span><span class="p">])</span>
+            <span class="n">boxes</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">box_convert</span><span class="p">(</span><span class="n">bbox</span><span class="p">,</span> <span class="n">in_fmt</span><span class="o">=</span><span class="s2">"xywh"</span><span class="p">,</span> <span class="n">out_fmt</span><span class="o">=</span><span class="s2">"xyxy"</span><span class="p">)</span>
+
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">([</span><span class="n">ann</span><span class="p">[</span><span class="s2">"category_id"</span><span class="p">]</span> <span class="k">for</span> <span class="n">ann</span> <span class="ow">in</span> <span class="n">annotations</span><span class="p">])</span>
+        <span class="n">scores</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">num_boxes</span><span class="p">)</span>
+
+        <span class="c1"># format metadata</span>
+        <span class="n">datum_metadata</span><span class="p">:</span> <span class="n">DatumMetadata</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">"id"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">ids</span><span class="p">[</span><span class="n">index</span><span class="p">],</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">img_pt</span><span class="p">,</span> <span class="n">CocoDetectionTarget</span><span class="p">(</span><span class="n">boxes</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">scores</span><span class="p">),</span> <span class="n">datum_metadata</span>
+</pre></div>
+</div>
+<p>We now create a wrapped version of the dataset that conforms to the
+MAITE protocol.</p>
+<p>Note that the <code class="docutils literal notranslate"><span class="pre">dataset</span></code> variable has <code class="docutils literal notranslate"><span class="pre">od.Dataset</span></code> as the type hint.
+If your environment has a static type checker enabled (e.g., the Pyright
+type checker via the Pylance language server in VS Code), then the type
+checker will verify that our wrapped dataset conforms to the protocol
+and indicate a problem if not (e.g., by underlining with a red
+squiggle).</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span><span class="p">:</span> <span class="n">od</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">=</span> <span class="n">MaiteCocoDetection</span><span class="p">(</span><span class="n">tv_dataset</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#len" title="len"><span class="nb">len</span></a><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">4</span>
+</pre></div>
+</div>
+<p>Next we’ll display a sample image along with the ground truth
+annotations.</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">create_pil_image</span><span class="p">(</span>
+    <span class="nb">input</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">,</span>
+    <span class="n">target</span><span class="p">:</span> <span class="n">od</span><span class="o">.</span><span class="n">ObjectDetectionTarget</span><span class="p">,</span>
+    <span class="n">index2label</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#dict" title="dict"><span class="nb">dict</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">],</span>
+    <span class="n">color</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a> <span class="o">=</span> <span class="s2">"red"</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Image</span><span class="o">.</span><span class="n">Image</span><span class="p">:</span>
+    <span class="n">img_pt</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+    <span class="n">boxes</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">boxes</span><span class="p">)</span>
+    <span class="n">label_ids</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">labels</span><span class="p">)</span>
+    <span class="n">label_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">index2label</span><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">(</span><span class="nb">id</span><span class="o">.</span><span class="n">item</span><span class="p">())]</span> <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">label_ids</span><span class="p">]</span>
+    <span class="n">box</span> <span class="o">=</span> <span class="n">draw_bounding_boxes</span><span class="p">(</span><span class="n">img_pt</span><span class="p">,</span> <span class="n">boxes</span><span class="o">=</span><span class="n">boxes</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">label_names</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">to_pil_image</span><span class="p">(</span><span class="n">box</span><span class="o">.</span><span class="n">detach</span><span class="p">())</span>
+</pre></div>
+</div>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get mapping from COCO category to name</span>
+<span class="n">index2label</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">tv_dataset</span><span class="o">.</span><span class="n">coco</span><span class="o">.</span><span class="n">cats</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+</pre></div>
+</div>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get sample image and overlay ground truth annotations (bounding boxes)</span>
+<span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="nb">input</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+<span class="n">img</span> <span class="o">=</span> <span class="n">create_pil_image</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">index2label</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">"off"</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Ground Truth"</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img</span><span class="p">);</span>
+</pre></div>
+</div>
+<img alt="../_images/torchvision_object_detection_17_0.png" src="../_images/torchvision_object_detection_17_0.png"/>
+</section>
+</section>
+<section id="wrapping-a-torchvision-model">
+<h2>Wrapping a Torchvision Model<a class="headerlink" href="#wrapping-a-torchvision-model" title="Permalink to this heading">#</a></h2>
+<p>In this section, we’ll wrap a Torchvision object detection model that’s
+been pretrained on the COCO dataset.</p>
+<p>First we create the “native” Torchvision model with a specified set of
+pretrained weights:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">weights</span> <span class="o">=</span> <span class="n">FasterRCNN_ResNet50_FPN_V2_Weights</span><span class="o">.</span><span class="n">DEFAULT</span>
+<span class="n">tv_model</span> <span class="o">=</span> <span class="n">fasterrcnn_resnet50_fpn_v2</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span> <span class="n">box_score_thresh</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Next we wrap the model to conform to the MAITE <code class="docutils literal notranslate"><span class="pre">od.Model</span></code> protocol,
+which requires a <code class="docutils literal notranslate"><span class="pre">__call__</span></code> method that takes a batch of inputs and
+returns a batch of predictions:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">TorchvisionDetector</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="n">ModelMetadata</span><span class="p">,</span> <span class="n">transforms</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transforms</span> <span class="o">=</span> <span class="n">transforms</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">ArrayLike</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">CocoDetectionTarget</span><span class="p">]:</span>
+
+        <span class="c1"># convert to list of tensors, transfer to device, and apply inference transforms</span>
+        <span class="c1"># - https://pytorch.org/vision/stable/models.html</span>
+        <span class="c1"># - "The models expect a list of Tensor[C, H, W]."</span>
+        <span class="n">tv_input</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">transforms</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">b_elem</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span> <span class="k">for</span> <span class="n">b_elem</span> <span class="ow">in</span> <span class="n">batch</span><span class="p">]</span>
+
+        <span class="c1"># get predictions</span>
+        <span class="n">tv_predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">tv_input</span><span class="p">)</span>
+
+        <span class="c1"># reformat output</span>
+        <span class="n">predictions</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">CocoDetectionTarget</span><span class="p">(</span>
+                <span class="n">p</span><span class="p">[</span><span class="s2">"boxes"</span><span class="p">]</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">(),</span>
+                <span class="n">p</span><span class="p">[</span><span class="s2">"labels"</span><span class="p">]</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">(),</span>
+                <span class="n">p</span><span class="p">[</span><span class="s2">"scores"</span><span class="p">]</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">tv_predictions</span>
+        <span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">predictions</span>
+</pre></div>
+</div>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="p">:</span> <span class="n">od</span><span class="o">.</span><span class="n">Model</span> <span class="o">=</span> <span class="n">TorchvisionDetector</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">tv_model</span><span class="p">,</span>
+    <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s1">'id'</span><span class="p">:</span> <span class="s1">'TorchvisionDetector'</span><span class="p">,</span> <span class="s1">'index2label'</span><span class="p">:</span> <span class="n">index2label</span><span class="p">},</span>
+    <span class="n">transforms</span><span class="o">=</span><span class="n">weights</span><span class="o">.</span><span class="n">transforms</span><span class="p">(),</span>
+    <span class="n">device</span><span class="o">=</span><span class="s2">"cpu"</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>For an initial test, we’ll manually create an input batch and perform
+inference on it with the wrapped model:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create batch with sample image</span>
+<span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">md</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">xb</span><span class="p">,</span> <span class="n">yb</span><span class="p">,</span> <span class="n">mdb</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="p">[</span><span class="n">y</span><span class="p">],</span> <span class="p">[</span><span class="n">md</span><span class="p">]</span>
+<a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">xb</span><span class="o">.</span><span class="n">shape</span><span class="w"> </span><span class="si">= }</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="c1"># Get predictions for batch(which just has one image for this example)</span>
+<span class="n">preds</span> <span class="o">=</span> <span class="n">model</span><span class="p">([</span><span class="n">xb</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+
+<span class="c1"># Overlay detections on image</span>
+<span class="n">img</span> <span class="o">=</span> <span class="n">create_pil_image</span><span class="p">(</span><span class="n">xb</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">preds</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">index2label</span><span class="p">)</span>
+
+<span class="c1"># Plot</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">"off"</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Prediction"</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img</span><span class="p">);</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">xb</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">230</span><span class="p">,</span> <span class="mi">352</span><span class="p">])</span>
+</pre></div>
+</div>
+<img alt="../_images/torchvision_object_detection_24_1.png" src="../_images/torchvision_object_detection_24_1.png"/>
+<p>Qualitatively, it appears that the model has detected the majority of
+the objects, but not all.</p>
+<p>At this point, we’d like to perform a more quantitative evaluation
+across a larger set of images.</p>
+</section>
+<section id="metrics">
+<h2>Metrics<a class="headerlink" href="#metrics" title="Permalink to this heading">#</a></h2>
+<p>In this section we wrap a Torchmetrics object detection metric to
+conform to the MAITE <code class="docutils literal notranslate"><span class="pre">od.Metric</span></code> protocol.</p>
+<p>First we create a “native” Torchmetrics mean average prediction (mAP)
+metric:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tm_metric</span> <span class="o">=</span> <span class="n">MeanAveragePrecision</span><span class="p">(</span>
+    <span class="n">box_format</span><span class="o">=</span><span class="s2">"xyxy"</span><span class="p">,</span>
+    <span class="n">iou_type</span><span class="o">=</span><span class="s2">"bbox"</span><span class="p">,</span>
+    <span class="n">iou_thresholds</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">],</span>
+    <span class="n">rec_thresholds</span><span class="o">=</span><span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span>
+    <span class="n">max_detection_thresholds</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">],</span>
+    <span class="n">class_metrics</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">extended_summary</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">average</span><span class="o">=</span><span class="s2">"macro"</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Next we wrap the metric as a MAITE <code class="docutils literal notranslate"><span class="pre">od.Metric</span></code> that has the required
+<code class="docutils literal notranslate"><span class="pre">update</span></code>, <code class="docutils literal notranslate"><span class="pre">compute</span></code>, and <code class="docutils literal notranslate"><span class="pre">reset</span></code> methods:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">WrappedTorchmetricsMetric</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">tm_metric</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span>
+            <span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#list" title="list"><span class="nb">list</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#dict" title="dict"><span class="nb">dict</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]],</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#list" title="list"><span class="nb">list</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#dict" title="dict"><span class="nb">dict</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]]],</span>
+            <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#dict" title="dict"><span class="nb">dict</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="n">metadata</span><span class="p">:</span> <span class="n">MetricMetadata</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tm_metric</span> <span class="o">=</span> <span class="n">tm_metric</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span>
+
+    <span class="c1"># Create utility function to convert ObjectDetectionTarget_impl type to what</span>
+    <span class="c1"># the type expected by torchmetrics IntersectionOverUnion metric</span>
+    <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#staticmethod" title="staticmethod"><span class="nd">@staticmethod</span></a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_tensor_dict</span><span class="p">(</span><span class="n">target</span><span class="p">:</span> <span class="n">od</span><span class="o">.</span><span class="n">ObjectDetectionTarget</span><span class="p">)</span> <span class="o">-&gt;</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#dict" title="dict"><span class="nb">dict</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Convert an ObjectDetectionTarget_impl into a dictionary expected internally by</span>
+<span class="sd">        raw `update` method of raw torchmetrics method</span>
+<span class="sd">        """</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">"boxes"</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">boxes</span><span class="p">),</span>
+            <span class="s2">"scores"</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">scores</span><span class="p">),</span>
+            <span class="s2">"labels"</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">labels</span><span class="p">),</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">out</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">preds</span><span class="p">:</span> <span class="n">od</span><span class="o">.</span><span class="n">TargetBatchType</span><span class="p">,</span> <span class="n">targets</span><span class="p">:</span> <span class="n">od</span><span class="o">.</span><span class="n">TargetBatchType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Convert to natively-typed from of preds/targets</span>
+        <span class="n">preds_tm</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">to_tensor_dict</span><span class="p">(</span><span class="n">pred</span><span class="p">)</span> <span class="k">for</span> <span class="n">pred</span> <span class="ow">in</span> <span class="n">preds</span><span class="p">]</span>
+        <span class="n">targets_tm</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">to_tensor_dict</span><span class="p">(</span><span class="n">tgt</span><span class="p">)</span> <span class="k">for</span> <span class="n">tgt</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tm_metric</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">preds_tm</span><span class="p">,</span> <span class="n">targets_tm</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#dict" title="dict"><span class="nb">dict</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tm_metric</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tm_metric</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mAP_metric</span><span class="p">:</span> <span class="n">od</span><span class="o">.</span><span class="n">Metric</span> <span class="o">=</span> <span class="n">WrappedTorchmetricsMetric</span><span class="p">(</span><span class="n">tm_metric</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s1">'id'</span><span class="p">:</span> <span class="s1">'torchmetrics_map_metric'</span><span class="p">})</span>
+</pre></div>
+</div>
+</section>
+<section id="workflows">
+<h2>Workflows<a class="headerlink" href="#workflows" title="Permalink to this heading">#</a></h2>
+<p>Now we’ll run MAITE’s <code class="docutils literal notranslate"><span class="pre">evaluate</span></code> workflow, which manages the process
+of applying the model to the dataset (performing inference) and
+computing the desired metric.</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run evaluate over original (clean) dataset</span>
+<span class="n">results</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">evaluate</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+    <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span>
+    <span class="n">metric</span><span class="o">=</span><span class="n">mAP_metric</span>
+<span class="p">)</span>
+
+<span class="c1"># Report mAP_50 performance</span>
+<span class="n">results</span><span class="p">[</span><span class="s2">"map_50"</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>0%|          | 0/4 [00:00&lt;?, ?it/s]
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">tensor</span><span class="p">(</span><span class="mf">0.3713</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="augmentations">
+<h2>Augmentations<a class="headerlink" href="#augmentations" title="Permalink to this heading">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">evaluate</span></code> workflow takes an optional augmentation to allow
+measuring performance on a perturbed (degraded) version of the dataset.
+This is useful for evaluating the robustness of a model to a natural
+perturbation like noise.</p>
+<p>In this section we’ll wrap an augmentation from the Kornia library and
+re-run the evaluation.</p>
+<p>First we create the “native” Kornia augmentation:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">kornia_noise</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">RandomGaussianNoise</span><span class="p">(</span>
+    <span class="n">mean</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">std</span><span class="o">=</span><span class="mf">0.08</span><span class="p">,</span> <span class="c1"># relative to [0, 1] pixel values</span>
+    <span class="n">p</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Next we wrap it as a MAITE <code class="docutils literal notranslate"><span class="pre">od.Augmentation</span></code>, with a <code class="docutils literal notranslate"><span class="pre">__call__</span></code>
+method that operations on batches:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">WrappedKorniaAugmentation</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kornia_aug</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="n">AugmentationMetadata</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kornia_aug</span> <span class="o">=</span> <span class="n">kornia_aug</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">batch</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="tuple"><span class="nb">tuple</span></a><span class="p">[</span><span class="n">od</span><span class="o">.</span><span class="n">InputBatchType</span><span class="p">,</span> <span class="n">od</span><span class="o">.</span><span class="n">TargetBatchType</span><span class="p">,</span> <span class="n">od</span><span class="o">.</span><span class="n">DatumMetadataBatchType</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="tuple"><span class="nb">tuple</span></a><span class="p">[</span><span class="n">od</span><span class="o">.</span><span class="n">InputBatchType</span><span class="p">,</span> <span class="n">od</span><span class="o">.</span><span class="n">TargetBatchType</span><span class="p">,</span> <span class="n">od</span><span class="o">.</span><span class="n">DatumMetadataBatchType</span><span class="p">]:</span>
+        <span class="c1"># Unpack tuple</span>
+        <span class="n">xb</span><span class="p">,</span> <span class="n">yb</span><span class="p">,</span> <span class="n">metadata</span> <span class="o">=</span> <span class="n">batch</span>
+
+        <span class="c1"># Type narrow / bridge input batch to PyTorch tensor</span>
+        <span class="n">xb_pt</span> <span class="o">=</span> <span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">xb_i</span><span class="p">)</span> <span class="k">for</span> <span class="n">xb_i</span> <span class="ow">in</span> <span class="n">xb</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">xb_pt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">'Input should be sequence of 3d ArrayLikes'</span>
+
+        <span class="c1"># Apply augmentation to batch</span>
+        <span class="c1"># Return augmentation outputs as uint8</span>
+        <span class="c1"># - NOTE: assumes input batch has pixels in [0, 255]</span>
+        <span class="n">xb_aug</span> <span class="o">=</span> <span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">kornia_aug</span><span class="p">(</span><span class="n">xb_pti</span> <span class="o">/</span> <span class="mf">255.0</span><span class="p">)</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="mf">255.0</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span> <span class="k">for</span> <span class="n">xb_pti</span> <span class="ow">in</span> <span class="n">xb_pt</span><span class="p">]</span>
+
+        <span class="c1"># Return augmented inputs and pass through unchanged targets and metadata</span>
+        <span class="k">return</span> <span class="n">xb_aug</span><span class="p">,</span> <span class="n">yb</span><span class="p">,</span> <span class="n">metadata</span>
+</pre></div>
+</div>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">noise</span><span class="p">:</span> <span class="n">od</span><span class="o">.</span><span class="n">Augmentation</span> <span class="o">=</span> <span class="n">WrappedKorniaAugmentation</span><span class="p">(</span>
+    <span class="n">kornia_noise</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s2">"id"</span><span class="p">:</span> <span class="s2">"kornia_rnd_gauss_noise"</span><span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>For an initial test, we manually create an input batch and perturb it
+with the wrapped augmentation:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create batch with sample image</span>
+<span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">md</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">xb</span><span class="p">,</span> <span class="n">yb</span><span class="p">,</span> <span class="n">mdb</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">],</span> <span class="p">[</span><span class="n">y</span><span class="p">],</span> <span class="p">[</span><span class="n">md</span><span class="p">]</span>
+
+<span class="c1"># Apply augmentation</span>
+<span class="n">xb_aug</span><span class="p">,</span> <span class="n">yb_aug</span><span class="p">,</span> <span class="n">mdb_aug</span> <span class="o">=</span> <span class="n">noise</span><span class="p">((</span><span class="n">xb</span><span class="p">,</span> <span class="n">yb</span><span class="p">,</span> <span class="n">mdb</span><span class="p">))</span>
+
+<span class="c1"># Get predictions for augmented batch (which just has one image for this example)</span>
+<span class="n">preds_aug</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">xb_aug</span><span class="p">)</span>
+
+<span class="c1"># Overlay detections on image</span>
+<span class="n">xb_aug</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">xb_aug</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">img_aug</span> <span class="o">=</span> <span class="n">create_pil_image</span><span class="p">(</span><span class="n">xb_aug</span><span class="p">,</span> <span class="n">preds_aug</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">index2label</span><span class="p">)</span>
+
+<span class="c1"># Show result</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">"off"</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Perturbed"</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img_aug</span><span class="p">);</span>
+</pre></div>
+</div>
+<img alt="../_images/torchvision_object_detection_39_0.png" src="../_images/torchvision_object_detection_39_0.png"/>
+<p>We see that the noise has resulted in some errors.</p>
+<p>Finally, we run <code class="docutils literal notranslate"><span class="pre">evaluate</span></code> with the augmentation over the dataset:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run evaluate over perturbed dataset</span>
+<span class="n">results</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">evaluate</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+    <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span>
+    <span class="n">metric</span><span class="o">=</span><span class="n">mAP_metric</span><span class="p">,</span>
+    <span class="n">augmentation</span><span class="o">=</span><span class="n">noise</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Report mAP_50 performance</span>
+<span class="n">results</span><span class="p">[</span><span class="s2">"map_50"</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>0%|          | 0/4 [00:00&lt;?, ?it/s]
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">tensor</span><span class="p">(</span><span class="mf">0.2338</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We see that the mAP_50 performance has decreased due to the simulated
+image degradation.</p>
+<p>Congrats! You have now successfully used MAITE to wrap a dataset, model,
+metric, and augmentation from various libraries, and run an evaluation
+to compute the performance of the pretrained model on both clean and
+perturbed versions of the COCO validation subset.</p>
+</section>
+</section>
+</article>
+<footer class="bd-footer-article">
+<div class="footer-article-items footer-article__inner">
+<div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+<a class="left-prev" href="hf_image_classification.html" title="previous page">
+<i class="fa-solid fa-angle-left"></i>
+<div class="prev-next-info">
+<p class="prev-next-subtitle">previous</p>
+<p class="prev-next-title">Hugging Face Image Classification Example</p>
+</div>
+</a>
+<a class="right-next" href="../how_tos.html" title="next page">
+<div class="prev-next-info">
+<p class="prev-next-subtitle">next</p>
+<p class="prev-next-title">How-To Guides</p>
+</div>
+<i class="fa-solid fa-angle-right"></i>
+</a>
+</div></div>
+</div>
+</footer>
+</div>
+<div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+<div class="sidebar-secondary-item">
+<div class="page-toc tocsection onthispage">
+<i class="fa-solid fa-list"></i> On this page
+  </div>
+<nav class="bd-toc-nav page-toc">
+<ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-started">Getting Started</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#wrapping-a-torchvision-dataset">Wrapping a Torchvision Dataset</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#native-dataset">Native Dataset</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wrapped-dataset">Wrapped Dataset</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#wrapping-a-torchvision-model">Wrapping a Torchvision Model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#metrics">Metrics</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#workflows">Workflows</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#augmentations">Augmentations</a></li>
+</ul>
+</nav></div>
+<div class="sidebar-secondary-item">
+<div class="tocsection sourcelink">
+<a href="../_sources/tutorials/torchvision_object_detection.rst.txt">
+<i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+</div>
+</div>
+</div></div>
+</div>
+<footer class="bd-footer-content">
+</footer>
+</main>
+</div>
+</div>
+<!-- Scripts loaded after <body> so the DOM is not blocked -->
+<script src="../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+<footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+<div class="footer-items__start">
+<div class="footer-item">
+<p class="copyright">
+    
+      © Copyright 2024 Massachusetts Institute of Technology.
+      <br/>
+</p>
+</div>
+<div class="footer-item">
+<p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.2.1.
+    <br/>
+</p>
+</div>
+</div>
+<div class="footer-items__end">
+<div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+</p></div>
+</div>
+</div>
+</footer>
+</body>
+</html>

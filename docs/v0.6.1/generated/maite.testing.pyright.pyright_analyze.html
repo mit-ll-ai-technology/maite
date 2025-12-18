@@ -1,0 +1,515 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.19: https://docutils.sourceforge.io/" name="generator"/>
+<title>maite.testing.pyright.pyright_analyze — maite 0.6.1 documentation</title>
+<script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+<!-- Loaded before other Sphinx assets -->
+<link href="../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet"/>
+<link href="../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet"/>
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet"/>
+<link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet"/>
+<link as="font" crossorigin="" href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" rel="preload" type="font/woff2"/>
+<link as="font" crossorigin="" href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" rel="preload" type="font/woff2"/>
+<link as="font" crossorigin="" href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" rel="preload" type="font/woff2"/>
+<link href="../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/copybutton.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" rel="stylesheet" type="text/css"/>
+<!-- Pre-loaded scripts that we'll load fully later -->
+<link as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" rel="preload"/>
+<link as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" rel="preload"/>
+<script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+<script src="../_static/doctools.js"></script>
+<script src="../_static/sphinx_highlight.js"></script>
+<script src="../_static/clipboard.min.js"></script>
+<script src="../_static/copybutton.js"></script>
+<script async="async" src="https://www.googletagmanager.com/gtag/js?id=UA-115029372-2"></script>
+<script src="../_static/gtag.js"></script>
+<script src="../_static/design-tabs.js"></script>
+<script>DOCUMENTATION_OPTIONS.pagename = 'generated/maite.testing.pyright.pyright_analyze';</script>
+<link href="../genindex.html" rel="index" title="Index"/>
+<link href="../search.html" rel="search" title="Search"/>
+<link href="maite.testing.pyright.PyrightOutput.html" rel="next" title="maite.testing.pyright.PyrightOutput"/>
+<link href="maite.testing.docs.NumPyDocResults.html" rel="prev" title="maite.testing.docs.NumPyDocResults"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="en" name="docsearch:language"/>
+</head>
+<body data-bs-root-margin="0px 0px -60%" data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-default-mode="" data-offset="180">
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<input class="sidebar-toggle" id="__primary" name="__primary" type="checkbox"/>
+<label class="overlay overlay-primary" for="__primary"></label>
+<input class="sidebar-toggle" id="__secondary" name="__secondary" type="checkbox"/>
+<label class="overlay overlay-secondary" for="__secondary"></label>
+<div class="search-button__wrapper">
+<div class="search-button__overlay"></div>
+<div class="search-button__search-container">
+<form action="../search.html" class="bd-search d-flex align-items-center" method="get">
+<i class="fa-solid fa-magnifying-glass"></i>
+<input aria-label="Search the docs ..." autocapitalize="off" autocomplete="off" autocorrect="off" class="form-control" id="search-input" name="q" placeholder="Search the docs ..." spellcheck="false" type="search"/>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+</div>
+<nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+<label class="sidebar-toggle primary-toggle" for="__primary">
+<span class="fa-solid fa-bars"></span>
+</label>
+<div class="navbar-header-items__start">
+<div class="navbar-item">
+<a class="navbar-brand logo" href="../index.html">
+<p class="title logo__title">maite 0.6.1 documentation</p>
+</a></div>
+</div>
+<div class="col-lg-9 navbar-header-items">
+<div class="me-auto navbar-header-items__center">
+<div class="navbar-item"><nav class="navbar-nav">
+<p aria-label="Site Navigation" aria-level="1" class="sidebar-header-items__title" role="heading">
+    Site Navigation
+  </p>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../tutorials.html">
+                        Tutorials
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../how_tos.html">
+                        How-To Guides
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../explanation.html">
+                        Explanation
+                      </a>
+</li>
+<li class="nav-item current active">
+<a class="nav-link nav-internal" href="../api_reference.html">
+                        Reference
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../changes.html">
+                        Changelog
+                      </a>
+</li>
+</ul>
+</nav></div>
+</div>
+<div class="navbar-header-items__end">
+<div class="navbar-item navbar-persistent--container">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+</div>
+<div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+</div>
+</div>
+<div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+</div>
+<label class="sidebar-toggle secondary-toggle" for="__secondary">
+<span class="fa-solid fa-outdent"></span>
+</label>
+</div>
+</nav>
+<div class="bd-container">
+<div class="bd-container__inner bd-page-width">
+<div class="bd-sidebar-primary bd-sidebar">
+<div class="sidebar-header-items sidebar-primary__section">
+<div class="sidebar-header-items__center">
+<div class="navbar-item"><nav class="navbar-nav">
+<p aria-label="Site Navigation" aria-level="1" class="sidebar-header-items__title" role="heading">
+    Site Navigation
+  </p>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../tutorials.html">
+                        Tutorials
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../how_tos.html">
+                        How-To Guides
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../explanation.html">
+                        Explanation
+                      </a>
+</li>
+<li class="nav-item current active">
+<a class="nav-link nav-internal" href="../api_reference.html">
+                        Reference
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../changes.html">
+                        Changelog
+                      </a>
+</li>
+</ul>
+</nav></div>
+</div>
+<div class="sidebar-header-items__end">
+<div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+</div>
+</div>
+<div class="sidebar-primary-items__start sidebar-primary__section">
+<div class="sidebar-primary-item"><nav aria-label="Section Navigation" class="bd-docs-nav bd-links">
+<p aria-level="1" class="bd-links__title" role="heading">Section Navigation</p>
+<div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.ArrayLike.html">maite.protocols.ArrayLike</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.image_classification.Dataset.html">maite.protocols.image_classification.Dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.image_classification.DataLoader.html">maite.protocols.image_classification.DataLoader</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.object_detection.ObjectDetectionTarget.html">maite.protocols.object_detection.ObjectDetectionTarget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.object_detection.Dataset.html">maite.protocols.object_detection.Dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.object_detection.DataLoader.html">maite.protocols.object_detection.DataLoader</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.image_classification.Model.html">maite.protocols.image_classification.Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.object_detection.Model.html">maite.protocols.object_detection.Model</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.image_classification.Augmentation.html">maite.protocols.image_classification.Augmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.object_detection.Augmentation.html">maite.protocols.object_detection.Augmentation</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.image_classification.Metric.html">maite.protocols.image_classification.Metric</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.protocols.object_detection.Metric.html">maite.protocols.object_detection.Metric</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.workflows.evaluate.html">maite.workflows.evaluate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.workflows.predict.html">maite.workflows.predict</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.utils.validation.check_type.html">maite.utils.validation.check_type</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.utils.validation.check_domain.html">maite.utils.validation.check_domain</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.utils.validation.check_one_of.html">maite.utils.validation.check_one_of</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.utils.validation.chain_validators.html">maite.utils.validation.chain_validators</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.errors.MaiteException.html">maite.errors.MaiteException</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.errors.InvalidArgument.html">maite.errors.InvalidArgument</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.docs.validate_docstring.html">maite.testing.docs.validate_docstring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.docs.NumpyDocErrorCode.html">maite.testing.docs.NumpyDocErrorCode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.docs.NumPyDocResults.html">maite.testing.docs.NumPyDocResults</a></li>
+</ul>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">maite.testing.pyright.pyright_analyze</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.pyright.PyrightOutput.html">maite.testing.pyright.PyrightOutput</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.pyright.list_error_messages.html">maite.testing.pyright.list_error_messages</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.pytest.cleandir.html">maite.testing.pytest.cleandir</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.project.ModuleScan.html">maite.testing.project.ModuleScan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite.testing.project.get_public_symbols.html">maite.testing.project.get_public_symbols</a></li>
+</ul>
+</div>
+</nav></div>
+</div>
+<div class="sidebar-primary-items__end sidebar-primary__section">
+</div>
+<div id="rtd-footer-container"></div>
+</div>
+<main class="bd-main" id="main-content">
+<div class="bd-content">
+<div class="bd-article-container">
+<div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+<div class="header-article-items__start">
+<div class="header-article-item">
+<nav aria-label="Breadcrumbs">
+<ul aria-label="Breadcrumb" class="bd-breadcrumbs" role="navigation">
+<li class="breadcrumb-item breadcrumb-home">
+<a aria-label="Home" class="nav-link" href="../index.html">
+<i class="fa-solid fa-home"></i>
+</a>
+</li>
+<li class="breadcrumb-item"><a class="nav-link" href="../api_reference.html">Reference</a></li>
+<li aria-current="page" class="breadcrumb-item active">maite.testing.pyright.pyright_analyze</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+</div>
+<div id="searchbox"></div>
+<article class="bd-article" role="main">
+<section id="maite-testing-pyright-pyright-analyze">
+<h1>maite.testing.pyright.pyright_analyze<a class="headerlink" href="#maite-testing-pyright-pyright-analyze" title="Permalink to this heading">#</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="maite.testing.pyright.pyright_analyze">
+<span class="sig-prename descclassname"><span class="pre">maite.testing.pyright.</span></span><span class="sig-name descname"><span class="pre">pyright_analyze</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">code_objs_and_or_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pyright_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scan_docstring</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_pyright</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">PosixPath('/Users/et21597/jatic/maite/.tox/docs/bin/pyright')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preamble</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">python_version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">report_unnecessary_type_ignore_comment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type_checking_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/maite/_internals/testing/pyright.html#pyright_analyze"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#maite.testing.pyright.pyright_analyze" title="Permalink to this definition">#</a></dt>
+<dd><p>Scan a Python object, docstring, or file with pyright.</p>
+<p>The following file formats are supported: <code class="xref py py-obj docutils literal notranslate"><span class="pre">py</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">rst</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">md</span></code>, and <code class="xref py py-obj docutils literal notranslate"><span class="pre">ipynb</span></code>.</p>
+<p>Some common pyright configuration options are exposed via this function for
+convenience; a full pyright JSON config can be specified to completely control
+the behavior of pyright.</p>
+<p>This function requires that pyright is installed and can be run from the command
+line <a class="reference internal" href="#recc598dd4129-1" id="id1">[1]</a>.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>*code_objs_and_or_paths</strong><span class="classifier">Any</span></dt><dd><p>A function, module-object, class, or method to scan. Or, a path to a file
+to scan. Supported file formats are <code class="xref py py-obj docutils literal notranslate"><span class="pre">py</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">rst</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">md,</span> <span class="pre">and</span> <span class="pre">`.ipynb</span></code>.</p>
+<p>Specifying a directory is permitted, but only <code class="xref py py-obj docutils literal notranslate"><span class="pre">py</span></code> files in that directory
+will be scanned. All files will be copied to a temporary directory before being
+scanned.</p>
+</dd>
+<dt><strong>pyright_config</strong><span class="classifier">None | dict[str, Any]</span></dt><dd><p>A JSON configuration for pyright’s settings <a class="reference internal" href="#recc598dd4129-2" id="id2">[2]</a>.</p>
+</dd>
+<dt><strong>scan_docstring</strong><span class="classifier">bool, optional (default=False), keyword-only</span></dt><dd><p>If <a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></a> pyright will scan the docstring examples of the specified code object,
+rather than the code object itself.</p>
+<p>Example code blocks are expected to have the doctest format <a class="reference internal" href="#recc598dd4129-3" id="id3">[3]</a>.</p>
+</dd>
+<dt><strong>path_to_pyright</strong><span class="classifier">Path, optional, keyword-only</span></dt><dd><p>Path to the pyright executable (see installation instructions: <a class="reference internal" href="#recc598dd4129-4" id="id4">[4]</a>).
+Defaults to <code class="xref py py-obj docutils literal notranslate"><span class="pre">shutil.where('pyright')</span></code> if the executable can be found.</p>
+</dd>
+<dt><strong>preamble</strong><span class="classifier">str, optional (default=’’), keyword-only</span></dt><dd><p>A “header” added to the source code that will be scanned. E.g., this can be
+useful for adding import statements.</p>
+</dd>
+<dt><strong>python_version</strong><span class="classifier">Optional[str], keyword-only</span></dt><dd><p>The version of Python used for this execution environment as a string in the
+format “M.m”. E.g., “3.9” or “3.7”.</p>
+</dd>
+<dt><strong>report_unnecessary_type_ignore_comment</strong><span class="classifier">Optional[bool], keyword-only</span></dt><dd><p>If <a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></a> specifying <code class="xref py py-obj docutils literal notranslate"><span class="pre">#</span> <span class="pre">type:</span> <span class="pre">ignore</span></code> for an expression that would otherwise
+not result in an error will cause pyright to report an error.</p>
+</dd>
+<dt><strong>type_checking_mode</strong><span class="classifier">Optional[Literal[“basic”, “strict”]], keyword-only</span></dt><dd><p>Modifies pyright’s default settings for what it marks as a warning verses an
+error. Defaults to ‘basic’.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt>List[Dict[str, Any]]  (In one-to-one correspondence with <code class="xref py py-obj docutils literal notranslate"><span class="pre">code_objs_and_or_paths</span></code>)</dt><dd><dl class="simple">
+<dt>The JSON-decoded results of the scan <a class="reference internal" href="#recc598dd4129-3" id="id5">[3]</a>.</dt><dd><ul class="simple">
+<li><p>version: str</p></li>
+<li><p>time: str</p></li>
+<li><p>generalDiagnostics: List[DiagnosticDict] (one entry per error/warning)</p></li>
+<li><p>summary: SummaryDict</p></li>
+</ul>
+</dd>
+</dl>
+<p>See Notes for more details.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>When supplying a single .rst file, code blocks demarcated by
+<code class="xref py py-obj docutils literal notranslate"> <span class="pre">code-block::</span> <span class="pre">py[thon,con]</span></code> are parsed and used to populate a single temporary
+.py file that pyright will scan.</p>
+<dl class="simple">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">SummaryDict</span></code> consists of:</dt><dd><ul class="simple">
+<li><p>filesAnalyzed: int</p></li>
+<li><p>errorCount: int</p></li>
+<li><p>warningCount: int</p></li>
+<li><p>informationCount: int</p></li>
+<li><p>timeInSec: float</p></li>
+</ul>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">DiagnosticDict</span></code> consists of:</dt><dd><ul class="simple">
+<li><p>file: str</p></li>
+<li><p>severity: Literal[“error”, “warning”, “information”]</p></li>
+<li><p>message: str</p></li>
+<li><p>range: _Range</p></li>
+<li><p>rule: NotRequired[str]</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<div class="citation-list" role="list">
+<div class="citation" id="recc598dd4129-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a href="#id1" role="doc-backlink">1</a><span class="fn-bracket">]</span></span>
+<p><a class="github reference external" href="https://github.com/microsoft/pyright/blob/aad650ec373a9894c6f13490c2950398095829c6/README.md#command-line">microsoft/pyright</a></p>
+</div>
+<div class="citation" id="recc598dd4129-2" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a href="#id2" role="doc-backlink">2</a><span class="fn-bracket">]</span></span>
+<p><a class="github reference external" href="https://github.com/microsoft/pyright/blob/main/docs/configuration.md">microsoft/pyright</a></p>
+</div>
+<div class="citation" id="recc598dd4129-3" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a href="#id3" role="doc-backlink">1</a>,<a href="#id5" role="doc-backlink">2</a>)</span>
+<p><a class="reference external" href="https://docs.python.org/3/library/doctest.html">https://docs.python.org/3/library/doctest.html</a></p>
+</div>
+<div class="citation" id="recc598dd4129-4" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a href="#id4" role="doc-backlink">4</a><span class="fn-bracket">]</span></span>
+<p><a class="github reference external" href="https://github.com/microsoft/pyright/blob/main/docs/command-line.md#json-output">microsoft/pyright</a></p>
+</div>
+</div>
+<p class="rubric">Examples</p>
+<p>Here pyright will record an error when scan a function that attempts to add a
+string-annotated variable to an integer.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">maite.testing.pyright</span> <span class="kn">import</span> <a class="sphinx-codeautolink-a" href="../generated/maite.testing.pyright.pyright_analyze.html#maite.testing.pyright.pyright_analyze" title="maite.testing.pyright.pyright_analyze"><span class="n">pyright_analyze</span></a>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">x</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../generated/maite.testing.pyright.pyright_analyze.html#maite.testing.pyright.pyright_analyze" title="maite.testing.pyright.pyright_analyze"><span class="n">pyright_analyze</span></a><span class="p">(</span><span class="n">f</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="go">{'version': ..., 'time': ..., 'generalDiagnostics': [{'file': ..., 'severity': ..., 'message': 'Operator "+" not supported for types "Literal[1]" and "str"', 'range': {'start': {'line': ..., 'character': ...}, 'end': {'line': ..., 'character': ...}}, 'rule': ...}], 'summary': {'filesAnalyzed': ..., 'errorCount': 1, 'warningCount': 0, 'informationCount': 0, 'timeInSec': ...}}</span>
+</pre></div>
+</div>
+<p>Whereas this function scans “clean”.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">g</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">)</span> <span class="o">-&gt;</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">:</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">x</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pyright_analyze</span><span class="p">(</span><span class="n">g</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="go">{'version': ..., 'time': ..., 'generalDiagnostics': ..., 'summary': {'filesAnalyzed': ..., 'errorCount': 0, 'warningCount': 0, 'informationCount': 0, 'timeInSec': ...}}</span>
+</pre></div>
+</div>
+<p>All imports must occur within the context of the scanned-object, or the imports can
+be specified in a preamble. For example, consider the following</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/math.html#module-math" title="math"><span class="nn">math</span></a>  <span class="c1"># import statement is not be in scope of `f`</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">f</span><span class="p">():</span>
+<span class="gp">... </span>    <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/math.html#math.acos" title="math.acos"><span class="n">math</span><span class="o">.</span><span class="n">acos</span></a><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pyright_analyze</span><span class="p">(</span><span class="n">f</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"summary"</span><span class="p">][</span><span class="s2">"errorCount"</span><span class="p">]</span>
+<span class="go">1</span>
+</pre></div>
+</div>
+<p>We can add a ‘preamble’ do that the <a class="reference external" href="https://docs.python.org/3/library/math.html#module-math" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">math</span></code></a> module is imported.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pyright_analyze</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">preamble</span><span class="o">=</span><span class="s2">"import math"</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"summary"</span><span class="p">][</span><span class="s2">"errorCount"</span><span class="p">]</span>
+<span class="go">0</span>
+</pre></div>
+</div>
+<p>Scanning a function’s docstring.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">plus_1</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">):</span>
+<span class="gp">... </span><span class="w">    </span><span class="sd">'''</span>
+<span class="gp">... </span><span class="sd">    Examples</span>
+<span class="gp">... </span><span class="sd">    --------</span>
+<span class="gp">... </span><span class="sd">    &gt;&gt;&gt; from mylib import plus_1</span>
+<span class="gp">... </span><span class="sd">    &gt;&gt;&gt; plus_1('2')  # &lt;- pyright_analyze will catch typo (str instead of int)</span>
+<span class="gp">... </span><span class="sd">    3</span>
+<span class="gp">... </span><span class="sd">    '''</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pyright_analyze</span><span class="p">(</span><span class="n">plus_1</span><span class="p">,</span> <span class="n">scan_docstring</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"summary"</span><span class="p">][</span><span class="s2">"errorCount"</span><span class="p">]</span>
+<span class="go">1</span>
+</pre></div>
+</div>
+<p>Fixing the docstring issue</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">plus_1</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">):</span>
+<span class="gp">... </span><span class="w">    </span><span class="sd">'''</span>
+<span class="gp">... </span><span class="sd">    Examples</span>
+<span class="gp">... </span><span class="sd">    --------</span>
+<span class="gp">... </span><span class="sd">    &gt;&gt;&gt; from mylib import plus_1</span>
+<span class="gp">... </span><span class="sd">    &gt;&gt;&gt; plus_1(2)</span>
+<span class="gp">... </span><span class="sd">    3</span>
+<span class="gp">... </span><span class="sd">    '''</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pyright_analyze</span><span class="p">(</span><span class="n">plus_1</span><span class="p">,</span> <span class="n">scan_docstring</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"summary"</span><span class="p">][</span><span class="s2">"errorCount"</span><span class="p">]</span>
+<span class="go">0</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+</article>
+<footer class="bd-footer-article">
+<div class="footer-article-items footer-article__inner">
+<div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+<a class="left-prev" href="maite.testing.docs.NumPyDocResults.html" title="previous page">
+<i class="fa-solid fa-angle-left"></i>
+<div class="prev-next-info">
+<p class="prev-next-subtitle">previous</p>
+<p class="prev-next-title">maite.testing.docs.NumPyDocResults</p>
+</div>
+</a>
+<a class="right-next" href="maite.testing.pyright.PyrightOutput.html" title="next page">
+<div class="prev-next-info">
+<p class="prev-next-subtitle">next</p>
+<p class="prev-next-title">maite.testing.pyright.PyrightOutput</p>
+</div>
+<i class="fa-solid fa-angle-right"></i>
+</a>
+</div></div>
+</div>
+</footer>
+</div>
+<div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+<div class="sidebar-secondary-item">
+<div class="page-toc tocsection onthispage">
+<i class="fa-solid fa-list"></i> On this page
+  </div>
+<nav class="bd-toc-nav page-toc">
+<ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#maite.testing.pyright.pyright_analyze"><code class="docutils literal notranslate"><span class="pre">pyright_analyze()</span></code></a></li>
+</ul>
+</nav></div>
+<div class="sidebar-secondary-item">
+<div class="tocsection sourcelink">
+<a href="../_sources/generated/maite.testing.pyright.pyright_analyze.rst.txt">
+<i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+</div>
+</div>
+</div></div>
+</div>
+<footer class="bd-footer-content">
+</footer>
+</main>
+</div>
+</div>
+<!-- Scripts loaded after <body> so the DOM is not blocked -->
+<script src="../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+<footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+<div class="footer-items__start">
+<div class="footer-item">
+<p class="copyright">
+    
+      © Copyright 2024 Massachusetts Institute of Technology.
+      <br/>
+</p>
+</div>
+<div class="footer-item">
+<p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.2.1.
+    <br/>
+</p>
+</div>
+</div>
+<div class="footer-items__end">
+<div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+</p></div>
+</div>
+</div>
+</footer>
+</body>
+</html>

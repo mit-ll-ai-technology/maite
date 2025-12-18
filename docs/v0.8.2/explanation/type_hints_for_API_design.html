@@ -1,0 +1,1127 @@
+
+<!DOCTYPE html>
+
+<html data-content_root="../" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>A Primer on Python Typing: Relevant Language Features, Methods, and Tools for the T&amp;E Framework — maite 0.8.2 documentation</title>
+<script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+<!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+<noscript>
+<style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+</noscript>
+<!-- Loaded before other Sphinx assets -->
+<link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet"/>
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet"/>
+<link href="../_static/pygments.css?v=8f2a1f02" rel="stylesheet" type="text/css"/>
+<link href="../_static/copybutton.css?v=76b2166b" rel="stylesheet" type="text/css"/>
+<link href="../_static/sphinx-codeautolink.css?v=b2176991" rel="stylesheet" type="text/css"/>
+<link href="../_static/sphinx-design.min.css?v=87e54e7c" rel="stylesheet" type="text/css"/>
+<!-- So that users can add custom icons -->
+<script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+<!-- Pre-loaded scripts that we'll load fully later -->
+<link as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" rel="preload"/>
+<link as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" rel="preload"/>
+<script src="../_static/documentation_options.js?v=dbee5847"></script>
+<script src="../_static/doctools.js?v=9a2dae69"></script>
+<script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+<script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+<script src="../_static/copybutton.js?v=30646c52"></script>
+<script async="async" src="https://www.googletagmanager.com/gtag/js?id=UA-115029372-2"></script>
+<script src="../_static/gtag.js"></script>
+<script src="../_static/design-tabs.js?v=f930bc37"></script>
+<script>DOCUMENTATION_OPTIONS.pagename = 'explanation/type_hints_for_API_design';</script>
+<script src="../_static/pypi_icon.js?v=74687d30"></script>
+<script src="../_static/condaforge_icon.js?v=19caf20c"></script>
+<script src="../_static/anaconda_icon.js?v=e3074ad8"></script>
+<link href="../genindex.html" rel="index" title="Index"/>
+<link href="../search.html" rel="search" title="Search"/>
+<link href="maite_vision.html" rel="next" title="MAITE’s Vision for Interoperability in AI Test and Evaluation"/>
+<link href="protocol_overview.html" rel="prev" title="Overview of MAITE Protocols"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="en" name="docsearch:language"/>
+<meta content="0.8" name="docsearch:version"/>
+</head>
+<body data-bs-root-margin="0px 0px -60%" data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-default-mode="" data-offset="180">
+<div class="skip-link d-print-none" id="pst-skip-link"><a href="#main-content">Skip to main content</a></div>
+<div id="pst-scroll-pixel-helper"></div>
+<button class="btn rounded-pill" id="pst-back-to-top" type="button">
+<i class="fa-solid fa-arrow-up"></i>Back to top</button>
+<dialog id="pst-search-dialog">
+<form action="../search.html" class="bd-search d-flex align-items-center" method="get">
+<i class="fa-solid fa-magnifying-glass"></i>
+<input aria-label="Search the docs ..." autocapitalize="off" autocomplete="off" autocorrect="off" class="form-control" name="q" placeholder="Search the docs ..." spellcheck="false" type="search"/>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+</dialog>
+<div class="pst-async-banner-revealer d-none">
+<aside aria-label="Version warning" class="d-none d-print-none" id="bd-header-version-warning"></aside>
+</div>
+<header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+<button aria-label="Site navigation" class="pst-navbar-icon sidebar-toggle primary-toggle">
+<span class="fa-solid fa-bars"></span>
+</button>
+<div class="navbar-header-items__start">
+<div class="navbar-item">
+<a class="navbar-brand logo" href="../index.html">
+<p class="title logo__title">maite 0.8.2 documentation</p>
+</a></div>
+</div>
+<div class="navbar-header-items">
+<div class="me-auto navbar-header-items__center">
+<div class="navbar-item">
+<nav>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../tutorials.html">
+    Tutorials
+  </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../how_tos.html">
+    How-To Guides
+  </a>
+</li>
+<li class="nav-item current active">
+<a class="nav-link nav-internal" href="../explanation.html">
+    Explanation
+  </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../api_reference.html">
+    Reference
+  </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../changes.html">
+    Changelog
+  </a>
+</li>
+</ul>
+</nav></div>
+</div>
+<div class="navbar-header-items__end">
+<div class="navbar-item navbar-persistent--container">
+<button aria-label="Search" class="btn search-button-field search-button__button pst-js-only" data-bs-placement="bottom" data-bs-toggle="tooltip" title="Search">
+<i class="fa-solid fa-magnifying-glass"></i>
+<span class="search-button__default-text">Search</span>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+</div>
+<div class="navbar-item">
+<button aria-label="Color mode" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" data-bs-placement="bottom" data-bs-title="Color mode" data-bs-toggle="tooltip">
+<i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+<i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+<i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+</button></div>
+<div class="navbar-item"><ul aria-label="Icon Links" class="navbar-icon-links">
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://github.com/mit-ll-ai-technology/maite" rel="noopener" target="_blank" title="GitHub"><i aria-hidden="true" class="fa-brands fa-github fa-lg"></i>
+<span class="sr-only">GitHub</span></a>
+</li>
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://pypi.org/project/maite/" rel="noopener" target="_blank" title="PyPI"><i aria-hidden="true" class="fa-custom fa-pypi fa-lg"></i>
+<span class="sr-only">PyPI</span></a>
+</li>
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://anaconda.org/conda-forge/maite" rel="noopener" target="_blank" title="Anaconda"><i aria-hidden="true" class="fa-custom fa-anaconda fa-lg"></i>
+<span class="sr-only">Anaconda</span></a>
+</li>
+</ul></div>
+</div>
+</div>
+<div class="navbar-persistent--mobile">
+<button aria-label="Search" class="btn search-button-field search-button__button pst-js-only" data-bs-placement="bottom" data-bs-toggle="tooltip" title="Search">
+<i class="fa-solid fa-magnifying-glass"></i>
+<span class="search-button__default-text">Search</span>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+</div>
+<button aria-label="On this page" class="pst-navbar-icon sidebar-toggle secondary-toggle">
+<span class="fa-solid fa-outdent"></span>
+</button>
+</div>
+</header>
+<div class="bd-container">
+<div class="bd-container__inner bd-page-width">
+<dialog id="pst-primary-sidebar-modal"></dialog>
+<div class="bd-sidebar-primary bd-sidebar" id="pst-primary-sidebar">
+<div class="sidebar-header-items sidebar-primary__section">
+<div class="sidebar-header-items__center">
+<div class="navbar-item">
+<nav>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../tutorials.html">
+    Tutorials
+  </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../how_tos.html">
+    How-To Guides
+  </a>
+</li>
+<li class="nav-item current active">
+<a class="nav-link nav-internal" href="../explanation.html">
+    Explanation
+  </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../api_reference.html">
+    Reference
+  </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../changes.html">
+    Changelog
+  </a>
+</li>
+</ul>
+</nav></div>
+</div>
+<div class="sidebar-header-items__end">
+<div class="navbar-item">
+<button aria-label="Color mode" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" data-bs-placement="bottom" data-bs-title="Color mode" data-bs-toggle="tooltip">
+<i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+<i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+<i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+</button></div>
+<div class="navbar-item"><ul aria-label="Icon Links" class="navbar-icon-links">
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://github.com/mit-ll-ai-technology/maite" rel="noopener" target="_blank" title="GitHub"><i aria-hidden="true" class="fa-brands fa-github fa-lg"></i>
+<span class="sr-only">GitHub</span></a>
+</li>
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://pypi.org/project/maite/" rel="noopener" target="_blank" title="PyPI"><i aria-hidden="true" class="fa-custom fa-pypi fa-lg"></i>
+<span class="sr-only">PyPI</span></a>
+</li>
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://anaconda.org/conda-forge/maite" rel="noopener" target="_blank" title="Anaconda"><i aria-hidden="true" class="fa-custom fa-anaconda fa-lg"></i>
+<span class="sr-only">Anaconda</span></a>
+</li>
+</ul></div>
+</div>
+</div>
+<div class="sidebar-primary-items__start sidebar-primary__section">
+<div class="sidebar-primary-item">
+<nav aria-label="Section Navigation" class="bd-docs-nav bd-links">
+<p aria-level="1" class="bd-links__title" role="heading">Section Navigation</p>
+<div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="protocol_overview.html">Overview of MAITE Protocols</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">A Primer on Python Typing: Relevant Language Features, Methods, and Tools for the T&amp;E Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite_vision.html">MAITE’s Vision for Interoperability in AI Test and Evaluation</a></li>
+</ul>
+</div>
+</nav></div>
+</div>
+<div class="sidebar-primary-items__end sidebar-primary__section">
+<div class="sidebar-primary-item">
+<div class="flat" data-ea-manual="true" data-ea-publisher="readthedocs" data-ea-type="readthedocs-sidebar" id="ethical-ad-placement">
+</div></div>
+</div>
+</div>
+<main class="bd-main" id="main-content" role="main">
+<div class="bd-content">
+<div class="bd-article-container">
+<div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+<div class="header-article-items__start">
+<div class="header-article-item">
+<nav aria-label="Breadcrumb" class="d-print-none">
+<ul class="bd-breadcrumbs">
+<li class="breadcrumb-item breadcrumb-home">
+<a aria-label="Home" class="nav-link" href="../index.html">
+<i class="fa-solid fa-home"></i>
+</a>
+</li>
+<li class="breadcrumb-item"><a class="nav-link" href="../explanation.html">Explanation</a></li>
+<li aria-current="page" class="breadcrumb-item active"><span class="ellipsis">A Primer on Python Typing: Relevant Language Features, Methods, and Tools for the T&amp;E Framework</span></li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+</div>
+<div id="searchbox"></div>
+<article class="bd-article">
+<section id="a-primer-on-python-typing-relevant-language-features-methods-and-tools-for-the-t-e-framework">
+<h1>A Primer on Python Typing: Relevant Language Features, Methods, and Tools for the T&amp;E Framework<a class="headerlink" href="#a-primer-on-python-typing-relevant-language-features-methods-and-tools-for-the-t-e-framework" title="Link to this heading">#</a></h1>
+<blockquote>
+<div><p>Ryan Soklaski, Lincoln Laboratory (2022)</p>
+</div></blockquote>
+<p>In 2015, Python 3.5 introduced support for writing type annotated code. It’s proposal was <a class="reference external" href="https://dropbox.tech/application/our-journey-to-type-checking-4-million-lines-of-python">spearheaded by engineers at Dropbox</a>, who wanted to be able to statically analyze their 4 million line Python code base for bugs. Since then, Python’s typing support has become the one of the language’s most actively-developed and rapidly-evolving features. Accordingly, the majority of popular third-party libraries have refactored their projects to incorporate – and even ship – type annotations<a class="footnote-reference brackets" href="#pandas" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>. That being said, because Python is well-known for being dynamically typed, the details and merits of writing statically typed Python code are, understandably, obscure to many.</p>
+<p>Thus the goal of this document is to provide:</p>
+<ul class="simple">
+<li><p>a basic explanation of what it means to write statically typed Python code</p></li>
+<li><p>an overview of the tools that make type annotations powerful</p></li>
+<li><p>justification for why this language feature is critical for our project to leverage</p></li>
+<li><p>motivation for adopting specific typing features and methods in the T&amp;E framework</p></li>
+<li><p>demonstration of what this would look like for the T&amp;E framework</p></li>
+</ul>
+<blockquote>
+<div><p><strong>Following along:</strong>
+The code-snippets in this document are designed to be runnable/parsable. The easiest way to follow along is to copy these snippets into scripts in VSCode with the Pylance extension installed. Under settings specify <code class="docutils literal notranslate"><span class="pre">Python</span> <span class="pre">&gt;</span> <span class="pre">Analysis:</span> <span class="pre">Type</span> <span class="pre">Checking</span> <span class="pre">Mode</span> <span class="pre">-&gt;</span> <span class="pre">basic</span></code>. This  will enable pyright’s basic static type checking features: demonstrated incompatible types will appear as red squiggles, and you can mouse over variables to see what the statically-inferred types are.
+To get a feel for mypy and pyright (and their differences) try writing/running snippets in the browser-based <a class="reference external" href="https://mypy-play.net/?mypy=latest&amp;amp;python=3.10">mypy-playground</a> and <a class="reference external" href="https://pyright-playground.decorator-factory.su/">pyright playground</a>.</p>
+</div></blockquote>
+<section id="a-quick-introduction-to-writing-statically-typed-python-code">
+<h2>A quick introduction to writing statically typed Python code<a class="headerlink" href="#a-quick-introduction-to-writing-statically-typed-python-code" title="Link to this heading">#</a></h2>
+<p>Writing a type-annotated Python function simply means that we annotate the function’s signature to describe the types of its input(s) and output(s).
+The following <code class="docutils literal notranslate"><span class="pre">count_vowels</span></code> function is annotated to indicate that its input is a string type and its output is an integer.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">count_vowels</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">)</span> <span class="o">-&gt;</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">:</span>  <span class="c1"># `: str` and `-&gt; int` are the annotations</span>
+    <span class="k">return</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#sum" title="sum"><span class="nb">sum</span></a><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">x</span> <span class="k">if</span> <span class="n">char</span> <span class="ow">in</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#set" title="set"><span class="nb">set</span></a><span class="p">(</span><span class="s2">"aeiouAEIOU"</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>In the parlance of Python these annotations are referred to as type-hints because <em>they are not enforced at runtime by the Python interpreter</em>. This is a critical point: <strong>type annotations do not add runtime checking/enforcements of types</strong> without the help of separate 3rd party tools. On their own, type annotations are effectively a form of documentation<a class="footnote-reference brackets" href="#hints-as-docs" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>. That being said, we will see that there is an ecosystem of excellent 3rd party tools – static and runtime type checkers, and data parsers – that make Python’s typing features invaluable.</p>
+<p>Before we move on, let’s look at a few example code snippets to familiarize ourselves a bit more with Python’s type annotation syntax and what they can express.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#module-typing" title="typing"><span class="nn">typing</span></a><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="typing.Callable"><span class="n">Callable</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.List" title="typing.List"><span class="n">List</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Mapping" title="typing.Mapping"><span class="n">Mapping</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional"><span class="n">Optional</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.TypeVar" title="typing.TypeVar"><span class="n">TypeVar</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Union" title="typing.Union"><span class="n">Union</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Protocol" title="typing.Protocol"><span class="n">Protocol</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="typing.Literal"><span class="n">Literal</span></a>
+
+<span class="c1"># The following are type annotations that could be included, e.g., in a</span>
+<span class="c1"># function' signature</span>
+
+<span class="c1"># Either an integer or a float</span>
+<a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Union" title="typing.Union"><span class="n">Union</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#float" title="float"><span class="nb">float</span></a><span class="p">]</span>
+
+<span class="c1"># Either a boolean or `None`</span>
+<a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional"><span class="n">Optional</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#bool" title="bool"><span class="nb">bool</span></a><span class="p">]</span>
+
+<span class="c1"># Either the string 'cat' or the string 'dog'</span>
+<a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="typing.Literal"><span class="n">Literal</span></a><span class="p">[</span><span class="s2">"cat"</span><span class="p">,</span> <span class="s2">"dog"</span><span class="p">]</span>
+
+<span class="c1"># Any object supporting the call syntax – f(...) – that accepts three</span>
+<span class="c1"># integer-values inputs and returns a string</span>
+<a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="typing.Callable"><span class="n">Callable</span></a><span class="p">[[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">],</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">]</span>
+
+<span class="c1"># A list of an arbitrary number of strings</span>
+<a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.List" title="typing.List"><span class="n">List</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">]</span>
+
+<span class="c1"># A mapping, such as a dictionary, whose keys are strings</span>
+<span class="c1"># and whose values are floats</span>
+<a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Mapping" title="typing.Mapping"><span class="n">Mapping</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#float" title="float"><span class="nb">float</span></a><span class="p">]</span>
+
+<span class="c1"># A type named Person that has two attributes: `name` (str) and `age` (int)</span>
+<span class="c1"># and a "greeting" method, which accepts no inputs and returns a string</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Person</span><span class="p">:</span>
+    <span class="n">name</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a>
+    <span class="n">age</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">greeting</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">:</span>
+      <span class="o">...</span>
+
+<span class="c1"># A function that accepts a single input and returns an output of the</span>
+<span class="c1"># same type</span>
+<a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.TypeVar" title="typing.TypeVar"><span class="n">T</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.TypeVar" title="typing.TypeVar"><span class="n">TypeVar</span></a><span class="p">(</span><span class="s2">"T"</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">type_preserving_func</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.TypeVar" title="typing.TypeVar"><span class="n">T</span></a><span class="p">)</span> <span class="o">-&gt;</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.TypeVar" title="typing.TypeVar"><span class="n">T</span></a><span class="p">:</span>
+  <span class="o">...</span>
+
+<span class="c1"># The following describes *any* type that exposes the method: </span>
+<span class="c1"># `&lt;obj&gt;.open(file_path: str)`</span>
+<span class="c1"># Note: this is a protocol, which enables a feature known as "structural subtyping".</span>
+<span class="c1"># This will be an important feature that we discuss later</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Openable</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Protocol" title="typing.Protocol"><span class="n">Protocol</span></a><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">):</span>
+        <span class="o">...</span>
+</pre></div>
+</div>
+<p>For more examples of type annotations, please refer to <a class="reference external" href="https://mypy.readthedocs.io/en/stable/cheat_sheet_py3.html">this cheatsheet</a>.</p>
+</section>
+<section id="tools-that-make-type-annotations-worthwhile">
+<h2>Tools that make type annotations worthwhile<a class="headerlink" href="#tools-that-make-type-annotations-worthwhile" title="Link to this heading">#</a></h2>
+<p>There are three main types of tools that make type annotations far more powerful than serving as mere documentation: <a class="reference internal" href="#static-type-checkers">static type checkers</a>, <a class="reference internal" href="#runtime-type-checkers">runtime type checkers</a>, and <a class="reference internal" href="#parsers">data parsers/validators</a>.</p>
+<section id="static-type-checkers">
+<h3>Static Type Checkers<a class="headerlink" href="#static-type-checkers" title="Link to this heading">#</a></h3>
+<p>A static type checker is able to scan one’s code as a static collection of files and analyze it for errors based solely on its type annotations. Consider the following example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># contents of example.py</span>
+<span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#module-typing" title="typing"><span class="nn">typing</span></a><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="typing.Iterable"><span class="n">Iterable</span></a>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_data_registry</span><span class="p">()</span> <span class="o">-&gt;</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#dict" title="dict"><span class="nb">dict</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">]:</span>
+    <span class="o">...</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">process_data</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="typing.Iterable"><span class="n">Iterable</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">])</span> <span class="o">-&gt;</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">:</span>
+    <span class="n">data_total</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#sum" title="sum"><span class="nb">sum</span></a><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data_total</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">run_app</span><span class="p">():</span>
+    <span class="n">registry</span> <span class="o">=</span> <span class="n">get_data_registry</span><span class="p">()</span>
+    <span class="n">process_data</span><span class="p">(</span><span class="n">registry</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>  <span class="c1"># &lt;-- static type checker flags error here!</span>
+</pre></div>
+</div>
+<p>In the above, we made a mistake where we passed to <code class="docutils literal notranslate"><span class="pre">process_data</span></code> (which expects an iterable of integers) <code class="docutils literal notranslate"><span class="pre">registry.keys()</span></code> (which is an iterable of strings, not integers). A static type checker will be able to process this file <em>without actually running any of the code</em> and raise an error when it sees this discrepancy. So, instead of having to run our code, either via a unit test or in earnest (and then having to read through the stack trace when our program crashes), we can instead run a static type checker to catch this bug in a matter of seconds.</p>
+<p><a class="reference external" href="https://mypy.readthedocs.io/en/stable/">mypy</a> and <a class="reference external" href="https://mypy.readthedocs.io/en/stable/">pyright</a> are the two most prominent static type checkers for Python<a class="footnote-reference brackets" href="#mypy-pyright" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>. Both of these have a command line interface that makes them simple to incorporate into automated test suites. This is what it looks like to run pyright on the above file:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pyright<span class="w"> </span>example.py<span class="w"> </span>
+<span class="go">pyright 1.1.266</span>
+<span class="go">/home/rsokl/rai/example.py</span>
+<span class="go">  /home/rsokl/rai/example.py:11:16 - error: Argument of type "dict_keys[str, int]" cannot be assigned to parameter "x" of type "Iterable[int]" in function "process_data"</span>
+<span class="go">    TypeVar "_T_co@Iterable" is covariant</span>
+<span class="go">      "str" is incompatible with "int" (reportGeneralTypeIssues)</span>
+<span class="go">1 error, 0 warnings, 0 information </span>
+<span class="go">Completed in 0.578sec</span>
+</pre></div>
+</div>
+<p>An error message is provided that clearly indicates the typing annotation error, as well as a general message indicating that removing the type annotations would not remedy the problem.
+It is also worthwhile to note that these static type checkers are designed to make do with <em>partially</em> typed code as well; one does not need to fully type-annotate their code to reap the benefits of static type checkers. That being said, mileage between the different checkers vary: pyright is particularly good at supporting “gradual typing” (it was designed with this feature in mind). See the following example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Demonstrating pyright's ability to infer types through un-annotated functions</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_int</span><span class="p">()</span> <span class="o">-&gt;</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">:</span> <span class="o">...</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span> <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>  <span class="c1"># note: not annotated!</span>
+
+<span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">make_int</span><span class="p">(),</span> <span class="n">make_int</span><span class="p">()</span>
+<span class="n">z</span> <span class="o">=</span> <span class="n">add</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+<span class="n">reveal_type</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>  <span class="c1"># pyright reveals: int, mypy reveals: Any</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>A quick note about the above example. The function <code class="docutils literal notranslate"><span class="pre">reveal_type</span></code> is not actually a “real” function, nor is it imported from any module; the above code would crash were we to actually run it. Its sole purpose is to elicit from static type checkers the type that they have resolved for the specified object. This function is understood by all static type checkers.</p>
+</div></blockquote>
+<p>Popular Python IDEs like PyCharm and VSCode (via Pylance) are built around static type checkers; if you copy the above code into one of these editors, you will see a red squiggle appear under <code class="docutils literal notranslate"><span class="pre">registry.keys()</span></code>. The static type checker is constantly being run in real time by these IDEs so that you <em>catch this bug the moment you write it</em>. This capability tightens the feedback loop for developers working this code: you can be more confident when refactoring a given function, knowing that the static type checker will scan the rest of the code base for any incompatibilities that the change introduces.</p>
+<p>In total, <strong>static type checkers transform type annotations from being mere documentation to being <em>verified</em> documentation</strong>: any code pattern that contradicts your annotated interface will be flagged by the type checker.</p>
+</section>
+<section id="runtime-type-checkers">
+<h3>Runtime type checkers<a class="headerlink" href="#runtime-type-checkers" title="Link to this heading">#</a></h3>
+<p>Runtime type checkers are libraries that typically provide function decorators and other higher-order objects that wrap your code with type-checking boilerplate code. Unlike static type checkers, these will actually <em>enforce</em> your type annotations at runtime. Consider the following example using the runtime type checker <a class="reference external" href="https://github.com/beartype/beartype">beartype</a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">beartype</span><span class="w"> </span><span class="kn">import</span> <span class="n">beartype</span>
+
+<span class="nd">@beartype</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">process_age</span><span class="p">(</span><span class="n">age</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">)</span> <span class="o">-&gt;</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">:</span>
+    <span class="k">return</span> <span class="n">age</span>
+</pre></div>
+</div>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">process_age</span><span class="p">(</span><span class="s2">"hello"</span><span class="p">)</span>
+<span class="go">BeartypeCallHintParamViolation: @beartyped process_age() parameter x='hello' violates type hint class 'int', as 'hello' not instance of int.</span>
+</pre></div>
+</div>
+<p>Recall that, without the <code class="docutils literal notranslate"><span class="pre">@beartype</span></code> decorator, <code class="docutils literal notranslate"><span class="pre">process_age('hello')</span></code> would happily return <code class="docutils literal notranslate"><span class="pre">'hello'</span></code> regardless of the function’s annotations. Instead, the <code class="docutils literal notranslate"><span class="pre">@beartype</span></code> decorator consumes the <code class="docutils literal notranslate"><span class="pre">process_age</span></code> function, processes its signature, generates type-checking code according to its type annotations, and returns a new version of <code class="docutils literal notranslate"><span class="pre">process_age</span></code> that begins with the type-checking code on the input it receives, and ends with code for checking the type of the return value.</p>
+<p><a class="reference external" href="https://github.com/beartype/beartype">beartype</a>, <a class="reference external" href="https://pydantic-docs.helpmanual.io/">pydantic</a> and <a class="reference external" href="https://github.com/agronholm/typeguard">typeguard</a> are the most popular runtime type checkers for Python. Note that these are only able to catch bugs in the form of mismatched interfaces/types when you are actually running your code. They are good at preventing silent or severe errors from occurring<a class="footnote-reference brackets" href="#beartype-overhead" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a>.</p>
+<p>Thus, <strong>runtime type checkers transform annotations from being documentation to being <em>enforced contracts</em></strong>.</p>
+</section>
+<section id="parsers">
+<h3>Parsers<a class="headerlink" href="#parsers" title="Link to this heading">#</a></h3>
+<p>A parser takes in data, validates at runtime that said data adheres to some requirements or schema, and then returns the data <em>as a more specific type</em> – one that reflects that the data has been validated<a class="footnote-reference brackets" href="#parse" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a>. You then write your library’s interface<a class="footnote-reference brackets" href="#interface" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></a> in terms of these more specific – or narrowed – types, so that those functions need not be responsible for performing the same validation in multiple places. This helps us organize software systems into a parsing phase, where the bulk of all validation and error-handling occurs, and an execution phase, where we are working with types that “prove” that our functions will not fail due to malformed data. Libraries like <a class="reference external" href="https://pydantic-docs.helpmanual.io/">pydantic</a> and <a class="reference external" href="https://github.com/antonagestam/phantom-types">phantom-types</a> provide useful types and parsing capabilities towards this end.</p>
+<p>We will see concrete examples of this parsing paradigm in practice later.</p>
+<p>Thus, <strong>type annotations used in conjunction with parsers can help make illegal states unrepresentable</strong>.</p>
+</section>
+</section>
+<section id="justifying-our-emphasis-on-typing-in-the-t-e-framework">
+<h2>Justifying Our Emphasis on Typing in the T&amp;E Framework<a class="headerlink" href="#justifying-our-emphasis-on-typing-in-the-t-e-framework" title="Link to this heading">#</a></h2>
+<p>Here, we present some compelling anecdotes to show that industry leaders have “voted with their feet”, so to speak, to demonstrate that Python’s typing features are especially important and effective for developing machine learning frameworks like ours. We also summarize, concretely, how type annotations will benefit the T&amp;E framework.</p>
+<p>It may not be well known that Microsoft’s static type checker for Python, pyright, was born out of an acquisition of a machine learning company<a class="footnote-reference brackets" href="#eric-sig" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></a>. This included the company’s code base, which amounted to hundreds of files of un-annotated Python code. Eric Traut, the lead of this team at Microsoft, considered the process of incrementally adding static types to the project a top priority; without type annotations and a capable static type checker, reasoning about, maintaining, and refactoring the code base, was not feasible (especially for new developers). Thus Eric developed pyright<a class="footnote-reference brackets" href="#traut" id="id8" role="doc-noteref"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></a>, which is now the foundation of VSCode’s Python extension, and evolved the ML code base to eventually adopt thorough type annotations throughout. That Microsoft was willing to invest this level of effort, <em>just to have better type checking capabilities</em> (they could have just used mypy!), speaks volumes of the importance of this language feature.</p>
+<p>This isn’t the only place where it has become clear that Python’s typing features are highly valued by machine learning framework engineers. Recently, Python added a new language feature described in <a class="reference external" href="https://peps.python.org/pep-0646/">PEP 646</a>, which  was proposed by <em>a joint team of Google and Meta engineers</em> in service of writing more expressive type-annotated TensorFlow and PyTorch code, respectively. There are also popular projects like DeepMind’s <a class="reference external" href="https://github.com/deepmind/tensor_annotations">tensor annotations</a>, <a class="reference external" href="https://github.com/patrick-kidger/torchtyping">torchtyping</a>, and <a class="reference external" href="https://github.com/google/jaxtyping">jaxtyping</a>, which are all concerned with being able to provide improved annotations for common machine learning library interfaces.</p>
+<p>How do the above anecdotes map onto our needs? We are going to need to provide and communicate our APIs to end-users who will need to understand how to interact with various aspects of our framework — be it an object detection model registry, the entry point for an inference engine, or merely importing and using a metric function. We need to document these interfaces in a way that is precise, concise, expressive, and consistent. As indicated by various industry leaders, there is also great value to persisting this level and quality of detail throughout the <em>internals</em> of the framework as well; this will lead to a framework that is more robust and trustworthy, and that is easier to maintain and to refactor as the field of machine learning inevitably evolves.</p>
+<p>By adopting type annotations in a careful and principled way, the T&amp;E framework team – as well as our collaborators and users – will be able to:</p>
+<ul class="simple">
+<li><p>concisely and expressively document our interfaces using the same language-standardized form that industry leaders in this field have adopted (and have invested substantial resources into)</p></li>
+<li><p><em>statically verify</em> the correctness of our interfaces in an automated way (and in real-time within IDEs), via static type checkers <a class="footnote-reference brackets" href="#types-as-tests" id="id9" role="doc-noteref"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></a></p></li>
+<li><p>use runtime type-checkers to enforce critical interfaces in the framework as <em>contracts</em></p></li>
+<li><p>and leverage data parsing techniques to stratify our framework’s components into validation and execution phases, so that, in the execution phase, <em>illegal states become unrepresentable</em> (or, at least, hard to represent)</p></li>
+</ul>
+<p>In total, these capabilities will help our team’s effort <em>scale effectively</em> as we develop, maintain, and adapt the T&amp;E framework. Furthermore, this will help us to provide users with a first-class experience in terms of the quality, simplicity, and reliability of our APIs. The next section will help to demonstrate specific typing features that will empower us to achieve these outcomes.</p>
+</section>
+<section id="motivating-the-adoption-of-specific-typing-features-and-methods-in-the-t-e-framework">
+<h2>Motivating the Adoption of Specific Typing Features and Methods in the T&amp;E Framework<a class="headerlink" href="#motivating-the-adoption-of-specific-typing-features-and-methods-in-the-t-e-framework" title="Link to this heading">#</a></h2>
+<p>The following are qualities that the framework’s type annotations and broader design must satisfy:</p>
+<ul class="simple">
+<li><p>They must serve as <em>legible</em> documentation<a class="footnote-reference brackets" href="#legible" id="id10" role="doc-noteref"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></a> that is consistent across all of our APIs. Understanding the type annotations of one function should make it easier to understand our other functions at a glance, and it should be clear when and how a user should parse (validate) their data before passing it to a given function.</p></li>
+<li><p>Wherever possible, users should be able to satisfy our typed interfaces using standard-library types (e.g. <code class="docutils literal notranslate"><span class="pre">int</span></code> or <code class="docutils literal notranslate"><span class="pre">dict</span></code>), through common third party data types (e.g. <code class="docutils literal notranslate"><span class="pre">torch.Tensor</span></code>), or through <em>structural subtypes</em>. Users should <em>never</em> have to inherit from our types to satisfy our interfaces, unless they are explicitly inheriting complex functionality that they ought not implement themselves.</p></li>
+<li><p>We should leverage types that convey knowledge/description of data validation processes (e.g. <code class="docutils literal notranslate"><span class="pre">NonEmptyTensor</span></code> would signal that tensor has been proven to contain no size-0 dimensions); refining data to appropriately “narrowed” types as early as is feasible helps to eliminate ad-hoc and repetitive validation checks throughout our code and our users’ code.</p></li>
+<li><p>Annotations leading to false positives in static type checkers are unacceptable. Faulty alarms get turned off and ignored.</p></li>
+<li><p>Annotations leading to false negatives in static type checkers are only acceptable in obscure edge cases, where runtime checks are <em>guaranteed</em> to catch the error</p></li>
+<li><p>Annotations leading to either false positive or false negatives during runtime type checking are unacceptable</p></li>
+</ul>
+<p>Some or all of these may also be fruitful recommendations for us to suggest to vendors. The hope here is that the T&amp;E <em>ecosystem</em> manifests in such a way that its packages are: broadly consistent, judicious in their interdependencies, and are generally easy to understand and use. Because the vendors’ experience levels with Python, machine learning APIs, typing, and other relevant topics may vary quite broadly, it is especially helpful to spell out and motivate the following goals in a clear way.</p>
+<p>The remainder of this section will elaborate on these goals.</p>
+<section id="on-using-annotations-to-write-legible-documentation">
+<h3>On using annotations to write legible documentation<a class="headerlink" href="#on-using-annotations-to-write-legible-documentation" title="Link to this heading">#</a></h3>
+<blockquote>
+<div><p>Goal: Annotations must serve as <em>legible</em> documentation that is consistent across all of our APIs. Understanding the type annotations of one function should make it easier to understand our other functions at a glance, and it should be clear when and how a user should parse (validate) their data before passing it to a given function.</p>
+</div></blockquote>
+<p>There are some recent Python typing features that help to make type annotations more legible and less intimidating<a class="footnote-reference brackets" href="#besties" id="id11" role="doc-noteref"><span class="fn-bracket">[</span>11<span class="fn-bracket">]</span></a>. These are very simple and yet are quite effective. <a class="reference external" href="https://peps.python.org/pep-0585/">PEP 585</a> enables one to rewrite annotations for various collections using built-in types</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># before PEP 585</span>
+<span class="kn">import</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#module-typing" title="typing"><span class="nn">typing</span></a>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">f</span><span class="p">(</span><span class="n">ages</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.List" title="typing.List"><span class="n">typing</span><span class="o">.</span><span class="n">List</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">],</span> <span class="n">records</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="typing.Dict"><span class="n">typing</span><span class="o">.</span><span class="n">Dict</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">]):</span> <span class="o">...</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># after PEP 585</span>
+<span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/__future__.html#module-__future__" title="__future__"><span class="nn">__future__</span></a><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>  <span class="c1"># required for Python &lt; 3.9</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">f</span><span class="p">(</span><span class="n">ages</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#list" title="list"><span class="nb">list</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">],</span> <span class="n">records</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#dict" title="dict"><span class="nb">dict</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">]):</span> <span class="o">...</span>
+</pre></div>
+</div>
+<p>Similarly, <a class="reference external" href="https://peps.python.org/pep-0604/">PEP 604</a> enables unions to be represented more succinctly</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># before PEP 604</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">f</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">]):</span> <span class="o">...</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># after PEP 604</span>
+<span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/__future__.html#module-__future__" title="__future__"><span class="nn">__future__</span></a><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>  <span class="c1"># required for Python &lt; 3.10</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">f</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a> <span class="o">|</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">):</span> <span class="o">...</span>
+</pre></div>
+</div>
+<p><a class="reference external" href="https://peps.python.org/pep-0613/">PEP 613</a> adds explicit type aliases via <code class="docutils literal notranslate"><span class="pre">TypeAlias</span></code>, which enable one to write type annotations that have complex/lengthy implementations, but short and descriptive representations. Let’s use an explicit type alias to summarize an “array-like” type (a type that can be converted to a numpy array).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#module-typing" title="typing"><span class="nn">typing</span></a><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="typing.Sequence"><span class="n">Sequence</span></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TypeAlias</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tr</span>
+
+<span class="n">Scalars</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a> <span class="o">|</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#float" title="float"><span class="nb">float</span></a> <span class="o">|</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#complex" title="complex"><span class="nb">complex</span></a>
+<span class="c1"># Supports array-likes from 0D to 2D structures</span>
+<span class="n">ArrayLike</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Scalars</span> <span class="o">|</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="typing.Sequence"><span class="n">Sequence</span></a><span class="p">[</span><span class="n">Scalars</span><span class="p">]</span> <span class="o">|</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="typing.Sequence"><span class="n">Sequence</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="typing.Sequence"><span class="n">Sequence</span></a><span class="p">[</span><span class="n">Scalars</span><span class="p">]]</span> 
+
+<span class="k">def</span><span class="w"> </span><span class="nf">to_tensor</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tr</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+    <span class="o">...</span>
+
+<span class="n">to_tensor</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># static type checker: OK</span>
+<span class="n">to_tensor</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="p">[]])</span>  <span class="c1"># static type checker: ERROR!</span>
+<span class="n">to_tensor</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>  <span class="c1"># static type checker: OK</span>
+<span class="n">to_tensor</span><span class="p">([[</span><span class="mi">2</span><span class="o">+</span><span class="mi">1</span><span class="n">j</span><span class="p">,</span> <span class="mi">3</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="o">-</span><span class="mi">8</span><span class="n">j</span><span class="p">,</span> <span class="mi">2</span><span class="o">+</span><span class="mi">10</span><span class="n">j</span><span class="p">]])</span>  <span class="c1"># static type checker: OK</span>
+</pre></div>
+</div>
+<p>One of the biggest documentation challenges for tensor-heavy code bases is to convey what the shape requirements are on an input tensor for any given function or model. Does a function work on any tensor? An image-like tensor? A batch of image-like tensors? Until recently, this could only be addressed by describing tensor-shape requirements in a documentation string. This is still called for, but it would be better if this information could be conveyed in a more standardized and tool-accessible way.</p>
+<p>Along these lines, <a class="reference external" href="https://peps.python.org/pep-0646/">PEP 646</a> was proposed by engineers from Google and Meta who work on machine learning libraries and frameworks. This lead to the introduction of variadic generics in Python’s typing system, which makes it feasible to write types for arrays/tensors of arbitrary shapes. There are plenty of technical details to read here, but let’s consider an example.</p>
+<p>In the following example, we use a variadic generic type to re-represent the PyTorch <code class="docutils literal notranslate"><span class="pre">Tensor</span></code> so that we can statically represent tensor-shape information as part of the type. We’ll see that this enables us to concisely document how tensors containing images, batches of images, videos, and time-series data have their memory laid out (e.g. <code class="docutils literal notranslate"><span class="pre">channel</span> <span class="pre">x</span> <span class="pre">height</span> <span class="pre">x</span> <span class="pre">width</span></code> for an image). We will also see that static type-checkers can leverage this type information to catch incompatibilities for us.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TypeVarTuple</span><span class="p">,</span> <span class="n">Unpack</span><span class="p">,</span> <span class="n">TypeAlias</span>
+<span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#module-typing" title="typing"><span class="nn">typing</span></a><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Generic" title="typing.Generic"><span class="n">Generic</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Any" title="typing.Any"><span class="n">Any</span></a>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#module-typing" title="typing"><span class="nn">typing</span></a><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.NewType" title="typing.NewType"><span class="n">NewType</span></a>
+
+<span class="n">Shape</span> <span class="o">=</span> <span class="n">TypeVarTuple</span><span class="p">(</span><span class="s2">"Shape"</span><span class="p">)</span>
+
+<span class="c1"># A PyTorch tensor with additional shape type information</span>
+<span class="c1"># This is a so-called "variadic generic": the Shape type variable can vary in length/contents</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Tensor</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Generic" title="typing.Generic"><span class="n">Generic</span></a><span class="p">[</span><span class="n">Unpack</span><span class="p">[</span><span class="n">Shape</span><span class="p">]],</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
+    <span class="o">...</span>
+
+<span class="c1"># Declaring descriptive aliases for common array dimensions</span>
+<span class="n">Height</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a>
+<span class="n">Width</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a>
+<span class="n">Channel</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a>
+<span class="n">Time</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a>
+<span class="n">Batch</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a>
+
+<span class="c1"># Some representative utility functions for loading tensor data</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_time_series</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">[</span><span class="n">Time</span><span class="p">]:</span> <span class="o">...</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_image</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">[</span><span class="n">Channel</span><span class="p">,</span> <span class="n">Height</span><span class="p">,</span> <span class="n">Width</span><span class="p">]:</span> <span class="o">...</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_video</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">[</span><span class="n">Time</span><span class="p">,</span> <span class="n">Channel</span><span class="p">,</span> <span class="n">Height</span><span class="p">,</span> <span class="n">Width</span><span class="p">]:</span> <span class="o">...</span>
+
+<span class="c1"># Some functions working with tensors..</span>
+<span class="c1"># Stack multiple Tensors along a leading "Batch" dimension</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">stack</span><span class="p">(</span><span class="o">*</span><span class="n">arrs</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">[</span><span class="n">Unpack</span><span class="p">[</span><span class="n">Shape</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">[</span><span class="n">Batch</span><span class="p">,</span> <span class="n">Unpack</span><span class="p">[</span><span class="n">Shape</span><span class="p">]]:</span> <span class="o">...</span>
+
+<span class="c1"># Get the resolution, HxW, from any shape-(..., H, W) tensor</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_img_resolution</span><span class="p">(</span><span class="n">img</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">[</span><span class="n">Unpack</span><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="tuple"><span class="nb">tuple</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Any" title="typing.Any"><span class="n">Any</span></a><span class="p">,</span> <span class="o">...</span><span class="p">]],</span> <span class="n">Height</span><span class="p">,</span> <span class="n">Width</span><span class="p">])</span> <span class="o">-&gt;</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="tuple"><span class="nb">tuple</span></a><span class="p">[</span><span class="n">Height</span><span class="p">,</span> <span class="n">Width</span><span class="p">]:</span> <span class="o">...</span>
+
+<span class="n">list_of_images</span> <span class="o">=</span> <span class="p">[</span><span class="n">load_image</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"a.png"</span><span class="p">,</span> <span class="s2">"b.png"</span><span class="p">]]</span>  <span class="c1"># list[Tensor[Channel, Height, Width]]</span>
+<span class="n">img_tensor</span> <span class="o">=</span> <span class="n">stack</span><span class="p">(</span><span class="o">*</span><span class="n">list_of_images</span><span class="p">)</span>  <span class="c1"># Tensor[Batch, Channel, Height, Width]</span>
+<span class="n">img_res</span> <span class="o">=</span> <span class="n">get_img_resolution</span><span class="p">(</span><span class="n">img_tensor</span><span class="p">)</span>  <span class="c1"># Tuple[Height, Width]</span>
+
+<span class="n">list_of_videos</span> <span class="o">=</span> <span class="p">[</span><span class="n">load_video</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"a.mp4"</span><span class="p">,</span> <span class="s2">"b.mp4"</span><span class="p">]]</span>  <span class="c1"># list[Tensor[Time, Channel, Height, Width]]</span>
+<span class="n">video_tensor</span> <span class="o">=</span> <span class="n">stack</span><span class="p">(</span><span class="o">*</span><span class="n">list_of_videos</span><span class="p">)</span>  <span class="c1"># Tensor[Batch, Time, Channel, Height, Width]</span>
+<span class="n">video_res</span> <span class="o">=</span> <span class="n">get_img_resolution</span><span class="p">(</span><span class="n">video_tensor</span><span class="p">)</span>  <span class="c1"># Tuple[Height, Width]</span>
+
+<span class="n">time_series</span> <span class="o">=</span> <span class="n">load_time_series</span><span class="p">(</span><span class="s2">"data.pkl"</span><span class="p">)</span>  <span class="c1"># Tensor[Time]</span>
+<span class="c1"># attempting to get the resolution of a shape-(Time,) tensor...</span>
+<span class="n">get_img_resolution</span><span class="p">(</span><span class="n">time_series</span><span class="p">)</span>  <span class="c1"># static type check: error!</span>
+</pre></div>
+</div>
+<p>Consider how opaque the above code would become if we were to replace all of the tensor annotations with a bare <code class="docutils literal notranslate"><span class="pre">Tensor</span></code>! Prior to this PEP, we would have needed to make a special type to represent each of <code class="docutils literal notranslate"><span class="pre">Tensor[Time]</span></code>, <code class="docutils literal notranslate"><span class="pre">Tensor[Channel,</span> <span class="pre">Height,</span> <span class="pre">Width]</span></code>, etc. Otherwise, these critical details can only be conveyed via documentation strings.</p>
+<p>That all being said, this is a very new language feature and must be handled with care. As of writing this pyright supports it, <a class="reference external" href="https://github.com/python/mypy/issues/12840">but mypy does not yet</a>. Furthermore, these shape-annotations are not natively propagated by PyTorch operations:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">img_tensor</span> <span class="o">=</span> <span class="n">load_image</span><span class="p">(</span><span class="s2">"img.png"</span><span class="p">)</span>  <span class="c1"># type-checker sees: Tensor[Channel, Height, Width]</span>
+<span class="n">img_tensor</span> <span class="o">=</span> <span class="n">img_tensor</span> <span class="o">*</span> <span class="mi">2</span>  <span class="c1"># type-checker sees: Tensor</span>
+</pre></div>
+</div>
+<p>Until PyTorch (or any other array-based math library) adds shape-specific support to their annotations, which is blocked by the fact that shape-arithmetic cannot yet be expressed in Python, this shape information cannot be relied on to provide correctness checks on the mathematical operations being performed. Instead, they should only be relied upon at high-level interfaces – between significant nodes of processing (data loaders, models, etc.). E.g., one could annotate that a model requires a <code class="docutils literal notranslate"><span class="pre">Tensor[Batch,</span> <span class="pre">Channel,</span> <span class="pre">Height,</span> <span class="pre">Width]</span></code> as its input – this is highly valuable information – but the implementation of the forward pass itself can only be validated against the information provided by a bare <code class="docutils literal notranslate"><span class="pre">Tensor</span></code> type.</p>
+<p>Finally, while interfaces annotated with shape-typed tensors serve as excellent documentation for users, it can be hard for said users to actually construct data that satisfy those types (at a static type-checking level). E.g. none of PyTorch’s functions can be used to specifically create a <code class="docutils literal notranslate"><span class="pre">Tensor[Height,</span> <span class="pre">Width]</span></code>-typed output. Thus we would want to provide simple convenience functions that enable users to parse bare tensors into corresponding shape-annotated tensors (more on this in the section on type-narrowing).</p>
+<p>In summary, the added ability to express variadic types, as introduced by <a class="reference external" href="https://peps.python.org/pep-0646/">PEP 646</a>, enables us to convey critical information about tensor shapes at the type level. That being said, they must be used judiciously and with restraint, as informed by what these <em>aren’t</em> capable of and by the ways in which they can make our framework less accessible to our users.</p>
+</section>
+<section id="typed-interfaces-should-be-informative-inspire-good-design-and-be-easy-to-satisfy">
+<h3>Typed interfaces should be informative, inspire good design, and be easy to satisfy<a class="headerlink" href="#typed-interfaces-should-be-informative-inspire-good-design-and-be-easy-to-satisfy" title="Link to this heading">#</a></h3>
+<blockquote>
+<div><p>Goal: Wherever possible, users should be able to satisfy our typed interfaces using standard-library types (e.g. <code class="docutils literal notranslate"><span class="pre">int</span></code> or <code class="docutils literal notranslate"><span class="pre">dict</span></code>), through common third party data types (e.g. <code class="docutils literal notranslate"><span class="pre">torch.Tensor</span></code>), or through <em>structural subtypes</em>. Users should <em>never</em> have to inherit from our types to satisfy our interfaces, unless they are explicitly inheriting complex functionality that they ought not implement themselves.</p>
+</div></blockquote>
+<p>There is a lot to unpack here. We will attempt to do so in terms of an example that is of immediate concern to the T&amp;E framework. First, we will present a nominal design for the API of a simplified object detector. Next we will highlight the subtle-but-critical shortcomings of the design. Finally, we will motivate the adoption of <strong>structural subtyping</strong> (via <strong>protocols</strong>) in this scenario, and will demonstrate how this greatly improves the quality of our API (so as to achieve the above-stated goal).</p>
+<p>Consider the following (simplified) API for an object detector that is shipped by <code class="docutils literal notranslate"><span class="pre">our_library</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/abc.html#module-abc" title="abc"><span class="nn">abc</span></a>
+<span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#module-typing" title="typing"><span class="nn">typing</span></a><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="typing.Sequence"><span class="n">Sequence</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Any" title="typing.Any"><span class="n">Any</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="typing.Dict"><span class="n">Dict</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="typing.Tuple"><span class="n">Tuple</span></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TypeAlias</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torch</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tensor</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">our_library</span><span class="w"> </span><span class="kn">import</span> <span class="n">BoundingBox</span>
+
+<span class="n">ClassScores</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="typing.Dict"><span class="n">Dict</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Any" title="typing.Any"><span class="n">Any</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#float" title="float"><span class="nb">float</span></a><span class="p">]</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">OurDetectorAPI</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="abc.ABC"><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span></a><span class="p">):</span>
+    <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/abc.html#abc.abstractmethod" title="abc.abstractmethod"><span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span></a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">detect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="typing.Sequence"><span class="n">Sequence</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="typing.Tuple"><span class="n">Tuple</span></a><span class="p">[</span><span class="n">BoundingBox</span><span class="p">,</span> <span class="n">ClassScores</span><span class="p">]]:</span> 
+        <span class="k">raise</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/constants.html#NotImplemented" title="NotImplemented"><span class="bp">NotImplemented</span></a><span class="p">()</span> 
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">BoundingBox</span></code> is a class that we have created that has all sorts of convenient functions for working with bounding boxes. It might look something like:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">BoundingBox</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">left</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#float" title="float"><span class="nb">float</span></a><span class="p">,</span> <span class="n">top</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#float" title="float"><span class="nb">float</span></a><span class="p">,</span> <span class="n">right</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#float" title="float"><span class="nb">float</span></a><span class="p">,</span> <span class="n">bottom</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#float" title="float"><span class="nb">float</span></a><span class="p">):</span>
+        <span class="c1"># check that bbox coords satisfy, e.g., left &lt;= right</span>
+        <span class="c1"># use bbox coords to construct vertices</span>
+        <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_box_area</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#float" title="float"><span class="nb">float</span></a><span class="p">:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_intersection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other_box</span><span class="p">:</span> <span class="s2">"BoundingBox"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"BoundingBox"</span><span class="p">:</span> <span class="o">...</span>
+</pre></div>
+</div>
+<p>Naturally, we would have code elsewhere in our library that can leverage any such detector; one such function might look like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">measure_detector_precision_and_recall</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="n">OurDetectorAPI</span><span class="p">)</span> <span class="o">-&gt;</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#float" title="float"><span class="nb">float</span></a><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#isinstance" title="isinstance"><span class="nb">isinstance</span></a><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">OurDetectorAPI</span><span class="p">):</span>
+        <span class="k">raise</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="TypeError"><span class="ne">TypeError</span></a><span class="p">(</span><span class="s2">"You've gotta be one of us!"</span><span class="p">)</span>
+    
+    <span class="n">data</span> <span class="o">=</span> <span class="n">load_data</span><span class="p">()</span>
+    <span class="n">detections</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">detect</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p>Suppose that this is the API that we propose to third parties. If they abide by this, then we assure them that their object detectors will plug-and-play with our framework. At first glance, this may all appear to be perfectly reasonable. Indeed, the interface is informative to the end user: it tells us that a detector consumes a image described by a PyTorch tensor and returns a series of bounding-box &amp; score detection-pairs. However, this design fails in that <strong>it is not easy to satisfy, nor does it inspire good design practices</strong>. Let’s see why this is.</p>
+<p>Far and away the most pressing issue with this design is that <em>it unnecessarily requires third parties to install our library as a dependency</em> (and thus incur all of our dependencies as well). It is impossible for them to implement a satisfactory detector – e.g., one that can be passed to <code class="docutils literal notranslate"><span class="pre">measure_detector_precision_and_recall</span></code> –  without inheriting from <code class="docutils literal notranslate"><span class="pre">our_library.OurDetectorAPI</span></code> and without reporting their detected bounding boxes in terms of <code class="docutils literal notranslate"><span class="pre">out_library.BoundingBox</span></code> instances. This is despite the fact that they may not need any of the functionality that is provided by these classes! This adds needless complexity: e.g., now a docker image of their library needs to include our library and its dependency.</p>
+<p>Next, third parties are required to include <code class="docutils literal notranslate"><span class="pre">our_library.OurDetectorAPI</span></code> explicitly in their class hierarchy, even though its sole purpose is documentation and the enforcement of structure<a class="footnote-reference brackets" href="#forced-structure" id="id12" role="doc-noteref"><span class="fn-bracket">[</span>12<span class="fn-bracket">]</span></a>. This greatly hinders users from being able to understand our API at a glance. Instead, those implementing the API will need to check the details of the <code class="docutils literal notranslate"><span class="pre">OurDetectorAPI</span></code> to see if there is some important functionality being inherited, and to understand what, specifically, they have to implement, and if their functionality interacts with any “statefulness” in the detector.</p>
+<p>For those with pre-existing detectors, this means that they either have to eat the complexity of multiple inheritance, or, preferably, they would write an “adapter” class that encapsulates their detector and exposes our interface:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">our_library</span><span class="w"> </span><span class="kn">import</span> <span class="n">BoundingBox</span><span class="p">,</span> <span class="n">OurDetectorAPI</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">their_library</span><span class="w"> </span><span class="kn">import</span> <span class="n">TheirDetector</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">SadCompatShim</span><span class="p">(</span><span class="n">OurDetectorAPI</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">actual_detector</span><span class="p">:</span> <span class="n">TheirDetector</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">det</span> <span class="o">=</span> <span class="n">actual_detector</span>
+
+    <span class="c1"># this is the best-case scenario</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">detect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">BoundingBox</span><span class="p">,</span> <span class="n">ClassScores</span><span class="p">]]:</span>
+        <span class="n">their_bboxes</span><span class="p">,</span> <span class="n">their_scores</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">det</span><span class="o">.</span><span class="n">their_detection_method</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+        <span class="n">our_bboxes</span> <span class="o">=</span> <span class="p">[</span><span class="n">BoundingBox</span><span class="p">(</span><span class="o">*</span><span class="n">bbox</span><span class="p">)</span> <span class="k">for</span> <span class="n">bbox</span> <span class="ow">in</span> <span class="n">their_bboxes</span><span class="p">]</span>
+        <span class="k">return</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#list" title="list"><span class="nb">list</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#zip" title="zip"><span class="nb">zip</span></a><span class="p">(</span><span class="n">our_bboxes</span><span class="p">,</span> <span class="n">their_scores</span><span class="p">))</span>
+</pre></div>
+</div>
+<p><a class="footnote-reference brackets" href="#gross" id="id13" role="doc-noteref"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></a></p>
+<p>When all is said and done, the author of <code class="docutils literal notranslate"><span class="pre">SadCompatShim</span></code> might think: “Wow, I added <code class="docutils literal notranslate"><span class="pre">their_library</span></code> to my dependencies and read through the source code of <code class="docutils literal notranslate"><span class="pre">OurDetectorAPI</span></code> just for that? All of that, just to implement a glorified function”. Indeed, this is just the world’s most expensive function definition.</p>
+<p>How do we improve upon this? How do we achieve the requirements specified at the outset of this subsection?</p>
+<p>There is a powerful technique that we can use to ameliorate <em>all</em> of these issues: we can refactor our API in terms of protocol types. <strong>A protocol type is a type whose subtypes do not have to inherit from it, rather, they merely need to implement the protocol</strong>. That is, a subtype of a protocol is simply anything that implements the same <em>structure</em> as the protocol. As such, this concept is referred to as structural subtyping (a.k.a ducktyping). This feature was formally introduced by Python 3.8, via <a class="reference external" href="https://peps.python.org/pep-0544/">PEP 544</a><a class="footnote-reference brackets" href="#backport" id="id14" role="doc-noteref"><span class="fn-bracket">[</span>14<span class="fn-bracket">]</span></a>.</p>
+<p>Let’s use our current example to understand what structural subtyping is all about. The following is a redesign of our simple object detection API, which leverages protocols</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#module-typing" title="typing"><span class="nn">typing</span></a><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Any" title="typing.Any"><span class="n">Any</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="typing.Dict"><span class="n">Dict</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="typing.Sequence"><span class="n">Sequence</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="typing.Tuple"><span class="n">Tuple</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Protocol" title="typing.Protocol"><span class="n">Protocol</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.runtime_checkable" title="typing.runtime_checkable"><span class="n">runtime_checkable</span></a>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">torch</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tensor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TypeAlias</span><span class="p">,</span> <span class="n">runtime_checkable</span>
+
+<span class="n">ClassScores</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="typing.Dict"><span class="n">Dict</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Any" title="typing.Any"><span class="n">Any</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#float" title="float"><span class="nb">float</span></a><span class="p">]</span>
+
+<span class="nd">@runtime_checkable</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BoundingBox</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Protocol" title="typing.Protocol"><span class="n">Protocol</span></a><span class="p">):</span>
+    <span class="n">left</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#float" title="float"><span class="nb">float</span></a>
+    <span class="n">top</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#float" title="float"><span class="nb">float</span></a>
+    <span class="n">right</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#float" title="float"><span class="nb">float</span></a>
+    <span class="n">bottom</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#float" title="float"><span class="nb">float</span></a>
+
+<span class="nd">@runtime_checkable</span>  <span class="c1"># &lt;-- enables `isinstance` checks to look for necessary structure [1]</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">OurDetectorAPI</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Protocol" title="typing.Protocol"><span class="n">Protocol</span></a><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="typing.Sequence"><span class="n">Sequence</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="typing.Tuple"><span class="n">Tuple</span></a><span class="p">[</span><span class="n">BoundingBox</span><span class="p">,</span> <span class="n">ClassScores</span><span class="p">]]:</span>
+        <span class="o">...</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">measure_detector_precision_and_recall</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="n">OurDetectorAPI</span><span class="p">)</span> <span class="o">-&gt;</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#float" title="float"><span class="nb">float</span></a><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#isinstance" title="isinstance"><span class="nb">isinstance</span></a><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">OurDetectorAPI</span><span class="p">):</span>  <span class="c1"># &lt;-- [1]: I.e, this still works!</span>
+        <span class="k">raise</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="TypeError"><span class="ne">TypeError</span></a><span class="p">(</span><span class="s2">"You've gotta be one of us!"</span><span class="p">)</span>
+    
+    <span class="n">data</span> <span class="o">=</span> <span class="n">load_data</span><span class="p">()</span>
+    <span class="n">detections</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p>Because <code class="docutils literal notranslate"><span class="pre">BoundingBox</span></code> inherits from <code class="docutils literal notranslate"><span class="pre">Protocol</span></code>, <em>any</em> object that exposes <code class="docutils literal notranslate"><span class="pre">float</span></code>-valued attributes named <code class="docutils literal notranslate"><span class="pre">left</span></code>, <code class="docutils literal notranslate"><span class="pre">top</span></code>, <code class="docutils literal notranslate"><span class="pre">right</span></code>, and <code class="docutils literal notranslate"><span class="pre">bottom</span></code> is an instance of <code class="docutils literal notranslate"><span class="pre">BoundingBox</span></code>. Similarly, <code class="docutils literal notranslate"><span class="pre">OurDetectorAPI</span></code> is satisfied by <em>anything</em> that supports the call syntax – <code class="docutils literal notranslate"><span class="pre">obj(img)</span></code> – and whose signature is (a superset of) <code class="docutils literal notranslate"><span class="pre">(img:</span> <span class="pre">Tensor)</span> <span class="pre">-&gt;</span> <span class="pre">Sequence[tuple[BoundingBox,</span> <span class="pre">dict[Any,</span> <span class="pre">float]]]</span></code>.</p>
+<p>See that we have retained all of the important structure here: we are still telling a 3rd party exactly how we expect them to represent a detector, a bounding box, and classification scores. At the same time, we have also <strong>eschewed all of the unnecessary dependencies and complexities of the old APIs</strong>:</p>
+<ul class="simple">
+<li><p>Third parties need not install additional libraries to satisfy this API</p></li>
+<li><p>Our detector API doesn’t depend on any statefulness, so our user sees that we don’t expect anything more complicated than a pure function when we ask for a detector.</p></li>
+<li><p>Bounding boxes are simple to represent using standard data types (e.g., named tuples), and are trivial to understand</p></li>
+</ul>
+<p>To hammer home the elegance that we have achieved here, let’s see what it looks like for us to implement the most trivial detector – one that always returns <em>no detections</em> – in the old API:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Implementing an "empty" detector in the old API</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">our_library</span><span class="w"> </span><span class="kn">import</span> <span class="n">OurDetectorAPI</span>  <span class="c1"># &lt;- our library must be installed</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">EmptyDetector</span><span class="p">(</span><span class="n">OurDetectorAPI</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">detect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+<span class="n">empty_detector</span> <span class="o">=</span> <span class="n">EmptyDetector</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>… and in the new API:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Implementing an "empty" detector in the new API</span>
+<span class="n">empty_detector</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">img</span><span class="p">:</span> <span class="p">[]</span>
+</pre></div>
+</div>
+<p><a class="footnote-reference brackets" href="#check-it-out" id="id15" role="doc-noteref"><span class="fn-bracket">[</span>15<span class="fn-bracket">]</span></a></p>
+<p>It isn’t an overstatement to claim that our introduction of protocols into this API is transformational. The adoption of structural subtyping might be the most important, but subtle, recommendation made in this entire document. It substantially reduces the cognitive load and technical debt incurred by the user (i.e. you can understand our detector API at a glance, and you can implement it from the comfort of your own library), and it also encourages careful design decisions from API authors (“Do you <em>really</em> need this to be a strict abstract base class? What functionality is actually being inherited?”).</p>
+<p>Lastly, it is perfectly fine for a library’s internal detector class to have additional bells &amp; whistles, like a method that a configuration manager can hook into. That being said, those bells &amp; whistles shouldn’t be part of the the documented (annotated) interface unless they are actually required. It is easy to create and compose multiple protocols for this sort of scenario:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@runtime_checkable</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Configurable</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">___special_config_interface__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#dict" title="dict"><span class="nb">dict</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span> <span class="o">...</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ConfigurableDetector</span><span class="p">(</span><span class="n">OurDetectorAPI</span><span class="p">,</span> <span class="n">Configurable</span><span class="p">,</span> <span class="n">Protocol</span><span class="p">):</span> <span class="o">...</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">orchestrate_detector</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="n">ConfigurableDetector</span><span class="p">):</span> <span class="o">...</span>
+</pre></div>
+</div>
+<p>Now <code class="docutils literal notranslate"><span class="pre">orchestrate_detector</span></code> can demand: “you have to be a detector-like callable that also has our expected config-management hooks, <em>if</em> you want to be auto-registered by our framework”. This is an incremental increase in complexity that users only opt into if they actually want to use that functionality. Inquiring users can see that their elegant pure-function detector doesn’t work with this part of the API – static type checkers will tell them this straight away:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">empty_detector</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">[]</span>
+<span class="n">orchestrate_detector</span><span class="p">(</span><span class="n">empty_detector</span><span class="p">)</span>  <span class="c1"># static type checker: error</span>
+</pre></div>
+</div>
+</section>
+<section id="validate-early-in-your-program-and-use-narrow-types-to-prove-that-you-did-so">
+<h3>Validate early in your program and use narrow types to prove that you did so<a class="headerlink" href="#validate-early-in-your-program-and-use-narrow-types-to-prove-that-you-did-so" title="Link to this heading">#</a></h3>
+<blockquote>
+<div><p>Goal: We should leverage types that convey knowledge/description of data validation processes (e.g. <code class="docutils literal notranslate"><span class="pre">NonNanTensor</span></code> would signal that tensor has been proven to contain no <code class="docutils literal notranslate"><span class="pre">NaN</span></code> elements); refining data to appropriately “narrowed” types as early as is feasible helps to eliminate ad-hoc and repetitive validation checks throughout our code and our users’ code.</p>
+</div></blockquote>
+<p>This section is heavily inspired by Alexis King’s excellent blog post <a class="reference external" href="https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/">“Parse, Don’t Validate”</a>, and attempts to convey how the article’s titular recommendation can be pursued in Python.</p>
+<p>Consider the following code</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">torch</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tensor</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch.nn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nn</span>
+<span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#module-typing" title="typing"><span class="nn">typing</span></a><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="typing.Iterable"><span class="n">Iterable</span></a>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">load_data</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span> <span class="o">...</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_model</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">:</span> <span class="o">...</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">measure_data_distr</span><span class="p">(</span><span class="n">img_batch</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">batch</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">4</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">batch</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">raise</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="TypeError"><span class="ne">TypeError</span></a><span class="p">(</span><span class="s2">"Not image batch-like"</span><span class="p">)</span>
+    <span class="c1"># &lt;actual functionality here&gt;</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_accuracy</span><span class="p">(</span><span class="n">img_batch</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">batch</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">4</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">batch</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">raise</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="TypeError"><span class="ne">TypeError</span></a><span class="p">(</span><span class="s2">"not batch-like"</span><span class="p">)</span>
+    <span class="c1"># &lt;actual functionality here&gt;</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_calibration</span><span class="p">(</span><span class="n">img_batch</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">models</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="typing.Iterable"><span class="n">Iterable</span></a><span class="p">[</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">]):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">batch</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">4</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">batch</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">raise</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="TypeError"><span class="ne">TypeError</span></a><span class="p">(</span><span class="s2">"Not image batch-like"</span><span class="p">)</span>
+    <span class="c1"># &lt;actual functionality here&gt;</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+    <span class="n">tensor</span> <span class="o">=</span> <span class="n">load_data</span><span class="p">()</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">()</span>
+
+    <span class="n">measure_data_distr</span><span class="p">(</span><span class="n">tensor</span><span class="p">)</span>
+    <span class="n">compute_accuracy</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+    <span class="n">compute_calibration</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="p">[</span><span class="n">model</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>The above code has several issues<a class="footnote-reference brackets" href="#shotgun" id="id16" role="doc-noteref"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></a>. It violates the DRY principle (Don’t Repeat Yourself): if we ever change the conditions that we check for a batch (e.g. maybe we add a dtype check), then we will need to change the check across all functions. Furthermore, the <code class="docutils literal notranslate"><span class="pre">Tensor</span></code> annotation is too vague for users and type-checkers alike: neither can predict, at a glance, that passing in a 1D tensor will cause the code to crash. Lastly, we pay a runtime cost, which may be menial in this case but can become considerable if we need to perform rigorous checks on the tensor (e.g. ensure that the data is free of NaNs).</p>
+<p>That all being said, the above code is a dime a dozen in the world of Python-based machine learning. Heck, at least it has <em>some</em> annotations and validation. So what can be done to improve this sort of code?</p>
+<p>This is where the recommendation “parse, don’t validate” can pay off. First, we must reiterate here what we mean by “parsing”. We mean that we are taking some object/data that is described by some broad type (e.g., <code class="docutils literal notranslate"><span class="pre">tuple[Any,</span> <span class="pre">...]</span></code>) and validating some predicate about it (e.g., that the tuple is non-empty and contains only strings), and then annotate that object/data with a more precise type (e.g., <code class="docutils literal notranslate"><span class="pre">NonEmpty[tuple[str,</span> <span class="pre">...]]</span></code>), which serves as a “proof” that the object/data has passed through this validation procedure. We can then pass this downstream to functions that require <code class="docutils literal notranslate"><span class="pre">NonEmpty[tuple[str,</span> <span class="pre">...]]</span></code> as their input types. By designing our code this way, we can strive to localize all of our validation and error-handling to one place – the parsing stage of our program – and proceed to execute using data that need not be re-validated.</p>
+<p>Let’s turn this last paragraph into code<a class="footnote-reference brackets" href="#phantom" id="id17" role="doc-noteref"><span class="fn-bracket">[</span>17<span class="fn-bracket">]</span></a></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#module-typing" title="typing"><span class="nn">typing</span></a><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.cast" title="typing.cast"><span class="n">cast</span></a>
+
+<span class="c1"># 0. Define types that describe specific validated states that your</span>
+<span class="c1">#    library depends on across multiple interfaces</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">our_library.narrow_types</span><span class="w"> </span><span class="kn">import</span> <span class="n">NonEmpty</span>
+
+<span class="c1"># Returns unstructured/unvalidated data</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">stream_data</span><span class="p">()</span> <span class="o">-&gt;</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="tuple"><span class="nb">tuple</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">,</span> <span class="o">...</span><span class="p">]:</span> <span class="o">...</span>
+
+<span class="c1"># Create functions that can validate that the data satisfies</span>
+<span class="c1"># specific properties and ascribe to the validated data a new </span>
+<span class="c1"># type, which serves as proof of validation</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_stream</span><span class="p">(</span><span class="n">stream</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="tuple"><span class="nb">tuple</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">NonEmpty</span><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="tuple"><span class="nb">tuple</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">,</span> <span class="o">...</span><span class="p">]]:</span>
+    <span class="k">if</span> <span class="ow">not</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#isinstance" title="isinstance"><span class="nb">isinstance</span></a><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="tuple"><span class="nb">tuple</span></a><span class="p">):</span> <span class="k">raise</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="TypeError"><span class="ne">TypeError</span></a><span class="p">(</span><span class="s2">"not tuple"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">stream</span><span class="p">:</span> <span class="k">raise</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="TypeError"><span class="ne">TypeError</span></a><span class="p">(</span><span class="s2">"is empty"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#all" title="all"><span class="nb">all</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#isinstance" title="isinstance"><span class="nb">isinstance</span></a><span class="p">(</span><span class="n">item</span><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">stream</span><span class="p">):</span> <span class="k">raise</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="TypeError"><span class="ne">TypeError</span></a><span class="p">(</span><span class="s2">"not strings"</span><span class="p">)</span>
+    
+    <span class="c1"># The sole purpose of this line is for infroming the static type checker.</span>
+    <span class="c1"># We don't actually use the `NonEmpty` type to change our data</span>
+    <span class="c1"># at all!</span>
+    <span class="n">proven_data</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.cast" title="typing.cast"><span class="n">cast</span></a><span class="p">(</span><span class="n">NonEmpty</span><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="tuple"><span class="nb">tuple</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">,</span> <span class="o">...</span><span class="p">]],</span> <span class="n">stream</span><span class="p">)</span>  
+    <span class="k">return</span> <span class="n">proven_data</span>
+
+<span class="c1"># Design downstream functions to require this narrowed type, which can only</span>
+<span class="c1"># be obtained by going through the parsing process. Now functions operate</span>
+<span class="c1"># safely without having to re-validate the data at every turn, and their</span>
+<span class="c1"># requirements are now explicitly documented via annotations</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">consumer1</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">NonEmpty</span><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="tuple"><span class="nb">tuple</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">,</span> <span class="o">...</span><span class="p">]]):</span> <span class="o">...</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">consumer2</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">NonEmpty</span><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="tuple"><span class="nb">tuple</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">,</span> <span class="o">...</span><span class="p">]]):</span> <span class="o">...</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">consumer3</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">NonEmpty</span><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="tuple"><span class="nb">tuple</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">,</span> <span class="o">...</span><span class="p">]]):</span> <span class="o">...</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+    <span class="c1"># 1. Start with unstructured data</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">stream_data</span><span class="p">()</span>  <span class="c1"># type checker sees: tuple[str, ...]</span>
+    
+    <span class="c1"># Attempting to pass `data` to, e.g., `consumer1` would produce</span>
+    <span class="c1"># a static type checking error.</span>
+
+    <span class="c1"># 2. Enter "parsing" phase of program, where we validate the data</span>
+    <span class="c1">#    and ascribe a narrowed type to the data.</span>
+    <span class="c1">#    This is where we handle and log errors.</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># input: tuple[str, ...]  (less-structured)</span>
+        <span class="n">parsed_data</span> <span class="o">=</span> <span class="n">parse_stream</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="c1"># output: NonEmpty[tuple[str, ...]]  (more-structured)</span>
+    <span class="k">except</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="TypeError"><span class="ne">TypeError</span></a><span class="p">:</span>
+        <span class="c1"># log error</span>
+        <span class="c1"># cue graceful recovery</span>
+        <span class="o">...</span>
+
+    <span class="c1"># 3. Enter "execution" phase of program: the 'illegal state' of having empty data</span>
+    <span class="c1">#    here is impossible, assuming we rely faithfully on our type checker, because</span>
+    <span class="c1">#    we are working with data that has been "proven" to be valid</span>
+    <span class="n">consumer1</span><span class="p">(</span><span class="n">parsed_data</span><span class="p">)</span>  <span class="c1"># type checker: OK</span>
+    <span class="n">consumer2</span><span class="p">(</span><span class="n">parsed_data</span><span class="p">)</span>  <span class="c1"># type checker: OK</span>
+    <span class="n">consumer3</span><span class="p">(</span><span class="n">parsed_data</span><span class="p">)</span>  <span class="c1"># type checker: OK</span>
+</pre></div>
+</div>
+<p>See that, unlike the first example that we considered in this section, this code is free of repetition, it is explicit, and it is highly legible. If someone were to want to leverage <code class="docutils literal notranslate"><span class="pre">consumer1</span></code> in isolation, they would immediately see that they need to feed it a non-empty tuple of data.</p>
+<section id="type-narrowing">
+<h4>Type narrowing<a class="headerlink" href="#type-narrowing" title="Link to this heading">#</a></h4>
+<p>One thing that may be surprising about the above example is that we don’t actually create an instance of the <code class="docutils literal notranslate"><span class="pre">NonEmpty</span></code> type anywhere! It’s sole purpose is to convey information to the static type checker. Thus, at the crux of this parsing technique is the notion of <strong>type-narrowing</strong>. According to <a class="reference external" href="https://mypy.readthedocs.io/en/latest/type_narrowing.html">mypy’s documentation</a>, “Type narrowing is when you convince a type checker that a broader type is actually more specific”. And this is precisely what we have done: our call to <code class="docutils literal notranslate"><span class="pre">typing.cast</span></code> is where we convinced the type checker that our data is <code class="docutils literal notranslate"><span class="pre">NonEmpty[...]</span></code>. Otherwise, our code never relies on any functionality from <code class="docutils literal notranslate"><span class="pre">NonEmpty</span></code> at runtime. Hopefully, this revelation makes the process of parsing less daunting: we can literally just make up a type whose main purpose is its specificity in the eyes of (human) readers and static type checkers. Its utility comes from its consistent use across our interfaces.</p>
+<p>There are many ways that one can perform type-narrowing. Here are some examples:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">x</span><span class="p">:</span> <span class="n">Any</span>   <span class="c1"># starting with: x can be Any type</span>
+
+<span class="c1"># narrow x via isinstance:</span>
+<span class="k">if</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#isinstance" title="isinstance"><span class="nb">isinstance</span></a><span class="p">(</span><span class="n">x</span><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">):</span>
+    <span class="c1"># type checker narrows x to `int` here</span>
+    <span class="o">...</span>
+<span class="k">elif</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#isinstance" title="isinstance"><span class="nb">isinstance</span></a><span class="p">(</span><span class="n">x</span><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">):</span>
+    <span class="c1"># type checker narrows x to `str` here</span>
+    <span class="o">...</span>
+
+<span class="n">y</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a> <span class="o">|</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#list" title="list"><span class="nb">list</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">]</span>  <span class="c1"># starting with: y can be an int or list of ints</span>
+
+<span class="c1"># narrow y via assert</span>
+<span class="k">assert</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#isinstance" title="isinstance"><span class="nb">isinstance</span></a><span class="p">(</span><span class="n">y</span><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#list" title="list"><span class="nb">list</span></a><span class="p">)</span>
+<span class="n">y</span>  <span class="c1"># type checker narows y to list[int]  (it is impossible for y to be an int here at runtime)</span>
+
+<span class="c1"># via casting</span>
+<span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#module-typing" title="typing"><span class="nn">typing</span></a><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.cast" title="typing.cast"><span class="n">cast</span></a>
+
+<span class="n">z</span><span class="p">:</span> <span class="n">Any</span>  <span class="c1"># starting with: x can be Any type</span>
+
+<span class="c1"># Warning: you can lie to the type checker using `cast`.</span>
+<span class="c1"># `cast` doesn't do any processing at runtime</span>
+<span class="n">out</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.cast" title="typing.cast"><span class="n">cast</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="tuple"><span class="nb">tuple</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">],</span> <span class="n">z</span><span class="p">)</span>  <span class="c1"># type checker sees `out` as `tuple[int, int]`</span>
+</pre></div>
+</div>
+<p>One can also define <a class="reference external" href="https://mypy.readthedocs.io/en/latest/type_narrowing.html#user-defined-type-guards">type guards</a> to facilitate nice type narrowing in control-flow contexts:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#module-typing" title="typing"><span class="nn">typing</span></a><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Any" title="typing.Any"><span class="n">Any</span></a>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TypeGuard</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">NonNegativeInt</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">):</span>
+    <span class="o">...</span>
+
+<span class="c1"># this is our type-guard, which can narrow int -&gt; NonNegativeInt</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_non_negative_int</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TypeGuard</span><span class="p">[</span><span class="n">NonNegativeInt</span><span class="p">]:</span> 
+    <span class="k">return</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">x</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">process_age</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">NonNegativeInt</span><span class="p">):</span> <span class="o">...</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">):</span>
+    <span class="k">if</span> <span class="n">is_non_negative_int</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="c1"># x is narrowed to NonNegativeInt</span>
+        <span class="n">process_age</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># x is an int here</span>
+        <span class="c1"># log error</span>
+        <span class="o">...</span>
+</pre></div>
+</div>
+<p>Armed with our newfound knowledge of type narrowing, let’s rewrite the original example from this subsection in a way that uses the “parsing” paradigm.</p>
+<p>Let’s create a subtype of <code class="docutils literal notranslate"><span class="pre">torch.Tensor</span></code>, called <code class="docutils literal notranslate"><span class="pre">TensorBCHW</span></code>, which is designed to represent a batch of images of shape <code class="docutils literal notranslate"><span class="pre">Batch</span> <span class="pre">x</span> <span class="pre">Channel</span> <span class="pre">x</span> <span class="pre">Height</span> <span class="pre">x</span> <span class="pre">Width</span></code>. This is the narrow type that we will use in our annotations to signal that a PyTorch tensor has been validated as being “batch-like”. Note that we will never actually create an instance of <code class="docutils literal notranslate"><span class="pre">TensorBCHW</span></code><a class="footnote-reference brackets" href="#fancy-shapes" id="id18" role="doc-noteref"><span class="fn-bracket">[</span>18<span class="fn-bracket">]</span></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">torch</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tensor</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch.nn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nn</span>
+<span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#module-typing" title="typing"><span class="nn">typing</span></a><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.cast" title="typing.cast"><span class="n">cast</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="typing.Iterable"><span class="n">Iterable</span></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TypeGuard</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TensorBCHW</span><span class="p">(</span><span class="n">Tensor</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Signals that a PyTorch tensor has been validated to</span>
+<span class="sd">    be shaped like a batch of images: (B, C, H, W)"""</span>
+    <span class="o">...</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">load_data</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span> <span class="o">...</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_model</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">:</span> <span class="o">...</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">is_batch_of_images</span><span class="p">(</span>
+    <span class="n">x</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">expected_channel_size</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TypeGuard</span><span class="p">[</span><span class="n">TensorBCHW</span><span class="p">]:</span>
+    <span class="k">return</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#isinstance" title="isinstance"><span class="nb">isinstance</span></a><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">)</span> <span class="ow">and</span> <span class="n">x</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">4</span> <span class="ow">and</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">expected_channel_size</span>
+        
+
+<span class="k">def</span><span class="w"> </span><span class="nf">measure_data_distr</span><span class="p">(</span><span class="n">batch</span><span class="p">:</span> <span class="n">TensorBCHW</span><span class="p">):</span> <span class="o">...</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_accuracy</span><span class="p">(</span><span class="n">batch</span><span class="p">:</span> <span class="n">TensorBCHW</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span> <span class="o">...</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_calibration</span><span class="p">(</span><span class="n">batch</span><span class="p">:</span> <span class="n">TensorBCHW</span><span class="p">,</span> <span class="n">models</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="typing.Iterable"><span class="n">Iterable</span></a><span class="p">[</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">]):</span> <span class="o">...</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">()</span>
+    <span class="n">tensor</span> <span class="o">=</span> <span class="n">load_data</span><span class="p">()</span>
+    
+    <span class="c1"># type checker sees tensor as: Tensor</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_batch_of_images</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">expected_channel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+        <span class="k">raise</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="TypeError"><span class="ne">TypeError</span></a><span class="p">(</span><span class="s2">"not a batch!"</span><span class="p">)</span>
+    <span class="c1"># type checker sees tensor as: TensorBCHW</span>
+
+
+    <span class="c1"># static type-checker ensures input is `TensorBCHW`</span>
+    <span class="n">measure_data_distr</span><span class="p">(</span><span class="n">tensor</span><span class="p">)</span>
+    <span class="n">compute_accuracy</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+    <span class="n">compute_calibration</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="p">[</span><span class="n">model</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>We see that, once again, adopting this “parsing” mindset not only consolidates the code’s validation logic, but it also incorporates static type information that conveys “proof” that the data we are passing to our functions has already been validated. This code is more efficient and less repetitive than before, plus it is easier for both the developer and the user to reason about. A user looking at our <code class="docutils literal notranslate"><span class="pre">compute_accuracy</span></code> function will see immediately that it does not accept any-ol’ <code class="docutils literal notranslate"><span class="pre">Tensor</span></code>, but that we expect them to first parse their data using our <code class="docutils literal notranslate"><span class="pre">parse_tensor_as_batch</span></code> function.</p>
+<p>It must be noted that the interface we expose to the user, via <code class="docutils literal notranslate"><span class="pre">load_data</span></code>, is still simple to understand and to satisfy. Type narrowing mainly helps <em>us</em> to write clean, consistent, and non-repetitive internal code. That being said, if users want to use our internal code, they will need to buy into our belief system – parse, don’t validate – and learn how to use our <code class="docutils literal notranslate"><span class="pre">is_batch_of_images</span></code> function to narrow their types before using our functions<a class="footnote-reference brackets" href="#whelp" id="id19" role="doc-noteref"><span class="fn-bracket">[</span>19<span class="fn-bracket">]</span></a>.</p>
+</section>
+</section>
+<section id="preventing-type-checkers-from-being-noisy-or-unreliable">
+<h3>Preventing type checkers from being noisy or unreliable<a class="headerlink" href="#preventing-type-checkers-from-being-noisy-or-unreliable" title="Link to this heading">#</a></h3>
+<blockquote>
+<div><p>Goal: Make explicit certain hard requirements that our type annotations must satisfy, so that our types provide us with far more signal than noise. And, reflect on ways in which these requirements might limit the typing language features that we adopt as well the particular type checkers that we leverage.</p>
+</div></blockquote>
+<p>Annotating a code base is can reveal a Goldilocks problem: annotations that are overly specific can cause your users to experience false alarms, which leads to <a class="reference external" href="https://en.wikipedia.org/wiki/Alarm_fatigue">alarm fatigue</a> (they’ll turn the alarm off!). On the other hand, annotations that are too broad fail to protect users from writing buggy code. And, in both scenarios, these annotations fail their primary purpose: to serve as reliable, verified documentation. There are a few rules that we can establish to help ensure that type our annotations are “just right”.</p>
+<ul class="simple">
+<li><p>Annotations leading to false positives in static type checkers are unacceptable (faulty alarms get turned off and are ignored).</p></li>
+<li><p>Annotations leading to false negatives in static type checkers are acceptable in edge cases that are arduous or impossible to annotate. Here, runtime checks must be put into place to catch the error.</p></li>
+<li><p>Annotations leading to either false positive or false negatives during <em>runtime</em> type checking are unacceptable (these are just good ol’ fashioned bugs!)</p></li>
+</ul>
+<p>mypy’s <a class="reference external" href="https://mypy.readthedocs.io/en/stable/common_issues.html">common issues</a> page is a fantastic resource to help us put these rules in practice.</p>
+<p>Ultimately, these rules – in conjunction with the other goals specified throughout this article – are meant to help calibrate our priorities so that our leveraging types does far more good than harm. For developers, we want annotations to make our code to be easier for us to maintain, refactor, and debug, but we do not want to spend too much time fussing with them. For users, we want our annotations to accelerate their ability to “grok”<a class="footnote-reference brackets" href="#grokit" id="id20" role="doc-noteref"><span class="fn-bracket">[</span>20<span class="fn-bracket">]</span></a> our APIs at a glance, to make our code safe and robust for them to use, and to tighten the feedback loop when they are using our APIs incorrectly (ideally, they would immediately see a red squiggle upon writing the bug).</p>
+</section>
+<section id="picking-a-static-type-checker">
+<h3>Picking a static type checker<a class="headerlink" href="#picking-a-static-type-checker" title="Link to this heading">#</a></h3>
+<blockquote>
+<div><p>A final, boring, and unfortunate section of this otherwise fun-filled article.</p>
+</div></blockquote>
+<p>A challenge with maintaining typed Python code is: there are multiple type checkers, which have different capabilities, different design priorities, and different user bases. Depending on how sophisticated one’s annotations are, it can be hard to appease all of the type checkers simultaneously. E.g. your code might scan as “all-clean” in pyright and have error reports in mypy. But fixing the mypy errors, might make pyright complain.. and so begins the world’s most esoteric game of wack-a-mole.</p>
+<p>Accordingly, there can be advantages to having a development team standardize on a single type checker when it comes to scanning their internal code base. That being said, it is preferable to design one’s publicly-facing API to be compatible with both mypy and pyright, while only standardizing on one for full internal scans. This will also help increase the likelihood that, e.g., PyCharm’s type checker will also be compatible with the public API (and thus PyCharm users will have a high-quality experience using your library).</p>
+<p>The following are some of the pros, cons, and other pertinent details of mypy and pyright.</p>
+<section id="mypy">
+<h4>mypy<a class="headerlink" href="#mypy" title="Link to this heading">#</a></h4>
+<p><strong>Pros</strong>: mypy is the defacto standard type checker for Python. It is well-known, and, among projects that do use a type checker, there is a good chance that they are using mypy. It has a plugin system that permits added flexibility, so that projects can achieve some things that are otherwise impossible in Python’s typing system.</p>
+<p><strong>Cons</strong>: mypy can be slow on the uptake when implementing new features (a particularly infamous case: it took <a class="reference external" href="https://github.com/python/mypy/issues/731">4+ years for mypy to add provisional support for recursive types</a>). It still does not support variadic generics, which we saw could be quite useful for us to describe tensor-typed interfaces. Furthermore, mypy is not used by default within any of the major IDEs; one must specifically opt-in to installing third party extensions, which are not necessarily maintained by the mypy team.</p>
+<p><strong>Who Uses It</strong>: Most projects that run a static type checker as part of their testing processes.</p>
+</section>
+<section id="pyright">
+<h4>pyright<a class="headerlink" href="#pyright" title="Link to this heading">#</a></h4>
+<p><strong>Pros</strong>: pyright is very fast to incorporate the latest Python typing features, often times out-pacing mypy by months or sometimes even years. Its developers are quick to fix bugs and make improvements: they typically release a new version of pyright each week. Because pyright is used under the hood by VSCode’s Python extension, it is by far the most widely-used type-checker for Python<a class="footnote-reference brackets" href="#pywhat" id="id21" role="doc-noteref"><span class="fn-bracket">[</span>21<span class="fn-bracket">]</span></a>. A major benefit of this is that it is trivial for VSCode users to start using pyright, and to get instant feedback from it as they are writing code.</p>
+<p><strong>Cons</strong>: pyright does not support any sort of plugin system, so it is not possible for libraries to express some of the same dynamism in pyright as they can in mypy. Despite being used, implicitly, by so many VSCode users, pyright does not have the same market share of the Python typing community as does mypy.</p>
+<p><strong>Who Uses It</strong>: Nearly all VSCode Python users, and developers who want to hone the experience of VSCode users.</p>
+</section>
+</section>
+</section>
+<section id="additional-resources">
+<h2>Additional resources<a class="headerlink" href="#additional-resources" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://mypy.readthedocs.io/en/stable/index.html">mypy’s documentation</a>: a great resource for learning about typing concepts as well as the concrete details of Python’s typing features and its shortcomings.</p></li>
+<li><p><a class="reference external" href="https://github.com/microsoft/pyright/blob/92b4028cd5fd483efcf3f1cdb8597b2d4edd8866/docs/typed-libraries.md#typing-guidance-for-python-libraries">pyright’s typing guidance for Python libraries</a>: provides an in-depth description of what it means for a library to be “type complete”. Also provides useful recommendations of best practices.</p></li>
+<li><p><a class="reference external" href="https://typing.readthedocs.io/en/latest/">The <code class="docutils literal notranslate"><span class="pre">typing</span></code> module’s documentation</a>: includes best practices and recommendations for writing tests for annotations.</p></li>
+</ul>
+</section>
+</section>
+<hr class="footnotes docutils"/>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="pandas" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a href="#id1" role="doc-backlink">1</a><span class="fn-bracket">]</span></span>
+<p>As of writing this, version 1.5.0 of pandas – the wildly-popular data analysis library – was just released, and one of its primary new features is <a class="reference external" href="https://pandas.pydata.org/docs/whatsnew/v1.5.0.html#pandas-stubs">adding improved type annotations</a></p>
+</aside>
+<aside class="footnote brackets" id="hints-as-docs" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a href="#id2" role="doc-backlink">2</a><span class="fn-bracket">]</span></span>
+<p>This alone mak
+es type annotations worthwhile! In effect, type annotations are the only language-enforced standard for documentation in Python; they are concise, expressive, and more widely understood (by both users and IDEs) than any other means of documenting interfaces in one’s code.</p>
+</aside>
+<aside class="footnote brackets" id="mypy-pyright" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a href="#id3" role="doc-backlink">3</a><span class="fn-bracket">]</span></span>
+<p>mypy is the defacto standard static type checker for Python, as it was the first of its kind and was developed, in part, by the creator of Python himself. pyright is developed by Microsoft and is the core technology that undergirds their VSCode Python extension.</p>
+</aside>
+<aside class="footnote brackets" id="beartype-overhead" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a href="#id4" role="doc-backlink">4</a><span class="fn-bracket">]</span></span>
+<p>These also add additional runtime overhead to each function call.</p>
+</aside>
+<aside class="footnote brackets" id="parse" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a href="#id5" role="doc-backlink">5</a><span class="fn-bracket">]</span></span>
+<p>In effect, the difference between a validator and a parser is all in the return type. Validators convey no additional type information, whereas a parser preserves knowledge – in the form of a statically defined type – of the validation process. I encountered this definition of a parser from the excellent article <a class="reference external" href="https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/">Parse, Don’t Validate</a>, which goes on to say:</p>
+<blockquote>
+<div><p>What is a parser? Really, a parser is just a function that consumes less-structured input and produces more-structured output. By its very nature, a parser is a partial function — some values in the domain do not correspond to any value in the range — so all parsers must have some notion of failure […] Under this flexible definition, parsers are an incredibly powerful tool: they allow discharging checks on input up-front, right on the boundary between a program and the outside world, and once those checks have been performed, they never need to be checked again!</p>
+</div></blockquote>
+</aside>
+<aside class="footnote brackets" id="interface" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a href="#id6" role="doc-backlink">6</a><span class="fn-bracket">]</span></span>
+<p>A library’s interface is comprised of the set of symbols – modules, functions, classes, and other objects – that it exposes. Refer to <a class="reference external" href="https://github.com/microsoft/pyright/blob/92b4028cd5fd483efcf3f1cdb8597b2d4edd8866/docs/typed-libraries.md#library-interface">this document</a> for the rules that type checkers follow to determine which symbols comprise a library’s interface.</p>
+</aside>
+<aside class="footnote brackets" id="eric-sig" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a href="#id7" role="doc-backlink">7</a><span class="fn-bracket">]</span></span>
+<p>This is according to an oral history provided by Eric Traut (creator of pyright) at a typing-sig meeting.</p>
+</aside>
+<aside class="footnote brackets" id="traut" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a href="#id8" role="doc-backlink">8</a><span class="fn-bracket">]</span></span>
+<p>According to Eric, he perused mypy and the other type checkers and decided that they were insufficient. So.. he just wrote his own. Within a year, Microsoft completely refactored VSCode’s Python extension around pyright, where it now supports ~4 million users. This guy is the former lead of the Window’s core team and the Skype app team… so yeah.. he could grind me to dust with his brain.</p>
+</aside>
+<aside class="footnote brackets" id="types-as-tests" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a href="#id9" role="doc-backlink">9</a><span class="fn-bracket">]</span></span>
+<p>Type annotations are a natural means of quality assurance in a code base, they reduce the need for exhaustive and brittle integration tests without sacrificing effective code coverage (via static type checking). Instead of having to</p>
+</aside>
+<aside class="footnote brackets" id="legible" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a href="#id10" role="doc-backlink">10</a><span class="fn-bracket">]</span></span>
+<p>It can become tempting to be overly pedantic with annotations. For example could rewrite</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">count_vowels</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">)</span> <span class="o">-&gt;</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">:</span> <span class="o">...</span>
+</pre></div>
+</div>
+<p>as..</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">count_vowels</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Hashable</span><span class="p">])</span> <span class="o">-&gt;</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">:</span> <span class="o">...</span>
+</pre></div>
+</div>
+<p>but the latter might be hard to understand for users. If the latter is really a superset of the former, then, by definition, we could always refactor towards it later – as-needed – without breaking compatibility elsewhere.</p>
+</aside>
+<aside class="footnote brackets" id="besties" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a href="#id11" role="doc-backlink">11</a><span class="fn-bracket">]</span></span>
+<p>These lessons build off of the recommendations of the official <a class="reference external" href="https://typing.readthedocs.io/en/latest/source/best_practices.html">typing best practices</a>  documentation, and include considerations that are particular to tensor-centric code bases.</p>
+</aside>
+<aside class="footnote brackets" id="forced-structure" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a href="#id12" role="doc-backlink">12</a><span class="fn-bracket">]</span></span>
+<p>And this enforced structure is wholly unnecessary! Why should we care if the object detector has a method that is specifically named <code class="docutils literal notranslate"><span class="pre">detect</span></code>? What if they already have a <code class="docutils literal notranslate"><span class="pre">detect</span></code> method that satisfies a different API? We will see that it is better to request that a detector is simply a <em>callable</em>.</p>
+</aside>
+<aside class="footnote brackets" id="gross" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a href="#id13" role="doc-backlink">13</a><span class="fn-bracket">]</span></span>
+<p>This implementation may <em>look</em> simple enough, but there much more complexity afoot than one might expect! There is a whole new class that the third party must worry about: where in <em>their</em> API to they make it available? If the have pickled versions of <code class="docutils literal notranslate"><span class="pre">TheirDetector</span></code>, how do they reanimate those via <code class="docutils literal notranslate"><span class="pre">SadSappyCompatShim</span></code>? If they have tools for converting, say, huggingface detectors to <code class="docutils literal notranslate"><span class="pre">TheirDetector</span></code>, do they now have to duplicate those tools work with our API?</p>
+</aside>
+<aside class="footnote brackets" id="backport" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a href="#id14" role="doc-backlink">14</a><span class="fn-bracket">]</span></span>
+<p>This typing feature and all of the other features highlighted in this document have been made backwards compatible with Python 3.7+ via the <code class="docutils literal notranslate"><span class="pre">typing_extensions</span></code> package.</p>
+</aside>
+<aside class="footnote brackets" id="check-it-out" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a href="#id15" role="doc-backlink">15</a><span class="fn-bracket">]</span></span>
+<p>Even static type checkers will agree that <code class="docutils literal notranslate"><span class="pre">lambda</span> <span class="pre">img:</span> <span class="pre">[]</span></code> does indeed satisfy the <code class="docutils literal notranslate"><span class="pre">OurDetectorAPI</span></code> protocol!</p>
+</aside>
+<aside class="footnote brackets" id="shotgun" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a href="#id16" role="doc-backlink">16</a><span class="fn-bracket">]</span></span>
+<p>In fact, code like this can often devolve into an anti-pattern known as <a class="reference external" href="http://langsec.org/papers/langsec-cwes-secdev2016.pdf">shotgun parsing</a>.</p>
+</aside>
+<aside class="footnote brackets" id="phantom" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a href="#id17" role="doc-backlink">17</a><span class="fn-bracket">]</span></span>
+<p>The <a class="reference external" href="https://github.com/antonagestam/phantom-types">phantom-types</a> library provides types with predicates, which can be used to check a value’s type <em>and</em> to perform validation on the value itself at runtime. This makes short work of the sort of parsing example that we lay out.:</p>
+</aside>
+<aside class="footnote brackets" id="fancy-shapes" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a href="#id18" role="doc-backlink">18</a><span class="fn-bracket">]</span></span>
+<p>As described in a previous session, we could also leverage variadic type variables to describe tensors with various shapes, without having to create unique types for each one. This is laid out in <a class="reference external" href="https://peps.python.org/pep-0646/">PEP-646</a>.</p>
+</aside>
+<aside class="footnote brackets" id="whelp" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a href="#id19" role="doc-backlink">19</a><span class="fn-bracket">]</span></span>
+<p>Or.. they are just coding in a Jupyter notebook and have no clue what these annotation things even are. In which case they can pass whatever they want into our function. This is Python, man. Do what you want.</p>
+</aside>
+<aside class="footnote brackets" id="grokit" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a href="#id20" role="doc-backlink">20</a><span class="fn-bracket">]</span></span>
+<p>grok (<code class="docutils literal notranslate"><span class="pre">/ɡräk/</span></code>): understand (something) intuitively or by empathy.</p>
+</aside>
+<aside class="footnote brackets" id="pywhat" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a href="#id21" role="doc-backlink">21</a><span class="fn-bracket">]</span></span>
+<p>That being said, 99.9% of its users don’t know what pyright is nor that they are even using a type checker.</p>
+</aside>
+</aside>
+</article>
+<footer class="prev-next-footer d-print-none">
+<div class="prev-next-area">
+<a class="left-prev" href="protocol_overview.html" title="previous page">
+<i class="fa-solid fa-angle-left"></i>
+<div class="prev-next-info">
+<p class="prev-next-subtitle">previous</p>
+<p class="prev-next-title">Overview of MAITE Protocols</p>
+</div>
+</a>
+<a class="right-next" href="maite_vision.html" title="next page">
+<div class="prev-next-info">
+<p class="prev-next-subtitle">next</p>
+<p class="prev-next-title">MAITE’s Vision for Interoperability in AI Test and Evaluation</p>
+</div>
+<i class="fa-solid fa-angle-right"></i>
+</a>
+</div>
+</footer>
+</div>
+<dialog id="pst-secondary-sidebar-modal"></dialog>
+<div class="bd-sidebar-secondary bd-toc" id="pst-secondary-sidebar"><div class="sidebar-secondary-items sidebar-secondary__inner">
+<div class="sidebar-secondary-item">
+<div class="page-toc tocsection onthispage" id="pst-page-navigation-heading-2">
+<i class="fa-solid fa-list"></i> On this page
+  </div>
+<nav aria-labelledby="pst-page-navigation-heading-2" class="bd-toc-nav page-toc">
+<ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-quick-introduction-to-writing-statically-typed-python-code">A quick introduction to writing statically typed Python code</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tools-that-make-type-annotations-worthwhile">Tools that make type annotations worthwhile</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#static-type-checkers">Static Type Checkers</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#runtime-type-checkers">Runtime type checkers</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#parsers">Parsers</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#justifying-our-emphasis-on-typing-in-the-t-e-framework">Justifying Our Emphasis on Typing in the T&amp;E Framework</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#motivating-the-adoption-of-specific-typing-features-and-methods-in-the-t-e-framework">Motivating the Adoption of Specific Typing Features and Methods in the T&amp;E Framework</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#on-using-annotations-to-write-legible-documentation">On using annotations to write legible documentation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#typed-interfaces-should-be-informative-inspire-good-design-and-be-easy-to-satisfy">Typed interfaces should be informative, inspire good design, and be easy to satisfy</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#validate-early-in-your-program-and-use-narrow-types-to-prove-that-you-did-so">Validate early in your program and use narrow types to prove that you did so</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#type-narrowing">Type narrowing</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#preventing-type-checkers-from-being-noisy-or-unreliable">Preventing type checkers from being noisy or unreliable</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#picking-a-static-type-checker">Picking a static type checker</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#mypy">mypy</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pyright">pyright</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#additional-resources">Additional resources</a></li>
+</ul>
+</nav></div>
+<div class="sidebar-secondary-item">
+<div aria-label="source link" role="note">
+<h3>This Page</h3>
+<ul class="this-page-menu">
+<li><a href="../_sources/explanation/type_hints_for_API_design.md.txt" rel="nofollow">Show Source</a></li>
+</ul>
+</div></div>
+</div></div>
+</div>
+<footer class="bd-footer-content">
+</footer>
+</main>
+</div>
+</div>
+<!-- Scripts loaded after <body> so the DOM is not blocked -->
+<script defer="" src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer="" src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+<footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+<div class="footer-items__start">
+<div class="footer-item">
+<p class="copyright">
+    
+      © Copyright 2024 Massachusetts Institute of Technology.
+      <br/>
+</p>
+</div>
+<div class="footer-item">
+<p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
+    <br/>
+</p>
+</div>
+</div>
+<div class="footer-items__end">
+<div class="footer-item">
+<p class="theme-version">
+<!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+</div>
+</div>
+</footer>
+</body>
+</html>
