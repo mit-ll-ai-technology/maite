@@ -89,7 +89,7 @@ typecheck:
 pages:
   stage: docs
   environment: docs_env
-  image: python:3.10
+  image: python:3.12
   variables:
     TQDM_DISABLE: true
   before_script:
