@@ -92,7 +92,7 @@ class DatumMetadata(TypedDict):
 
     Attributes
     ----------
-    id : int|str
+    id : int | str
         Identifier for a single datum
     """
 
@@ -277,12 +277,12 @@ class Metric(Protocol, Generic[TargetType_cn, DatumMetadataType_cn]):
     Methods
     -------
 
-    update(pred_batch: Sequence[InputType], target_batch: Sequence[TargetType], metadata_batch: Sequence[DatumMetadataType]) -> None
+    update(pred_batch: Sequence[TargetType], target_batch: Sequence[TargetType], metadata_batch: Sequence[DatumMetadataType]) -> None
         Add predictions and targets (and metadata if applicable) to metric's cache for later calculation.
 
-    compute() -> dict[str, Any]
+    compute() -> Mapping[str, Any]
         Compute metric value(s) for currently cached predictions and targets, returned as
-        a dictionary.
+        a read-only mapping.
 
     reset() -> None
         Clear contents of current metric's cache of predictions and targets.

@@ -1,5 +1,8 @@
-{{ fullname | escape | underline}}
-.. module.rst template loaded
+{% set parts = fullname.split('.') %}  {# Split the fully qualified name #}
+{{ parts[-1] | escape | underline }}
+
+.. loaded protocol_class.rst
+
 {# 
 (Note: This is a Jinja comment for devs, and doesn't appear in resulting rst files)
 protocol classes shouldn't have Attributes/Methods sections outside of what is manually written their class docstring
@@ -9,4 +12,4 @@ the protocols all inherit from a base generic protocol that does have methods. J
 
 .. currentmodule:: {{ module }}
 
-.. autoclass:: {{ objname }}
+.. auto{{ objtype }}:: {{ objname }}

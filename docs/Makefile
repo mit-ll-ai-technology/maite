@@ -41,6 +41,8 @@ $(GENERATED_RST_DIR)/%.rst: $(IPYNB_DIR)/%.ipynb
 notebook_rst: $(GENERATED_RST_FILES)
 
 html: notebook_rst
+	mkdir -p $(BUILDDIR)  #make $BUILDDIR if it doesn't exist
+	rm -rf $(BUILDDIR)/source || true   #remove previous doc source (with generated autosummary stubs)
 	cp -r $(SOURCEDIR)/. $(BUILDDIR)/source
 	# GENERATED_RST_FILES already populated in $(BUILDDIR)/source
 	sphinx-build -b html -v $(SPHINXOPTS) $(BUILDDIR)/source $(BUILDDIR)/html

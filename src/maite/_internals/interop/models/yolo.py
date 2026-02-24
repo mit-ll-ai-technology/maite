@@ -49,7 +49,7 @@ class YoloObjectDetector:
     >>> from typing_extensions import Sequence
     >>> from ultralytics.models import YOLO
     >>> from maite.interop.models.yolo import YoloObjectDetector
-    >>> from maite.protocols import object_detection as od
+    >>> from maite.protocols import object_detection as od, ModelMetadata
 
     In the following code, we capture stdout and stderr to make automated docstring testing easier. This is not necessary for typical use.
 

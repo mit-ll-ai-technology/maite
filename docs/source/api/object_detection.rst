@@ -1,14 +1,14 @@
 .. meta::
    :description: Reference documentation for components and primitives defined within object detection AI problem.
 
-.. currentmodule:: maite
+.. currentmodule:: maite.protocols
 
 .. _api_object_detection:
 
 object detection
 ================
 
-We consider the object detection AI problem to encompass training models to infer bounding boxes, labels (from a predefined label set), and scores for objects in an image.
+We consider the object detection AI problem to encompass models to infer bounding boxes, labels (from a predefined label set), and scores for objects in an image.
 
 .. TODO: let primitive types (like od.InputType) reference both `ArrayLike`, and semantic expectations (which aren't checked yet)
 ..       then uncomment this section in both object_detection.rst (this file) and image_classification.rst (its sister in doctree)
@@ -16,16 +16,20 @@ We consider the object detection AI problem to encompass training models to infe
 
 .. _od_primitives:
 
-.. primitives
-.. ----------
+primitives
+----------
 
-.. .. autosummary::
-..     :caption: primitives
-..     :toctree: ../generated/
+.. autosummary::
+    :caption: primitives
+    :toctree: ../generated/
+    :template: base.rst
 
-..     protocols.object_detection.InputType
-..     protocols.object_detection.TargetType
-..     protocols.object_detection.DatumMetadataType
+    object_detection.InputType
+    object_detection.TargetType
+    object_detection.DatumMetadataType
+    object_detection.Image
+    object_detection.ObjectDetectionTarget
+    object_detection.DatumMetadata
 
 .. _od_components: 
 
@@ -37,10 +41,9 @@ components
    :toctree: ../generated/
    :template: protocol_class.rst
 
-   protocols.object_detection.Augmentation
-   protocols.object_detection.ObjectDetectionTarget
-   protocols.object_detection.DataLoader
-   protocols.object_detection.Dataset
-   protocols.object_detection.FieldwiseDataset
-   protocols.object_detection.Metric
-   protocols.object_detection.Model
+   object_detection.Augmentation
+   object_detection.DataLoader
+   object_detection.Dataset
+   object_detection.FieldwiseDataset
+   object_detection.Metric
+   object_detection.Model

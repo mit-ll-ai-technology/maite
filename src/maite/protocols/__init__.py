@@ -3,11 +3,13 @@
 # SPDX-License-Identifier: MIT
 
 
+from typing import TypeAlias
+
 from maite._internals.protocols import ArrayLike as _ArrayLike
 
 # This assignment is necessary to get sphinx/VSCode language server to display docstring around our ArrayLike TypeAlias
 # (can't be done in ArrayLike first definition _internals or sphinx doesn't pick it up)
-ArrayLike = _ArrayLike
+ArrayLike: TypeAlias = _ArrayLike
 """
 Object coercible into a NumPy ndarray (alias of `numpy.typing.ArrayLike`)
 """

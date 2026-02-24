@@ -282,9 +282,9 @@ class Metric(gen.Metric[TargetType, DatumMetadataType], Protocol):
         Add predictions and targets to metric's cache for later calculation. Both
         preds and targets are expected to be sequences with elements of shape `(Cl, H, W)`.
 
-    compute() -> dict[str, Any]
+    compute() -> Mapping[str, Any]
         Compute metric value(s) for currently cached predictions and targets, returned as
-        a dictionary.
+        a read-only mapping.
 
     reset() -> None
         Clear contents of current metric's cache of predictions and targets.

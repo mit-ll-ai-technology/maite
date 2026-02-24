@@ -3,12 +3,12 @@
 
 .. _api_image_classification:
 
-.. currentmodule:: maite
+.. currentmodule:: maite.protocols
 
 image classification
 ====================
 
-We consider the image classification AI problem to encompass training models that infer which label (from a predefined set) best applies to a given image.
+We consider the image classification AI problem to encompass models that infer which label (from a predefined set) best applies to a given image.
 
 .. _ic_primitives:
 
@@ -16,16 +16,20 @@ We consider the image classification AI problem to encompass training models tha
 ..       then uncomment this section in both image_clasification.rst (this file) and object_detection.rst (its sister in doctree)
 ..       see issue 853
 
-.. primitives
-.. ----------
+primitives
+----------
 
-.. .. autosummary::
-..     :caption: primitives
-..     :toctree: ../generated/
+.. autosummary::
+    :caption: primitives
+    :toctree: ../generated/
+    :template: base.rst
 
-..     protocols.image_classification.InputType
-..     protocols.image_classification.TargetType
-..     protocols.image_classification.DatumMetadataType
+    image_classification.InputType
+    image_classification.TargetType
+    image_classification.DatumMetadataType
+    image_classification.Image
+    image_classification.ImgClassification
+    image_classification.DatumMetadata
 
 .. _ic_components:
 
@@ -37,9 +41,9 @@ components
    :toctree: ../generated/
    :template: protocol_class.rst
 
-   protocols.image_classification.Augmentation
-   protocols.image_classification.DataLoader
-   protocols.image_classification.Dataset
-   protocols.image_classification.FieldwiseDataset
-   protocols.image_classification.Metric
-   protocols.image_classification.Model
+   image_classification.Augmentation
+   image_classification.DataLoader
+   image_classification.Dataset
+   image_classification.FieldwiseDataset
+   image_classification.Metric
+   image_classification.Model
