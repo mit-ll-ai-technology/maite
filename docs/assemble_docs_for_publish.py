@@ -41,10 +41,9 @@ import sys
 import tarfile
 from collections import defaultdict
 from pathlib import Path
-from typing import List
+from typing import List, TypedDict
 
 import requests
-from typing_extensions import TypedDict
 
 BASE_URL = "https://gitlab.jatic.net/api/v4/projects"
 PROJECT_ID = "70"
