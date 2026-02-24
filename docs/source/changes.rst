@@ -8,6 +8,24 @@ Changelog
 This is a record of all past maite releases and what went into them, in reverse 
 chronological order.
 
+.. _v0.9.3:
+
+---------------------
+0.9.3 - 2026-02-24
+---------------------
+
+- Define protocols for multi-object tracking AI problem (within `maite.protocols.multiobject_tracking`)
+- Provide working implementations for sampling from common video file formats into memory and tracking objects within multi-object tracking AI problem (within `source/maite/_internals/interop/utils.py`)
+- Update reference documentation to include discussion and reference pages for primitive types within each AI problem; include role-based aliases
+- Upgrade sphinx doc-building engine to 9.1.0; improve crosslinking in reference pages, permit `TypeAlias` documentation
+ 
+---------------------
+0.9.2 - 2025-12-18
+---------------------
+
+- Change return type of `Metric.compute` from `dict[str,Any]` -> `Mapping[str,Any]` to enable `TypedDict` classes to more easily structurally subclass this return type
+
+
 .. _v0.9.2:
 
 ---------------------
