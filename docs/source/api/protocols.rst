@@ -14,4 +14,5 @@ The `maite.protocols` subpackage contains `structural types  <https://typing.pyt
 
    image_classification
    object_detection
+   multiobject_tracking
    generic

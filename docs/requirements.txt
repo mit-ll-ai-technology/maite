@@ -1,8 +1,17 @@
-sphinx==7.4.7
+# Sphinx building tooling itself. Kept separate from builddocs extra 
+# in pyproject.toml because:
+#    - These are external tools, not dependencies of the maite package
+#    - Sphinx 9.1.0 requires python >=3.12, while package supports >=3.10
+#    - The builddocs extra provides deps that make maite *importable* for autodoc
+#      (torch, kornia, etc.), which must stay in pyproject.toml so their version
+#      ranges stay consistent with the package
+# Requires: Python 3.12
+
+sphinx==9.1.0
 pydata-sphinx-theme==0.16.1
-numpydoc==1.8.0
+numpydoc==1.9.0
 sphinx-copybutton==0.5.2
-sphinx-design==0.6.0
-sphinx-codeautolink==0.17.4
+sphinx-design==0.7.0
+sphinx-codeautolink==0.17.5
 # third-party utilities
-myst-parser==4.0.1
+myst-parser==5.0.0

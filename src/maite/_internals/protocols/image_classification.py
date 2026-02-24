@@ -20,20 +20,23 @@ from maite.protocols import ArrayLike, DatumMetadata
 # C  - image channel
 # Cl - classification label (one-hot for ground-truth label; probabilities or logits for predictions)
 
-InputType: TypeAlias = ArrayLike
-"""ArrayLike following (C, H, W) shape semantics"""
+Image: TypeAlias = (
+    ArrayLike  # ArrayLike representing image data with (C, H, W) shape semantics
+)
 
-TargetType: TypeAlias = ArrayLike  # shape (Cl,)
-"""ArrayLike following (Cl,) shape semantics (where 'Cl' refers to number of target classes)"""
+ImgClassification: TypeAlias = ArrayLike  # ArrayLike following (Cl,) shape semantics (where 'Cl' refers to number of target classes)
 
-DatumMetadataType: TypeAlias = DatumMetadata
-"""TypedDict that requires a readonly 'id' field of type `int|str`"""
+InputType: TypeAlias = Image
+TargetType: TypeAlias = ImgClassification
+DatumMetadataType: TypeAlias = (
+    DatumMetadata  # TypedDict that requires a readonly 'id' field of type `int|str`
+)
+Datum: TypeAlias = tuple[
+    InputType, TargetType, DatumMetadataType
+]  # Alias of tuple[:py:type:`~maite.protocols.image_classification.InputType`, :py:type:`~maite.protocols.image_classification.TargetType`, :py:type:`~maite.protocols.image_classification.DatumMetadataType`]"""
 
-Datum: TypeAlias = tuple[InputType, TargetType, DatumMetadataType]
 
 # Initialize component classes based on generic and Input/Target/Metadata types
-
-
 class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
     """
     A dataset protocol for image classification AI problem providing datum-level
@@ -75,7 +78,7 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
     >>> import numpy as np
     >>> from typing import Any
     >>> from typing_extensions import TypedDict
-    >>> from maite.protocols import ArrayLike, DatasetMetadata
+    >>> from maite.protocols import ArrayLike, DatasetMetadata, DatumMetadata
 
     Assume we have 5 classes, 10 datapoints, and 10 target labels, and that we want
     to simply have an integer 'id' field in each datapoint's metadata:
@@ -177,7 +180,7 @@ class FieldwiseDataset(
     >>> import numpy as np
     >>> from typing import Any
     >>> from typing_extensions import TypedDict
-    >>> from maite.protocols import ArrayLike, DatasetMetadata
+    >>> from maite.protocols import ArrayLike, DatasetMetadata, DatumMetadata
 
     Assume we have 5 classes, 10 datapoints, and 10 target labels, and that we want
     to simply have an integer 'id' field in each datapoint's metadata:
@@ -385,9 +388,9 @@ class Metric(gen.Metric[TargetType, DatumMetadata], Protocol):
         Add predictions and targets (and metadata if applicable) to metric's cache for later calculation. Both
         predictions and targets are expected to be sequences with elements of shape `(Cl,)`.
 
-    compute() -> dict[str, Any]
+    compute() -> Mapping[str, Any]
         Compute metric value(s) for currently cached predictions and targets, returned as
-        a dictionary.
+        a read-only mapping.
 
     reset() -> None
         Clear contents of current metric's cache of predictions and targets.
@@ -405,7 +408,7 @@ class Metric(gen.Metric[TargetType, DatumMetadata], Protocol):
 
     >>> from typing import Any, Sequence
     >>> import numpy as np
-    >>> from maite.protocols import ArrayLike, DatumMetadata
+    >>> from maite.protocols import ArrayLike, DatumMetadata, MetricMetadata
     >>> from maite.protocols import image_classification as ic
 
     >>> class MyAccuracy:

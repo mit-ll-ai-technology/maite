@@ -58,7 +58,7 @@ tests:
 
 coverage:
   stage: test
-  image: python:3.10
+  image: python:3.12
   script:
     - *install-libgl1
     - echo "Coverage Testing"

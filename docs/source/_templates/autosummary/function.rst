@@ -1,5 +1,7 @@
 {% set parts = fullname.split('.') %}  {# Split the fully qualified name #}
-{{ (parts[2:] | join('.')) | escape | underline }}
+{{ parts[-1] | escape | underline }}
+
+.. loaded function.rst template
 
 .. currentmodule:: {{ module }}
 

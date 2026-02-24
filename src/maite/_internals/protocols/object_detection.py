@@ -70,16 +70,15 @@ class ObjectDetectionTarget(Protocol):
 #       Perhaps the functionality I want is named TypeVars for generic, so developers can understand that
 #       e.g. generic.Dataset typevars are 'InputType', 'TargetType', and 'MetaDataType' and their values in
 #       concrete Dataset classes (like object_detection.Dataset) are ArrayLike, ObjectDetectionTarget, DatumMetadataType
-#       so users can see an expected return type of Tuple[ArrayLike, ObjectDetectionTarget, DatumMetadata]
+#       so users can see an expected return type of tuple[ArrayLike, ObjectDetectionTarget, DatumMetadata]
 
-InputType: TypeAlias = ArrayLike
-"""ArrayLike following (C, H, W) shape semantics"""
 
-TargetType: TypeAlias = ObjectDetectionTarget
-
-DatumMetadataType: TypeAlias = DatumMetadata
-"""TypedDict that requires a readonly 'id' field of type `int|str`"""
-
+Image: TypeAlias = ArrayLike  # ArrayLike following (C, H, W) shape semantics.
+InputType: TypeAlias = (
+    Image  # Alias of :py:type:`~maite.protocols.object_detection.Image`.
+)
+TargetType: TypeAlias = ObjectDetectionTarget  # Alias of :py:type:`~maite.protocols.object_detection.ObjectDetectionTarget`
+DatumMetadataType: TypeAlias = DatumMetadata  # Alias of :py:type:`~maite.protocols.object_detection.DatumMetadata` TypedDict.
 Datum: TypeAlias = tuple[InputType, TargetType, DatumMetadataType]
 
 
@@ -92,7 +91,7 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
     support `len` (via `__len__()` method). Data elements looked up this way correspond
     to individual examples (as opposed to batches).
 
-    Indexing into or iterating over the an object detection dataset returns a `Tuple` of
+    Indexing into or iterating over the an object detection dataset returns a `tuple` of
     types `ArrayLike`, `ObjectDetectionTarget`, and `DatumMetadata`. These
     correspond to the model input type, model target type, and datum-level metadata,
     respectively. The `ArrayLike` protocol implementers associated with model input and
@@ -101,7 +100,7 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
     Methods
     -------
 
-    __getitem__(ind: int) -> Tuple[ArrayLike, ObjectDetectionTarget, DatumMetadata]
+    __getitem__(ind: int) -> tuple[ArrayLike, ObjectDetectionTarget, DatumMetadata]
         Provide mapping-style access to dataset elements. Returned tuple elements
         correspond to model input type, model target type, and datum-specific metadata,
         respectively.
@@ -303,8 +302,8 @@ class FieldwiseDataset(
     ...     def __init__(
     ...         self,
     ...         inputs: list[np.ndarray],
-    ...         targets: list[TargetType],
-    ...         metadatas: list[DatumMetadataType],
+    ...         targets: list[od.TargetType],
+    ...         metadatas: list[od.DatumMetadataType],
     ...     ):
     ...         self.inputs = inputs
     ...         self.targets = targets
@@ -324,10 +323,10 @@ class FieldwiseDataset(
     ...     def get_input(self, index: int, /) -> np.ndarray:
     ...         return self.inputs[index]
     ...
-    ...     def get_target(self, index: int, /) -> ObjectDetectionTarget:
+    ...     def get_target(self, index: int, /) -> od.ObjectDetectionTarget:
     ...         return self.targets[index]
     ...
-    ...     def get_metadata(self, index: int, /) -> DatumMetadataType:
+    ...     def get_metadata(self, index: int, /) -> od.DatumMetadataType:
     ...         return self.metadatas[index]
 
     We can instantiate this class and type hint it as an object_detection.Dataset. By
@@ -363,11 +362,11 @@ class DataLoader(
     Methods
     -------
 
-    __iter__ -> Iterator[tuple[Sequence[ArrayLike], Sequence[ObjectDetectionTarget], Sequence[DatumMetadata]]]
+    __iter__() -> Iterator[tuple[Sequence[ArrayLike], Sequence[ObjectDetectionTarget], Sequence[DatumMetadata]]]
         Return an iterator over batches of data, where each batch contains a tuple of
         of model input batch (as `Sequence[ArrayLike]`), model target batch (as
         `Sequence[ObjectDetectionTarget]`), and batched datum-level metadata
-        (as `Sequence[DatumMetadata]]`), respectively.
+        (as `Sequence[DatumMetadata]`), respectively.
     """
 
     ...
@@ -480,9 +479,9 @@ class Metric(gen.Metric[TargetType, DatumMetadataType], Protocol):
     update(pred_batch: Sequence[ObjectDetectionTarget], target_batch: Sequence[ObjectDetectionTarget], metadata_batch: Sequence[DatumMetadata]) -> None
          Add predictions and targets (and metadata if applicable) to metric's cache for later calculation.
 
-    compute() -> dict[str, Any]
-         Compute metric value(s) for currently cached predictions and targets, returned as
-         a dictionary.
+    compute() -> Mapping[str, Any]
+        Compute metric value(s) for currently cached predictions and targets, returned as
+        a read-only mapping.
 
     reset() -> None
         Clear contents of current metric's cache of predictions and targets.
@@ -647,10 +646,10 @@ class Augmentation(
     Methods
     -------
 
-    __call__(datum: Tuple[Sequence[ArrayLike], Sequence[ObjectDetectionTarget], Sequence[DatumMetadata]]) ->\
-          Tuple[Sequence[ArrayLike], Sequence[ObjectDetectionTarget], Sequence[DatumMetadata]]
+    __call__(datum: tuple[Sequence[ArrayLike], Sequence[ObjectDetectionTarget], Sequence[DatumMetadata]]) ->\
+          tuple[Sequence[ArrayLike], Sequence[ObjectDetectionTarget], Sequence[DatumMetadata]]
         Return a modified version of original data batch. A data batch is represented
-        by a tuple of model input batch (as `Sequence ArrayLike` with elements of shape
+        by a tuple of model input batch (as `Sequence[ArrayLike]` with elements of shape
         `(C, H, W)`), model target batch (as `Sequence[ObjectDetectionTarget]`), and
         batch metadata (as `Sequence[DatumMetadata]`), respectively.
 

@@ -68,6 +68,26 @@ numpydoc_class_members_toctree = False
 # no member-specific page is needed.
 numpydoc_show_class_members = False
 
+# Enable automatic crossreferncing of types in numpydoc sections
+numpydoc_xref_param_type = True
+
+# Map short names to fully-qualified references
+numpydoc_xref_aliases = {
+    "ArrayLike": "maite.protocols.ArrayLike",
+    "ObjectDetectionTarget": "maite.protocols.object_detection.ObjectDetectionTarget",
+    "VideoFrame": "maite.protocols.multiobject_tracking.VideoFrame",
+    "int": ":class:`python:int`",
+    "str": ":class:`python:str`",
+    "bool": ":class:`python:bool`",
+    "dict": ":class:`python:dict`",
+    "Fraction": "fractions.Fraction",
+    "Sequence": "collections.abc.Sequence",
+    "Iterator": "collections.abc.Iterator",
+}
+
+# ignore types that shouldn't be linked
+numpydoc_xref_ignore = {"optional", "or"}
+
 # Strip input prompts:
 # https://sphinx-copybutton.readthedocs.io/en/latest/#strip-and-configure-input-prompts-for-code-cells
 copybutton_prompt_text = r">>> |\.\.\. |\$ |In \[\d*\]: | {2,5}\.\.\.: | {5,8}: "
@@ -172,15 +192,24 @@ html_sidebars = {"changes": []}
 
 # Modify elements of docstrings that don't natively crosslink to be fully-qualified
 # in restructured text before sphinx attempts to build html from them
+# Note this is complementary to numpydoc_xref_param, which only applies to
+# Attributes/Parameters/Returns contents in form  "val : type" and not docstring 'prose'
 DOCSTRING_REPLACEMENT_MAP: Mapping[str, str] = {
     r"`Sequence\[([\w]{,32})\]`": r":class:`~collections.abc.Sequence` [`\1`]",
+    r"`Iterator\[([\w]{,32})\]`": r":class:`~collections.abc.Iterator` [`\1`]",
+    r"`Iterable\[([\w]{,32})\]`": r":class:`~collections.abc.Iterable` [`\1`]",
+    r"`tuple\[([\w]{,32})\]`": r":class:`python.tuple` [`\1`]",
+    "`MultiobjectTrackingTarget`": ":py:type:`~maite.protocols.multiobject_tracking.MultiobjectTrackingTarget`",
+    "`VideoFrame`": ":py:type:`~maite.protocols.multiobject_tracking.VideoFrame`",
+    "`VideoStream`": ":py:type:`~maite.protocols.multiobject_tracking.VideoStream`",
     "`ArrayLike`": ":py:type:`~maite.protocols.ArrayLike`",
     "`DatumMetadata`": ":py:type:`~maite.protocols.DatumMetadata`",
 }
 
 
 def process_docstring(app, what, name, obj, options, lines: list[str]):
-    """Hook into autodoc-process-docstring event to modify docstrings properly"""
+    """Hook into autodoc-process-docstring event to replace inline references
+    with fully-qualified cross-references (necessary for proper crosslinking)"""
     for k, v in DOCSTRING_REPLACEMENT_MAP.items():
         p = re.compile(k)
         for i, line in enumerate(lines):

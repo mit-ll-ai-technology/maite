@@ -66,6 +66,10 @@ def is_ultralytics_available():
     return importlib.util.find_spec("ultralytics") is not None
 
 
+def is_av_available():
+    return importlib.util.find_spec("av") is not None
+
+
 if is_pytest_available():
     import pytest
 

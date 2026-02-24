@@ -11,11 +11,19 @@ from tests import module_scan
 
 # Generates a string that imports all symbols from the maite's public API.
 # TODO: Make this a convenience function exposed via our public API?
+
+# Note that some symbols within maite.protocols module and its submodules
+# have the same unqualified name. In these cases, we can't simply import all
+# within a preamble, because then the (arbitrary) last valid import will dominate
+# and typechecker behavior may be unpredictable. (Pyright will complain if a TypeAlias
+# type is imported before an equivalently-named class.)
+
 preamble = "\n".join(
     [
         "from {} import {}".format(*x["name"].rsplit(".", maxsplit=1))
         for x in get_public_symbols(module_scan("maite"))
         if x["category"] in {"module", "function", "class", "type alias"}
+        and not x["name"].rsplit(".", maxsplit=1)[0].startswith("maite.protocols")
     ]
 )
 
