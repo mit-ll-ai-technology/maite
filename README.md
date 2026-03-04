@@ -34,10 +34,10 @@ To install from the Python Package Index (PyPI), run:
 pip install maite
 ```
 
-> :information_source: You can install MAITE for a given release tag, e.g. `v0.6.1`, by running:
+> :information_source: You can install MAITE for a given release tag, e.g. `v0.9.4`, by running:
 >
 >```console
->$ pip install git+ssh://git@github.com/mit-ll-ai-technology/maite.git@v0.6.1
+>$ pip install git+ssh://git@github.com/mit-ll-ai-technology/maite.git@v0.9.4
 >```
 
 ### From Source
