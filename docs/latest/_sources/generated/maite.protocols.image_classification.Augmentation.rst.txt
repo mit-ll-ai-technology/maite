@@ -1,0 +1,11 @@
+﻿  
+Augmentation
+============
+
+.. loaded protocol_class.rst
+
+
+
+.. currentmodule:: maite.protocols.image_classification
+
+.. autoclass:: Augmentation

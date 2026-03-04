@@ -1,0 +1,9 @@
+﻿  
+TargetType
+==========
+
+.. loaded base.rst remplate
+
+.. currentmodule:: maite.protocols.multiobject_tracking
+
+.. autoclass:: TargetType

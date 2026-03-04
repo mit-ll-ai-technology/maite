@@ -1,0 +1,9 @@
+﻿  
+VideoFrame
+==========
+
+.. loaded base.rst remplate
+
+.. currentmodule:: maite.protocols.multiobject_tracking
+
+.. autoclass:: VideoFrame

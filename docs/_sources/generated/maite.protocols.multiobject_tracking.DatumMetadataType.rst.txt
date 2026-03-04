@@ -1,0 +1,9 @@
+﻿  
+DatumMetadataType
+=================
+
+.. loaded base.rst remplate
+
+.. currentmodule:: maite.protocols.multiobject_tracking
+
+.. autoclass:: DatumMetadataType
