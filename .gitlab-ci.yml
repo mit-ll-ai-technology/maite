@@ -7,6 +7,7 @@ stages:
   - test
   - docs
   - deploy
+  - tr-compliance
 
 # Change pip's cache directory to be inside the project directory since we can
 # only cache local items.
@@ -44,6 +45,25 @@ before_script:
 default:
   tags:
     - CDAO
+
+workflow:
+  rules:
+    - when: always
+
+include:
+  - component: gitlab.jatic.net/jatic/devsecops/components/tr-compliance@1.0.0
+    inputs:
+      stage: tr-compliance
+      python_image: harbor.jatic.net:443/platform-team/base-images/python-base-image
+      python_versions: ["3.11"]
+      poetry_install_options: ""
+      package_name: maite
+      toml: ./pyproject.toml
+      linter_type: ruff
+      linter_report_file: code-quality-report.json
+      full_execution_on_commit: false # set full_execution_on_commit: true to run the component on every pushed commit
+      allow_failure: true
+
 
 tests:
   stage: test
