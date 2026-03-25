@@ -144,12 +144,16 @@ html_theme = "pydata_sphinx_theme"
 # html_logo = "../../brand/maite_logo_full_light_blue.png"
 
 html_theme_options = {
-    "collapse_navigation": True,
+    "collapse_navigation": False,  # Keep navigation expanded to show all pages (only matters in api reference LHS at present)
     "navigation_depth": 4,
     "navbar_align": "left",
     "show_nav_level": 2,
     "header_links_before_dropdown": 5,
-    # "show_nav_level": 0,  # This lets navigation links be collapsed in LHS sidebar under "captions"
+    "default_mode": "dark",
+    "navbar_end": [
+        "navbar-icon-links"
+    ],  # this defaults to ["navbar-icon-links", "theme-switcher"], but I'm electing to remove light theme for sake of diagrams
+    "navigation_with_keys": False,
     "icon_links": [
         {
             "name": "GitHub",
@@ -231,5 +235,6 @@ def setup(app):
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
 html_js_files = ["pypi_icon.js", "condaforge_icon.js", "anaconda_icon.js"]
+html_css_files = ["custom.css"]
 
 myst_heading_anchors = 3
