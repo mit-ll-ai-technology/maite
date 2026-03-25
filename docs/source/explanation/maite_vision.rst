@@ -10,8 +10,10 @@
 .. role:: bolditalic
    :class: bolditalic
 
-MAITE's Vision for Interoperability in AI Test and Evaluation
--------------------------------------------------------------
+.. _maite-vision:
+
+Vision for Interoperability in AI Test and Evaluation
+-----------------------------------------------------
 
 The Problem
 ===========
