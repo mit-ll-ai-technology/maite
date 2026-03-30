@@ -8,6 +8,16 @@ Changelog
 This is a record of all past maite releases and what went into them, in reverse 
 chronological order.
 
+.. _v0.9.5:
+
+---------------------
+0.9.5 - 2026-03-30
+---------------------
+
+- Add explainers focused on MAITE's architecture and multiple user types
+- Update tutorials to cross reference components made available in `maite.interop`
+- Add new standards compliance checks to developer CI/CD
+
 .. _v0.9.4:
 
 ---------------------
