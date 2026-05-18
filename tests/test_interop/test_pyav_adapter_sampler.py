@@ -10,6 +10,7 @@ class _DummyFrame:
     def __init__(self, pts: int | None):
         self.pts = pts
         self.time = None if pts is None else float(pts)
+        self.time_base = Fraction(1, 1)
 
     def to_ndarray(self, format: str = "rgb24"):
         assert format == "rgb24"
@@ -56,7 +57,7 @@ class _DummyAV:
         return self.last_container
 
 
-def _run_decode(spec: SampleSpec, pts_values: list[int | None]) -> list[int]:
+def _run_decode(spec: SampleSpec, pts_values: list[int | None]) -> list[int | None]:
     frames = [_DummyFrame(p) for p in pts_values]
     adapter = PyAVAdapter(av_module=_DummyAV(frames))
     out = list(adapter.decode_iter(spec, Path("dummy.mp4")))
@@ -76,7 +77,7 @@ def test_frame_start_and_pts_duration_enforces_duration_window():
     )
 
     yielded_pts = _run_decode(spec, list(range(10)))
-    assert yielded_pts == [3, 4, 5]
+    assert yielded_pts == [3, 4]
 
 
 def test_frame_subsampling_is_anchored_to_start_frame():

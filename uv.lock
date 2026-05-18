@@ -1752,7 +1752,7 @@ test = [
     { name = "jupytext" },
     { name = "numpydoc" },
     { name = "pip" },
-    { name = "pyright" },
+    { name = "pyright", extra = ["nodejs"] },
     { name = "pytest" },
     { name = "pytest-mock" },
     { name = "torch" },
@@ -1767,6 +1767,7 @@ yolo-models = [
     { name = "opencv-python-headless" },
     { name = "pandas" },
     { name = "roboflow" },
+    { name = "setuptools" },
     { name = "torch" },
     { name = "ultralytics" },
     { name = "yolov5" },
@@ -1787,21 +1788,22 @@ requires-dist = [
     { name = "matplotlib", marker = "extra == 'yolo-models'", specifier = ">=3.7.1" },
     { name = "nbconvert", marker = "extra == 'builddocs'" },
     { name = "numpy", specifier = ">=1.24.2" },
-    { name = "numpydoc", marker = "extra == 'test'", specifier = ">=1.5.0,!=1.10.0" },
+    { name = "numpydoc", marker = "extra == 'test'", specifier = ">=1.9.0,!=1.10.0" },
     { name = "opencv-python-headless", marker = "extra == 'yolo-models'", specifier = ">=4.6.0" },
     { name = "pandas", marker = "extra == 'yolo-models'", specifier = ">=2.0" },
     { name = "pip", marker = "extra == 'test'" },
     { name = "pre-commit", marker = "extra == 'dev'" },
     { name = "pycocotools", marker = "extra == 'builddocs'" },
-    { name = "pyright", marker = "extra == 'test'", specifier = ">=1.1.280,!=1.1.401" },
+    { name = "pyright", extras = ["nodejs"], marker = "extra == 'test'", specifier = ">=1.1.280,!=1.1.401" },
     { name = "pytest", marker = "extra == 'builddocs'", specifier = ">=7.0.0" },
     { name = "pytest", marker = "extra == 'test'", specifier = ">=7.0.0" },
     { name = "pytest-mock", marker = "extra == 'test'", specifier = ">=3.10.0" },
     { name = "roboflow", marker = "extra == 'yolo-models'", specifier = ">=1.1.30" },
+    { name = "setuptools", marker = "extra == 'yolo-models'", specifier = ">=70.0.0,<81" },
     { name = "torch", marker = "extra == 'builddocs'", specifier = ">=1.7,!=1.12.0" },
     { name = "torch", marker = "extra == 'test'", specifier = ">=1.7,!=1.12.0" },
     { name = "torch", marker = "extra == 'yolo-models'", specifier = ">=2.2.0" },
-    { name = "torchmetrics", extras = ["detection"], marker = "extra == 'builddocs'" },
+    { name = "torchmetrics", extras = ["detection"], marker = "extra == 'builddocs'", specifier = ">=1.7.0,<2.0.0" },
     { name = "torchmetrics", extras = ["detection"], marker = "extra == 'torchmetrics'", specifier = ">=1.7.0,<2.0.0" },
     { name = "torchvision", marker = "extra == 'builddocs'" },
     { name = "tox", marker = "extra == 'builddocs'", specifier = ">=4.24.2,<5.0.0" },
@@ -1811,7 +1813,7 @@ requires-dist = [
     { name = "ultralytics", marker = "extra == 'builddocs'" },
     { name = "ultralytics", marker = "extra == 'yolo-models'", specifier = ">=8.2.78" },
     { name = "watermark", marker = "extra == 'builddocs'" },
-    { name = "yolov5", marker = "extra == 'yolo-models'", specifier = ">=7.0.13" },
+    { name = "yolov5", marker = "extra == 'yolo-models'", specifier = "<7.0.14" },
 ]
 provides-extras = ["builddocs", "dev", "mot-utils", "test", "torchmetrics", "yolo-models"]
 
@@ -2198,6 +2200,22 @@ wheels = [
 ]
 
 [[package]]
+name = "nodejs-wheel-binaries"
+version = "24.14.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/f1/87/e5755ad739daafce2e152ab609293d65e6c663b399e28a4bbcd0f4af1f45/nodejs_wheel_binaries-24.14.1.tar.gz", hash = "sha256:d00ae0c86d7e1bfa798e8f8ad282db751af157cdcaa1208a1b9a2cf2a85ac821", size = 8056, upload-time = "2026-03-31T14:07:27Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/8b/b7/9765d9a5d3b95475829ef5965d4a4f6f4badb034ee4e18c2d5f8b9b65d6f/nodejs_wheel_binaries-24.14.1-py2.py3-none-macosx_13_0_arm64.whl", hash = "sha256:d9e856ba0f2d3d2659869e6e0f4cae6874faeeeca7f879131a88451356373ac4", size = 54945603, upload-time = "2026-03-31T14:06:58.526Z" },
+    { url = "https://files.pythonhosted.org/packages/6f/15/bc2fa51ee31ce597b2af1905081e5a5add07fe0cf619bfa531d7df2f1f1b/nodejs_wheel_binaries-24.14.1-py2.py3-none-macosx_13_0_x86_64.whl", hash = "sha256:634f57829ebfdfe95d096f32a50c5cdd3a6c72a94dcf2b92a8bef9868cccb13e", size = 55119951, upload-time = "2026-03-31T14:07:02.597Z" },
+    { url = "https://files.pythonhosted.org/packages/a6/dd/92ff0831262af4bbb5473d4e7964fd27afb0901a2690a6ff7bc3d220d97f/nodejs_wheel_binaries-24.14.1-py2.py3-none-manylinux_2_28_aarch64.whl", hash = "sha256:404b563467129e6a0ea7006a38b3d8af0ebfbc340b31a6a0af2c59ea3af90b7c", size = 59487620, upload-time = "2026-03-31T14:07:06.198Z" },
+    { url = "https://files.pythonhosted.org/packages/45/36/bbbee3adf6afd00944e5a86ebd64987dea90bd347090155a4989dc3e8594/nodejs_wheel_binaries-24.14.1-py2.py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:7863c62f8a3946b727831f71375a9ae00205b3258478476034b49c3a1d57ac12", size = 59986044, upload-time = "2026-03-31T14:07:09.846Z" },
+    { url = "https://files.pythonhosted.org/packages/05/16/119e4168bf7ed17ad7961d122701c75ac86135fa243a958b960a3f1b7055/nodejs_wheel_binaries-24.14.1-py2.py3-none-musllinux_1_2_aarch64.whl", hash = "sha256:a3f64daa1235fa6a83c778ded98d5fe4e74979ca54aa2ffb807f0805c57c3abe", size = 61489823, upload-time = "2026-03-31T14:07:13.378Z" },
+    { url = "https://files.pythonhosted.org/packages/8c/a6/d581996827b9d1133094dc347f1c4e3d2a70557973ce7a427a03337b1427/nodejs_wheel_binaries-24.14.1-py2.py3-none-musllinux_1_2_x86_64.whl", hash = "sha256:810a48ce096925ead0690f7d143e48fb902ebfc9212097e8f6cb3ac6cbe8f314", size = 62069740, upload-time = "2026-03-31T14:07:17.006Z" },
+    { url = "https://files.pythonhosted.org/packages/27/da/396d1a48cbf3d5899461bda12fa97ae4010d7e4013e7f28230cb04af5818/nodejs_wheel_binaries-24.14.1-py2.py3-none-win_amd64.whl", hash = "sha256:7a087b6a727fb9242d1cc83c8b121711bd0e9686408d27de48b34b23dfb26ac5", size = 41400067, upload-time = "2026-03-31T14:07:20.513Z" },
+    { url = "https://files.pythonhosted.org/packages/13/b7/adb21cf549934579e98934531e7f9b038d583fc9c2dd4b82ea01cc31bdd2/nodejs_wheel_binaries-24.14.1-py2.py3-none-win_arm64.whl", hash = "sha256:978fdfe76624c48111ab99ed0f99f9d4c1c682e420b0212ac9e1daee52f20283", size = 39096873, upload-time = "2026-03-31T14:07:23.977Z" },
+]
+
+[[package]]
 name = "notebook"
 version = "7.4.2"
 source = { registry = "https://pypi.org/simple" }
@@ -2259,17 +2277,16 @@ wheels = [
 
 [[package]]
 name = "numpydoc"
-version = "1.8.0"
+version = "1.9.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "sphinx", version = "8.1.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "sphinx", version = "8.2.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
-    { name = "tabulate" },
     { name = "tomli", marker = "python_full_version < '3.11'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ee/59/5d1d1afb0b9598e21e7cda477935188e39ef845bcf59cb65ac20845bfd45/numpydoc-1.8.0.tar.gz", hash = "sha256:022390ab7464a44f8737f79f8b31ce1d3cfa4b4af79ccaa1aac5e8368db587fb", size = 90445, upload-time = "2024-08-09T15:52:38.679Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/2f/19/7721093e25804cc82c7c1cdab0cce6b9343451828fc2ce249cee10646db5/numpydoc-1.9.0.tar.gz", hash = "sha256:5fec64908fe041acc4b3afc2a32c49aab1540cf581876f5563d68bb129e27c5b", size = 91451, upload-time = "2025-06-24T12:22:55.283Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/6c/45/56d99ba9366476cd8548527667f01869279cedb9e66b28eb4dfb27701679/numpydoc-1.8.0-py3-none-any.whl", hash = "sha256:72024c7fd5e17375dec3608a27c03303e8ad00c81292667955c6fea7a3ccf541", size = 64003, upload-time = "2024-08-09T15:52:37.276Z" },
+    { url = "https://files.pythonhosted.org/packages/26/62/5783d8924fca72529defb2c7dbe2070d49224d2dba03a85b20b37adb24d8/numpydoc-1.9.0-py3-none-any.whl", hash = "sha256:8a2983b2d62bfd0a8c470c7caa25e7e0c3d163875cdec12a8a1034020a9d1135", size = 64871, upload-time = "2025-06-24T12:22:53.701Z" },
 ]
 
 [[package]]
@@ -3014,6 +3031,11 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/6c/cb/c306618a02d0ee8aed5fb8d0fe0ecfed0dbf075f71468f03a30b5f4e1fe0/pyright-1.1.400.tar.gz", hash = "sha256:b8a3ba40481aa47ba08ffb3228e821d22f7d391f83609211335858bf05686bdb", size = 3846546, upload-time = "2025-04-24T12:55:18.907Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/c8/a5/5d285e4932cf149c90e3c425610c5efaea005475d5f96f1bfdb452956c62/pyright-1.1.400-py3-none-any.whl", hash = "sha256:c80d04f98b5a4358ad3a35e241dbf2a408eee33a40779df365644f8054d2517e", size = 5563460, upload-time = "2025-04-24T12:55:17.002Z" },
+]
+
+[package.optional-dependencies]
+nodejs = [
+    { name = "nodejs-wheel-binaries" },
 ]
 
 [[package]]
@@ -3899,15 +3921,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/83/d3/803453b36afefb7c2bb238361cd4ae6125a569b4db67cd9e79846ba2d68c/sympy-1.14.0.tar.gz", hash = "sha256:d3d3fe8df1e5a0b42f0e7bdf50541697dbe7d23746e894990c030e2b05e72517", size = 7793921, upload-time = "2025-04-27T18:05:01.611Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a2/09/77d55d46fd61b4a135c444fc97158ef34a095e5681d0a6c10b75bf356191/sympy-1.14.0-py3-none-any.whl", hash = "sha256:e091cc3e99d2141a0ba2847328f5479b05d94a6635cb96148ccb3f34671bd8f5", size = 6299353, upload-time = "2025-04-27T18:04:59.103Z" },
-]
-
-[[package]]
-name = "tabulate"
-version = "0.9.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/ec/fe/802052aecb21e3797b8f7902564ab6ea0d60ff8ca23952079064155d1ae1/tabulate-0.9.0.tar.gz", hash = "sha256:0095b12bf5966de529c0feb1fa08671671b3368eec77d7ef7ab114be2c068b3c", size = 81090, upload-time = "2022-10-06T17:21:48.54Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/40/44/4a5f08c96eb108af5cb50b41f76142f0afa346dfa99d5296fe7202a11854/tabulate-0.9.0-py3-none-any.whl", hash = "sha256:024ca478df22e9340661486f85298cff5f6dcdba14f3813e8830015b9ed1948f", size = 35252, upload-time = "2022-10-06T17:21:44.262Z" },
 ]
 
 [[package]]
