@@ -216,8 +216,8 @@ class VideoFrame_impl:
     """
 
     pixels: ArrayLike
-    time_s: float
-    pts: int
+    time_s: float | None
+    pts: int | None
     frame_index: int
 
 
@@ -257,7 +257,6 @@ class PyAVAdapter:
         value: float,
         unit: Literal["pts", "time_s", "frame"],
         stream: avVideoStream,
-        avoid_estimates: bool = True,
     ) -> int:
         """Converts a value from a given unit into PTS (Presentation Time Stamp).
 
@@ -294,19 +293,6 @@ class PyAVAdapter:
                     "Cannot convert from 'time_s' without a valid time_base."
                 )
             return int(value / stream.time_base)
-        if unit == "frame":
-            if avoid_estimates:
-                raise ValueError(
-                    'Converting "frame" to PTS requires estimation. Set "avoid_estimates" '
-                    "to False to permit this conversion."
-                )
-            avg_fps = stream.average_rate
-            if avg_fps is None or stream.time_base is None:
-                raise ValueError(
-                    "Cannot convert from 'frame' without average_rate and time_base."
-                )
-            time_in_seconds = value / avg_fps
-            return int(time_in_seconds / stream.time_base)
         raise ValueError(f"Unknown unit: {unit}")
 
     @staticmethod
@@ -314,10 +300,6 @@ class PyAVAdapter:
         """Validate basic numeric constraints for a sampling specification."""
         if spec.start < 0:
             raise ValueError("SampleSpec.start must be non-negative.")
-        if spec.duration < -1:
-            raise ValueError(
-                "SampleSpec.duration must be -1 (unbounded) or a non-negative value."
-            )
         if spec.subsample_interval <= 0:
             raise ValueError("SampleSpec.subsample_interval must be > 0.")
 
@@ -387,12 +369,15 @@ class PyAVAdapter:
         frame: avVideoFrame,
         source_frame_index: int,
         plan: _SamplingPlan,
+        anchor_frame_pts: float | None,
     ) -> bool:
         """Return True once decoding reaches the plan's start condition."""
         if plan.start_mode == "frame":
             return source_frame_index >= plan.start_frame
 
-        return frame.pts is not None and frame.pts >= plan.start_pts
+        assert anchor_frame_pts is not None
+        assert frame.pts is not None
+        return (frame.pts - anchor_frame_pts) >= plan.start_pts
 
     @classmethod
     def _get_to_first_frame(
@@ -400,10 +385,8 @@ class PyAVAdapter:
         container: InputContainer,
         stream: avVideoStream,
         plan: _SamplingPlan,
-    ) -> tuple[
-        Optional[tuple[int, avVideoFrame]],
-        Iterator[tuple[int, avVideoFrame]],
-    ]:
+        anchor_frame_pts: float | None,
+    ) -> Optional[Iterator[avVideoFrame]]:
         """Create and advance decoded frame iterator to first frame that satisfies start.
 
         Returns both the first matching frame (if any) and the same decoded-frame iterator,
@@ -415,19 +398,20 @@ class PyAVAdapter:
         finding the anchor. This preserves exact frame-index semantics, but can be slower
         for large starting offsets.
         """
-        decoded_frames = enumerate(container.decode(stream))
+        decoded_frames = container.decode(stream)
 
-        for source_frame_index, frame in decoded_frames:
-            if cls._is_at_or_past_start(frame, source_frame_index, plan):
-                return (source_frame_index, frame), decoded_frames
-
-        return None, decoded_frames
+        for source_frame_index, frame in enumerate(decoded_frames):
+            if cls._is_at_or_past_start(
+                frame, source_frame_index, plan, anchor_frame_pts
+            ):
+                return chain([frame], decoded_frames)
+        return None
 
     @staticmethod
     def _is_beyond_duration(
         frame: avVideoFrame,
-        yielded_count: int,
-        anchor_pts: Optional[int],
+        decoded_count: int,
+        first_frame_pts: Optional[int],
         plan: _SamplingPlan,
     ) -> bool:
         """Return True when decoding should stop because duration is exceeded."""
@@ -435,29 +419,27 @@ class PyAVAdapter:
             return False
 
         if plan.duration_mode == "frame":
-            return yielded_count >= plan.duration_frames
+            return decoded_count >= plan.duration_frames
 
-        if frame.pts is None or anchor_pts is None:
+        if frame.pts is None or first_frame_pts is None:
             raise ValueError(
                 "PTS-based duration sampling requires valid frame.pts values for all "
                 "frames in the sampled region."
             )
 
-        return (frame.pts - anchor_pts) > plan.duration_pts
+        return (frame.pts - first_frame_pts) >= plan.duration_pts
 
     @staticmethod
     def _is_this_frame_included_in_subsampling(
         frame: avVideoFrame,
-        source_frame_index: int,
-        anchor_source_frame_index: int,
+        decoded_count: int,
         anchor_pts: Optional[int],
         next_pts_to_include: int,
         plan: _SamplingPlan,
     ) -> tuple[bool, int]:
         """Determine if current frame should be yielded according to subsampling plan."""
         if plan.subsample_mode == "frame":
-            rel_frame = source_frame_index - anchor_source_frame_index
-            include = (rel_frame % plan.subsample_interval_frames) == 0
+            include = (decoded_count % plan.subsample_interval_frames) == 0
             return include, next_pts_to_include
 
         if frame.pts is None or anchor_pts is None:
@@ -470,13 +452,28 @@ class PyAVAdapter:
         if rel_pts < next_pts_to_include:
             return False, next_pts_to_include
 
-        return True, rel_pts + plan.subsample_interval_pts
+        next_pts_to_include += plan.subsample_interval_pts
+        if next_pts_to_include <= rel_pts:
+            next_pts_to_include += (
+                (rel_pts - next_pts_to_include) // plan.subsample_interval_pts + 1
+            ) * plan.subsample_interval_pts
+
+        return True, next_pts_to_include
 
     @staticmethod
-    def _to_video_frame(frame: avVideoFrame, yielded_frame_index: int) -> VideoFrame:
+    def _to_video_frame(
+        frame: avVideoFrame, yielded_frame_index: int, anchor_pts: int | None
+    ) -> VideoFrame:
         """Convert a decoded PyAV frame into MAITE's VideoFrame implementation."""
-        reported_pts = frame.pts if frame.pts is not None else -1
-        reported_time = float(frame.time) if frame.time is not None else -1.0
+        if anchor_pts is not None and frame.pts is not None:
+            reported_pts = frame.pts - anchor_pts
+        else:
+            reported_pts = None
+
+        if reported_pts is not None and frame.time_base is not None:
+            reported_time = float(reported_pts * frame.time_base)
+        else:
+            reported_time = None
 
         # Note: to_ndarray will disregard a 'channels_last' argument except when
         # particular formats are used. We thus separately transpose data after using numpy.
@@ -519,37 +516,53 @@ class PyAVAdapter:
         with self._av.open(str(video_filepath)) as container:
             stream = container.streams.video[0]
             plan = self._compile_sampling_plan(spec, stream)
+            requires_pts = (
+                plan.start_mode == "pts"
+                or plan.duration_mode == "pts"
+                or plan.subsample_mode == "pts"
+            )
 
-            if plan.start_mode == "pts" and plan.start_pts > 0:
-                container.seek(plan.start_pts, backward=True, stream=stream)
-
-            first, decoded_frames = self._get_to_first_frame(container, stream, plan)
-            if first is None:
+            try:
+                anchor_frame: avVideoFrame = next(container.decode(stream))
+            except StopIteration:
                 return
 
-            anchor_source_frame_index, anchor_frame = first
-            requires_pts = plan.duration_mode == "pts" or plan.subsample_mode == "pts"
-            anchor_pts = anchor_frame.pts if requires_pts else None
+            if requires_pts and anchor_frame.pts is None:
+                raise ValueError("Time-based SampleSpec used, but no PTS found.")
 
-            if requires_pts and anchor_pts is None:
-                raise ValueError(
-                    "PTS-based duration/subsampling requires the first sampled frame to "
-                    "have a valid frame.pts value."
+            if plan.start_mode == "pts" and plan.start_pts > 0:
+                assert anchor_frame.pts is not None
+                container.seek(
+                    plan.start_pts + anchor_frame.pts, backward=True, stream=stream
                 )
+            else:
+                container.seek(anchor_frame.pts, backward=True, stream=stream)
+
+            decoded_frames = self._get_to_first_frame(
+                container, stream, plan, anchor_frame.pts
+            )
+            if decoded_frames is None:
+                return
 
             yielded_count = 0
             next_pts_to_include = 0
+            first_frame_pts: float | None = None
 
-            for source_frame_index, frame in chain([first], decoded_frames):
-                if self._is_beyond_duration(frame, yielded_count, anchor_pts, plan):
+            for decoded_count, frame in enumerate(decoded_frames):
+                if decoded_count == 0:
+                    first_frame_pts = frame.pts
+                    if first_frame_pts is not None and anchor_frame.pts is not None:
+                        next_pts_to_include = first_frame_pts - anchor_frame.pts
+                if self._is_beyond_duration(
+                    frame, decoded_count, first_frame_pts, plan
+                ):
                     break
 
                 include, next_pts_to_include = (
                     self._is_this_frame_included_in_subsampling(
                         frame=frame,
-                        source_frame_index=source_frame_index,
-                        anchor_source_frame_index=anchor_source_frame_index,
-                        anchor_pts=anchor_pts,
+                        decoded_count=decoded_count,
+                        anchor_pts=anchor_frame.pts,
                         next_pts_to_include=next_pts_to_include,
                         plan=plan,
                     )
@@ -558,7 +571,7 @@ class PyAVAdapter:
                 if not include:
                     continue
 
-                yield self._to_video_frame(frame, yielded_count)
+                yield self._to_video_frame(frame, yielded_count, anchor_frame.pts)
                 yielded_count += 1
 
     def decode(self, spec: SampleSpec, video_filepath: Path) -> Sequence[VideoFrame]:
