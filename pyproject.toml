@@ -217,6 +217,9 @@ addopts = [
     "--doctest-report=udiff",
     "--doctest-continue-on-failure"
 ]
+markers = [
+    "slow: mark a test as slow",
+]
 
 [tool.pyright]
 include = ["src"]
