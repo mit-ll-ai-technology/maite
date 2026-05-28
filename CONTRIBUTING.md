@@ -1,6 +1,15 @@
-Please read through the following resources before you begin working on any contributions to this
-code base.
+# Contributing to MAITE
 
+Thank you for your interest in contributing to MAITE! We welcome bug reports and feature requests as well as code contributions.
+
+# Bug Reports and Feature Requests
+
+Issues containing bug reports or feature requests can be created on our internal GitLab repository or our [GitHub repo](https://github.com/mit-ll-ai-technology/maite/issues). For bug reports, please provide a minimal reproducible example if possible. For feature requests, please describe the intended use case that's motivating the new feature.
+
+# Contributor Basics
+
+**Note:** Please read through the following resources before you begin working on any contributions to this
+code base.
 
 - [Maintaining MAITE](#maintaining-maite)
   - [Project dependencies, metadata, and versioning](#project-dependencies-metadata-and-versioning)
@@ -10,21 +19,19 @@ code base.
   - [CI/CD Overview](#cicd-overview)
     - [Running tox](#running-tox)
 
-## Contributor Basics
-
-### Installing uv
+## Installing uv
 
 MAITE uses uv for dependency management. Follow the [installation instructions](https://docs.astral.sh/uv/getting-started/installation/) to install uv. This ensures all developer's local installs are backed by the consistent set of dependency versions listed in the `uv.lock` file.
 
-### Installing tox
+## Installing tox
 
 CI uses tox and it's helpful to run tox locally. If you want to manage your tox installation with uv, install tox with `uv tool install tox --with tox-uv`. To run tox use `uvx tox`.
 
-### Installing poetry
+## Installing poetry
 
 MAITE uses [poetry](https://python-poetry.org/) as a build backend. MAITE also maintains a poetry.lock file for upstream verification of dependencies. Modifying the lock file by poetry can take up to an hour when run internally on our development network. When adding dependencies and you want to ensure the lock file is up to date you must install poetry. Follow the [installation instructions](https://python-poetry.org/docs/#installation).
 
-### Installing MAITE for development
+## Installing MAITE for development
 
 Install MAITE along with all development dependencies; checkout the repo, navigate to its top level and run
 
@@ -36,7 +43,7 @@ This command ensures that any local changes that you make to the project's sourc
 
 Going forward in this document, any console commands run as a developer (e.g. `pytest`, `tox`, `black`, etc.) are assumed to be run within the uv created virtual environment. To activate the virtual enivonrment, run `source .venv/bin/activate`.
 
-### Pre-Commit Hooks (Required)
+## Pre-Commit Hooks (Required)
 
 We provide contributors with pre-commit hooks, which will apply auto-formatters and
 linters to your code before your commit takes effect. You must install these in order to contribute to the repo.
@@ -52,7 +59,7 @@ pre-commit run
 
 Great! You can read more about pre-commit hooks in general here: https://pre-commit.com/
 
-#### What does this do?
+### What does this do?
 
 Our pre-commit hooks run the following auto-formatters on all commits:
 - [black](https://black.readthedocs.io/en/stable/)
@@ -61,7 +68,7 @@ Our pre-commit hooks run the following auto-formatters on all commits:
 It also runs [flake8](https://github.com/PyCQA/flake8) to enforce PEP8 standards.
 
 
-### Running Tests
+## Running Tests
 
 The most basic use case of `pytest` is trivial: it will look for files with the word "test" in their name, and will look for functions that also have "test" in their name, and it will simply run those functions.
 
@@ -79,10 +86,10 @@ uvx tox -e py # or tox -e py
 
 Additional Resources to Learn About Our Approach to Automated Testing, see: https://github.com/rsokl/testing-tutorial
 
-## Code Quality
+# Code Quality
 A more thorough discussion of the following items can be found in [module 5 of Python Like You Mean It](https://www.pythonlikeyoumeanit.com/Module5_OddsAndEnds/Writing_Good_Code.html).
 
-### PEP 8
+## PEP 8
 Our code should adhere to the PEP 8 Style Guide. A general, brief overview of this style guide can be found [here](https://www.pythonlikeyoumeanit.com/Module5_OddsAndEnds/Writing_Good_Code.html#The-PEP8-Style-Guide-to-Python-Code). [This is a link to the formal PEP8 specification](https://www.python.org/dev/peps/pep-0008/#code-lay-out).
 
 ```python
@@ -95,7 +102,7 @@ x = {1: "a", 2: "b", 3: "c"}
 x = {1 : "a", 2 : "b", 3 : "c"}
 ```
 
-### Naming Conventions
+## Naming Conventions
 The basic [naming conventions for Python](https://www.pythonlikeyoumeanit.com/Module5_OddsAndEnds/Writing_Good_Code.html#Naming-Conventions) are quite simple. They are:
 - Class names: `CamelCase`
 - Constants: `ALL_CAPS`
@@ -132,7 +139,7 @@ my_project/
   | tests/
 ```
 
-### Type-Hints
+## Type-Hints
 
 It is recommended that large-scale projects and projects that make heavy use of custom classes consider incorporating [function and variable annotations with type-hints](https://www.pythonlikeyoumeanit.com/Module5_OddsAndEnds/Writing_Good_Code.html#Type-Hinting). These greatly augment an IDE's ability to enrich your development environment with typing information. This serves to highlight bugs and inconsistencies as you are writing your code, rather than at runtime.
 
@@ -150,7 +157,7 @@ def count_vowels(x: str, include_y: bool = False) -> int:
 
 See the Examples section of MAITE's docs for a deep dive into this.
 
-### Documentation Strings
+## Documentation Strings
 
 Documentation strings should adhere to the [NumPy Documentation Style](https://www.pythonlikeyoumeanit.com/Module5_OddsAndEnds/Writing_Good_Code.html#Documentation-Styles). Beyond the occasional trivial, self-evident function, every function should have a doc-string. This includes functions that are strictly internal to the codebase.
 
@@ -191,7 +198,7 @@ def compute_student_stats(grade_book, stat_function, student_list=None):
     """
 ```
 
-### Using Descriptive Data Structures
+## Using Descriptive Data Structures
 
 Strive to leverage data structures with explicitly-named fields that describe your data. For example, if you are working with geographic coordinates in degrees-minutes-seconds, one might be tempted to store these coordinates in a plain tuple:
 
@@ -260,7 +267,7 @@ Coordinates:
 Using explicit data structures when processing data is critical to ensuring that an algorithm can have a long shelf-life and will be useful to people other than the algorithm's author(s).
 
 
-## Validating Type Correctness
+# Validating Type Correctness
 
 Our CI runs the `pyright` type-checker in basic mode against maite's entire code base and against specific test files; this ensures that our type-annotations are complete and accurate.
 
@@ -295,10 +302,30 @@ To make sure the uv lockfile contains the latest versions of packages follow the
 
 We use the [github-flow](https://guides.github.com/introduction/flow/) branching model. This means that all changes are made on a branch that is branched off of the `main` branch. When working on a feature or bug fix, developers should create an issue in the project's issue tracker and reference it in the commit message or pull request. This helps to ensure that all work is tracked and that team members can easily see what issues have been worked on and what still needs to be done. Once the changes are ready to be merged, a pull request is opened against the `main` branch. The pull request must be approved by at least one other developer before it can be merged.  Every pull request will trigger a CI run that will run the test suite, check the codebase for formatting errors, and check the docs for spelling errors.  If any of these checks fail, the pull request cannot be merged. Lastly, a merge must be a fast-forward merge, meaning that the `main` branch must be up-to-date with the `main` branch of the upstream repo.
 
+## Release Notes
+
+When preparing to make a new release, checkout the main branch and add the latest release notes to the top of maite/docs/source/changes.rst based on commits made since the last release. Commit locally, but don't push just yet. (Our GitLab CI/CD works best when the tag and its associated commit are pushed at the same time.)
+
+**Note:** The simplest way to view commit messages is to run git log from the terminal.
+
+Current practice for changelog formatting is a bulleted list with high-level phrases for each feature/bugfix added as part of the release.
+Here is an example set of release notes (in raw reStructuredText format):
+
+```
+.. _v0.4.0:
+
+---------------------
+0.4.0 - 2024-01-22
+---------------------
+
+- bugfix: update maite exception naming and fix typo in import
+- feature: added GitHub workflow to build and publish public documentation
+- feature: added the use of DatumMetadata in tutorial basic_evaluation.ipynb
+```
+
 ## Tooling configuration
 
 The repo's pyproject.toml file is responsible for storing the configurations for the project's tools (e.g. isort, pyright, codespell, tox) whenever possible. Some tools, such as flake8 and pre-commit, do not support this file format and have separate config files.
-
 
 ## CI/CD Overview
 

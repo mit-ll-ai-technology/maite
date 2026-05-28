@@ -27,6 +27,8 @@ MAITE is a library of common types, protocols (a.k.a. structural subtypes), and 
 
 ## Installation
 
+MAITE is architecture independent and has been tested on Linux and macOS systems. There are no inherent requirements related to memory, GPUs, or internet connectivity. However, models and/or datasets being used with MAITE may have their own requirements. For example, a MAITE-compliant model wrapper backed by a model hosted online would require internet access, and a dataset that loads all data points into memory would require a certain amount of RAM.
+
 ### From Python Package Index (PyPI)
 To install from the Python Package Index (PyPI), run:
 
@@ -84,6 +86,10 @@ The `protocols` subpackage defines common types – such as an inference-mode ob
 - Functions for validating the types and values of user arguments, with explicit and consistent user-error messages, that raise MAITE-customized exceptions.
 - Specialized PyTorch utilities to help facilitate safe and ergonomic code patterns for manipulating stateful torch objects
 - Other quality assurance and convenience functions that may be widely useful across projects
+
+## Contributing
+
+We welcome contributions to MAITE! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details on issue reporting, tooling, coding standards, branching strategy, and more. 
 
 ## Disclaimer
 

@@ -15,6 +15,12 @@ support core evaluation use cases, and allow composition of T&E tools into custo
 Installation
 ============
 
+MAITE is architecture independent and has been tested on Linux and macOS systems. There are no 
+inherent requirements related to memory, GPUs, or internet connectivity. However, models and/or 
+datasets being used with MAITE may have their own requirements. For example, a MAITE-compliant 
+model wrapper backed by a model hosted online would require internet access, and a dataset that 
+loads all data points into memory would require a certain amount of RAM.
+
 The core of MAITE is lightweight: its only dependencies are ``typing-extensions`` and ``numpy``. 
 To install it, run:
 
