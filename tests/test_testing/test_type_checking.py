@@ -55,12 +55,16 @@ def test_python_version():
     with open("f.py", "w") as file:
         file.writelines(code)
 
-    py39 = pyright_analyze("./", python_version="3.9")
-    assert py39[0]["summary"]["errorCount"] == 0
     py310 = pyright_analyze("./", python_version="3.10")
     assert py310[0]["summary"]["errorCount"] == 0
     py311 = pyright_analyze("./", python_version="3.11")
     assert py311[0]["summary"]["errorCount"] == 0
+    py312 = pyright_analyze("./", python_version="3.12")
+    assert py312[0]["summary"]["errorCount"] == 0
+    py313 = pyright_analyze("./", python_version="3.13")
+    assert py313[0]["summary"]["errorCount"] == 0
+    py314 = pyright_analyze("./", python_version="3.14")
+    assert py314[0]["summary"]["errorCount"] == 0
 
 
 def test_scan_path_to_code():

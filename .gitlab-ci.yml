@@ -70,7 +70,7 @@ tests:
   image: python:$PYTHON_VERSIONS
   parallel:
     matrix:
-      - PYTHON_VERSIONS: ["3.10", "3.11", "3.12"]
+      - PYTHON_VERSIONS: ["3.10", "3.11", "3.12", "3.13", "3.14"]
   script:
     - *install-libgl1
     - echo "Testing against minimum dependencies."
