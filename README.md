@@ -2,7 +2,7 @@
 
 <p align="center">
   <a>
-    <img src="https://img.shields.io/badge/python-3.9%20&#8208;%203.11-blue.svg" alt="Python version support" />
+    <img src="https://img.shields.io/badge/python-3.10%20&#8208;%203.14-blue.svg" alt="Python version support" />
   </a>
   <a>
     <img src="https://img.shields.io/badge/coverage-%3E90%25-green.svg" alt="Code Coverage" />

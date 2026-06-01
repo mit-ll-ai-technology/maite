@@ -1794,7 +1794,7 @@ requires-dist = [
     { name = "pip", marker = "extra == 'test'" },
     { name = "pre-commit", marker = "extra == 'dev'" },
     { name = "pycocotools", marker = "extra == 'builddocs'" },
-    { name = "pyright", extras = ["nodejs"], marker = "extra == 'test'", specifier = ">=1.1.280,!=1.1.401" },
+    { name = "pyright", extras = ["nodejs"], marker = "extra == 'test'", specifier = ">=1.1.280,!=1.1.401,<1.1.409" },
     { name = "pytest", marker = "extra == 'builddocs'", specifier = ">=7.0.0" },
     { name = "pytest", marker = "extra == 'test'", specifier = ">=7.0.0" },
     { name = "pytest-mock", marker = "extra == 'test'", specifier = ">=3.10.0" },
