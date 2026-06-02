@@ -73,7 +73,7 @@ def upload_package(file: Path | bytes, package_url: str, token: str):
     else:
         file_data = file
 
-    response = requests.put(package_url, headers=headers, data=file_data)
+    response = requests.put(package_url, headers=headers, data=file_data, timeout=900)
 
     if response.status_code == HTTPStatus.CREATED:
         logger.info(f"Uploaded to {package_url}")
