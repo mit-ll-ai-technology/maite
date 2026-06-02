@@ -1,12 +1,8 @@
-# include:
-#   - project: 'jatic/cdao/cicd'
-#     file: '.gitlab-ci.yml'
-#     ref: 'fix-python-version'
-
 stages:
   - test
   - docs
   - deploy
+  - security-scan
 #  - tr-compliance
 
 # Change pip's cache directory to be inside the project directory since we can
@@ -25,7 +21,7 @@ cache:
   paths:
     - .cache/pip
 
-before_script:
+.setup_python: &setup-python
   - python --version  # For debugging
   - pip install virtualenv
   - TMP_DIR=$(mktemp -d)
@@ -50,7 +46,11 @@ workflow:
   rules:
     - when: always
 
-# include:
+
+include:
+  - template: Jobs/SAST.gitlab-ci.yml
+  - template: Jobs/Dependency-Scanning.gitlab-ci.yml
+  - template: Jobs/Secret-Detection.gitlab-ci.yml
 #   - component: gitlab.jatic.net/jatic/devsecops/components/tr-compliance@1.0.0
 #     inputs:
 #       stage: tr-compliance
@@ -73,6 +73,7 @@ tests:
       - PYTHON_VERSIONS: ["3.10", "3.11", "3.12", "3.13", "3.14"]
   script:
     - *install-libgl1
+    - *setup-python
     - echo "Testing against minimum dependencies."
     - tox -e py
 
@@ -81,6 +82,7 @@ coverage:
   image: python:3.12
   script:
     - *install-libgl1
+    - *setup-python
     - echo "Coverage Testing"
     - tox -e coverage
 
@@ -89,6 +91,7 @@ min-deps:
   image: python:3.10
   script:
     - *install-libgl1
+    - *setup-python
     - echo "Testing against minimum dependencies."
     - tox -e min-deps
 
@@ -97,6 +100,7 @@ enforce-format:
   image: python:3.10
   script:
     - echo "Test code formatting issues."
+    - *setup-python
     - tox -e enforce-format
 
 typecheck:
@@ -104,6 +108,7 @@ typecheck:
   image: python:3.10
   script:
     - echo "Test typechecking."
+    - *setup-python
     - tox -e typecheck -vv
 
 pages:
@@ -113,17 +118,11 @@ pages:
   variables:
     TQDM_DISABLE: true
   before_script:
-    - apt-get update -qq
+    - *install-libgl1
+    - *setup-python
     - apt-get install -y pandoc
     - apt-get install -y fonts-dejavu
-    - apt-get install -y libgl1
-    - python --version  # For debugging
-    - pip install virtualenv
-    - TMP_DIR=$(mktemp -d)
-    - virtualenv $TMP_DIR/venv
-    - source $TMP_DIR/venv/bin/activate
-    - python -m pip install --upgrade pip
-    - pip install tox requests
+    - pip install requests
     - git config --global user.email "doc@maite"
     - git config --global user.name "Doc"
   script:
@@ -151,6 +150,7 @@ deploy:
   rules:
     - if: $CI_COMMIT_TAG
   script:
+    - *setup-python
     - pip install poetry twine --upgrade
     - twine --version
     - poetry build
