@@ -3,12 +3,12 @@
 # SPDX-License-Identifier: MIT
 from __future__ import annotations
 
-from collections.abc import Iterable, Iterator, Sequence
-from typing import Any, Callable, Generic, Mapping, Protocol, TypeVar, runtime_checkable
+from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
+from typing import Any, Generic, Protocol, TypeAlias, TypeVar, runtime_checkable
 
-from typing_extensions import NotRequired, ReadOnly, Required, TypeAlias
+from typing_extensions import NotRequired, ReadOnly, Required
 
-from ..compat import TypedDict
+from maite._internals.compat import TypedDict
 
 # Note
 # (1) the use of each generic variable can differ in generic components
@@ -47,7 +47,9 @@ DatumMetadataType_cn = TypeVar("DatumMetadataType_cn", contravariant=True)
 InputType_in = TypeVar("InputType_in", contravariant=False, covariant=False)
 TargetType_in = TypeVar("TargetType_in", contravariant=False, covariant=False)
 DatumMetadataType_in = TypeVar(
-    "DatumMetadataType_in", contravariant=False, covariant=False
+    "DatumMetadataType_in",
+    contravariant=False,
+    covariant=False,
 )
 
 MetricComputeReturnType = Mapping[str, Any]
@@ -185,7 +187,9 @@ class Dataset(Protocol, Generic[InputType_co, TargetType_co, DatumMetadataType_c
     metadata: DatasetMetadata
 
     def __getitem__(
-        self, __ind: int
+        self,
+        ind: int,
+        /,
     ) -> tuple[InputType_co, TargetType_co, DatumMetadataType_co]: ...
 
     def __len__(self) -> int: ...
@@ -193,13 +197,14 @@ class Dataset(Protocol, Generic[InputType_co, TargetType_co, DatumMetadataType_c
 
 @runtime_checkable
 class FieldwiseDataset(
-    Dataset[InputType_co, TargetType_co, DatumMetadataType_co], Protocol
+    Dataset[InputType_co, TargetType_co, DatumMetadataType_co],
+    Protocol,
 ):
-    def get_input(self, __ind: int, /) -> InputType_co: ...
+    def get_input(self, ind: int, /) -> InputType_co: ...
 
-    def get_target(self, __ind: int, /) -> TargetType_co: ...
+    def get_target(self, ind: int, /) -> TargetType_co: ...
 
-    def get_metadata(self, __ind: int, /) -> DatumMetadataType_co: ...
+    def get_metadata(self, ind: int, /) -> DatumMetadataType_co: ...
 
 
 @runtime_checkable
@@ -255,7 +260,9 @@ class Model(
     metadata: ModelMetadata
 
     def __call__(
-        self, __batch_input: Sequence[InputType_cn]
+        self,
+        batch_input: Sequence[InputType_cn],
+        /,
     ) -> Sequence[TargetType_co]: ...
 
 
@@ -277,7 +284,9 @@ class Metric(Protocol, Generic[TargetType_cn, DatumMetadataType_cn]):
     Methods
     -------
 
-    update(pred_batch: Sequence[TargetType], target_batch: Sequence[TargetType], metadata_batch: Sequence[DatumMetadataType]) -> None
+    update(pred_batch: Sequence[TargetType],
+           target_batch: Sequence[TargetType],
+           metadata_batch: Sequence[DatumMetadataType]) -> None
         Add predictions and targets (and metadata if applicable) to metric's cache for later calculation.
 
     compute() -> Mapping[str, Any]
@@ -300,9 +309,10 @@ class Metric(Protocol, Generic[TargetType_cn, DatumMetadataType_cn]):
 
     def update(
         self,
-        __pred_batch: Sequence[TargetType_cn],
-        __target_batch: Sequence[TargetType_cn],
-        __metadata_batch: Sequence[DatumMetadataType_cn],
+        pred_batch: Sequence[TargetType_cn],
+        target_batch: Sequence[TargetType_cn],
+        metadata_batch: Sequence[DatumMetadataType_cn],
+        /,
     ) -> None: ...
 
     def compute(self) -> MetricComputeReturnType: ...
@@ -347,13 +357,16 @@ class Augmentation(
 
     def __call__(
         self,
-        __batch: tuple[
+        batch: tuple[
             Sequence[InputType_cn],
             Sequence[TargetType_cn],
             Sequence[DatumMetadataType_cn],
         ],
+        /,
     ) -> tuple[
-        Sequence[InputType_co], Sequence[TargetType_co], Sequence[DatumMetadataType_co]
+        Sequence[InputType_co],
+        Sequence[TargetType_co],
+        Sequence[DatumMetadataType_co],
     ]: ...
 
 

@@ -64,22 +64,15 @@ class Dataset(gen.Dataset[InputType, TargetType, DatasetMetadata], Protocol):
 
     >>> N_CLASSES: int = 5
     >>> N_DATUM: int = 10
-    >>> images: list[np.ndarray] = [
-    ...     np.random.rand(3, 32, 16) for _ in range(N_DATUM)
-    ... ]  # (C, H, W) shape semantics
-    >>> targets: np.ndarray = [
-    ...     np.random.rand(N_CLASSES, 16, 8)
-    ... ]  # (Cl, H, W) shape semantics
+    >>> images: list[np.ndarray] = [np.random.rand(3, 32, 16) for _ in range(N_DATUM)]  # (C, H, W) shape semantics
+    >>> targets: np.ndarray = [np.random.rand(N_CLASSES, 16, 8)]  # (Cl, H, W) shape semantics
 
     We can type our datum metadata as a maite.protocols DatumMetadata, or define our
     own TypedDict with additional fields
 
     >>> class MyDatumMetadata(DatumMetadata):
     ...     hour_of_day: float
-    >>> datum_metadata = [
-    ...     MyDatumMetadata(id=i, hour_of_day=np.random.rand() * 24)
-    ...     for i in range(N_DATUM)
-    ... ]
+    >>> datum_metadata = [MyDatumMetadata(id=i, hour_of_day=np.random.rand() * 24) for i in range(N_DATUM)]
 
     Constructing a compliant dataset just involves a simple wrapper that fetches
     individual datapoints, where a datapoint is a single image, target, metadata 3-tuple.
@@ -95,17 +88,13 @@ class Dataset(gen.Dataset[InputType, TargetType, DatasetMetadata], Protocol):
     ...     ):
     ...         self.images = images
     ...         self.targets = targets
-    ...         self.metadata = DatasetMetadata(
-    ...             {"id": dataset_name, "index2label": index2label}
-    ...         )
+    ...         self.metadata = DatasetMetadata({"id": dataset_name, "index2label": index2label})
     ...         self._datum_metadata = datum_metadata
     ...
     ...     def __len__(self) -> int:
     ...         return len(images)
     ...
-    ...     def __getitem__(
-    ...         self, ind: int
-    ...     ) -> tuple[np.ndarray, np.ndarray, MyDatumMetadata]:
+    ...     def __getitem__(self, ind: int) -> tuple[np.ndarray, np.ndarray, MyDatumMetadata]:
     ...         return self.images[ind], self.targets[ind], self._datum_metadata[ind]
 
     We can instantiate this class and typehint it as an image_semantic_segmentation.Dataset.
@@ -125,8 +114,6 @@ class Dataset(gen.Dataset[InputType, TargetType, DatasetMetadata], Protocol):
     the argument types must be at least as general as the argument types promised by the
     protocol.
     """
-
-    ...
 
 
 class DataLoader(gen.DataLoader[InputType, TargetType, DatumMetadataType], Protocol):
@@ -152,8 +139,6 @@ class DataLoader(gen.DataLoader[InputType, TargetType, DatumMetadataType], Proto
         (as `Sequence[DatumMetadataType]`), respectively.
 
     """
-
-    ...
 
 
 class Model(gen.Model[InputType, TargetType], Protocol):
@@ -212,9 +197,7 @@ class Model(gen.Model[InputType, TargetType], Protocol):
     ...         rng = np.random.default_rng(12345678)
     ...         flattened_output_size = N_CLASSES * IMG_HEIGHT * IMG_WIDTH
     ...         flattened_input_size = N_CHANNELS * IMG_HEIGHT * IMG_WIDTH
-    ...         self.weights = -0.2 + 0.4 * rng.random(
-    ...             (flattened_input_size, flattened_output_size)
-    ...         )
+    ...         self.weights = -0.2 + 0.4 * rng.random((flattened_input_size, flattened_output_size))
     ...         self.bias = -0.2 + 0.4 * rng.random((1, flattened_output_size))
     ...
     ...     def __call__(self, batch: Sequence[ArrayLike]) -> Sequence[npt.NDArray]:
@@ -225,9 +208,7 @@ class Model(gen.Model[InputType, TargetType], Protocol):
     ...         # Send input batch through model
     ...         out = batch_np @ self.weights + self.bias
     ...         out = out.reshape(-1, N_CLASSES, IMG_HEIGHT, IMG_WIDTH)
-    ...         out = np.exp(out) / np.sum(
-    ...             np.exp(out), axis=1, keepdims=True
-    ...         )  # softmax
+    ...         out = np.exp(out) / np.sum(np.exp(out), axis=1, keepdims=True)  # softmax
     ...
     ...         # Restructure to sequence of shape-(Cl, H, W) probabilities
     ...         return [row for row in out]
@@ -236,18 +217,13 @@ class Model(gen.Model[InputType, TargetType], Protocol):
 
     >>> batch_size = 8
     >>> rng = np.random.default_rng(12345678)
-    >>> batch: Sequence[ArrayLike] = [
-    ...     -0.2 + 0.4 * rng.random((3, IMG_HEIGHT, IMG_WIDTH))
-    ...     for _ in range(batch_size)
-    ... ]
+    >>> batch: Sequence[ArrayLike] = [-0.2 + 0.4 * rng.random((3, IMG_HEIGHT, IMG_WIDTH)) for _ in range(batch_size)]
     >>> model: iss.Model = SimpleSemSeg()
     >>> out = model(batch)
 
     We can now show the class probabilities returned by the model for each image in the batch.
 
-    >>> np.set_printoptions(
-    ...     floatmode="fixed", precision=2
-    ... )  # for reproducible output for doctest
+    >>> np.set_printoptions(floatmode="fixed", precision=2)  # for reproducible output for doctest
     >>> # print pixel-level probabilities for first image in first semantic class
     >>> print(out[0][0, :, :])  # doctest: +NORMALIZE_WHITESPACE
     [[0.16 0.21 0.22 0.21 0.21 0.17 0.19 0.17]
@@ -264,8 +240,6 @@ class Model(gen.Model[InputType, TargetType], Protocol):
     the argument types must be at least as general as the argument types promised by the
     protocol.
     """
-
-    ...
 
 
 class Metric(gen.Metric[TargetType, DatumMetadataType], Protocol):
@@ -388,5 +362,3 @@ class Augmentation(
     metadata : AugmentationMetadata
         A typed dictionary containing at least an 'id' field of type str
     """
-
-    ...

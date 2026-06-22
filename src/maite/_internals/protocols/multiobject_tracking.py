@@ -3,8 +3,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Sequence
 from fractions import Fraction
-from typing import Iterable, Protocol, Sequence, TypeAlias
+from typing import Protocol, TypeAlias
 
 from typing_extensions import ReadOnly, Required
 
@@ -159,8 +160,6 @@ class DatasetMetadata(protocols.DatasetMetadata):
         Mapping from integer labels to corresponding string descriptions
     """
 
-    ...
-
 
 # Type aliases for convenience.
 
@@ -210,8 +209,6 @@ class Dataset(
         indices to str labels.
     """
 
-    ...
-
 
 class DataLoader(
     gen.DataLoader[InputType, TargetType, DatumMetadataType],
@@ -240,8 +237,6 @@ class DataLoader(
 
     """
 
-    ...
-
 
 class Model(gen.Model[InputType, TargetType], Protocol):
     """
@@ -267,8 +262,6 @@ class Model(gen.Model[InputType, TargetType], Protocol):
 
     """
 
-    ...
-
 
 class Metric(gen.Metric[TargetType, DatumMetadataType], Protocol):
     """
@@ -280,7 +273,11 @@ class Metric(gen.Metric[TargetType, DatumMetadataType], Protocol):
     Methods
     -------
 
-    update(pred_batch: Sequence[MultiobjectTrackingTarget], target_batch: Sequence[MultiobjectTrackingTarget], metadata_batch: Sequence[DatumMetadata]) -> None
+    update(
+      pred_batch: Sequence[MultiobjectTrackingTarget],
+      target_batch: Sequence[MultiobjectTrackingTarget],
+      metadata_batch: Sequence[DatumMetadata]
+    ) -> None
         Add predictions and targets (and metadata if applicable) to metric's cache for later calculation.
 
     compute() -> Mapping[str, Any]
@@ -297,8 +294,6 @@ class Metric(gen.Metric[TargetType, DatumMetadataType], Protocol):
         A typed dictionary containing at least an 'id' field of type str
     """
 
-    ...
-
 
 class Augmentation(
     gen.Augmentation[
@@ -308,7 +303,7 @@ class Augmentation(
         InputType,
         TargetType,
         DatumMetadataType,
-    ]
+    ],
 ):
     """
     An augmentation protocol for the multi-object tracking AI problem.
@@ -316,8 +311,8 @@ class Augmentation(
     An augmentation is expected to take a batch of data and return a modified version of
     that batch. Implementers must provide a single method that takes and returns a
     labeled data batch, where a labeled data batch is represented by a tuple of types
-    `Sequence[VideoStream]`, `Sequence[MultiobjectTrackingTarget]`, and 
-    `Sequence[DatumMetadata]`. These correspond to the model input batch type, 
+    `Sequence[VideoStream]`, `Sequence[MultiobjectTrackingTarget]`, and
+    `Sequence[DatumMetadata]`. These correspond to the model input batch type,
     model target batch type, and datum-level metadata batch type, respectively.
 
     Methods
@@ -327,7 +322,7 @@ class Augmentation(
           tuple[Sequence[VideoStream], Sequence[MultiobjectTrackingTarget], Sequence[DatumMetadata]])
         Return a modified version of original data batch. A data batch is represented
         by a tuple of model input batch (as `Sequence[VideoStream]`, model target batch
-        (as `Sequence[MultiobjectTrackingTarget]`, and batch metadata 
+        (as `Sequence[MultiobjectTrackingTarget]`, and batch metadata
         (as `Sequence[DatumMetadata]`), respectively.
 
     Attributes
@@ -337,11 +332,11 @@ class Augmentation(
         A typed dictionary containing at least an 'id' field of type str
     """
 
-    ...
-
 
 class FieldwiseDataset(
-    Dataset, gen.FieldwiseDataset[InputType, TargetType, DatumMetadataType], Protocol
+    Dataset,
+    gen.FieldwiseDataset[InputType, TargetType, DatumMetadataType],
+    Protocol,
 ):
     """
     A specialization of Dataset protocol (i.e., a subprotocol) that specifies additional

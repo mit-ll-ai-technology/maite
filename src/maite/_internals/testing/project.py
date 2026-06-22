@@ -13,7 +13,7 @@ from importlib import import_module
 from importlib.metadata import entry_points
 from itertools import chain
 from pathlib import Path
-from typing import Any, Literal, Optional, Union, get_args
+from typing import Any, Literal, get_args
 
 from typing_extensions import NotRequired
 
@@ -87,17 +87,17 @@ class ModuleScanResults(PyrightOutput):
 def _pyright_type_completeness(
     module_name: str,
     *,
-    path_to_pyright: Union[Path, None],
+    path_to_pyright: Path | None,
 ) -> ModuleScanResults:
     module_name = module_name.replace("-", "_")
 
     if path_to_pyright is None:  # pragma: no cover
         raise ModuleNotFoundError(
-            "`pyright` was not found. It may need to be installed."
+            "`pyright` was not found. It may need to be installed.",
         )
     if not path_to_pyright.is_file():
         raise FileNotFoundError(
-            f"`path_to_pyright` – {path_to_pyright} – doesn't exist."
+            f"`path_to_pyright` – {path_to_pyright} – doesn't exist.",
         )
 
     proc = subprocess.run(
@@ -152,22 +152,20 @@ class ModuleScan:
     {'filesAnalyzed': ..., 'errorCount': ..., 'warningCount': ..., 'informationCount': ..., 'timeInSec': ...}
     >>> results["typeCompleteness"]["packageName"]
     'maite'
-    >>> results["typeCompleteness"][
-    ...     "symbols"
-    ... ]  # will change as MAITE changes --> # doctest: +SKIP
+    >>> results["typeCompleteness"]["symbols"]  # will change as MAITE changes --> # doctest: +SKIP
     [...]
     """
 
     def __init__(self) -> None:
         self._cached_scan = lru_cache(maxsize=256, typed=False)(
-            _pyright_type_completeness
+            _pyright_type_completeness,
         )
 
     def __call__(
         self,
         module_name: str,
         *,
-        path_to_pyright: Union[Path, None] = PYRIGHT_PATH,
+        path_to_pyright: Path | None = PYRIGHT_PATH,
         cached: bool = True,
     ) -> ModuleScanResults:
         # doc-ignore: EX01
@@ -234,7 +232,7 @@ class ModuleScan:
             raise ModuleNotFoundError(
                 f"No files were found to analyze in association "
                 f"with module `{module_name}`. The module may not be installed or "
-                f"there may be a typo in the name."
+                f"there may be a typo in the name.",
             )
 
         return deepcopy(out) if cached else out
@@ -262,17 +260,13 @@ class ModuleScan:
 
 def _is_dunder(name: str) -> bool:
     *_, name = name.split(".")
-    out = (
-        name.startswith("__")
-        and name.endswith("__")
-        and not name.startswith("___")
-        and not name.endswith("___")
-    )
-    return out
+    return name.startswith("__") and name.endswith("__") and not name.startswith("___") and not name.endswith("___")
 
 
 def get_public_symbols(
-    scan: ModuleScanResults, submodule: str = "", include_dunder_names: bool = False
+    scan: ModuleScanResults,
+    submodule: str = "",
+    include_dunder_names: bool = False,
 ) -> list[Symbol]:
     """
     Return all public symbols (functions, classes, etc.) from a module's API.
@@ -329,7 +323,7 @@ def get_public_symbols(
 
     >>> get_public_symbols(results, submodule="maite.protocols")[0]
     {'category': 'type alias', 'name': 'maite.protocols.ArrayLike', 'referenceCount': 1, 'isExported': True, 'isTypeKnown': True, 'isTypeAmbiguous': False, 'diagnostics': []}
-    """
+    """  # noqa: E501
     check_type("scan", scan, Mapping)
     check_type("submodule", submodule, str)
     check_type("include_dunder_names", include_dunder_names, bool)
@@ -344,9 +338,8 @@ def get_public_symbols(
         if any(not x.isidentifier() for x in submodule.split(".")):
             raise ValueError(f"{submodule} is not a valid module name.")
 
-        _out = [x for x in out if x["name"].startswith(submodule)]
+        return [x for x in out if x["name"].startswith(submodule)]
 
-        return _out
     return list(out)
 
 
@@ -354,7 +347,7 @@ def import_public_symbols(
     scan: ModuleScanResults,
     submodule: str = "",
     categories: Collection[Category] = frozenset(["function", "class"]),
-    skip_module_not_found: Union[bool, Literal["pytest-skip"]] = True,
+    skip_module_not_found: bool | Literal["pytest-skip"] = True,
 ) -> Generator[Any, None, None]:
     """
     Import and yield all public symbols (functions, classes, etc.) from a module's API.
@@ -414,12 +407,14 @@ def import_public_symbols(
         marker = None
     elif skip_module_not_found == "pytest-skip":
         # pytest should be kept optional.
-        from pytest import mark, param
+        from pytest import mark, param  # noqa: PT013
 
         marker = mark.skip(reason="Module not found.")
     else:
         check_one_of(
-            "skip_module_not_found", skip_module_not_found, [True, False, "pytest-skip"]
+            "skip_module_not_found",
+            skip_module_not_found,
+            [True, False, "pytest-skip"],
         )
         marker = None  # pragma: no cover
         raise Exception("unreachable")  # pragma: no cover
@@ -451,11 +446,7 @@ def import_public_symbols(
         # method/variable on that class. Because the symbols are sorted alphabetically
         # we are always guaranteed to encounter a class object before its members.
 
-        if (
-            symbol["category"] == "function"
-            and module_path in cached_typeddict_names
-            and "method" not in categories
-        ):
+        if symbol["category"] == "function" and module_path in cached_typeddict_names and "method" not in categories:
             continue
 
         try:
@@ -511,8 +502,9 @@ def generate_implementer_static_verification_code_snippet(
 
     Warnings
     --------
-    If the type being validated is not fully static (see typing.python.org/en/latest/spec/concepts.html#fully-static-types),
-    then this code snippet may erroneously "pass" static typechecking by masking issues to the typechecker.
+    If the type being validated is not fully static (see
+    typing.python.org/en/latest/spec/concepts.html#fully-static-types), then this code snippet may
+    erroneously "pass" static typechecking by masking issues to the typechecker.
     """
 
     return f"""
@@ -528,7 +520,7 @@ def type_check(class_instance: {class_name}):
 """
 
 
-def load_object(fqname: str):
+def load_object(fqname: str):  # noqa: ANN202
     """
     Load an object into memory from its fully-qualified name
 
@@ -547,8 +539,8 @@ def load_object(fqname: str):
 def statically_verify_component_entrypoint_against_protocol(
     protocol_module: str,
     protocol_name: str,
-    package_name: Optional[str] = None,
-    entrypoint_group: Optional[str] = None,
+    package_name: str | None = None,
+    entrypoint_group: str | None = None,
 ) -> dict[str, bool]:
     """
     Verify that classes specified as object references within an entrypoint group (where group name
@@ -605,29 +597,24 @@ def statically_verify_component_entrypoint_against_protocol(
     being verified against a protocol specification, this function may deem the entrypoint statically invalid.
     """
 
-    protocol_fq_cls = ":".join(
-        [protocol_module, protocol_name]
-    )  # "fq" => "fully qualified"
+    protocol_fq_cls = f"{protocol_module}:{protocol_name}"  # "fq" => "fully qualified"
     protocol_cls = load_object(fqname=protocol_fq_cls)
 
     if entrypoint_group is None:
         entrypoint_group = str(protocol_cls)
 
     results = {}
-    eps = entry_points(group=".".join([protocol_module, protocol_name]))
+    eps = entry_points(group=f"{protocol_module}.{protocol_name}")
 
     for ep in eps:
         if package_name is not None:
             # guard against case where ep.dist happens to be None
             if ep.dist is None:
                 raise ValueError(
-                    "Entry point {ep} doesn"
-                    "'t describe a distribution. "
-                    "Unable to filter on distribution."
+                    "Entry point {ep} doesn't describe a distribution. Unable to filter on distribution.",
                 )
-            else:
-                if ep.dist.name != package_name:
-                    continue
+            if ep.dist.name != package_name:
+                continue
         try:
             class_module, class_name = ep.module, ep.attr
 
@@ -663,7 +650,7 @@ def statically_verify_component_entrypoint_against_protocol(
 
 def statically_verify_exposed_component_entrypoints(
     entrypoint_group_prefix: str = "maite.protocols",
-    package_name: Optional[str] = None,
+    package_name: str | None = None,
 ) -> dict[str, bool]:
     """
     Verify that all MAITE component classes advertised via package entrypoints are statically
@@ -690,7 +677,8 @@ def statically_verify_exposed_component_entrypoints(
         Entrypoint group to check (defaults to 'maite.protocols').
 
     package_name : Optional[str]
-        Name of package to probe for protocol implementations. Setting to None (the default) will include all installed packages.
+        Name of package to probe for protocol implementations. Setting to None (the default) will
+        include all installed packages.
 
     Returns
     -------
@@ -729,20 +717,18 @@ def statically_verify_exposed_component_entrypoints(
             # guard against case where ep.dist happens to be None
             if ep.dist is None:
                 raise ValueError(
-                    "Entry point {ep} doesn"
-                    "'t describe a distribution. "
-                    "Unable to filter on distribution."
+                    "Entry point {ep} doesn't describe a distribution. Unable to filter on distribution.",
                 )
-            else:
-                if ep.dist.name != package_name:
-                    continue
+            if ep.dist.name != package_name:
+                continue
         if not ep.group.startswith(entrypoint_group_prefix):
             continue
 
         try:
             class_module, class_name = ep.module, ep.attr
             protocol_module, protocol_name = ep.group.rsplit(
-                ".", 1
+                ".",
+                1,
             )  # 'foo.bar.baz' -> 'foo.bar', 'baz'
 
             # Generate validation code snippet

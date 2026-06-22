@@ -41,7 +41,7 @@ class SimpleAccuracyMetric:
         # Compare classes and update running counts
         same = model_classes == truth_classes
 
-        for correct, metadata in zip(same, metadata_batch):
+        for correct, metadata in zip(same, metadata_batch, strict=True):
             self._datum_correct[metadata["id"]] = correct
 
         self._total += len(same)
@@ -53,8 +53,8 @@ class SimpleAccuracyMetric:
                 "accuracy": self._correct / self._total,
                 "datum_correct": self._datum_correct,
             }
-        else:
-            raise Exception("No batches processed yet.")
+
+        raise Exception("No batches processed yet.")
 
 
 @pytest.fixture
@@ -94,7 +94,10 @@ def mock_metadata_batch() -> Sequence[Sequence[ic.DatumMetadataType]]:
 
 
 def test_simple_ic_evaluate_from_predictions(
-    simple_ic_metric, mock_prediction_batches, mock_target_batches, mock_metadata_batch
+    simple_ic_metric,
+    mock_prediction_batches,
+    mock_target_batches,
+    mock_metadata_batch,
 ) -> None:
     metric: ic.Metric = simple_ic_metric
     predictions: Sequence[Sequence[ic.TargetType]] = mock_prediction_batches

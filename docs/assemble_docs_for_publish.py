@@ -41,7 +41,7 @@ import sys
 import tarfile
 from collections import defaultdict
 from pathlib import Path
-from typing import List, TypedDict
+from typing import TypedDict
 
 import requests
 
@@ -60,7 +60,7 @@ class PkgInfo(TypedDict):
     name: str
     version: str
     created_at: str
-    tags: List[str]
+    tags: list[str]
 
     major: int  # Parsed from version, not in source json
     minor: int  # Parsed from version, not in source json
@@ -75,12 +75,11 @@ class PkgFileInfo(TypedDict):
 def version_to_tuple(v: str) -> tuple[int, int, int]:
     "Convert a version string vX.Y.Z to a tuple (X,Y,Z)"
     if v[0] != "v":
-        raise ValueError("Version {v} does not start with 'v'")
+        raise ValueError(f"Version {v} does not start with 'v'")
     parts = v[1:].split(".")
     if len(parts) != 3:
-        raise ValueError("Version {v} should be vNUMBER.NUMBER.NUMBER'")
-    res = (int(parts[0]), int(parts[1]), int(parts[2]))
-    return res
+        raise ValueError(f"Version {v} should be vNUMBER.NUMBER.NUMBER'")
+    return (int(parts[0]), int(parts[1]), int(parts[2]))
 
 
 def copy_tox_docs_to_latest(dest_dir: Path):
@@ -94,7 +93,7 @@ def copy_tox_docs_to_latest(dest_dir: Path):
         logger.info("Latest tox build doc {src_latest} does not exist. Ignoring.")
 
 
-def list_maite_doc_pkgs(token: str) -> List[PkgInfo]:
+def list_maite_doc_pkgs(token: str) -> list[PkgInfo]:
     """
     Get the list of maite-doc packages from the package registry.
 
@@ -102,7 +101,7 @@ def list_maite_doc_pkgs(token: str) -> List[PkgInfo]:
     """
     headers = {"Private-Token": token}
     url = f"{BASE_URL}/{PROJECT_ID}/packages?package_name=maite-doc&per_page=100"
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=headers, timeout=10)
     if response.status_code == 200:
         packages = response.json()
         docs = [p for p in packages if p["name"] == "maite-doc"]
@@ -112,10 +111,10 @@ def list_maite_doc_pkgs(token: str) -> List[PkgInfo]:
             d["minor"] = minor
             d["patch"] = patch
         return docs
-    else:
-        raise ValueError(
-            f"Could not download list of packages from {url} {response.status_code=:}"
-        )
+
+    raise ValueError(
+        f"Could not download list of packages from {url} {response.status_code=:}",
+    )
 
 
 def get_pkg_file_infos(pkg: PkgInfo, token: str) -> list[PkgFileInfo]:
@@ -126,21 +125,21 @@ def get_pkg_file_infos(pkg: PkgInfo, token: str) -> list[PkgFileInfo]:
     """
     headers = {"Private-Token": token}
     url = f"{BASE_URL}/{PROJECT_ID}/packages/{pkg['id']}/package_files"
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=headers, timeout=10)
     if response.status_code == 200:
         js = response.json()
         assert isinstance(js, list)
         js.sort(
             key=lambda pkg: datetime.datetime.strptime(
-                pkg["created_at"], "%Y-%m-%dT%H:%M:%S.%fZ"
+                pkg["created_at"],
+                "%Y-%m-%dT%H:%M:%S.%fZ",
             ),
             reverse=True,
         )
         return js
-    else:
-        raise ValueError(
-            f"Could not download of package info from {url} {response.status_code=:}"
-        )
+    raise ValueError(
+        f"Could not download of package info from {url} {response.status_code=:}",
+    )
 
 
 def get_pkg_file(pkg: PkgInfo, file_info: PkgFileInfo, token: str) -> str:
@@ -161,18 +160,18 @@ def get_pkg_file(pkg: PkgInfo, file_info: PkgFileInfo, token: str) -> str:
 
     url = f"{BASE_URL}/{PROJECT_ID}/packages/generic/{package_name}/{package_version}/{file_name}"
     logger.debug(f"Downloading {url}")
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=headers, timeout=10)
     if response.status_code == 200:
         with open(file_name, "wb") as f:
             f.write(response.content)
         logger.debug(f"Downloaded {file_name} from {url}")
         return file_name
-    else:
-        raise ValueError(f"Could not download {url} {response.status_code=:}")
+
+    raise ValueError(f"Could not download {url} {response.status_code=:}")
 
 
 def keep_latest_docs(
-    doc_infos: List[PkgInfo],
+    doc_infos: list[PkgInfo],
     *,
     max_major_versions: int,
     max_minor_versions: int,
@@ -183,7 +182,7 @@ def keep_latest_docs(
     and for each major,minor version we keep at most max_patch_versions
     """
     keepers: list[PkgInfo] = []
-    major_versions = list(set([d["major"] for d in doc_infos]))
+    major_versions = list({d["major"] for d in doc_infos})
     major_versions.sort(reverse=True)
     keep_major_versions = major_versions[:max_major_versions]
 
@@ -193,8 +192,8 @@ def keep_latest_docs(
         if major_version in keep_major_versions:
             major_version_map[major_version].append(d)
 
-    for _major, docs in major_version_map.items():
-        minor_versions = list(set([d["minor"] for d in docs]))
+    for docs in major_version_map.values():
+        minor_versions = list({d["minor"] for d in docs})
         minor_versions.sort(reverse=True)
         keep_minor_versions = minor_versions[:max_minor_versions]
 
@@ -204,7 +203,7 @@ def keep_latest_docs(
             if minor_version in keep_minor_versions:
                 minor_version_map[minor_version].append(d)
 
-        for _minor, docs in minor_version_map.items():
+        for docs in minor_version_map.values():
             docs.sort(reverse=True, key=lambda d: d["patch"])
             keepers.extend(docs[:max_patch_version])
 
@@ -319,7 +318,8 @@ if __name__ == "__main__":
     import sys
 
     logging.basicConfig(
-        level=logging.WARN, format="%(asctime)s %(levelname)s %(message)s"
+        level=logging.WARN,
+        format="%(asctime)s %(levelname)s %(message)s",
     )
     logger.setLevel(logging.DEBUG)
 

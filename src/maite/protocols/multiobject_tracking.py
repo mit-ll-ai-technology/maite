@@ -1,3 +1,8 @@
+# Copyright 2026, MASSACHUSETTS INSTITUTE OF TECHNOLOGY
+# Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014)
+# SPDX-License-Identifier: MIT
+"""MAITE multi-object tracking protocols."""
+
 from typing import TypeAlias
 
 from maite._internals.protocols.multiobject_tracking import (  # isort:skip

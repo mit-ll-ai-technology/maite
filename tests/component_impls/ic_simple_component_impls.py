@@ -40,34 +40,33 @@ W = 4  # img width
 
 class DatasetImpl:
     def __init__(self):
-        self._data = np.random.rand(N_DATAPOINTS, C, H, W)
+        self.data = np.random.rand(N_DATAPOINTS, C, H, W)  # noqa: NPY002
 
-        self._targets = np.zeros((N_DATAPOINTS, N_CLASSES))
-        for data_index in range(self._targets.shape[0]):
-            self._targets[data_index, data_index % N_CLASSES] = 1
+        self.targets = np.zeros((N_DATAPOINTS, N_CLASSES))
+        for data_index in range(self.targets.shape[0]):
+            self.targets[data_index, data_index % N_CLASSES] = 1
 
-        self._data_metadata: list[DatumMetadata] = [
-            {"id": i} for i in range(self._data.shape[0])
-        ]
+        self.data_metadata: list[DatumMetadata] = [{"id": i} for i in range(self.data.shape[0])]
 
         self.metadata = DatasetMetadata(
-            id="simple_dataset", index2label={i: f"class_{i}" for i in range(N_CLASSES)}
+            id="simple_dataset",
+            index2label={i: f"class_{i}" for i in range(N_CLASSES)},
         )
 
     def __len__(self) -> int:
-        return self._data.shape[0]
+        return self.data.shape[0]
 
     def __getitem__(self, ind: int) -> tuple[np.ndarray, np.ndarray, DatumMetadata]:
-        return (self._data[ind], self._targets[ind], self._data_metadata[ind])
+        return (self.data[ind], self.targets[ind], self.data_metadata[ind])
 
     def get_input(self, ind, /) -> np.ndarray:
-        return self._data[ind]
+        return self.data[ind]
 
     def get_target(self, ind, /) -> np.ndarray:
-        return self._targets[ind]
+        return self.targets[ind]
 
     def get_metadata(self, ind, /) -> DatumMetadata:
-        return self._data_metadata[ind]
+        return self.data_metadata[ind]
 
 
 class DataLoaderImpl:
@@ -77,9 +76,7 @@ class DataLoaderImpl:
 
     def __iter__(
         self,
-    ) -> Iterator[
-        tuple[Sequence[np.ndarray], Sequence[np.ndarray], Sequence[DatumMetadata]]
-    ]:
+    ) -> Iterator[tuple[Sequence[np.ndarray], Sequence[np.ndarray], Sequence[DatumMetadata]]]:
         # calculate number of batches
         n_batches = len(self._dataset) // self._batch_size
 
@@ -118,22 +115,23 @@ class AugmentationImpl:
 
     def __call__(
         self,
-        __datum_batch: tuple[
-            Sequence[InputType], Sequence[TargetType], Sequence[DatumMetadataType]
+        datum_batch: tuple[
+            Sequence[InputType],
+            Sequence[TargetType],
+            Sequence[DatumMetadataType],
         ],
     ) -> tuple[list[np.ndarray], list[np.ndarray], Sequence[EnrichedDatumMetadata]]:
-        input_batch_aug = copy.deepcopy([np.array(elem) for elem in __datum_batch[0]])
-        target_batch_aug = copy.deepcopy([np.array(elem) for elem in __datum_batch[1]])
+        input_batch_aug = copy.deepcopy([np.array(elem) for elem in datum_batch[0]])
+        target_batch_aug = copy.deepcopy([np.array(elem) for elem in datum_batch[1]])
         # metadata_batch_aug = copy.deepcopy(__datum_batch[2])
 
         # -- manipulate input_batch, target_batch, and metadata_batch --
         metadata_batch_aug: list[EnrichedDatumMetadata] = []
 
         # add new value to metadata_batch_aug
-        for md in __datum_batch[2]:
-            metadata_batch_aug.append(
-                EnrichedDatumMetadata(**copy.deepcopy(md), new_key="new_val")
-            )
+        metadata_batch_aug.extend(
+            EnrichedDatumMetadata(**copy.deepcopy(md), new_key="new_val") for md in datum_batch[2]
+        )
 
         # modify input batch
         for inp_batch_elem in input_batch_aug:
@@ -150,12 +148,12 @@ class ModelImpl:
     def __init__(self):
         self.metadata = ModelMetadata({"id": "simple_model"})
 
-    def __call__(self, __input_batch: Sequence[InputType]) -> list[np.ndarray]:
+    def __call__(self, _input_batch: Sequence[InputType]) -> list[np.ndarray]:
         target_batch = np.zeros((N_DATAPOINTS, N_CLASSES))
         for i, target_instance in enumerate(target_batch):
             target_instance[i % N_CLASSES] = 1
 
-        return [i for i in target_batch]
+        return list(target_batch)
 
 
 class MetricImpl:
@@ -167,9 +165,9 @@ class MetricImpl:
 
     def update(
         self,
-        __pred_batch: Sequence[TargetType],
-        __target_batch: Sequence[TargetType],
-        __metadata_batch: Sequence[DatumMetadataType],
+        _pred_batch: Sequence[TargetType],
+        _target_batch: Sequence[TargetType],
+        _metadata_batch: Sequence[DatumMetadataType],
     ) -> None:
         return None
 
@@ -182,9 +180,7 @@ class MockDataset:
 
     def __init__(self, size: int = 8):
         # Require dataset size to be even so expected accuracy easier to predict when modifying odd instances
-        assert size % 2 == 0, (
-            "size of mock dataset must be even to support tests more easily"
-        )
+        assert size % 2 == 0, "size of mock dataset must be even to support tests more easily"
         self.size = size
         self.metadata = DatasetMetadata(id="MockDataset")
 
@@ -195,12 +191,12 @@ class MockDataset:
         if not (0 <= i < self.size):
             raise IndexError
 
-        input = i * np.ones((3, 32, 32))
+        input_ = i * np.ones((3, 32, 32))
         target = np.zeros(10)
         target[i % 10] = 1
         metadata = DatumMetadataType(id=i)
 
-        return input, target, metadata
+        return input_, target, metadata
 
 
 class MockModel:
@@ -229,7 +225,9 @@ class MockAugmentation:
     def __call__(
         self,
         batch: tuple[
-            Sequence[ArrayLike], Sequence[ArrayLike], Sequence[DatumMetadataType]
+            Sequence[ArrayLike],
+            Sequence[ArrayLike],
+            Sequence[DatumMetadataType],
         ],
     ) -> tuple[Sequence[ArrayLike], Sequence[ArrayLike], Sequence[DatumMetadataType]]:
         xb, yb, mdb = batch
@@ -256,7 +254,7 @@ class SimpleAccuracyMetric:
         self,
         pred_batch: Sequence[ArrayLike],
         target_batch: Sequence[ArrayLike],
-        metadata_batch: Sequence[DatumMetadataType],
+        _metadata_batch: Sequence[DatumMetadataType],
     ) -> None:
         model_probs = [np.array(r) for r in pred_batch]
         true_onehot = [np.array(r) for r in target_batch]
@@ -273,5 +271,5 @@ class SimpleAccuracyMetric:
     def compute(self) -> dict[str, Any]:
         if self._total > 0:
             return {"accuracy": self._correct / self._total}
-        else:
-            raise RuntimeError("No batches processed yet.")
+
+        raise RuntimeError("No batches processed yet.")

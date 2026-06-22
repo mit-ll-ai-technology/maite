@@ -141,9 +141,7 @@ import textwrap
     data=...,
     indent_level=st.integers(0, 9),
 )
-def test_rst_parsing(
-    blocks: list[tuple[str, str]], data: st.DataObject, indent_level: int
-):
+def test_rst_parsing(blocks: list[tuple[str, str]], data: st.DataObject, indent_level: int):
     """Combines known src blocks (with associated expected outputs), joined by
     different patterns of joining text"""
     src_blocks = [b[0] for b in blocks]
@@ -254,9 +252,7 @@ def print_file(x: Path):
         pytest.param(md_src2, md_expected2, id="src2"),
         pytest.param(md_src2 * 3, "\n".join([md_expected2] * 3), id="src2 repeat"),
         pytest.param(md_src3 * 3, "\n".join([md_expected3] * 3), id="src3 repeat"),
-        pytest.param(
-            md_src1 + md_src2, "\n".join([md_expected1, md_expected2]), id="src1+src2"
-        ),
+        pytest.param(md_src1 + md_src2, "\n".join([md_expected1, md_expected2]), id="src1+src2"),
         pytest.param("", "", id="empty input"),
     ],
 )

@@ -1,6 +1,7 @@
 # Copyright 2025, MASSACHUSETTS INSTITUTE OF TECHNOLOGY
 # Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).
 # SPDX-License-Identifier: MIT
+"""Interoperability module for MAITE and Yolo models."""
 
 import warnings
 
@@ -17,5 +18,6 @@ if is_torch_available() and is_yolov5_available() and is_ultralytics_available()
 else:
     warnings.warn(
         "The `YoloObjectDetector` wrapper requires the torch, yolov5, and ultralytics packages, "
-        "which can be installed with the command: `pip install maite[yolo-models]`."
+        "which can be installed with the command: `pip install maite[yolo-models]`.",
+        stacklevel=2,
     )

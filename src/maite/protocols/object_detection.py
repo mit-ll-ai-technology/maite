@@ -1,6 +1,7 @@
-# Copyright 2024, MASSACHUSETTS INSTITUTE OF TECHNOLOGY
+# Copyright 2026, MASSACHUSETTS INSTITUTE OF TECHNOLOGY
 # Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).
 # SPDX-License-Identifier: MIT
+"""MAITE object detection protocols."""
 
 from typing import TypeAlias
 
@@ -59,10 +60,6 @@ Use `DatumMetadataType` in generic protocol contexts where metadata appears as a
 type argument. Currently equivalent to
 :py:type:`~maite.protocols.object_detection.DatumMetadata`.
 """
-
-## TODO: consider exporting _Datum
-# Datum: TypeAlias = _Datum
-# """Alias of tuple[:py:type:`~maite.protocols.object_detection.InputType`, :py:type:`~maite.protocols.object_detection.TargetType`, :py:type:`~maite.protocols.object_detection.DatumMetadataType`]"""
 
 
 __all__ = [

@@ -10,7 +10,7 @@ from collections.abc import Iterable
 import pytest
 
 
-@pytest.fixture()
+@pytest.fixture
 def cleandir() -> Iterable[str]:
     """
     A pytest fixture that runs a test in a temporary directory as the current working directory.

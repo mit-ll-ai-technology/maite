@@ -70,9 +70,7 @@ def test_python_version():
 def test_scan_path_to_code():
     import maite
 
-    results = pyright_analyze(
-        Path(maite.__file__).parent, report_unnecessary_type_ignore_comment=True
-    )
+    results = pyright_analyze(Path(maite.__file__).parent, report_unnecessary_type_ignore_comment=True)
     assert len(results[0]["generalDiagnostics"]) >= 0
 
 
@@ -87,9 +85,7 @@ def test_preamble():
 
 
 def test_scan_docstring_raises_on_path():
-    with pytest.raises(
-        ValueError, match=re.escape(r"`scan_docstring=True` can only be specified")
-    ):
+    with pytest.raises(ValueError, match=re.escape(r"`scan_docstring=True` can only be specified")):
         pyright_analyze(Path.cwd(), scan_docstring=True)
 
 
@@ -105,11 +101,7 @@ def test_scan_docstring():
 
     results = pyright_analyze(f, scan_docstring=True)
     assert results[0]["summary"]["errorCount"] == 1
-    (message,) = (
-        d["message"]
-        for d in results[0]["generalDiagnostics"]
-        if d["severity"] == "error"
-    )
+    (message,) = (d["message"] for d in results[0]["generalDiagnostics"] if d["severity"] == "error")
     assert message.startswith('Operator "+" not supported for types')
 
 
@@ -167,9 +159,7 @@ rst_bad_2 = """
 def test_scan_rst(src: str, expected_num_error: int):
     Path("file.rst").write_text(src)  # file will be written to a tmp dir
     results = pyright_analyze("file.rst")
-    assert results[0]["summary"]["errorCount"] == expected_num_error, (
-        list_error_messages(results[0])
-    )
+    assert results[0]["summary"]["errorCount"] == expected_num_error, list_error_messages(results[0])
 
 
 md_good_1 = """
@@ -243,9 +233,7 @@ md_bad_2 = """
 def test_scan_md(src: str, expected_num_error: int):
     Path("file.md").write_text(src)  # file will be written to a tmp dir
     results = pyright_analyze("file.md")
-    assert results[0]["summary"]["errorCount"] == expected_num_error, (
-        list_error_messages(results[0])
-    )
+    assert results[0]["summary"]["errorCount"] == expected_num_error, list_error_messages(results[0])
 
 
 @pytest.mark.filterwarnings("ignore:the imp module is deprecate")
@@ -258,9 +246,7 @@ def test_scan_ipynb(src, expected_num_error):
     jupytext.write(jupytext.reads(src, fmt=".py"), "file.ipynb", fmt=".ipynb")
 
     results = pyright_analyze("file.ipynb")
-    assert results[0]["summary"]["errorCount"] == expected_num_error, (
-        list_error_messages(results[0])
-    )
+    assert results[0]["summary"]["errorCount"] == expected_num_error, list_error_messages(results[0])
 
 
 @pytest.mark.usefixtures("cleandir")
@@ -284,8 +270,7 @@ def test_scan_doesnt_clobber_preexisting_pyright_config():
 
     assert (
         results[0]["summary"]["errorCount"] == 1
-        and 'Unnecessary "# type: ignore" comment'
-        in results[0]["generalDiagnostics"][0]["message"]
+        and 'Unnecessary "# type: ignore" comment' in results[0]["generalDiagnostics"][0]["message"]
     )
 
     assert expected_config == post_run_config
@@ -301,9 +286,7 @@ def test_bad_path_to_pyright():
     def f(): ...
 
     bad_path = Path("not/a/path/pyright")
-    with pytest.raises(
-        FileNotFoundError, match=re.escape(f"{str(bad_path)} – doesn't exist.")
-    ):
+    with pytest.raises(FileNotFoundError, match=re.escape(f"{str(bad_path)} – doesn't exist.")):
         pyright_analyze(f, path_to_pyright=Path(bad_path))
 
 
@@ -322,8 +305,6 @@ def test_list_error_messages():
     results = pyright_analyze(f)[0]
     listed_errors = list_error_messages(results)
     assert len(listed_errors) == 1
-    assert listed_errors[0].startswith(
-        '(line start) 1: Cannot access member "lower" for type "int"'
-    ) or listed_errors[0].startswith(
-        '(line start) 1: Cannot access attribute "lower" for class "int"'
-    )
+    assert listed_errors[0].startswith('(line start) 1: Cannot access member "lower" for type "int"') or listed_errors[
+        0
+    ].startswith('(line start) 1: Cannot access attribute "lower" for class "int"')

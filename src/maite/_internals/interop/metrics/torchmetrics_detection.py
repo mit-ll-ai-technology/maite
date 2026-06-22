@@ -3,7 +3,8 @@
 # SPDX-License-Identifier: MIT
 from __future__ import annotations
 
-from typing import Any, Callable, Sequence
+from collections.abc import Callable, Sequence
+from typing import Any
 
 import numpy as np
 import torch
@@ -15,7 +16,9 @@ from maite.protocols import ArrayLike, MetricMetadata
 
 
 def _arraylike_as_tensor(
-    arr: ArrayLike, device: Any | None = None, dtype: torch.dtype | None = None
+    arr: ArrayLike,
+    device: Any | None = None,  # noqa: ANN401 (deliberate use of 'Any' type)
+    dtype: torch.dtype | None = None,
 ) -> torch.Tensor:
     """Safe bridging of `maite.ArrayLike` to `torch.Tensor`.
 
@@ -36,9 +39,10 @@ def _arraylike_as_tensor(
         except Exception as e2:
             raise Exception(
                 (
-                    f"Unable to bridge data of type {type(arr)} directly to torch.Tensor due to the following error: {e1}."
+                    f"Unable to bridge data of type {type(arr)} directly to torch.Tensor"
+                    f"due to the following error: {e1}. "
                     f"Attempt to bridge to numpy.ndarray as an intermediary also failed."
-                )
+                ),
             ) from e2
 
 
@@ -108,10 +112,10 @@ class TMDetectionMetric:
         metric: torchmetrics.Metric,
         output_key: str | None = None,
         output_transform: Callable[[dict[str, torch.Tensor]], Any] | None = None,
-        device: Any | None = None,
+        device: Any | None = None,  # noqa: ANN401, deliberate use of 'Any' type
         dtype: torch.dtype | None = None,
         metadata: MetricMetadata | None = None,
-    ):
+    ) -> None:
         """
         Parameters
         ----------
@@ -122,7 +126,7 @@ class TMDetectionMetric:
             is provided, and the result of `torchmetrics.Metric.compute()` or
             `output_transform` (if provided) is not a dictionary with a string as its
             key, then the value will default to the name of the `torchmetrics.Metric`.
-        output_transform : Callable[dict[str, torch.Tensor]]
+        output_transform : Callable[dict[str, torch.Tensor], Any]
             Function that takes the output of `torchmetrics.Metric.compute()` as input
             and returns a modified version of it.
         device : Any, optional
@@ -149,7 +153,7 @@ class TMDetectionMetric:
         self.dtype = dtype
 
         if metadata is None:
-            metadata = {"id": metric._get_name()}
+            metadata = {"id": metric._get_name()}  # noqa: SLF001
 
         self.metadata = metadata
 
@@ -157,23 +161,23 @@ class TMDetectionMetric:
             self.metric.to(device)
 
     @staticmethod
-    def _assert_valid_detection_metric(metric: torchmetrics.Metric):
+    def _assert_valid_detection_metric(metric: torchmetrics.Metric) -> None:
         if type(metric) not in list(TM_DETECTION_METRIC_WHITELIST.values()):
             raise ValueError(
-                f"Unsupported `metric` supplied: {type(metric)}. Must be one of {list(TM_DETECTION_METRIC_WHITELIST.keys())}."
+                f"Unsupported `metric` supplied: {type(metric)}. "
+                f"Must be one of {list(TM_DETECTION_METRIC_WHITELIST.keys())}.",
             )
 
     @staticmethod
-    def _assert_valid_detection_metric_parameters(metric: torchmetrics.Metric):
+    def _assert_valid_detection_metric_parameters(metric: torchmetrics.Metric) -> None:
         """Check if `metric` has valid parameters.
 
         This ensures that a valid metric solely performs the object detection task.
         """
-        if isinstance(metric, torchmetrics.detection.MeanAveragePrecision):
-            if "segm" in metric.iou_type:
-                raise ValueError(
-                    "torchmetrics.detection.MeanAveragePrecision with 'segm' iou_type not supported."
-                )
+        if isinstance(metric, torchmetrics.detection.MeanAveragePrecision) and "segm" in metric.iou_type:
+            raise ValueError(
+                "torchmetrics.detection.MeanAveragePrecision with 'segm' iou_type not supported.",
+            )
 
     def _format_for_tm(
         self,
@@ -194,7 +198,9 @@ class TMDetectionMetric:
             "boxes": _arraylike_as_tensor(odt.boxes, **kwargs),
             "scores": _arraylike_as_tensor(odt.scores, **kwargs),
             "labels": _arraylike_as_tensor(
-                odt.labels, device=self.device, dtype=torch.int32
+                odt.labels,
+                device=self.device,
+                dtype=torch.int32,
             ),
         }
 
@@ -212,7 +218,7 @@ class TMDetectionMetric:
         self,
         pred_batch: Sequence[od.TargetType],
         target_batch: Sequence[od.TargetType],
-        metadata_batch: Sequence[od.DatumMetadataType],
+        metadata_batch: Sequence[od.DatumMetadataType],  # noqa: ARG002
     ) -> None:
         # doc-ignore: EX01
         """
@@ -263,7 +269,7 @@ class TMDetectionMetric:
 
         if not isinstance(results, dict):
             # ensure dict[str, Any]
-            key = self.metric._get_name()
+            key = self.metric._get_name()  # noqa: SLF001
             results = {key: results}
 
         return results

@@ -81,7 +81,7 @@ dev = [
 # There is an implicit dep not recorded in yolov5 7.0.13 on setuptools which includes 'pkg_resources'
 # This never had to be declared until python 3.12+ removed setuptools it as built-in, and later versions
 # of setuptools that didn't include pkg_resources.
-# yolov5 7.0.14 may have fixed this, but it downgrades huggingface-hub dep to 0.24.7, which breaks transformers 
+# yolov5 7.0.14 may have fixed this, but it downgrades huggingface-hub dep to 0.24.7, which breaks transformers
 # (when transformers tries to import is_offline_mode). This seems to be a different issue with transformers dep description.
 # Thus, we avoid latest yolov5 versions and dep and explicitly ask for upper-bounded setuptools
 yolo-models = [
@@ -93,7 +93,7 @@ yolo-models = [
   "torch (>=2.2.0)",
   "ultralytics (>=8.2.78)",
   "yolov5 (<7.0.14)",
-  "setuptools (>=70.0.0,<81)",  
+  "setuptools (>=70.0.0,<81)",
 ]
 
 # dependencies required to use multi-object tracking utilities
@@ -146,8 +146,10 @@ exclude = [
   "_build",
   ".tox",
   "prototype",
+  "examples/**/*.ipynb",
 ]
 
+line-length = 120
 indent-width = 4
 target-version = "py310"
 extend-include = ["*.ipynb"]
@@ -155,18 +157,59 @@ extend-include = ["*.ipynb"]
 
 
 [tool.ruff.lint]
-# TODO https://gitlab.jatic.net/jatic/cdao/maite/-/issues/815: The suggested lints will
-# cause a large diff. We will investigate the lints individually and add them in smaller pieces.
-#select = ["F", "E", "W", "C90", "I", "N", "D1", "D200", "D201", "D211", "D403", "D419", "UP",
-#          "YTT", "ANN", "S",  "BLE", "B", "A", "COM", "C4", "T10", "ISC", "ICN", "PYI", "PT", "Q",
-#          "RSE", "RET", "SLF", "SIM", "TID252", "ARG", "FIX", "PD", "FLY", "NPY", "RUF027",
-#          "RUF100", "PERF"]
-#ignore = ["ANN101","ANN102","C408","C416"]
+select = ["F", "E", "W", "C90", "I", "N", "D1", "D200", "D201", "D211", "D403", "D419", "UP",
+          "YTT", "ANN", "S",  "BLE", "B", "A", "COM", "C4", "T10", "ISC", "ICN", "PYI", "PT", "Q",
+          "RSE", "RET", "SLF", "SIM", "TID252", "ARG", "FIX", "PD", "FLY", "NPY", "RUF027",  # note: RUF027 is not run without `--preview` flag (as of 20260622)
+          "RUF100", "PERF",]
+
+# ignore some specific ruff tests to be addressed in the future (presented in descending order of instance count)
+ignore = [
+          "C901",    # McCabe complexity > 5
+          "FIX002",  # 'TODO' comments in code (within _internals)
+          "BLE001",  # catching blind exception 
+          "S603",    # `subprocess` call on potentially untrusted input
+          "S607",    # `subprocess` call with partial executable path  
+          "S202",    # use of `tarfile.open(...).extractall()`
+          ]
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
 fixable = ["ALL"]
-unfixable = []
+unfixable = ["C408"]
+
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 extend-select = ["I"]
 
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = [
+  "ANN001", "ANN201", "ANN202", "ANN204", # type annotations
+  "C901", # Mccabe complexity
+  "D100", "D101","D102","D103","D104", "D105", # docstrings
+  "PT011", # pytest.raises(ValueError) is too broad
+  "S101", # assert ok in tests
+  ]
+"examples/**/*.ipynb" = [
+  "A001","A002","A004", # allow shadowing display,id,input
+  "ANN001","ANN201","ANN204","ANN401", # type annotations
+  "B905", # do not require strict zip
+  "D101", "D102", "D103", "D105", "D205", # docstrings
+  "N816", # allow mixed case mAP_metric
+  "NPY002", # allow np.random.rand
+  "PERF401", # Do not require list comprehensions
+  "RET504", # allow returning variables
+  "S101", # allow assert
+  "S113", # do not require requests timeout
+  "S310", # urls are already audited.
+
+]
+"src/maite/_internals/testing/project.py" = ["N815"] # Dictionary keys originating from pyright CLI use mixedCase
+
+"docs/**/*.py" = [
+  "ANN001", "ANN201", "ANN202", # type annotations
+  "C901", # mccabe complexity
+  "D100","D101", "D103", # docstrings
+  "S101", # assert
+]
 
 [tool.ruff.format]
 quote-style = "double"
@@ -176,14 +219,12 @@ line-ending = "auto"
 docstring-code-format = true
 docstring-code-line-length = "dynamic"
 
-
 [tool.ruff.lint.isort]
 known-first-party = ["maite"]
 
 [tool.ruff.lint.mccabe]
 # Flag errors (`C901`) whenever the complexity level exceeds 5.
 max-complexity = 5
-
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"

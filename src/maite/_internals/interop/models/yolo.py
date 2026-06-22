@@ -4,12 +4,12 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Any, Optional, Union
+from typing import Any, TypeAlias, cast
 
 import numpy as np
 import torch
-from typing_extensions import Sequence, TypeAlias, cast
 from ultralytics.engine.results import Results
 from ultralytics.models import YOLO
 from yolov5.models.common import AutoShape, Detections
@@ -17,8 +17,8 @@ from yolov5.models.common import AutoShape, Detections
 from maite.protocols import ModelMetadata
 from maite.protocols import object_detection as od
 
-YOLOObjectDetectionResults: TypeAlias = Union[Detections, list[Results]]
-YOLOModel: TypeAlias = Union[YOLO, AutoShape]
+YOLOObjectDetectionResults: TypeAlias = Detections | list[Results]
+YOLOModel: TypeAlias = YOLO | AutoShape
 
 
 @dataclass
@@ -103,14 +103,14 @@ class YoloObjectDetector:
     >>> model_results: Sequence[od.TargetType] = wrapped_yolov8_model(batch_data)
     >>> print(model_results)
     [ObjectDetectionTargets(boxes=array([], shape=(0, 4), dtype=float32), labels=array([], dtype=uint8), scores=array([], dtype=float32)), ObjectDetectionTargets(boxes=array([], shape=(0, 4), dtype=float32), labels=array([], dtype=uint8), scores=array([], dtype=float32)), ObjectDetectionTargets(boxes=array([], shape=(0, 4), dtype=float32), labels=array([], dtype=uint8), scores=array([], dtype=float32)), ObjectDetectionTargets(boxes=array([], shape=(0, 4), dtype=float32), labels=array([], dtype=uint8), scores=array([], dtype=float32)), ObjectDetectionTargets(boxes=array([], shape=(0, 4), dtype=float32), labels=array([], dtype=uint8), scores=array([], dtype=float32))]
-    """
+    """  # noqa: E501
 
     def __init__(
         self,
-        model: Union[YOLO, AutoShape],
+        model: YOLO | AutoShape,
         metadata: ModelMetadata,
-        yolo_inference_args: Optional[dict[str, Any]] = None,
-    ):
+        yolo_inference_args: dict[str, Any] | None = None,
+    ) -> None:
         """
         Parameters
         ----------
@@ -137,9 +137,7 @@ class YoloObjectDetector:
         """
         self.model = model
         self.metadata = metadata
-        self.yolo_inference_args: dict[str, Any] = (
-            yolo_inference_args if yolo_inference_args is not None else {}
-        )
+        self.yolo_inference_args: dict[str, Any] = yolo_inference_args if yolo_inference_args is not None else {}
 
     @staticmethod
     def _format_results(
@@ -173,7 +171,7 @@ class YoloObjectDetector:
                 labels = np.array(detections.cls, dtype=np.uint8)
                 scores = np.array(detections.conf)
                 all_detections.append(
-                    ObjectDetectionTargets(boxes=boxes, labels=labels, scores=scores)
+                    ObjectDetectionTargets(boxes=boxes, labels=labels, scores=scores),
                 )
         else:
             # Results from yolov5 engine are `Detections` objects
@@ -193,7 +191,7 @@ class YoloObjectDetector:
                         scores[idx] = detection[4]
 
                 all_detections.append(
-                    ObjectDetectionTargets(boxes=boxes, labels=labels, scores=scores)
+                    ObjectDetectionTargets(boxes=boxes, labels=labels, scores=scores),
                 )
 
         return all_detections
@@ -240,10 +238,11 @@ class YoloObjectDetector:
 
         try:
             return self._format_results(results)
-        except Exception:
+        except Exception as err:
             raise Exception(
-                "MAITE could not process the model's inference result. Please ensure the model is either YOLOv5 or YOLOv8 designed for the object detection task."
-            )
+                "MAITE could not process the model's inference result. "
+                "Please ensure the model is either YOLOv5 or YOLOv8 designed for the object detection task.",
+            ) from err
 
 
 __all__ = ["YoloObjectDetector"]

@@ -140,3 +140,5 @@ examples/**/*.jpg
 
 # Dev container local environment files (personal settings, certs, API keys, etc.)
 .devcontainer/.envrc
+
+*.pt

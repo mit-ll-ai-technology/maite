@@ -310,11 +310,7 @@ def validate_docstring(
     method_ignore = set(method_ignore)
     property_ignore = set(property_ignore)
 
-    get_tags = (
-        _get_numpy_tags
-        if ignore_via_comments_allowed
-        else lambda _: cast(set[NumpyDocErrorCode], set())
-    )
+    get_tags = _get_numpy_tags if ignore_via_comments_allowed else lambda _: cast(set[NumpyDocErrorCode], set())
 
     for _name, _codes in [
         ("ignore", ignore),
@@ -323,10 +319,7 @@ def validate_docstring(
     ]:
         if not _codes <= ERRORCODES:
             unknown = ", ".join(sorted(_codes - ERRORCODES))
-            raise ValueError(
-                f"`{_name}` contains the following elements that are not valid error "
-                f"code(s): {unknown}"
-            )
+            raise ValueError(f"`{_name}` contains the following elements that are not valid error code(s): {unknown}")
     validate = cast(Callable[[Any], _NumpyDocValidate], validate)
 
     errors: dict[NumpyDocErrorCode, list[str]] = defaultdict(list)
@@ -367,9 +360,7 @@ def validate_docstring(
     if isinstance(doc_obj, ClassDoc):
         init_results = validate(get_doc_object(obj.__init__))
         if obj.__init__.__doc__ == AUTO_INIT_DOC:
-            init_results["errors"].append(
-                ("GL08", "The object does not have a docstring")
-            )
+            init_results["errors"].append(("GL08", "The object does not have a docstring"))
 
         init_codes = {c for c, _ in init_results["errors"]}
 
@@ -384,8 +375,7 @@ def validate_docstring(
             resolved: list[NumpyDocErrorCode] = [
                 code
                 for code in errors
-                if (code.endswith("01") or code == "GL08")
-                and ((code not in init_codes) ^ (code not in results_codes))
+                if (code.endswith("01") or code == "GL08") and ((code not in init_codes) ^ (code not in results_codes))
             ]
 
             for item in resolved:

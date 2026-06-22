@@ -33,22 +33,20 @@ class ODTgt:
 cioutest_preds = [
     ODTgt(
         torch.tensor(
-            [[296.55, 93.96, 314.97, 152.79], [298.55, 98.96, 314.97, 151.79]]
+            [[296.55, 93.96, 314.97, 152.79], [298.55, 98.96, 314.97, 151.79]],
         ).numpy(),
         torch.tensor([4, 5]).numpy(),
         torch.tensor([0.236, 0.56]).numpy(),
-    )
+    ),
 ]
 cioutest_target = [
     ODTgt(
         torch.tensor([[300.00, 100.00, 315.00, 150.00]]).numpy(),
         torch.tensor([5]).numpy(),
         torch.tensor([1]).numpy(),
-    )
+    ),
 ]
-cioutest_metadata: list[DatumMetadataType] = [
-    {"id": i} for i, _ in enumerate(cioutest_preds)
-]
+cioutest_metadata: list[DatumMetadataType] = [{"id": i} for i, _ in enumerate(cioutest_preds)]
 
 
 def test_ciou():
@@ -98,6 +96,6 @@ def test_invalid_metric():
 
 
 def test_invalid_map_metric():
+    tm_metric = MeanAveragePrecision(iou_type="segm")
     with pytest.raises(ValueError):
-        tm_metric = MeanAveragePrecision(iou_type="segm")
         TMDetectionMetric(tm_metric)

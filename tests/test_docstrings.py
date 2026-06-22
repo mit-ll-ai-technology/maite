@@ -10,7 +10,6 @@ from maite._internals.testing.pyright import list_error_messages, pyright_analyz
 from tests import module_scan
 
 # Generates a string that imports all symbols from the maite's public API.
-# TODO: Make this a convenience function exposed via our public API?
 
 # Note that some symbols within maite.protocols module and its submodules
 # have the same unqualified name. In these cases, we can't simply import all
@@ -24,7 +23,7 @@ preamble = "\n".join(
         for x in get_public_symbols(module_scan("maite"))
         if x["category"] in {"module", "function", "class", "type alias"}
         and not x["name"].rsplit(".", maxsplit=1)[0].startswith("maite.protocols")
-    ]
+    ],
 )
 
 all_funcs_and_classes = list(
@@ -35,11 +34,7 @@ all_funcs_and_classes = list(
 )
 
 PYRIGHT_SCAN_RESULTS = []
-FUNCS_TO_SCAN = [
-    obj
-    for obj in all_funcs_and_classes
-    if obj.__doc__ is not None and obj is not pyright_analyze
-]
+FUNCS_TO_SCAN = [obj for obj in all_funcs_and_classes if obj.__doc__ is not None and obj is not pyright_analyze]
 for obj, scan in zip(
     FUNCS_TO_SCAN,
     pyright_analyze(
@@ -48,18 +43,16 @@ for obj, scan in zip(
         report_unnecessary_type_ignore_comment=True,
         preamble=preamble,
     ),
+    strict=True,
 ):
     PYRIGHT_SCAN_RESULTS.append([obj, scan])
 
 
-@pytest.mark.parametrize("obj, scan", PYRIGHT_SCAN_RESULTS)
+@pytest.mark.parametrize(("obj", "scan"), PYRIGHT_SCAN_RESULTS)
 def test_docstrings_scan_clean_via_pyright(obj, scan):
     if scan["summary"]["errorCount"] != 0:
         raise ValueError(
-            "\n"
-            + f"Pyright error in docstring for {obj}"
-            + "\n"
-            + "\n".join(list_error_messages(scan))
+            f"\nPyright error in docstring for {obj}\n" + "\n".join(list_error_messages(scan)),
         )
 
 

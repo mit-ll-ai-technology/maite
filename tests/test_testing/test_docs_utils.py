@@ -8,7 +8,6 @@ from itertools import chain
 from typing import Protocol
 
 import pytest
-from pytest import param
 
 from maite._internals.compat import TypedDict
 from maite._internals.testing.docs import _get_numpy_tags, validate_docstring
@@ -229,13 +228,13 @@ bad_doc_class = make_class(
 
 
 @pytest.mark.parametrize(
-    "obj, ignore_codes, error_codes",
+    ("obj", "ignore_codes", "error_codes"),
     [
-        param(bad_doc_func, ["SA01"], ["EX01", "PR01", "PR02"], id="check_ignore0"),
-        param(bad_doc_func, ["EX01", "SA01"], ["PR01", "PR02"], id="check_ignore1"),
-        param(bad_doc_func, ["EX01", "SA01", "PR01"], ["PR02"], id="check_ignore2"),
-        param(bad_doc_func, ["EX01", "SA01", "PR01", "PR02"], [], id="check_ignore3"),
-        param(
+        pytest.param(bad_doc_func, ["SA01"], ["EX01", "PR01", "PR02"], id="check_ignore0"),
+        pytest.param(bad_doc_func, ["EX01", "SA01"], ["PR01", "PR02"], id="check_ignore1"),
+        pytest.param(bad_doc_func, ["EX01", "SA01", "PR01"], ["PR02"], id="check_ignore2"),
+        pytest.param(bad_doc_func, ["EX01", "SA01", "PR01", "PR02"], [], id="check_ignore3"),
+        pytest.param(
             make_class(
                 form_doc(
                     "A class thing.",
@@ -249,7 +248,7 @@ bad_doc_class = make_class(
             [],
             id="ignore extended summary",
         ),
-        param(
+        pytest.param(
             make_class(
                 form_doc(
                     "A class thing.",
@@ -261,7 +260,7 @@ bad_doc_class = make_class(
             [],
             id="ignore examples",
         ),
-        param(
+        pytest.param(
             make_class(
                 form_doc(
                     "A class thing.",
@@ -273,20 +272,20 @@ bad_doc_class = make_class(
             [],
             id="ignore params and examples",
         ),
-        param(
+        pytest.param(
             make_class(
                 form_doc(
                     "A class thing.",
                     "This class does things.\nIt does lots of things.",
                     params="x : str\n    About x.",
                     examples=">>> 1+1\n2",
-                )
+                ),
             ),
             ["SA01"],
             ["PR02"],
             id="error: documented param x is unknown",
         ),
-        param(make_class(), [], ["GL08"], id="error: No class docstring"),
+        pytest.param(make_class(), [], ["GL08"], id="error: No class docstring"),
     ],
 )
 def test_bad_doc(obj, ignore_codes, error_codes):
@@ -316,9 +315,7 @@ def test_ignore_method():
     assert results2["error_count"] == 2
     assert "GL08" in results2["errors"]
     del results2["errors"]["GL08"]
-    assert all(
-        msg.startswith("Class.method") for msg in chain(*results2["errors"].values())
-    )
+    assert all(msg.startswith("Class.method") for msg in chain(*results2["errors"].values()))
 
 
 def test_ignore_property():
@@ -335,9 +332,7 @@ def test_ignore_property():
     assert results2["error_count"] == 2
     assert "GL08" in results2["errors"]
     del results2["errors"]["GL08"]
-    assert all(
-        msg.startswith("Class.prop") for msg in chain(*results2["errors"].values())
-    )
+    assert all(msg.startswith("Class.prop") for msg in chain(*results2["errors"].values()))
 
 
 def tagged_f():
@@ -361,7 +356,7 @@ class TaggedClass:
 
 
 @pytest.mark.parametrize(
-    "obj,expected_codes",
+    ("obj", "expected_codes"),
     [
         (tagged_f, {"GL08", "RT03", "RT05"}),
         (TaggedClass, {"GL08", "GL02", "RT01", "EX01"}),
@@ -391,13 +386,10 @@ class B:
         ...
 
 
-@pytest.mark.parametrize("obj, num_err", [(tagged_f, 1), (A, 4), (B, 4)])
+@pytest.mark.parametrize(("obj", "num_err"), [(tagged_f, 1), (A, 4), (B, 4)])
 def test_validates_respects_comments(obj, num_err):
     assert validate_docstring(obj)["error_count"] == 0, validate_docstring(obj)
-    assert (
-        validate_docstring(obj, ignore_via_comments_allowed=False)["error_count"]
-        == num_err
-    )
+    assert validate_docstring(obj, ignore_via_comments_allowed=False)["error_count"] == num_err
 
 
 class Parent:

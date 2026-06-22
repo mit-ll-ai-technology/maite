@@ -50,7 +50,8 @@ class ObjectDetectionTargetImpl:
 
     @classmethod
     def from_protocol(
-        cls, prot_obj: ObjectDetectionTarget
+        cls,
+        prot_obj: ObjectDetectionTarget,
     ) -> "ObjectDetectionTargetImpl":
         return cls(
             boxes=np.array(prot_obj.boxes),
@@ -61,9 +62,9 @@ class ObjectDetectionTargetImpl:
 
 class DatasetImpl:
     def __init__(self):
-        self._data: np.ndarray = np.random.rand(N_DATAPOINTS, C, H, W)
+        self.data: np.ndarray = np.random.rand(N_DATAPOINTS, C, H, W)  # noqa: NPY002
 
-        self._targets: list[ObjectDetectionTargetImpl] = [
+        self.targets: list[ObjectDetectionTargetImpl] = [
             ObjectDetectionTargetImpl(
                 boxes=np.array(
                     [
@@ -74,7 +75,7 @@ class DatasetImpl:
                             i / (OBJ_PER_IMG) * (H - 1) + 1,
                         ]
                         for i in range(OBJ_PER_IMG)
-                    ]
+                    ],
                 ),
                 scores=np.linspace(0, 1, OBJ_PER_IMG),
                 labels=np.array([i % N_CLASSES for i in range(OBJ_PER_IMG)]),
@@ -82,30 +83,30 @@ class DatasetImpl:
             for _ in range(N_DATAPOINTS)
         ]
 
-        self._data_metadata: Sequence[DatumMetadata] = [
-            {"id": i} for i in range(self._data.shape[0])
-        ]
+        self.data_metadata: Sequence[DatumMetadata] = [{"id": i} for i in range(self.data.shape[0])]
 
         self.metadata = DatasetMetadata(
-            id="simple_dataset", index2label={i: f"class_{i}" for i in range(N_CLASSES)}
+            id="simple_dataset",
+            index2label={i: f"class_{i}" for i in range(N_CLASSES)},
         )
 
     def __len__(self) -> int:
-        return self._data.shape[0]
+        return self.data.shape[0]
 
     def __getitem__(
-        self, ind: int
+        self,
+        ind: int,
     ) -> tuple[np.ndarray, ObjectDetectionTargetImpl, DatumMetadata]:
-        return (self._data[ind], self._targets[ind], self._data_metadata[ind])
+        return (self.data[ind], self.targets[ind], self.data_metadata[ind])
 
     def get_input(self, index: int, /) -> InputType:
-        return self._data[index]
+        return self.data[index]
 
     def get_target(self, index: int, /) -> ObjectDetectionTargetImpl:
-        return self._targets[index]
+        return self.targets[index]
 
     def get_metadata(self, index: int, /) -> DatumMetadata:
-        return self._data_metadata[index]
+        return self.data_metadata[index]
 
 
 class DataLoaderImpl:
@@ -115,9 +116,7 @@ class DataLoaderImpl:
 
     def __iter__(
         self,
-    ) -> Iterator[
-        tuple[list[np.ndarray], list[ObjectDetectionTargetImpl], list[DatumMetadata]]
-    ]:
+    ) -> Iterator[tuple[list[np.ndarray], list[ObjectDetectionTargetImpl], list[DatumMetadata]]]:
         # calculate number of batches
         n_batches = len(self._dataset) // self._batch_size
 
@@ -156,27 +155,28 @@ class AugmentationImpl:
 
     def __call__(
         self,
-        __datum_batch: tuple[
-            Sequence[InputType], Sequence[TargetType], Sequence[DatumMetadataType]
+        datum_batch: tuple[
+            Sequence[InputType],
+            Sequence[TargetType],
+            Sequence[DatumMetadataType],
         ],
     ) -> tuple[
         list[np.ndarray],
         list[ObjectDetectionTargetImpl],
         list[EnrichedDatumMetadata],
     ]:
-        input_batch_aug = copy.deepcopy([np.array(elem) for elem in __datum_batch[0]])
+        input_batch_aug = copy.deepcopy([np.array(elem) for elem in datum_batch[0]])
         target_batch_aug = copy.deepcopy(
-            [ObjectDetectionTargetImpl.from_protocol(i) for i in __datum_batch[1]]
+            [ObjectDetectionTargetImpl.from_protocol(i) for i in datum_batch[1]],
         )
         metadata_batch_aug: list[EnrichedDatumMetadata] = []
 
         # -- manipulate input_batch, target_batch, and metadata_batch --
 
         # add new value to metadata_batch_aug
-        for md in __datum_batch[2]:
-            metadata_batch_aug.append(
-                EnrichedDatumMetadata(**copy.deepcopy(md), new_key="new_val")
-            )
+        metadata_batch_aug.extend(
+            EnrichedDatumMetadata(**copy.deepcopy(md), new_key="new_val") for md in datum_batch[2]
+        )
 
         # modify input batch
         for in_batch_elem in input_batch_aug:
@@ -194,11 +194,12 @@ class ModelImpl:
         self.metadata = ModelMetadata(id="simple_model")
 
     def __call__(
-        self, __input_batch: Sequence[InputType]
+        self,
+        input_batch: Sequence[InputType],
     ) -> Sequence[ObjectDetectionTargetImpl]:
         pass
 
-        target_batch = [
+        return [
             ObjectDetectionTargetImpl(
                 boxes=np.array(
                     [
@@ -209,15 +210,13 @@ class ModelImpl:
                             i / (OBJ_PER_MODEL_PRED) * (H - 1) + 1,
                         ]
                         for i in range(OBJ_PER_MODEL_PRED)
-                    ]
+                    ],
                 ),
                 scores=np.linspace(0, 1, OBJ_PER_MODEL_PRED),
                 labels=np.array([i % N_CLASSES for i in range(OBJ_PER_MODEL_PRED)]),
             )
-            for _ in range(np.array(__input_batch).shape[0])
+            for _ in range(np.array(input_batch).shape[0])
         ]
-
-        return target_batch
 
 
 class MetricImpl:
@@ -229,9 +228,9 @@ class MetricImpl:
 
     def update(
         self,
-        __pred_batch: Sequence[TargetType],
-        __target_batch: Sequence[TargetType],
-        __metadata_batch: Sequence[DatumMetadataType],
+        _pred_batch: Sequence[TargetType],
+        _target_batch: Sequence[TargetType],
+        _metadata_batch: Sequence[DatumMetadataType],
     ) -> None:
         return None
 

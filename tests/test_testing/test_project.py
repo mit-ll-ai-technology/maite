@@ -5,7 +5,6 @@
 from pathlib import Path
 
 import pytest
-from pytest import param
 
 from maite._internals.testing.project import (
     CompletenessSection,
@@ -19,7 +18,7 @@ from maite._internals.testing.project import (
 from maite._internals.testing.pyright import Summary
 from tests import module_scan
 
-ParameterSet = type(param("s"))
+ParameterSet = type(pytest.param("s"))
 
 
 def test_bad_module_name():
@@ -75,15 +74,15 @@ def test_known_scan():
         "maite.utils",
         "maite",
     } <= modules
-    assert not any(name.split(".")[-1].startswith("_") for name in modules), (
-        "reported module is private"
-    )
+    assert not any(name.split(".")[-1].startswith("_") for name in modules), "reported module is private"
 
 
 @pytest.mark.parametrize("submodule", ["", "maite.protocols.image_classification"])
 def test_public_symbols(submodule):
     symbols = get_public_symbols(
-        module_scan("maite"), submodule=submodule, include_dunder_names=False
+        module_scan("maite"),
+        submodule=submodule,
+        include_dunder_names=False,
     )
     names = {s["name"] for s in symbols}
     assert {"maite.protocols.image_classification.TargetType"} <= names
@@ -123,10 +122,14 @@ def test_special_method_filtering():
             missingDefaultParamCount=0,
             missingFunctionDocStringCount=0,
             exportedSymbolCounts=SymbolCounts(
-                withKnownType=5, withAmbiguousType=0, withUnknownType=0
+                withKnownType=5,
+                withAmbiguousType=0,
+                withUnknownType=0,
             ),
             otherSymbolCounts=SymbolCounts(
-                withKnownType=0, withAmbiguousType=0, withUnknownType=0
+                withKnownType=0,
+                withAmbiguousType=0,
+                withUnknownType=0,
             ),
             completenessScore=100,
             modules=["foo"],
@@ -181,7 +184,8 @@ def test_special_method_filtering():
     )
     symbols_with_special = get_public_symbols(dummy_results, include_dunder_names=True)
     symbols_without_special = get_public_symbols(
-        dummy_results, include_dunder_names=False
+        dummy_results,
+        include_dunder_names=False,
     )
 
     assert {x["name"] for x in symbols_with_special} == {

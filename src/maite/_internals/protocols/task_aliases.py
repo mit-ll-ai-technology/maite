@@ -15,9 +15,7 @@
 # consumers of these 'AnyProvider'. We expect the list of component types should be more static
 # than the list of tasks
 
-from typing import Any, Literal, Union
-
-from typing_extensions import TypeAlias
+from typing import Any, Literal, TypeAlias
 
 from maite._internals.protocols import (
     generic as gen,
@@ -30,15 +28,15 @@ from maite._internals.protocols import (
 )
 
 # define "Some<ComponentType>" and "Some<PrimitiveType>" TypeAliases
-SomeModel: TypeAlias = Union[ic.Model, od.Model]
-SomeMetric: TypeAlias = Union[ic.Metric, od.Metric]
-SomeDataset: TypeAlias = Union[ic.Dataset, od.Dataset]
-SomeDataLoader: TypeAlias = Union[ic.DataLoader, od.DataLoader]
-SomeAugmentation: TypeAlias = Union[ic.Augmentation, od.Augmentation]
+SomeModel: TypeAlias = ic.Model | od.Model
+SomeMetric: TypeAlias = ic.Metric | od.Metric
+SomeDataset: TypeAlias = ic.Dataset | od.Dataset
+SomeDataLoader: TypeAlias = ic.DataLoader | od.DataLoader
+SomeAugmentation: TypeAlias = ic.Augmentation | od.Augmentation
 
-SomeInputType: TypeAlias = Union[ic.InputType, od.InputType]
-SomeTargetType: TypeAlias = Union[ic.TargetType, od.TargetType]
-SomeMetadataType: TypeAlias = Union[ic.DatumMetadataType, od.DatumMetadataType]
+SomeInputType: TypeAlias = ic.InputType | od.InputType
+SomeTargetType: TypeAlias = ic.TargetType | od.TargetType
+SomeMetadataType: TypeAlias = ic.DatumMetadataType | od.DatumMetadataType
 
 TaskName: TypeAlias = Literal["object-detection", "image-classification"]
 
