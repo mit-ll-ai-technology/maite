@@ -13,4 +13,4 @@ __all__ = ["func_needs_mygrad"]
 
 def func_needs_mygrad() -> None:
     tensor(1)
-    return None
+    return

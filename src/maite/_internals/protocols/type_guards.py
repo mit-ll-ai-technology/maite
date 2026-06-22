@@ -2,11 +2,9 @@
 # Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).
 # SPDX-License-Identifier: MIT
 
-from typing import Any, TypeVar
+from typing import Any, TypeGuard, TypeVar
 
-from typing_extensions import TypeGuard
-
-from ..compat import TypedDict
+from maite._internals.compat import TypedDict
 
 
 # Can't bound typevar with TypedDict directly because it is actually a metaclass,
@@ -19,7 +17,7 @@ T = TypeVar("T")
 Td = TypeVar("Td", bound=TypedDictClass)
 
 
-def is_list_of_type(d: Any, guard: type[T] = dict) -> TypeGuard[list[T]]:
+def is_list_of_type(d: Any, guard: type[T] = dict) -> TypeGuard[list[T]]:  # noqa: ANN401, deliberate use of 'Any' type
     """
     Check if object is a list of dictionaries.
 
@@ -43,7 +41,7 @@ def is_list_of_type(d: Any, guard: type[T] = dict) -> TypeGuard[list[T]]:
     return isinstance(d, (list, tuple)) and isinstance(d[0], guard)
 
 
-def is_list_dict(d: Any, guard: type[T] = dict[Any, Any]) -> TypeGuard[list[T]]:
+def is_list_dict(d: Any, _guard: type[T] = dict[Any, Any]) -> TypeGuard[list[T]]:  # noqa: ANN401, deliberate use of 'Any' type
     """
     Check if object is a list of dictionaries.
 
@@ -67,13 +65,13 @@ def is_list_dict(d: Any, guard: type[T] = dict[Any, Any]) -> TypeGuard[list[T]]:
     return isinstance(d, (list, tuple)) and isinstance(d[0], dict)
 
 
-def is_typed_dict(object: Any, target: type[Td]) -> TypeGuard[Td]:
+def is_typed_dict(object_: Any, target: type[Td]) -> TypeGuard[Td]:  # noqa: ANN401, deliberate use of 'Any' type
     """
     Check if object is a typed dictionary.
 
     Parameters
     ----------
-    object : Any
+    object_ : Any
         The object to check.
 
     target : type[T]
@@ -92,13 +90,13 @@ def is_typed_dict(object: Any, target: type[Td]) -> TypeGuard[Td]:
     >>> is_typed_dict({"a": 1}, Foo)
     True
     """
-    if not isinstance(object, dict):
+    if not isinstance(object_, dict):
         return False
 
-    k_obj = set(object.keys())
+    k_obj = set(object_.keys())
     ks = set(target.__annotations__.keys())
 
     if hasattr(target, "__total__") and target.__total__:
         return all(k in k_obj for k in ks)
-    else:
-        return any(k in k_obj for k in ks)
+
+    return any(k in k_obj for k in ks)

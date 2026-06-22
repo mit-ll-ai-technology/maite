@@ -6,7 +6,6 @@ from importlib import import_module
 from pathlib import Path
 
 import pytest
-from pytest import Config
 
 from tests import all_dummy_subpkgs
 
@@ -18,12 +17,10 @@ def test_version():
 
     assert isinstance(maite.__version__, str)
     assert maite.__version__
-    assert "unknown" not in maite.__version__, (
-        f"{maite.__version__=:} _version.py={txt}"
-    )
+    assert "unknown" not in maite.__version__, f"{maite.__version__=:} _version.py={txt}"
 
 
-def test_xfail_strict(pytestconfig: Config):
+def test_xfail_strict(pytestconfig: pytest.Config):
     # Our test suite's xfail must be configured to strict mode
     # in order to ensure that contrapositive tests will actually
     # raise.

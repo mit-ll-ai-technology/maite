@@ -5,9 +5,7 @@
 # import component generics from generic.py and specialize them for image_classification
 from __future__ import annotations
 
-from typing import Protocol
-
-from typing_extensions import TypeAlias
+from typing import Protocol, TypeAlias
 
 from maite._internals.protocols import generic as gen
 from maite.protocols import ArrayLike, DatumMetadata
@@ -20,20 +18,21 @@ from maite.protocols import ArrayLike, DatumMetadata
 # C  - image channel
 # Cl - classification label (one-hot for ground-truth label; probabilities or logits for predictions)
 
-Image: TypeAlias = (
-    ArrayLike  # ArrayLike representing image data with (C, H, W) shape semantics
-)
+Image: TypeAlias = ArrayLike  # ArrayLike representing image data with (C, H, W) shape semantics
 
-ImgClassification: TypeAlias = ArrayLike  # ArrayLike following (Cl,) shape semantics (where 'Cl' refers to number of target classes)
+# ArrayLike following (Cl,) shape semantics (where 'Cl' refers to number of target classes)
+ImgClassification: TypeAlias = ArrayLike
 
 InputType: TypeAlias = Image
 TargetType: TypeAlias = ImgClassification
-DatumMetadataType: TypeAlias = (
-    DatumMetadata  # TypedDict that requires a readonly 'id' field of type `int|str`
-)
+DatumMetadataType: TypeAlias = DatumMetadata  # TypedDict that requires a readonly 'id' field of type `int|str`
 Datum: TypeAlias = tuple[
-    InputType, TargetType, DatumMetadataType
-]  # Alias of tuple[:py:type:`~maite.protocols.image_classification.InputType`, :py:type:`~maite.protocols.image_classification.TargetType`, :py:type:`~maite.protocols.image_classification.DatumMetadataType`]"""
+    InputType,
+    TargetType,
+    DatumMetadataType,
+]  # Alias of tuple[:py:type:`~maite.protocols.image_classification.InputType`,
+# :py:type:`~maite.protocols.image_classification.TargetType`,
+# :py:type:`~maite.protocols.image_classification.DatumMetadataType`]
 
 
 # Initialize component classes based on generic and Input/Target/Metadata types
@@ -93,10 +92,7 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
 
     >>> class MyDatumMetadata(DatumMetadata):
     ...     hour_of_day: float
-    >>> datum_metadata = [
-    ...     MyDatumMetadata(id=i, hour_of_day=np.random.rand() * 24)
-    ...     for i in range(N_DATUM)
-    ... ]
+    >>> datum_metadata = [MyDatumMetadata(id=i, hour_of_day=np.random.rand() * 24) for i in range(N_DATUM)]
 
     Constructing a compliant dataset just involves a simple wrapper that fetches
     individual datapoints, where a datapoint is a single image, target, metadata 3-tuple.
@@ -112,17 +108,13 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
     ...     ):
     ...         self.images = images
     ...         self.targets = targets
-    ...         self.metadata = DatasetMetadata(
-    ...             {"id": dataset_name, "index2label": index2label}
-    ...         )
+    ...         self.metadata = DatasetMetadata({"id": dataset_name, "index2label": index2label})
     ...         self._datum_metadata = datum_metadata
     ...
     ...     def __len__(self) -> int:
     ...         return len(images)
     ...
-    ...     def __getitem__(
-    ...         self, ind: int
-    ...     ) -> tuple[np.ndarray, np.ndarray, MyDatumMetadata]:
+    ...     def __getitem__(self, ind: int) -> tuple[np.ndarray, np.ndarray, MyDatumMetadata]:
     ...         return self.images[ind], self.targets[ind], self._datum_metadata[ind]
 
     We can instantiate this class and typehint it as an image_classification.Dataset.
@@ -143,11 +135,11 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
     protocol.
     """
 
-    ...
-
 
 class FieldwiseDataset(
-    Dataset, gen.FieldwiseDataset[InputType, TargetType, DatumMetadataType], Protocol
+    Dataset,
+    gen.FieldwiseDataset[InputType, TargetType, DatumMetadataType],
+    Protocol,
 ):
     """
     A specialization of Dataset protocol (i.e., a subprotocol) that specifies additional
@@ -195,10 +187,7 @@ class FieldwiseDataset(
 
     >>> class MyDatumMetadata(DatumMetadata):
     ...     hour_of_day: float
-    >>> datum_metadata = [
-    ...     MyDatumMetadata(id=i, hour_of_day=np.random.rand() * 24)
-    ...     for i in range(N_DATUM)
-    ... ]
+    >>> datum_metadata = [MyDatumMetadata(id=i, hour_of_day=np.random.rand() * 24) for i in range(N_DATUM)]
 
     Constructing a compliant dataset just involves a simple wrapper that fetches
     individual datapoints, where a datapoint is a single image, target, metadata 3-tuple.
@@ -214,9 +203,7 @@ class FieldwiseDataset(
     ...     ):
     ...         self.images = images
     ...         self.targets = targets
-    ...         self.metadata = DatasetMetadata(
-    ...             {"id": dataset_name, "index2label": index2label}
-    ...         )
+    ...         self.metadata = DatasetMetadata({"id": dataset_name, "index2label": index2label})
     ...         self._datum_metadata = datum_metadata
     ...
     ...     def get_input(self, index, /) -> np.ndarray:
@@ -231,9 +218,7 @@ class FieldwiseDataset(
     ...     def __len__(self) -> int:
     ...         return len(images)
     ...
-    ...     def __getitem__(
-    ...         self, ind: int
-    ...     ) -> tuple[np.ndarray, np.ndarray, MyDatumMetadata]:
+    ...     def __getitem__(self, ind: int) -> tuple[np.ndarray, np.ndarray, MyDatumMetadata]:
     ...         return self.images[ind], self.targets[ind], self._datum_metadata[ind]
 
     We can instantiate this class and typehint it as an image_classification.Dataset.
@@ -333,9 +318,7 @@ class Model(gen.Model[InputType, TargetType], Protocol):
     ...
     ...         # Send input batch through model
     ...         out = batch_np @ self.weights + self.bias
-    ...         out = np.exp(out) / np.sum(
-    ...             np.exp(out), axis=1, keepdims=True
-    ...         )  # softmax
+    ...         out = np.exp(out) / np.sum(np.exp(out), axis=1, keepdims=True)  # softmax
     ...
     ...         # Restructure to sequence of shape-(10,) probabilities
     ...         return [row for row in out]
@@ -344,18 +327,14 @@ class Model(gen.Model[InputType, TargetType], Protocol):
 
     >>> batch_size = 8
     >>> rng = np.random.default_rng(12345678)
-    >>> batch: Sequence[ArrayLike] = [
-    ...     -0.2 + 0.4 * rng.random((3, 32, 32)) for _ in range(batch_size)
-    ... ]
+    >>> batch: Sequence[ArrayLike] = [-0.2 + 0.4 * rng.random((3, 32, 32)) for _ in range(batch_size)]
     >>>
     >>> model: ic.Model = LinearClassifier()
     >>> out = model(batch)
 
     We can now show the class probabilities returned by the model for each image in the batch.
 
-    >>> np.set_printoptions(
-    ...     floatmode="fixed", precision=2
-    ... )  # for reproducible output for doctest
+    >>> np.set_printoptions(floatmode="fixed", precision=2)  # for reproducible output for doctest
     >>> for probs in out:  # doctest: +NORMALIZE_WHITESPACE
     ...     print(np.round(probs, 2))
     [0.16 0.10 0.16 0.14 0.04 0.02 0.06 0.04 0.17 0.10]
@@ -384,7 +363,9 @@ class Metric(gen.Metric[TargetType, DatumMetadata], Protocol):
     Methods
     -------
 
-    update(pred_batch: Sequence[ArrayLike], target_batch: Sequence[ArrayLike], metadata_batch: Sequence[DatumMetadata]) -> None
+    update(pred_batch: Sequence[ArrayLike],
+           target_batch: Sequence[ArrayLike],
+           metadata_batch: Sequence[DatumMetadata]) -> None
         Add predictions and targets (and metadata if applicable) to metric's cache for later calculation. Both
         predictions and targets are expected to be sequences with elements of shape `(Cl,)`.
 
@@ -451,7 +432,8 @@ class Metric(gen.Metric[TargetType, DatumMetadata], Protocol):
 
     >>> accuracy: ic.Metric = MyAccuracy()
 
-    To use the metric call update() for each batch of predictions and truth values and call compute() to calculate the final metric values.
+    To use the metric call update() for each batch of predictions and truth values
+    and call compute() to calculate the final metric values.
 
     >>> # batch 1
     >>> model_preds = [
@@ -482,8 +464,6 @@ class Metric(gen.Metric[TargetType, DatumMetadata], Protocol):
     >>> print(accuracy.compute())
     {'accuracy': 0.75}
     """
-
-    ...
 
 
 class Augmentation(

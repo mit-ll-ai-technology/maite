@@ -1,6 +1,7 @@
 # Copyright 2025, MASSACHUSETTS INSTITUTE OF TECHNOLOGY
 # Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).
 # SPDX-License-Identifier: MIT
+"""Interoperability module for MAITE and torchmetrics."""
 
 import warnings
 
@@ -15,5 +16,6 @@ if is_torchmetrics_available():
 else:
     warnings.warn(
         "The TorchMetrics wrapper requires the torchmetrics package, "
-        "which can be installed with the command: `pip install maite[torchmetrics]`."
+        "which can be installed with the command: `pip install maite[torchmetrics]`.",
+        stacklevel=2,
     )

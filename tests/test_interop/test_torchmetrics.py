@@ -4,12 +4,12 @@
 
 from __future__ import annotations
 
-from typing import Any, Sequence
+from collections.abc import Sequence
+from typing import Any
 
 import numpy as np
 import pytest
 import torch
-import torchmetrics
 import torchmetrics.classification
 from numpy import ndarray
 
@@ -75,13 +75,9 @@ def assert_metrics_equal(
     for k in k1:
         v1 = dict1[k]
         v2 = dict2[k]
-        assert type(v1) is type(v2), (
-            f"Values for key {k} has different types: {type(v1)} and {type(v2)}"
-        )
+        assert type(v1) is type(v2), f"Values for key {k} has different types: {type(v1)} and {type(v2)}"
         if isinstance(v1, torch.Tensor):
-            assert torch.isclose(v1, v2, rtol=1e-05, atol=1e-08), (
-                f"Values for key {k} are different: {v1} and {v2}"
-            )
+            assert torch.isclose(v1, v2, rtol=rtol, atol=atol), f"Values for key {k} are different: {v1} and {v2}"
         else:
             assert v1 == v2, f"Values for key {k} are different: {v1} and {v2}"
 
@@ -91,7 +87,7 @@ def test_multiclass_accuracy():
     targets = np.array([2, 1, 0, 0])
     targets = list_to_one_hot_list(targets, num_classes=3)
     preds = np.array(
-        [[0.16, 0.26, 0.58], [0.22, 0.61, 0.17], [0.71, 0.09, 0.20], [0.05, 0.82, 0.13]]
+        [[0.16, 0.26, 0.58], [0.22, 0.61, 0.17], [0.71, 0.09, 0.20], [0.05, 0.82, 0.13]],
     )
 
     mca = torchmetrics.classification.MulticlassAccuracy(num_classes=3)
@@ -149,20 +145,25 @@ def test_both_output_key_and_output_transform():
     # Should fail since can't have both output_key and output_transform
     with pytest.raises(ValueError):
         TMClassificationMetric(
-            mca, output_key="metric_result", output_transform=output_transform
+            mca,
+            output_key="metric_result",
+            output_transform=output_transform,
         )
 
 
 def do_batches(
-    metric_name, batches: list[tuple[Sequence[ArrayLike], Sequence[ArrayLike]]]
+    metric_name,
+    batches: list[tuple[Sequence[ArrayLike], Sequence[ArrayLike]]],
 ):
     num_classes = 3
     extra_params = metric_extra_params.get(metric_name, {})
     metric = TM_CLASSIFICATION_METRIC_WHITELIST[metric_name](
-        num_classes=num_classes, **extra_params
+        num_classes=num_classes,
+        **extra_params,
     )
     tm_metric = TM_CLASSIFICATION_METRIC_WHITELIST[metric_name](
-        num_classes=num_classes, **extra_params
+        num_classes=num_classes,
+        **extra_params,
     )
 
     maite_metric = TMClassificationMetric(tm_metric, output_key="metric_result")

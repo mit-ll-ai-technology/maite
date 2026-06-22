@@ -15,14 +15,14 @@
 # sys.path.insert(0, os.path.abspath('.'))
 
 import re
-from typing import Mapping
+from collections.abc import Mapping
 
 import maite
 
 # -- Project information -----------------------------------------------------
 
 project = "maite"
-copyright = "2024 Massachusetts Institute of Technology"
+copyright = "2024 Massachusetts Institute of Technology"  # noqa: A001, acknowledge shadowed built-in
 author = "Ryan Soklaski, Justin Goodwin, Michael Yee"
 
 # The short X.Y version
@@ -108,7 +108,7 @@ show_warning_types = True
 
 # Suppress specific warnings using pattern matching
 suppress_warnings = [
-    "codeautolink.match_block"  # suppress warnings from codeautolink
+    "codeautolink.match_block",  # suppress warnings from codeautolink
     # (caused by 6 doctest directives in numpy docstring examples)
 ]
 
@@ -144,15 +144,17 @@ html_theme = "pydata_sphinx_theme"
 # html_logo = "../../brand/maite_logo_full_light_blue.png"
 
 html_theme_options = {
-    "collapse_navigation": False,  # Keep navigation expanded to show all pages (only matters in api reference LHS at present)
+    # Keep navigation expanded to show all pages (only matters in api reference LHS at present)
+    "collapse_navigation": False,
     "navigation_depth": 4,
     "navbar_align": "left",
     "show_nav_level": 2,
     "header_links_before_dropdown": 5,
     "default_mode": "dark",
     "navbar_end": [
-        "navbar-icon-links"
-    ],  # this defaults to ["navbar-icon-links", "theme-switcher"], but I'm electing to remove light theme for sake of diagrams
+        "navbar-icon-links",
+    ],  # this defaults to ["navbar-icon-links", "theme-switcher"], but I'm electing to remove
+    # light theme for sake of diagrams
     "navigation_with_keys": False,
     "icon_links": [
         {
@@ -211,12 +213,12 @@ DOCSTRING_REPLACEMENT_MAP: Mapping[str, str] = {
 }
 
 
-def process_docstring(app, what, name, obj, options, lines: list[str]):
+def process_docstring(_app, _what, _name, _obj, _options, lines: list[str]):
     """Hook into autodoc-process-docstring event to replace inline references
     with fully-qualified cross-references (necessary for proper crosslinking)"""
     for k, v in DOCSTRING_REPLACEMENT_MAP.items():
         p = re.compile(k)
-        for i, line in enumerate(lines):
+        for i, _line in enumerate(lines):
             lines[i] = p.sub(v, lines[i])
     return
 

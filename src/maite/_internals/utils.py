@@ -3,9 +3,9 @@
 # SPDX-License-Identifier: MIT
 
 from abc import ABCMeta, abstractmethod
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable, Sequence
 from functools import wraps
-from typing import Any, Callable, Sequence, TypeVar, cast
+from typing import Any, TypeVar, cast
 
 from maite._internals.import_utils import is_tqdm_available
 from maite._internals.protocols.generic import (
@@ -18,28 +18,25 @@ from maite._internals.protocols.generic import (
 T = TypeVar("T", bound=Callable)
 
 
-def is_typed_dict(obj: Any) -> bool:
+def is_typed_dict(obj: Any) -> bool:  # noqa: ANN401, deliberate use of 'Any' type
     if not isinstance(obj, type):
         return False
 
-    return all(
-        hasattr(obj, attr)
-        for attr in ("__required_keys__", "__optional_keys__", "__optional_keys__")
-    )
+    return all(hasattr(obj, attr) for attr in ("__required_keys__", "__optional_keys__", "__optional_keys__"))
 
 
 class ContextDecorator(metaclass=ABCMeta):
     @abstractmethod
-    def __enter__(self):  # pragma: no cover
-        raise NotImplementedError()
+    def __enter__(self):  # pragma: no cover  # noqa: ANN204
+        raise NotImplementedError()  # noqa: RSE102
 
     @abstractmethod
-    def __exit__(self, type, value, traceback):  # pragma: no cover
-        raise NotImplementedError()
+    def __exit__(self, _type, _value, _traceback):  # pragma: no cover  # noqa: ANN001, ANN204
+        raise NotImplementedError()  # noqa: RSE102
 
     def __call__(self, func: T) -> T:
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args, **kwargs):  # noqa: ANN002, ANN003, ANN202
             with self:
                 return func(*args, **kwargs)
 
@@ -50,7 +47,9 @@ def add_progress_bar(
     dataloader: DataLoader[InputType_co, TargetType_co, DatumMetadataType_co],
 ) -> Iterable[
     tuple[
-        Sequence[InputType_co], Sequence[TargetType_co], Sequence[DatumMetadataType_co]
+        Sequence[InputType_co],
+        Sequence[TargetType_co],
+        Sequence[DatumMetadataType_co],
     ]
 ]:
     """Wrap a dataloader with tqdm to display progress bars.
@@ -75,5 +74,5 @@ def add_progress_bar(
         from tqdm.auto import tqdm
 
         return tqdm(dataloader)
-    else:
-        return dataloader
+
+    return dataloader

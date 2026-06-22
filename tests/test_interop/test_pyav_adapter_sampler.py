@@ -12,7 +12,7 @@ class _DummyFrame:
         self.time = None if pts is None else float(pts)
         self.time_base = Fraction(1, 1)
 
-    def to_ndarray(self, format: str = "rgb24"):
+    def to_ndarray(self, format: str = "rgb24"):  # noqa: A002
         assert format == "rgb24"
         return np.zeros((2, 2, 3), dtype=np.uint8)
 
@@ -40,7 +40,7 @@ class _DummyContainer:
     def seek(self, pts: int, backward: bool = True, stream=None):
         self.seek_calls.append((pts, backward, stream))
 
-    def decode(self, stream):
+    def decode(self, _stream):
         # Simulate decoder behavior after keyframe seek by yielding from the
         # beginning; start gating/subsampling logic must still work correctly.
         yield from self._frames
@@ -52,7 +52,7 @@ class _DummyAV:
         self._stream = stream or _DummyStream()
         self.last_container: _DummyContainer | None = None
 
-    def open(self, path: str):
+    def open(self, _path: str):
         self.last_container = _DummyContainer(self._frames, self._stream)
         return self.last_container
 

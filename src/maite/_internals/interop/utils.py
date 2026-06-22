@@ -12,6 +12,7 @@ clear and avoid overlap between interop helpers and task entry points.
 from __future__ import annotations
 
 import importlib
+from collections.abc import Generator, Iterator, Sequence
 from dataclasses import dataclass
 from fractions import Fraction
 from itertools import chain
@@ -19,12 +20,8 @@ from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Any,
-    Generator,
-    Iterator,
     Literal,
-    Optional,
     Protocol,
-    Sequence,
     TypeVar,
 )
 
@@ -102,7 +99,9 @@ class BackendAdapter(Protocol):
         ...
 
     def decode_iter(
-        self, spec: SampleSpec, video_filepath: Path
+        self,
+        spec: SampleSpec,
+        video_filepath: Path,
     ) -> Generator[VideoFrame, None, None]:
         """Lazily decodes frames from a video file using a generator.
 
@@ -157,10 +156,10 @@ class TrackerManager(Protocol[TDet_in, TDet_out]):
         self,
         video_id: int,
         dets: TDet_in,
-        t_sec: Optional[float] = None,
-        frame_index: Optional[int] = None,
-        image_size: Optional[tuple[int, int]] = None,
-        embeddings: Optional[ArrayLike] = None,
+        t_sec: float | None = None,
+        frame_index: int | None = None,
+        image_size: tuple[int, int] | None = None,
+        embeddings: ArrayLike | None = None,
     ) -> TDet_out:
         """Consumes detections for the next frame and returns annotated tracks.
 
@@ -200,7 +199,7 @@ class TrackerManager(Protocol[TDet_in, TDet_out]):
 
 
 @dataclass
-class VideoFrame_impl:
+class _VideoFrameImpl:
     """A container for a single decoded video frame and its metadata.
 
     Attributes
@@ -239,15 +238,14 @@ class _SamplingPlan:
 class PyAVAdapter:
     """A concrete implementation of the BackendAdapter protocol using PyAV."""
 
-    def __init__(self, av_module: Optional[Any] = None):
+    def __init__(self, av_module: Any | None = None) -> None:  # noqa: ANN401, passed type should to emulate 'open' method of av module
         if av_module is not None:
             self._av = av_module
             return
 
         if not is_av_available():
             raise ImportError(
-                "PyAVAdapter requires optional dependency 'av'. "
-                "Install with: pip install maite[mot-utils]"
+                "PyAVAdapter requires optional dependency 'av'. Install with: pip install maite[mot-utils]",
             )
 
         self._av = importlib.import_module("av")
@@ -290,7 +288,7 @@ class PyAVAdapter:
         if unit == "time_s":
             if stream.time_base is None:
                 raise ValueError(
-                    "Cannot convert from 'time_s' without a valid time_base."
+                    "Cannot convert from 'time_s' without a valid time_base.",
                 )
             return int(value / stream.time_base)
         raise ValueError(f"Unknown unit: {unit}")
@@ -304,7 +302,9 @@ class PyAVAdapter:
             raise ValueError("SampleSpec.subsample_interval must be > 0.")
 
     def _compile_sampling_plan(
-        self, spec: SampleSpec, stream: avVideoStream
+        self,
+        spec: SampleSpec,
+        stream: avVideoStream,
     ) -> _SamplingPlan:
         """Convert a user-facing SampleSpec into a normalized internal plan."""
         self._validate_spec(spec)
@@ -337,7 +337,7 @@ class PyAVAdapter:
             subsample_interval_pts = -1
             if subsample_interval_frames <= 0:
                 raise ValueError(
-                    "Frame-based subsample_interval must convert to a positive integer."
+                    "Frame-based subsample_interval must convert to a positive integer.",
                 )
         else:
             subsample_mode = "pts"
@@ -349,7 +349,7 @@ class PyAVAdapter:
             )
             if subsample_interval_pts <= 0:
                 raise ValueError(
-                    "PTS-based subsample_interval must convert to a positive integer PTS value."
+                    "PTS-based subsample_interval must convert to a positive integer PTS value.",
                 )
 
         return _SamplingPlan(
@@ -375,8 +375,10 @@ class PyAVAdapter:
         if plan.start_mode == "frame":
             return source_frame_index >= plan.start_frame
 
-        assert anchor_frame_pts is not None
-        assert frame.pts is not None
+        if anchor_frame_pts is None:
+            raise ValueError("anchor_frame_pts is None")
+        if frame.pts is None:
+            raise ValueError("frame.pts is None")
         return (frame.pts - anchor_frame_pts) >= plan.start_pts
 
     @classmethod
@@ -386,7 +388,7 @@ class PyAVAdapter:
         stream: avVideoStream,
         plan: _SamplingPlan,
         anchor_frame_pts: float | None,
-    ) -> Optional[Iterator[avVideoFrame]]:
+    ) -> Iterator[avVideoFrame] | None:
         """Create and advance decoded frame iterator to first frame that satisfies start.
 
         Returns both the first matching frame (if any) and the same decoded-frame iterator,
@@ -402,7 +404,10 @@ class PyAVAdapter:
 
         for source_frame_index, frame in enumerate(decoded_frames):
             if cls._is_at_or_past_start(
-                frame, source_frame_index, plan, anchor_frame_pts
+                frame,
+                source_frame_index,
+                plan,
+                anchor_frame_pts,
             ):
                 return chain([frame], decoded_frames)
         return None
@@ -411,7 +416,7 @@ class PyAVAdapter:
     def _is_beyond_duration(
         frame: avVideoFrame,
         decoded_count: int,
-        first_frame_pts: Optional[int],
+        first_frame_pts: int | None,
         plan: _SamplingPlan,
     ) -> bool:
         """Return True when decoding should stop because duration is exceeded."""
@@ -423,8 +428,7 @@ class PyAVAdapter:
 
         if frame.pts is None or first_frame_pts is None:
             raise ValueError(
-                "PTS-based duration sampling requires valid frame.pts values for all "
-                "frames in the sampled region."
+                "PTS-based duration sampling requires valid frame.pts values for all frames in the sampled region.",
             )
 
         return (frame.pts - first_frame_pts) >= plan.duration_pts
@@ -433,7 +437,7 @@ class PyAVAdapter:
     def _is_this_frame_included_in_subsampling(
         frame: avVideoFrame,
         decoded_count: int,
-        anchor_pts: Optional[int],
+        anchor_pts: int | None,
         next_pts_to_include: int,
         plan: _SamplingPlan,
     ) -> tuple[bool, int]:
@@ -444,8 +448,7 @@ class PyAVAdapter:
 
         if frame.pts is None or anchor_pts is None:
             raise ValueError(
-                "PTS-based subsampling requires valid frame.pts values for all "
-                "frames in the sampled region."
+                "PTS-based subsampling requires valid frame.pts values for all frames in the sampled region.",
             )
 
         rel_pts = frame.pts - anchor_pts
@@ -462,22 +465,20 @@ class PyAVAdapter:
 
     @staticmethod
     def _to_video_frame(
-        frame: avVideoFrame, yielded_frame_index: int, anchor_pts: int | None
+        frame: avVideoFrame,
+        yielded_frame_index: int,
+        anchor_pts: int | None,
     ) -> VideoFrame:
         """Convert a decoded PyAV frame into MAITE's VideoFrame implementation."""
-        if anchor_pts is not None and frame.pts is not None:
-            reported_pts = frame.pts - anchor_pts
-        else:
-            reported_pts = None
+        reported_pts = frame.pts - anchor_pts if anchor_pts is not None and frame.pts is not None else None
 
-        if reported_pts is not None and frame.time_base is not None:
-            reported_time = float(reported_pts * frame.time_base)
-        else:
-            reported_time = None
+        reported_time = (
+            float(reported_pts * frame.time_base) if reported_pts is not None and frame.time_base is not None else None
+        )
 
         # Note: to_ndarray will disregard a 'channels_last' argument except when
         # particular formats are used. We thus separately transpose data after using numpy.
-        return VideoFrame_impl(
+        return _VideoFrameImpl(
             pixels=np.transpose(frame.to_ndarray(format="rgb24"), axes=[2, 0, 1]),
             time_s=reported_time,
             pts=reported_pts,
@@ -485,7 +486,9 @@ class PyAVAdapter:
         )
 
     def decode_iter(
-        self, spec: SampleSpec, video_filepath: Path
+        self,
+        spec: SampleSpec,
+        video_filepath: Path,
     ) -> Generator[VideoFrame, None, None]:
         """Lazily decodes frames from a video file according to a spec.
 
@@ -516,11 +519,7 @@ class PyAVAdapter:
         with self._av.open(str(video_filepath)) as container:
             stream = container.streams.video[0]
             plan = self._compile_sampling_plan(spec, stream)
-            requires_pts = (
-                plan.start_mode == "pts"
-                or plan.duration_mode == "pts"
-                or plan.subsample_mode == "pts"
-            )
+            requires_pts = plan.start_mode == "pts" or plan.duration_mode == "pts" or plan.subsample_mode == "pts"
 
             try:
                 anchor_frame: avVideoFrame = next(container.decode(stream))
@@ -531,15 +530,21 @@ class PyAVAdapter:
                 raise ValueError("Time-based SampleSpec used, but no PTS found.")
 
             if plan.start_mode == "pts" and plan.start_pts > 0:
-                assert anchor_frame.pts is not None
+                if anchor_frame.pts is None:
+                    raise ValueError("anchor_frame.pts is None")
                 container.seek(
-                    plan.start_pts + anchor_frame.pts, backward=True, stream=stream
+                    plan.start_pts + anchor_frame.pts,
+                    backward=True,
+                    stream=stream,
                 )
             else:
                 container.seek(anchor_frame.pts, backward=True, stream=stream)
 
             decoded_frames = self._get_to_first_frame(
-                container, stream, plan, anchor_frame.pts
+                container,
+                stream,
+                plan,
+                anchor_frame.pts,
             )
             if decoded_frames is None:
                 return
@@ -554,18 +559,19 @@ class PyAVAdapter:
                     if first_frame_pts is not None and anchor_frame.pts is not None:
                         next_pts_to_include = first_frame_pts - anchor_frame.pts
                 if self._is_beyond_duration(
-                    frame, decoded_count, first_frame_pts, plan
+                    frame,
+                    decoded_count,
+                    first_frame_pts,
+                    plan,
                 ):
                     break
 
-                include, next_pts_to_include = (
-                    self._is_this_frame_included_in_subsampling(
-                        frame=frame,
-                        decoded_count=decoded_count,
-                        anchor_pts=anchor_frame.pts,
-                        next_pts_to_include=next_pts_to_include,
-                        plan=plan,
-                    )
+                include, next_pts_to_include = self._is_this_frame_included_in_subsampling(
+                    frame=frame,
+                    decoded_count=decoded_count,
+                    anchor_pts=anchor_frame.pts,
+                    next_pts_to_include=next_pts_to_include,
+                    plan=plan,
                 )
 
                 if not include:
@@ -612,17 +618,15 @@ class PyAVAdapter:
         with self._av.open(str(video_filepath)) as container:
             try:
                 stream = container.streams.video[0]
-            except IndexError:
+            except IndexError as err:
                 raise ValueError(
-                    f'PyAV cannot find video stream in: "{video_filepath}"'
-                )
+                    f'PyAV cannot find video stream in: "{video_filepath}"',
+                ) from err
 
             return {
                 "id": str(video_filepath.name),
                 "height": stream.height,
                 "width": stream.width,
-                "time_base": stream.time_base
-                if stream.time_base is not None
-                else Fraction(-1, 1),
+                "time_base": stream.time_base if stream.time_base is not None else Fraction(-1, 1),
                 "size": video_filepath.stat().st_size,
             }

@@ -13,9 +13,10 @@ import subprocess
 import tempfile
 import textwrap
 from collections import Counter, defaultdict
+from collections.abc import Generator
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, DefaultDict, Literal, Union
+from typing import Any, Literal
 
 from typing_extensions import NotRequired, TypedDict
 
@@ -25,8 +26,8 @@ def notebook_to_py_text(path_to_nb: Path) -> str:
         import jupytext
     except ImportError:
         raise ImportError(
-            "`jupytext` must be installed in order to run pyright on jupyter notebooks."
-        )
+            "`jupytext` must be installed in order to run pyright on jupyter notebooks.",
+        ) from None
     ntbk = jupytext.read(path_to_nb, fmt="ipynb")
     return jupytext.writes(ntbk, fmt=".py")
 
@@ -73,7 +74,7 @@ del _found_path
 
 
 @contextmanager
-def chdir():
+def chdir() -> Generator[Path, Any, None]:
     with tempfile.TemporaryDirectory() as tmpdirname:
         old_dir = os.getcwd()  # get current working directory (cwd)
         try:
@@ -113,8 +114,7 @@ def get_docstring_examples(doc: str) -> str:
     for source, indent in docstring_re.findall(doc):
         source: str
         indent: str
-        for line in source.splitlines():
-            src_lines.append(line[len(indent) + len(prefix) :])
+        src_lines.extend(line[len(indent) + len(prefix) :] for line in source.splitlines())
         src_lines.append("")  # newline between blocks
     return "\n".join(src_lines)
 
@@ -165,10 +165,11 @@ def rst_to_code(src: str) -> str:
         block: list[str] | None,
         preamble: str | None,
         blocks: list[str],
-    ):
+    ) -> None:
         if block:
             block_str = "\n".join(block) + "\n"
-            assert preamble
+            if not preamble:
+                raise ValueError("preable not set")
             if "pycon" in preamble:
                 blocks.append(get_docstring_examples(block_str))
             else:
@@ -191,8 +192,10 @@ def rst_to_code(src: str) -> str:
             # outside of code block
             continue
 
-        assert indentation is not None
-        assert block is not None
+        if indentation is None:
+            raise ValueError("indentation is None")
+        if block is None:
+            raise ValueError("block is None")
 
         if not (line.startswith(indentation) or not line.strip()):
             # encountering non-empty line that isn't within
@@ -208,11 +211,10 @@ def rst_to_code(src: str) -> str:
             if not stripped:
                 continue
 
-            if line.startswith(indentation):
-                if stripped.startswith(":"):
-                    n = -1
-                    # skip directive, act as if we are at top of code block
-                    continue
+            if line.startswith(indentation) and stripped.startswith(":"):
+                n = -1
+                # skip directive, act as if we are at top of code block
+                continue
 
         block.append(line)
 
@@ -273,13 +275,14 @@ def md_to_code(src: str) -> str:
         block: list[str] | None,
         preamble: str | None,
         blocks: list[str],
-    ):
+    ) -> None:
         if block:
             block_str = "\n".join(block) + "\n"
-            assert preamble
-            if "pycon" == preamble:
+            if preamble is None:
+                raise ValueError("preamble is None")
+            if preamble == "pycon":
                 blocks.append(get_docstring_examples(block_str))
-            elif "python" == preamble:
+            elif preamble == "python":
                 blocks.append(textwrap.dedent(block_str))
             else:
                 # unknown block
@@ -294,7 +297,8 @@ def md_to_code(src: str) -> str:
         if not in_literal_block and stripped.startswith("```py"):
             # Entering python/pycon code block
             add_block(block, preamble, blocks)
-            assert not in_code_block, line
+            if in_code_block:
+                raise ValueError(f"in_code_block: {line}")
             in_code_block = True
             block = []
             preamble = line.split("`" * 3)[-1].strip()
@@ -304,7 +308,8 @@ def md_to_code(src: str) -> str:
             # outside of code block
             continue
 
-        assert block is not None
+        if block is None:
+            raise ValueError("block is None")
 
         if not in_literal_block and stripped == "`" * 3:
             # encountering ``` leaves the code block
@@ -320,10 +325,10 @@ def md_to_code(src: str) -> str:
 
 
 def pyright_analyze(
-    *code_objs_and_or_paths: Any,
+    *code_objs_and_or_paths: Any,  # noqa: ANN401, deliberate use of 'Any' type
     pyright_config: dict[str, Any] | None = None,
     scan_docstring: bool = False,
-    path_to_pyright: Union[Path, None] = PYRIGHT_PATH,
+    path_to_pyright: Path | None = PYRIGHT_PATH,
     preamble: str = "",
     python_version: str | None = None,
     report_unnecessary_type_ignore_comment: bool | None = None,
@@ -481,14 +486,14 @@ def pyright_analyze(
     ...     "errorCount"
     ... ]  # nested notional example has fake import --> # doctest: +SKIP
     0
-    """
+    """  # noqa: E501
     if path_to_pyright is None:  # pragma: no cover
         raise ModuleNotFoundError(
-            "`pyright` was not found. It may need to be installed."
+            "`pyright` was not found. It may need to be installed.",
         )
     if not path_to_pyright.is_file():
         raise FileNotFoundError(
-            f"`path_to_pyright` – {path_to_pyright} – doesn't exist."
+            f"`path_to_pyright` – {path_to_pyright} – doesn't exist.",
         )
     if not pyright_config:
         pyright_config = {}
@@ -497,9 +502,7 @@ def pyright_analyze(
         pyright_config["pythonVersion"] = python_version
 
     if report_unnecessary_type_ignore_comment is not None:
-        pyright_config["reportUnnecessaryTypeIgnoreComment"] = (
-            report_unnecessary_type_ignore_comment
-        )
+        pyright_config["reportUnnecessaryTypeIgnoreComment"] = report_unnecessary_type_ignore_comment
 
     if type_checking_mode is not None:
         pyright_config["typeCheckingMode"] = type_checking_mode
@@ -507,13 +510,10 @@ def pyright_analyze(
     sources: list[str | None] = []
     code_objs_and_or_paths_resolved = []
     for code_or_path in code_objs_and_or_paths:
-        if scan_docstring and (
-            isinstance(code_or_path, (Path, str))
-            or getattr(code_or_path, "__doc__") is None
-        ):
+        if scan_docstring and (isinstance(code_or_path, (Path, str)) or code_or_path.__doc__ is None):
             raise ValueError(
                 "`scan_docstring=True` can only be specified when `code_or_path` is an "
-                "object with a `__doc__` attribute that returns a string."
+                "object with a `__doc__` attribute that returns a string.",
             )
 
         if isinstance(code_or_path, str):
@@ -524,7 +524,7 @@ def pyright_analyze(
 
             if not code_or_path.exists():
                 raise FileNotFoundError(
-                    f"Specified path {code_or_path} does not exist. Cannot be scanned by pyright."
+                    f"Specified path {code_or_path} does not exist. Cannot be scanned by pyright.",
                 )
 
             if code_or_path.suffix == ".rst":
@@ -535,8 +535,7 @@ def pyright_analyze(
                 source = notebook_to_py_text(code_or_path)
             elif code_or_path.is_file() and code_or_path.suffix != ".py":
                 raise ValueError(
-                    f"{code_or_path}: File type {code_or_path.suffix} not supported by "
-                    "`pyright_analyze`."
+                    f"{code_or_path}: File type {code_or_path.suffix} not supported by `pyright_analyze`.",
                 )
             else:
                 source = None
@@ -547,7 +546,8 @@ def pyright_analyze(
                 source = preamble + textwrap.dedent(inspect.getsource(code_or_path))
             else:
                 docstring = inspect.getdoc(code_or_path)
-                assert docstring is not None
+                if docstring is None:
+                    raise ValueError("docstring is None")
                 source = preamble + get_docstring_examples(docstring)
         sources.append(source)
         code_objs_and_or_paths_resolved.append(code_or_path)
@@ -556,7 +556,7 @@ def pyright_analyze(
         cwd = Path.cwd()
 
         for n, (source, code_or_path) in enumerate(
-            zip(sources, code_objs_and_or_paths_resolved)
+            zip(sources, code_objs_and_or_paths_resolved, strict=True),
         ):
             target_dir = cwd / str(n)
 
@@ -591,7 +591,7 @@ def pyright_analyze(
             raise e
 
     out = scan["generalDiagnostics"]
-    diagnostics_by_file: DefaultDict[int, list[Diagnostic]] = defaultdict(list)
+    diagnostics_by_file: defaultdict[int, list[Diagnostic]] = defaultdict(list)
 
     for item in out:
         file_str = item["file"]
@@ -626,7 +626,7 @@ def pyright_analyze(
                 time=scan["time"],
                 generalDiagnostics=diagnostics_by_file[n],
                 summary=summary,
-            )
+            ),
         )
     return results
 

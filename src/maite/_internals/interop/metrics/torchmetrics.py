@@ -3,7 +3,8 @@
 # SPDX-License-Identifier: MIT
 from __future__ import annotations
 
-from typing import Any, Callable, Literal, Sequence, Type
+from collections.abc import Callable, Sequence
+from typing import Any, Literal
 
 import numpy as np
 import torch
@@ -15,7 +16,9 @@ from maite.protocols import ArrayLike, MetricMetadata
 
 
 def _arraylike_as_tensor(
-    arr: ArrayLike, device: Any | None = None, dtype: torch.dtype | None = None
+    arr: ArrayLike,
+    device: Any | None = None,  # noqa: ANN401 (deliberate use of 'Any' type)
+    dtype: torch.dtype | None = None,
 ) -> torch.Tensor:
     """Safe bridging of `maite.ArrayLike` to `torch.Tensor`.
 
@@ -36,17 +39,16 @@ def _arraylike_as_tensor(
         except Exception as e2:
             raise Exception(
                 (
-                    f"Unable to bridge data of type {type(arr)} directly to torch.Tensor due to the following error: {e1}."
-                    f"Attempt to bridge to numpy.ndarray as an intermediary also failed."
-                )
+                    f"Unable to bridge data of type {type(arr)} directly to torch.Tensor "
+                    f"due to the following error: {e1}. "
+                    "Attempt to bridge to numpy.ndarray as an intermediary also failed."
+                ),
             ) from e2
 
 
 def _get_valid_classification_metrics(
     allowed_modules: (
-        Literal["Multiclass", "Binary", "Multilabel"]
-        | list[Literal["Multiclass", "Binary", "Multilabel"]]
-        | None
+        Literal["Multiclass", "Binary", "Multilabel"] | list[Literal["Multiclass", "Binary", "Multilabel"]] | None
     ) = None,
 ) -> dict[str, torchmetrics.Metric]:
     """Check if a classification metric is supported by `TMClassificationMetric`.
@@ -56,7 +58,8 @@ def _get_valid_classification_metrics(
 
     Parameters
     ----------
-    allowed_modules : Literal["Multiclass", "Binary", "Multilabel"] | list[Literal["Multiclass", "Binary", "Multilabel"]], default=None
+    allowed_modules : Literal["Multiclass", "Binary", "Multilabel"] |
+                      list[Literal["Multiclass", "Binary", "Multilabel"]], default=None
         Allowed module names. If provided, only metrics from these modules will be
         returned. If none are provided, all classification metrics are returned.
         Elements of the list must be either "Multiclass", "Binary", or "Multilabel".
@@ -84,7 +87,7 @@ def _get_valid_classification_metrics(
 
 
 # TM_CLASSIFICATION_METRIC_WHITELIST = _get_valid_classification_metrics("Multiclass")
-TM_CLASSIFICATION_METRIC_WHITELIST: dict[str, Type[torchmetrics.Metric]] = {
+TM_CLASSIFICATION_METRIC_WHITELIST: dict[str, type[torchmetrics.Metric]] = {
     "MulticlassAccuracy": torchmetrics.classification.MulticlassAccuracy,
     "MulticlassCohenKappa": torchmetrics.classification.MulticlassCohenKappa,
     "MulticlassConfusionMatrix": torchmetrics.classification.MulticlassConfusionMatrix,
@@ -154,9 +157,7 @@ class TMClassificationMetric:
     ... ]
     >>> metadatas: Sequence[ic.DatumMetadataType] = [{"id": 1}, {"id": 2}, {"id": 3}]
     >>> # Create native TorchMetrics metric
-    >>> classification_metric = torchmetrics.classification.MulticlassAccuracy(
-    ...     num_classes=3
-    ... )
+    >>> classification_metric = torchmetrics.classification.MulticlassAccuracy(num_classes=3)
     >>>
     >>> # Add additional field to base MetricMetadata
     >>> class MyMetricMetadata(MetricMetadata):
@@ -164,16 +165,12 @@ class TMClassificationMetric:
     >>> metadata: MyMetricMetadata = {"id": "Multiclass Accuracy", "num_classes": 3}
     >>>
     >>> # Wrap metric and apply to sample data
-    >>> wrapped_classification_metric: ic.Metric = TMClassificationMetric(
-    ...     classification_metric, metadata=metadata
-    ... )
+    >>> wrapped_classification_metric: ic.Metric = TMClassificationMetric(classification_metric, metadata=metadata)
     >>> wrapped_classification_metric.update(preds, target, metadatas)
     >>> result = wrapped_classification_metric.compute()
     >>> result  # doctest: +SKIP
     {'MulticlassAccuracy': tensor(0.6667)}
-    >>> print(
-    ...     f"{result['MulticlassAccuracy'].item():0.3f}"
-    ... )  # consistent formatting for doctest
+    >>> print(f"{result['MulticlassAccuracy'].item():0.3f}")  # consistent formatting for doctest
     0.667
     """
 
@@ -182,10 +179,10 @@ class TMClassificationMetric:
         metric: torchmetrics.Metric,
         output_key: str | None = None,
         output_transform: Callable[[torch.Tensor], dict[str, Any]] | None = None,
-        device: Any | None = None,
+        device: Any | None = None,  # noqa: ANN401, deliberate use of 'Any' type
         dtype: torch.dtype | None = None,
         metadata: MetricMetadata | None = None,
-    ):
+    ) -> None:
         """
         Parameters
         ----------
@@ -216,7 +213,7 @@ class TMClassificationMetric:
 
         if output_key is not None and output_transform is not None:
             raise ValueError(
-                "Only one of `output_key` and `output_transform` may be provided"
+                "Only one of `output_key` and `output_transform` may be provided",
             )
 
         self.metric = metric
@@ -226,7 +223,7 @@ class TMClassificationMetric:
         self.dtype = dtype
 
         if metadata is None:
-            metadata = {"id": metric._get_name()}
+            metadata = {"id": metric._get_name()}  # noqa: SLF001
 
         self.metadata = metadata
 
@@ -234,7 +231,7 @@ class TMClassificationMetric:
             self.metric.to(device)
 
     @staticmethod
-    def _assert_valid_dims(tensors: list[torch.Tensor]):
+    def _assert_valid_dims(tensors: list[torch.Tensor]) -> None:
         """Ensure tensor elements are of shape `(Cl,)`.
 
         Note this is required by MAITE's `image_classification.Metric` protocol, where
@@ -242,14 +239,16 @@ class TMClassificationMetric:
         """
         if not all(tensor.ndim == 1 for tensor in tensors):
             raise ValueError(
-                "Invalid dimensions for `preds` or `targets` elements. Expected 1-dimensional `ArrayLike` elements of shape `(Cl,)`"
+                "Invalid dimensions for `preds` or `targets` elements. "
+                "Expected 1-dimensional `ArrayLike` elements of shape `(Cl,)`",
             )
 
     @staticmethod
-    def _assert_valid_classification_metric(metric: torchmetrics.Metric):
+    def _assert_valid_classification_metric(metric: torchmetrics.Metric) -> None:
         if type(metric) not in list(TM_CLASSIFICATION_METRIC_WHITELIST.values()):
             raise ValueError(
-                f"Invalid `metric` supplied: {type(metric)}. Must be one of {list(TM_CLASSIFICATION_METRIC_WHITELIST.keys())}."
+                f"Invalid `metric` supplied: {type(metric)}. "
+                f"Must be one of {list(TM_CLASSIFICATION_METRIC_WHITELIST.keys())}.",
             )
 
     def reset(self) -> None:
@@ -266,7 +265,8 @@ class TMClassificationMetric:
         self,
         pred_batch: Sequence[ic.TargetType],
         target_batch: Sequence[ic.TargetType],
-        metadata_batch: Sequence[ic.DatumMetadataType],
+        metadata_batch: Sequence[ic.DatumMetadataType],  # noqa: ARG002
+        /,
     ) -> None:
         # doc-ignore: EX01
         """
@@ -285,14 +285,8 @@ class TMClassificationMetric:
         metadata_batch : Sequence[ic.DatumMetadataType]
             Batch of metadata.
         """
-        preds_tm = [
-            _arraylike_as_tensor(arr, device=self.device, dtype=self.dtype)
-            for arr in pred_batch
-        ]
-        targets_tm = [
-            _arraylike_as_tensor(arr, device=self.device, dtype=self.dtype)
-            for arr in target_batch
-        ]
+        preds_tm = [_arraylike_as_tensor(arr, device=self.device, dtype=self.dtype) for arr in pred_batch]
+        targets_tm = [_arraylike_as_tensor(arr, device=self.device, dtype=self.dtype) for arr in target_batch]
 
         self._assert_valid_dims(preds_tm)
         self._assert_valid_dims(targets_tm)
@@ -329,11 +323,9 @@ class TMClassificationMetric:
             # User wants the output with a top-level key
             return {self.output_key: results}
 
-        if not isinstance(results, dict) or any(
-            not isinstance(k, str) for k in results.keys()
-        ):
+        if not isinstance(results, dict) or any(not isinstance(k, str) for k in results):
             # Ensure dict[str, Any]
-            key = self.metric._get_name()
+            key = self.metric._get_name()  # noqa: SLF001
             results = {key: results}
 
         return results

@@ -1,7 +1,7 @@
 # Copyright 2024, MASSACHUSETTS INSTITUTE OF TECHNOLOGY
 # Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014)
 # SPDX-License-Identifier: MIT
-
+"""MAITE protocol definitions."""
 
 from typing import TypeAlias
 
@@ -14,7 +14,8 @@ ArrayLike: TypeAlias = _ArrayLike
 Object coercible into a NumPy ndarray (alias of `numpy.typing.ArrayLike`)
 """
 
-# E402 because ruff complains assignments above imports, but one example in project.py relies on ArrayLike being first imported
+# E402 because ruff complains assignments above imports, but one example in project.py
+# relies on ArrayLike being first imported
 from maite._internals.protocols.generic import (  # noqa: E402
     Augmentation,
     AugmentationMetadata,

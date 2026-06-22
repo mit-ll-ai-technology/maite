@@ -1,6 +1,7 @@
 # Copyright 2024, MASSACHUSETTS INSTITUTE OF TECHNOLOGY
 # Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).
 # SPDX-License-Identifier: MIT
+"""MAITE image classification protocols."""
 
 from typing import TypeAlias
 
@@ -68,9 +69,6 @@ type argument. Currently equivalent to
 :py:type:`~maite.protocols.image_classification.DatumMetadata`.
 """
 
-## TODO: consider exporting _Datum
-# Datum: TypeAlias = _Datum
-# """Alias of tuple[:py:type:`~maite.protocols.object_detection.InputType`, :py:type:`~maite.protocols.object_detection.TargetType`, :py:type:`~maite.protocols.object_detection.DatumMetadataType`]"""
 
 __all__ = [
     "Image",

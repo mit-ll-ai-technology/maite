@@ -36,7 +36,7 @@ class TypeEnum(Enum):
         return f"{cls_name}.{self.type_name}"
 
     @staticmethod
-    def class_def_code_block():
+    def class_def_code_block() -> str:
         return """
 class ClsSup: ...
 class Cls(ClsSup): ...
@@ -142,7 +142,7 @@ TYPESPECS_TO_TEST = (
     + [[TypeEnum(0) if i != j else TypeEnum(-1) for i in range(16)] for j in range(16)]
     + [[TypeEnum(0) if i != j else TypeEnum(1) for i in range(16)] for j in range(16)]
 )
-xpass_indices = set([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 14, 26, 27, 28, 29, 31])
+xpass_indices = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 14, 26, 27, 28, 29, 31}
 xfail_indices = set(range(32)) - xpass_indices
 
 TYPESPECS_TO_TEST_PASS = [TYPESPECS_TO_TEST[pi] for pi in xpass_indices]
@@ -151,24 +151,24 @@ TYPESPECS_TO_TEST_FAIL = [pytest.param(*TYPESPECS_TO_TEST[fi]) for fi in xfail_i
 
 @pytest.mark.slow
 @pytest.mark.parametrize(
-    """
-    dataloader_input_typespec,
-    dataloader_target_typespec,
-    dataloader_metadata_typespec,
-    dataset_input_typespec,
-    dataset_target_typespec,
-    dataset_metadata_typespec,
-    augmentation_inputco_typespec,
-    augmentation_targetco_typespec,
-    augmentation_metadataco_typespec,
-    augmentation_inputcn_typespec,
-    augmentation_targetcn_typespec,
-    augmentation_metadatacn_typespec,
-    model_input_typespec,
-    model_target_typespec,
-    metric_target_typespec,
-    metric_metadata_typespec,
-    """,
+    (
+        "dataloader_input_typespec",
+        "dataloader_target_typespec",
+        "dataloader_metadata_typespec",
+        "dataset_input_typespec",
+        "dataset_target_typespec",
+        "dataset_metadata_typespec",
+        "augmentation_inputco_typespec",
+        "augmentation_targetco_typespec",
+        "augmentation_metadataco_typespec",
+        "augmentation_inputcn_typespec",
+        "augmentation_targetcn_typespec",
+        "augmentation_metadatacn_typespec",
+        "model_input_typespec",
+        "model_target_typespec",
+        "metric_target_typespec",
+        "metric_metadata_typespec",
+    ),
     TYPESPECS_TO_TEST_PASS,
 )
 def test_static_evaluate(
@@ -211,24 +211,24 @@ def test_static_evaluate(
 
 @pytest.mark.slow
 @pytest.mark.parametrize(
-    """
-    dataloader_input_typespec,
-    dataloader_target_typespec,
-    dataloader_metadata_typespec,
-    dataset_input_typespec,
-    dataset_target_typespec,
-    dataset_metadata_typespec,
-    augmentation_inputco_typespec,
-    augmentation_targetco_typespec,
-    augmentation_metadataco_typespec,
-    augmentation_inputcn_typespec,
-    augmentation_targetcn_typespec,
-    augmentation_metadatacn_typespec,
-    model_input_typespec,
-    model_target_typespec,
-    metric_target_typespec,
-    metric_metadata_typespec,
-    """,
+    (
+        "dataloader_input_typespec",
+        "dataloader_target_typespec",
+        "dataloader_metadata_typespec",
+        "dataset_input_typespec",
+        "dataset_target_typespec",
+        "dataset_metadata_typespec",
+        "augmentation_inputco_typespec",
+        "augmentation_targetco_typespec",
+        "augmentation_metadataco_typespec",
+        "augmentation_inputcn_typespec",
+        "augmentation_targetcn_typespec",
+        "augmentation_metadatacn_typespec",
+        "model_input_typespec",
+        "model_target_typespec",
+        "metric_target_typespec",
+        "metric_metadata_typespec",
+    ),
     TYPESPECS_TO_TEST_FAIL,
 )
 def test_static_evaluate_raises(
@@ -318,10 +318,7 @@ def static_evaluate(
         scan: PyrightOutput = pyright_analyze(out_path)[0]
         if scan["summary"]["errorCount"] != 0:
             raise ValueError(
-                "\n"
-                + "Pyright error in generic evaluate test case"
-                + "\n"
-                + "\n".join(list_error_messages(scan))
+                "\nPyright error in generic evaluate test case\n" + "\n".join(list_error_messages(scan)),
             )
             # Maybe publish specific failure case for traceability?
             # Pytest should share failing args though, and 15-element

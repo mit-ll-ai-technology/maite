@@ -17,9 +17,7 @@ N_CLASSES: int = 2  # Number pf possible classes that can be detected
 
 @dataclass
 class MyObjectDetectionTarget:
-    """
-    Implements the od.ObjectDetectionTarget protocol.
-    """
+    """Implements the od.ObjectDetectionTarget protocol."""
 
     boxes: np.ndarray
     labels: np.ndarray
@@ -49,7 +47,7 @@ class MatchingBoxesPercentageMetric:
         self,
         pred_batch: Sequence[od.ObjectDetectionTarget],
         target_batch: Sequence[od.ObjectDetectionTarget],
-        metadata_batch: Sequence[od.DatumMetadataType],
+        _metadata_batch: Sequence[od.DatumMetadataType],
     ) -> None:
         self._prediction_boxes.extend(pred_batch)
         self._target_boxes.extend(target_batch)
@@ -57,10 +55,14 @@ class MatchingBoxesPercentageMetric:
     def compute(self) -> dict[str, Any]:
         exact_matches_per_image: list[bool] = []
         for prediction_target, truth_target in zip(
-            self._prediction_boxes, self._target_boxes
+            self._prediction_boxes,
+            self._target_boxes,
+            strict=True,
         ):
-            for pairing_match in prediction_target.boxes == truth_target.boxes:
-                exact_matches_per_image.append(True if np.all(pairing_match) else False)
+            exact_matches_per_image.extend(
+                bool(np.all(pairing_match)) for pairing_match in prediction_target.boxes == truth_target.boxes
+            )
+
         bool_array = np.array(exact_matches_per_image)
         true_count = np.count_nonzero(bool_array)
         return {f"{self.metric_label}": (true_count / len(bool_array)) * 100}
@@ -108,14 +110,15 @@ def _create_od_target_batch(
         Sequence[od.TargetType]: A batch with a single object detection target
     """
     num_boxes = len(boxes)
-    fake_labels = np.random.randint(0, N_CLASSES, num_boxes)
+    fake_labels = np.random.randint(0, N_CLASSES, num_boxes)  # noqa: NPY002
     fake_scores = np.zeros(num_boxes)
-    batch = [
+    return [
         MyObjectDetectionTarget(
-            boxes=np.array(boxes), labels=fake_labels, scores=fake_scores
-        )
+            boxes=np.array(boxes),
+            labels=fake_labels,
+            scores=fake_scores,
+        ),
     ]
-    return batch
 
 
 def test_simple_od_evaluate_from_predictions(
@@ -138,5 +141,5 @@ def test_simple_od_evaluate_from_predictions(
     # Evaluate the results.
     print(f"type(metric_return): {type(metric_return)}, metric_return: {metric_return}")
     assert metric_return == {
-        f"{MatchingBoxesPercentageMetric.metric_label}": 66.66666666666666
+        f"{MatchingBoxesPercentageMetric.metric_label}": 66.66666666666666,
     }

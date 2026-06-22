@@ -90,33 +90,27 @@ def _test_video_decode(
             next_subsample_value += sample_spec.subsample_interval
             if next_subsample_value <= subsample_value:
                 next_subsample_value += (
-                    (subsample_value - next_subsample_value)
-                    // sample_spec.subsample_interval
-                    + 1
+                    (subsample_value - next_subsample_value) // sample_spec.subsample_interval + 1
                 ) * sample_spec.subsample_interval
         else:
             if start_value < sample_spec.start:
                 continue
-            end_value = (
-                metadata_frame[sample_spec.duration_units] + sample_spec.duration
-            )
-            next_subsample_value = (
-                metadata_frame[sample_spec.subsample_interval_units]
-                + sample_spec.subsample_interval
-            )
+            end_value = metadata_frame[sample_spec.duration_units] + sample_spec.duration
+            next_subsample_value = metadata_frame[sample_spec.subsample_interval_units] + sample_spec.subsample_interval
 
         expected_metadata.append(metadata_frame)
 
     frames = adapter.decode_iter(sample_spec, Path(filepath))
     for expected_frame_index, (expected_frame, frame) in enumerate(
-        zip(expected_metadata, frames, strict=True)
+        zip(expected_metadata, frames, strict=True),
     ):
         expected_pts = cast(int, expected_frame["pts"]) - cast(int, metadata[0]["pts"])
         expected_time_s = cast(float, expected_frame["time_s"]) - cast(
-            float, metadata[0]["time_s"]
+            float,
+            metadata[0]["time_s"],
         )
         decoded_frame = decode_block_coded_frame(
-            np.asarray(frame.pixels).transpose(1, 2, 0)
+            np.asarray(frame.pixels).transpose(1, 2, 0),
         )
 
         assert frame.frame_index == expected_frame_index
@@ -194,7 +188,9 @@ def test_video_decode_odd_start(
         subsample_interval_units=subsample_spec[1],
     )
     _test_video_decode(
-        filepath=filepath, metadata_filepath=metadata_filepath, sample_spec=sample_spec
+        filepath=filepath,
+        metadata_filepath=metadata_filepath,
+        sample_spec=sample_spec,
     )
 
 
@@ -265,7 +261,9 @@ def test_video_decode_odd_duration(
         subsample_interval_units=subsample_spec[1],
     )
     _test_video_decode(
-        filepath=filepath, metadata_filepath=metadata_filepath, sample_spec=sample_spec
+        filepath=filepath,
+        metadata_filepath=metadata_filepath,
+        sample_spec=sample_spec,
     )
 
 
@@ -330,5 +328,7 @@ def test_video_decode_odd_subsample(
         subsample_interval_units=subsample_spec[1],
     )
     _test_video_decode(
-        filepath=filepath, metadata_filepath=metadata_filepath, sample_spec=sample_spec
+        filepath=filepath,
+        metadata_filepath=metadata_filepath,
+        sample_spec=sample_spec,
     )

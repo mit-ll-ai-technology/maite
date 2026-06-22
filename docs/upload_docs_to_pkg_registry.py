@@ -18,9 +18,12 @@ is used abort uploading document if a git release tag is not present.
 
 
 Usage:
-    python docs/upload_docs_to_pkg_registry.py upload --skip-nonrelease --docdir .tox/docs/build/html --token $CI_DOC_TOKEN
-    python docs/upload_docs_to_pkg_registry.py upload_file --version v1.2.3 --file maite-doc-v1.2.3.tar.gz --token $CI_DOC_TOKEN
-    python docs/upload_docs_to_pkg_registry.py build --version v1.2.3 --outdir $OUT_DIR --docdir .tox/docs/build/html
+    python docs/upload_docs_to_pkg_registry.py upload --skip-nonrelease \
+        --docdir .tox/docs/build/html --token $CI_DOC_TOKEN
+    python docs/upload_docs_to_pkg_registry.py upload_file --version v1.2.3 \
+        --file maite-doc-v1.2.3.tar.gz --token $CI_DOC_TOKEN
+    python docs/upload_docs_to_pkg_registry.py build --version v1.2.3 \
+        --outdir $OUT_DIR --docdir .tox/docs/build/html
 
 Arguments:
     --skip-nonrelease   Do nothing if a git release version tag is not present.
@@ -49,13 +52,12 @@ logger = logging.getLogger(__name__)
 BASE_URL = "https://gitlab.jatic.net/api/v4/projects"
 PROJECT_ID = "70"
 
+PACKAGE_NAME = "maite-doc"
+
 
 def get_package_url(version: str):
-    PACKAGE_NAME = "maite-doc"
     filename = artifact_filename(version)
-    return (
-        f"{BASE_URL}/{PROJECT_ID}/packages/generic/{PACKAGE_NAME}/{version}/{filename}"
-    )
+    return f"{BASE_URL}/{PROJECT_ID}/packages/generic/{PACKAGE_NAME}/{version}/{filename}"
 
 
 def artifact_filename(version):
@@ -66,7 +68,7 @@ def artifact_filename(version):
 def upload_package(file: Path | bytes, package_url: str, token: str):
     headers = {"Private-Token": token}
 
-    if isinstance(file, str) or isinstance(file, Path):
+    if isinstance(file, (str, Path)):
         file_path = Path(file)
         logging.info(f"Reading {file_path}")
         file_data = file_path.read_bytes()
@@ -79,7 +81,7 @@ def upload_package(file: Path | bytes, package_url: str, token: str):
         logger.info(f"Uploaded to {package_url}")
     else:
         logger.error(
-            f"Could not upload to {package_url}. Status code: {response.status_code}\nResponse: {response.text}"
+            f"Could not upload to {package_url}. Status code: {response.status_code}\nResponse: {response.text}",
         )
 
 
@@ -90,11 +92,11 @@ def validate_version(version: str):
     ns = v[1:].split(".")
     if len(ns) != 3:
         raise ValueError(f"Invalid version: Expecting vN.N.N not: {v}")
-    for n in ns:
-        try:
+    try:
+        for n in ns:
             int(n)
-        except Exception:
-            raise ValueError(f"Invalid version: Expecting vN.N.N not: {v}")
+    except ValueError as err:
+        raise ValueError(f"Invalid version: Expecting vN.N.N not: {v}") from err
     return v
 
 
@@ -135,12 +137,11 @@ def get_version_tag() -> str | None:
                 logger.info(f"Found release tag: {release_tag}")
         if len(release_tags) > 1:
             raise ValueError(
-                f"Multiple ambiguous version tags found: {' '.join(release_tags)}"
+                f"Multiple ambiguous version tags found: {' '.join(release_tags)}",
             )
-        elif len(release_tags) == 1:
+        if len(release_tags) == 1:
             return release_tags[0]
-        else:
-            return None
+        return None
     except subprocess.CalledProcessError as e:
         logger.error("Problem finding release tag")
         logger.error(e.stdout)
@@ -165,10 +166,7 @@ def upload_file_main(args):
 
 
 def build_and_upload_main(args):
-    if args.skip_nonrelease:
-        version = get_version_tag()
-    else:
-        version = validate_version(args.version)
+    version = get_version_tag() if args.skip_nonrelease else validate_version(args.version)
 
     if version is None:
         logger.error("No release version given or found in git. Not uploading docs.")
@@ -189,24 +187,30 @@ def main():
     build_tar = subparsers.add_parser("build", help="Build documentation .tar.gz")
     build_tar.add_argument("--version", type=str, help="Documentation version (vX.Y.Z)")
     build_tar.add_argument(
-        "--docdir", type=Path, help="Directory holding documentation (e.g. index.html)"
+        "--docdir",
+        type=Path,
+        help="Directory holding documentation (e.g. index.html)",
     )
     build_tar.add_argument("--outdir", type=Path, help="Output directory")
 
     upload_file = subparsers.add_parser(
-        "upload_file", help="Upload a documentation .tar.gz file to gitlab artifacts"
+        "upload_file",
+        help="Upload a documentation .tar.gz file to gitlab artifacts",
     )
     upload_file.add_argument("--version", type=str)
     upload_file.add_argument("--file", type=Path)
     upload_file.add_argument("--token", type=str)
 
     upload = subparsers.add_parser(
-        "upload", help="Build and upload documentation .tar.gz"
+        "upload",
+        help="Build and upload documentation .tar.gz",
     )
     upload.add_argument("--skip-nonrelease", action="store_true")
     upload.add_argument("--version", type=str, help="Documentation version (vX.Y.Z)")
     upload.add_argument(
-        "--docdir", type=Path, help="Directory holding documentation (e.g. index.html)"
+        "--docdir",
+        type=Path,
+        help="Directory holding documentation (e.g. index.html)",
     )
     upload.add_argument("--token", type=str, help="CI token")
 
@@ -224,6 +228,7 @@ def main():
 
 if __name__ == "__main__":
     logging.basicConfig(
-        level=logging.DEBUG, format="%(asctime)s %(levelname)s %(message)s"
+        level=logging.DEBUG,
+        format="%(asctime)s %(levelname)s %(message)s",
     )
     main()

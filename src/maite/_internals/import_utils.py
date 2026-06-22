@@ -6,67 +6,67 @@ import importlib
 import importlib.util
 
 
-def is_numpy_available():
+def is_numpy_available() -> bool:
     return importlib.util.find_spec("numpy") is not None
 
 
-def is_torch_available():
+def is_torch_available() -> bool:
     return importlib.util.find_spec("torch") is not None
 
 
-def is_torchvision_available():
+def is_torchvision_available() -> bool:
     return importlib.util.find_spec("torchvision") is not None
 
 
-def is_timm_available():
+def is_timm_available() -> bool:
     return importlib.util.find_spec("timm") is not None
 
 
-def is_hf_hub_available():
+def is_hf_hub_available() -> bool:
     return importlib.util.find_spec("huggingface_hub") is not None
 
 
-def is_hf_datasets_available():
+def is_hf_datasets_available() -> bool:
     return importlib.util.find_spec("datasets") is not None
 
 
-def is_hf_transformers_available():
+def is_hf_transformers_available() -> bool:
     return importlib.util.find_spec("transformers") is not None
 
 
-def is_pytest_available():
+def is_pytest_available() -> bool:
     return importlib.util.find_spec("pytest") is not None
 
 
-def is_torchmetrics_available():
+def is_torchmetrics_available() -> bool:
     return importlib.util.find_spec("torchmetrics") is not None
 
 
-def is_tqdm_available():
+def is_tqdm_available() -> bool:
     return importlib.util.find_spec("tqdm") is not None
 
 
-def is_pil_available():
+def is_pil_available() -> bool:
     return importlib.util.find_spec("PIL") is not None
 
 
-def is_torcheval_available():
+def is_torcheval_available() -> bool:
     return importlib.util.find_spec("torcheval") is not None
 
 
-def is_hypothesis_available():
+def is_hypothesis_available() -> bool:
     return importlib.util.find_spec("hypothesis") is not None
 
 
-def is_yolov5_available():
+def is_yolov5_available() -> bool:
     return importlib.util.find_spec("yolov5") is not None
 
 
-def is_ultralytics_available():
+def is_ultralytics_available() -> bool:
     return importlib.util.find_spec("ultralytics") is not None
 
 
-def is_av_available():
+def is_av_available() -> bool:
     return importlib.util.find_spec("av") is not None
 
 
@@ -74,32 +74,42 @@ if is_pytest_available():
     import pytest
 
     requires_torch = pytest.mark.skipif(
-        not is_torch_available(), reason="test requires torch"
+        not is_torch_available(),
+        reason="test requires torch",
     )
     requires_torchvision = pytest.mark.skipif(
-        not is_torchvision_available(), reason="test requires torchvision"
+        not is_torchvision_available(),
+        reason="test requires torchvision",
     )
     requires_timm = pytest.mark.skipif(
-        not is_timm_available(), reason="test requires timm"
+        not is_timm_available(),
+        reason="test requires timm",
     )
     requires_hf_hub = pytest.mark.skipif(
-        not is_hf_hub_available(), reason="test requires huggingface_hub"
+        not is_hf_hub_available(),
+        reason="test requires huggingface_hub",
     )
     requires_hf_datasets = pytest.mark.skipif(
-        not is_hf_datasets_available(), reason="test requires datasets"
+        not is_hf_datasets_available(),
+        reason="test requires datasets",
     )
     requires_hf_transformers = pytest.mark.skipif(
-        not is_hf_transformers_available(), reason="test requires transformers"
+        not is_hf_transformers_available(),
+        reason="test requires transformers",
     )
     requires_torchmetrics = pytest.mark.skipif(
-        not is_torchmetrics_available(), reason="test requires torchmetrics"
+        not is_torchmetrics_available(),
+        reason="test requires torchmetrics",
     )
     requires_pil = pytest.mark.skipif(
-        not is_pil_available(), reason="test requires PIL"
+        not is_pil_available(),
+        reason="test requires PIL",
     )
     requires_torcheval = pytest.mark.skipif(
-        not is_torcheval_available(), reason="test requires torcheval"
+        not is_torcheval_available(),
+        reason="test requires torcheval",
     )
     requires_ultralytics = pytest.mark.skipif(
-        not is_ultralytics_available(), reason="test requires ultralytics"
+        not is_ultralytics_available(),
+        reason="test requires ultralytics",
     )

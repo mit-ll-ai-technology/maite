@@ -51,7 +51,7 @@ def decode_block_coded_frame(frame: np.ndarray) -> int:
     # Ensure correct format
     if frame.shape != (FRAME_HEIGHT, FRAME_WIDTH, 3):
         raise ValueError(
-            f"Expected frame shape ({FRAME_HEIGHT}, {FRAME_WIDTH}, 3), got {frame.shape}"
+            f"Expected frame shape ({FRAME_HEIGHT}, {FRAME_WIDTH}, 3), got {frame.shape}",
         )
 
     frame_id = 0
@@ -114,10 +114,10 @@ def main():
                 assert packet.time_base is not None
                 assert out_video_stream.time_base is not None
                 packet.pts = int(
-                    packet.pts * packet.time_base / out_video_stream.time_base
+                    packet.pts * packet.time_base / out_video_stream.time_base,
                 )
                 packet.dts = int(
-                    packet.dts * packet.time_base / out_video_stream.time_base
+                    packet.dts * packet.time_base / out_video_stream.time_base,
                 )
                 if i == 0:
                     ts_offset = -10000
@@ -152,7 +152,7 @@ def main():
                     "decoded_frame": decoded_frame,
                     "pts": pts,
                     "time_s": timestamp,
-                }
+                },
             )
 
         with open(f"test_video_{i + 1}.json", "w") as out_json:

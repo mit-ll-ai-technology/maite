@@ -7,9 +7,7 @@
 
 from __future__ import annotations
 
-from typing import Protocol, runtime_checkable
-
-from typing_extensions import TypeAlias
+from typing import Protocol, TypeAlias, runtime_checkable
 
 from maite._internals.protocols import generic as gen
 from maite.protocols import ArrayLike, DatumMetadata
@@ -74,11 +72,11 @@ class ObjectDetectionTarget(Protocol):
 
 
 Image: TypeAlias = ArrayLike  # ArrayLike following (C, H, W) shape semantics.
-InputType: TypeAlias = (
-    Image  # Alias of :py:type:`~maite.protocols.object_detection.Image`.
-)
-TargetType: TypeAlias = ObjectDetectionTarget  # Alias of :py:type:`~maite.protocols.object_detection.ObjectDetectionTarget`
-DatumMetadataType: TypeAlias = DatumMetadata  # Alias of :py:type:`~maite.protocols.object_detection.DatumMetadata` TypedDict.
+InputType: TypeAlias = Image  # Alias of :py:type:`~maite.protocols.object_detection.Image`.
+TargetType: TypeAlias = ObjectDetectionTarget
+# Alias of :py:type:`~maite.protocols.object_detection.ObjectDetectionTarget`
+DatumMetadataType: TypeAlias = DatumMetadata
+# Alias of :py:type:`~maite.protocols.object_detection.DatumMetadata` TypedDict.
 Datum: TypeAlias = tuple[InputType, TargetType, DatumMetadataType]
 
 
@@ -143,9 +141,7 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
     randomly assigned zero, one, or two detections. Annotations for each image consist
     of randomly generated bounding boxes and class labels.
 
-    >>> def generate_random_bbox(
-    ...     n_classes: int, min_size: int = 2, max_size: int = 4
-    ... ) -> np.ndarray:
+    >>> def generate_random_bbox(n_classes: int, min_size: int = 2, max_size: int = 4) -> np.ndarray:
     ...     # Generate random coordinates for top-left corner of bbox
     ...     x1 = np.random.randint(0, W - min_size)
     ...     y1 = np.random.randint(0, H - min_size)
@@ -161,17 +157,13 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
 
     >>> def generate_random_annotation(max_num_detections: int = 2) -> np.ndarray:
     ...     num_detections = np.random.choice(max_num_detections + 1)
-    ...     annotation = [
-    ...         generate_random_bbox(N_CLASSES) for _ in range(num_detections)
-    ...     ]
+    ...     annotation = [generate_random_bbox(N_CLASSES) for _ in range(num_detections)]
     ...     return np.vstack(annotation) if num_detections > 0 else np.empty(0)
 
     We now create the dummy dataset of images, corresponding annotations, and metadata.
 
     >>> images: list[np.ndarray] = list(np.random.rand(N_DATUM, C, H, W))
-    >>> annotations: list[np.ndarray] = [
-    ...     generate_random_annotation() for _ in range(N_DATUM)
-    ... ]
+    >>> annotations: list[np.ndarray] = [generate_random_annotation() for _ in range(N_DATUM)]
     >>> hour_of_day: list[int] = [np.random.choice(24) for _ in range(N_DATUM)]
     >>> dataset: list[tuple] = list(zip(images, annotations, hour_of_day))
 
@@ -207,13 +199,9 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
     ...     def __len__(self) -> int:
     ...         return len(self.dataset)
     ...
-    ...     def __getitem__(
-    ...         self, index: int
-    ...     ) -> tuple[np.ndarray, od.ObjectDetectionTarget, DatumMetadata]:
+    ...     def __getitem__(self, index: int) -> tuple[np.ndarray, od.ObjectDetectionTarget, DatumMetadata]:
     ...         if index < 0 or index >= len(self):
-    ...             raise IndexError(
-    ...                 f"Index {index} is out of range for the dataset, which has length {len(self)}."
-    ...             )
+    ...             raise IndexError(f"Index {index} is out of range for the dataset, which has length {len(self)}.")
     ...         image, annotations, hour_of_day = self.dataset[index]
     ...         # Structure ground truth target
     ...         boxes, labels = [], []
@@ -246,11 +234,11 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
     protocol.
     """
 
-    ...
-
 
 class FieldwiseDataset(
-    Dataset, gen.FieldwiseDataset[InputType, TargetType, DatumMetadataType], Protocol
+    Dataset,
+    gen.FieldwiseDataset[InputType, TargetType, DatumMetadataType],
+    Protocol,
 ):
     """
     A specialization of Dataset protocol (i.e., a subprotocol) that specifies additional
@@ -312,9 +300,7 @@ class FieldwiseDataset(
     ...     def __len__(self) -> int:
     ...         return len(self.inputs)
     ...
-    ...     def __getitem__(
-    ...         self, index: int
-    ...     ) -> tuple[np.ndarray, od.ObjectDetectionTarget, od.DatumMetadataType]:
+    ...     def __getitem__(self, index: int) -> tuple[np.ndarray, od.ObjectDetectionTarget, od.DatumMetadataType]:
     ...         image = self.inputs[index]
     ...         target = self.targets[index]
     ...         metadata = self.metadatas[index]
@@ -334,8 +320,6 @@ class FieldwiseDataset(
 
     >>> maite_od_dataset: od.FieldwiseDataset = ExampleDataset([], [], [])
     """
-
-    ...
 
 
 class DataLoader(
@@ -368,8 +352,6 @@ class DataLoader(
         `Sequence[ObjectDetectionTarget]`), and batched datum-level metadata
         (as `Sequence[DatumMetadata]`), respectively.
     """
-
-    ...
 
 
 class Model(gen.Model[InputType, TargetType], Protocol):
@@ -422,9 +404,7 @@ class Model(gen.Model[InputType, TargetType], Protocol):
 
     Now create a batch of data to form the inputs of the MAITE's object detection model.
 
-    >>> simple_batch: list[np.ndarray] = [
-    ...     np.random.rand(C, H, W) for _ in range(N_DATAPOINTS)
-    ... ]
+    >>> simple_batch: list[np.ndarray] = [np.random.rand(C, H, W) for _ in range(N_DATAPOINTS)]
 
     We define a simple object detection model, note here there is not an actual object detection
     model. In the __call__ method, it just outputs the MyObjectDetectionTarget.
@@ -432,13 +412,9 @@ class Model(gen.Model[InputType, TargetType], Protocol):
     >>> class ObjectDetectionDummyModel:
     ...     metadata: ModelMetadata = {"id": "ObjectDetectionDummyModel"}
     ...
-    ...     def __call__(
-    ...         self, batch: Sequence[od.InputType]
-    ...     ) -> Sequence[MyObjectDetectionTarget]:
+    ...     def __call__(self, batch: Sequence[od.InputType]) -> Sequence[MyObjectDetectionTarget]:
     ...         # For the simplicity, we don't provide an object detection model here, but the output from a model.
-    ...         DETECTIONS_PER_IMG = (
-    ...             2  # number of bounding boxes detections per image/datapoints
-    ...         )
+    ...         DETECTIONS_PER_IMG = 2  # number of bounding boxes detections per image/datapoints
     ...         all_boxes = np.array(
     ...             [[1, 3, 5, 9], [2, 5, 8, 12], [4, 10, 8, 20], [3, 5, 6, 15]]
     ...         )  # all detection boxes for N_DATAPOINTS
@@ -461,9 +437,7 @@ class Model(gen.Model[InputType, TargetType], Protocol):
     >>> predictions  # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
     [MyObjectDetectionTarget(boxes=array([[ 1,  3,  5,  9], [ 2,  5,  8, 12]]), labels=array([..., ...]), scores=array([..., ...])),
     MyObjectDetectionTarget(boxes=array([[ 2,  5,  8, 12], [ 4, 10,  8, 20]]), labels=array([..., ...]), scores=array([..., ...]))]
-    """
-
-    ...
+    """  # noqa: E501
 
 
 class Metric(gen.Metric[TargetType, DatumMetadataType], Protocol):
@@ -476,7 +450,11 @@ class Metric(gen.Metric[TargetType, DatumMetadataType], Protocol):
     Methods
     -------
 
-    update(pred_batch: Sequence[ObjectDetectionTarget], target_batch: Sequence[ObjectDetectionTarget], metadata_batch: Sequence[DatumMetadata]) -> None
+    update(
+      pred_batch: Sequence[ObjectDetectionTarget],
+      target_batch: Sequence[ObjectDetectionTarget],
+      metadata_batch: Sequence[DatumMetadata]
+    ) -> None
          Add predictions and targets (and metadata if applicable) to metric's cache for later calculation.
 
     compute() -> Mapping[str, Any]
@@ -537,27 +515,19 @@ class Metric(gen.Metric[TargetType, DatumMetadataType], Protocol):
     ...         x0b, y0b, x1b, y1b = np.split(boxes_b, 4, axis=1)
     ...         # Calculate intersections
     ...         xi_0, yi_0 = np.split(
-    ...             np.maximum(
-    ...                 np.append(x0a, y0a, axis=1), np.append(x0b, y0b, axis=1)
-    ...             ),
+    ...             np.maximum(np.append(x0a, y0a, axis=1), np.append(x0b, y0b, axis=1)),
     ...             2,
     ...             axis=1,
     ...         )
     ...         xi_1, yi_1 = np.split(
-    ...             np.minimum(
-    ...                 np.append(x1a, y1a, axis=1), np.append(x1b, y1b, axis=1)
-    ...             ),
+    ...             np.minimum(np.append(x1a, y1a, axis=1), np.append(x1b, y1b, axis=1)),
     ...             2,
     ...             axis=1,
     ...         )
-    ...         ints: np.ndarray = np.maximum(0, xi_1 - xi_0) * np.maximum(
-    ...             0, yi_1 - yi_0
-    ...         )
+    ...         ints: np.ndarray = np.maximum(0, xi_1 - xi_0) * np.maximum(0, yi_1 - yi_0)
     ...         # Calculate unions (as sum of areas minus their intersection)
     ...         unions: np.ndarray = (
-    ...             (x1a - x0a) * (y1a - y0a)
-    ...             + (x1b - x0b) * (y1b - y0b)
-    ...             - (xi_1 - xi_0) * (yi_1 - yi_0)
+    ...             (x1a - x0a) * (y1a - y0a) + (x1b - x0b) * (y1b - y0b) - (xi_1 - xi_0) * (yi_1 - yi_0)
     ...         )
     ...         return ints / unions
     ...
@@ -603,14 +573,10 @@ class Metric(gen.Metric[TargetType, DatumMetadataType], Protocol):
     >>> fake_labels = np.random.randint(0, 9, num_boxes)
     >>> fake_scores = np.zeros(num_boxes)
     >>> pred_batch = [
-    ...     ObjectDetectionTargetImpl(
-    ...         boxes=np.array(prediction_boxes), labels=fake_labels, scores=fake_scores
-    ...     )
+    ...     ObjectDetectionTargetImpl(boxes=np.array(prediction_boxes), labels=fake_labels, scores=fake_scores)
     ... ]
     >>> target_batch: Sequence[ObjectDetectionTargetImpl] = [
-    ...     ObjectDetectionTargetImpl(
-    ...         boxes=np.array(target_boxes), labels=fake_labels, scores=fake_scores
-    ...     )
+    ...     ObjectDetectionTargetImpl(boxes=np.array(target_boxes), labels=fake_labels, scores=fake_scores)
     ... ]
     >>> metadata_batch: Sequence[DatumMetadata] = [{"id": 1}]
 
@@ -757,5 +723,3 @@ class Augmentation(
            [0.098, 0.421, 0.958, 0.533, 0.692],
            [0.989, 0.748, 0.280, 0.789, 0.103]])
     """
-
-    ...

@@ -6,43 +6,49 @@
 
 from __future__ import annotations
 
-from collections.abc import Collection
+from collections.abc import Callable, Collection
 from enum import Enum, EnumMeta
 from itertools import chain
-from typing import Any, Callable, Protocol, TypeVar, Union, overload, runtime_checkable
+from typing import Any, Protocol, TypeVar, overload, runtime_checkable
+
+from typing_extensions import Self
 
 T = TypeVar("T")
 N = TypeVar("N", int, float)
 C = TypeVar("C", bound="Comparable")
 
 
-def _tick(x: str):
+def _tick(x: str) -> str:
     return "`" + x + "`"
 
 
-def _safe_name(x: Any, ticked: bool = True) -> str:
+def _safe_name(x: Any, ticked: bool = True) -> str:  # noqa: ANN401, deliberate use of 'Any' type
     out = getattr(x, "__name__", str(x))
     return _tick(out) if ticked else out
 
 
 @runtime_checkable
 class Comparable(Protocol):
-    def __eq__(self, __x: Any) -> bool: ...
+    def __eq__(self, x: object, /) -> bool: ...
 
-    def __lt__(self: C, __x: C) -> bool: ...
+    def __lt__(self, x: Self, /) -> bool: ...
 
-    def __gt__(self: C, __x: C) -> bool: ...
+    def __gt__(self, x: Self, /) -> bool: ...
 
-    def __le__(self: C, __x: C) -> bool: ...
+    def __le__(self, x: Self, /) -> bool: ...
 
-    def __ge__(self: C, __x: C) -> bool: ...
+    def __ge__(self, x: Self, /) -> bool: ...
 
 
-class Unsatisfiable(AssertionError): ...
+class Unsatisfiable(AssertionError): ...  # noqa: N818
 
 
 def check_type(
-    name: str, arg: T, type_: Union[type, tuple[type, ...]], *, optional: bool = False
+    name: str,
+    arg: T,
+    type_: type | tuple[type, ...],
+    *,
+    optional: bool = False,
 ) -> T:
     """
     Check that an argument is an instance of one or more types.
@@ -81,9 +87,7 @@ def check_type(
     >>> try:
     ...     check_type("apple", 1, bool)
     ... except:
-    ...     print(
-    ...         "ValueError: Expected `apple` to be of type `bool`. Got `1` (type: `int`)."
-    ...     )
+    ...     print("ValueError: Expected `apple` to be of type `bool`. Got `1` (type: `int`).")
     ValueError: Expected `apple` to be of type `bool`. Got `1` (type: `int`).
 
     >>> check_type("apple", 1, (int, bool))
@@ -96,14 +100,15 @@ def check_type(
         return arg
 
     if not isinstance(arg, type_):
-        if isinstance(type_, tuple):
-            clause = f"of types: {', '.join(_safe_name(t) for t in type_)}"
-        else:
-            clause = f"of type {_safe_name(type_)}"
+        clause = (
+            f"of types: {', '.join(_safe_name(t) for t in type_)}"
+            if isinstance(type_, tuple)
+            else f"of type {_safe_name(type_)}"
+        )
 
         raise ValueError(
             f"Expected `{name}` to be {'`None` or ' if optional else ''}{clause}. Got "
-            f"`{arg}` (type: {_safe_name(type(arg))})."
+            f"`{arg}` (type: {_safe_name(type(arg))}).",
         )
     return arg
 
@@ -229,12 +234,8 @@ def check_domain(
     elif lower is None and upper is None:
         raise Unsatisfiable("Neither `lower` nor `upper` were specified.")
 
-    min_satisfied = (
-        (lower <= arg if incl_low else lower < arg) if lower is not None else True
-    )
-    max_satisfied = (
-        (arg <= upper if incl_up else arg < upper) if upper is not None else True
-    )
+    min_satisfied = (lower <= arg if incl_low else lower < arg) if lower is not None else True
+    max_satisfied = (arg <= upper if incl_up else arg < upper) if upper is not None else True
 
     if not min_satisfied or not max_satisfied:
         lsymb = "<=" if incl_low else "<"
@@ -261,13 +262,13 @@ def check_domain(
 
 
 class SupportsEq(Protocol):
-    def __eq__(self, __o: object) -> bool: ...
+    def __eq__(self, o: object, /) -> bool: ...
 
 
 def check_one_of(
     name: str,
     arg: T,
-    collection: Union[Collection[Any], type[Enum]],
+    collection: Collection[Any] | type[Enum],
     *vals: SupportsEq,
     requires_identity: bool = False,
 ) -> T:
@@ -343,9 +344,7 @@ def check_one_of(
     >>> try:
     ...     check_one_of("bar", 88, Pet)
     ... except:
-    ...     print(
-    ...         "ValueError: Expected `bar` to be one of: Pet.cat, Pet.dog. Got `88`."
-    ...     )
+    ...     print("ValueError: Expected `bar` to be one of: Pet.cat, Pet.dog. Got `88`.")
     ValueError: Expected `bar` to be one of: Pet.cat, Pet.dog. Got `88`.
     >>> check_one_of("bar", Pet.cat, Pet)
     <Pet.cat: 1>
@@ -365,8 +364,7 @@ def check_one_of(
         raise Unsatisfiable("`collections` and `args` are both empty.")
 
     raise ValueError(
-        f"Expected `{name}` to be{' one of' if len(values) > 1 else ''}: "
-        f"{', '.join(values)}. Got `{arg}`."
+        f"Expected `{name}` to be{' one of' if len(values) > 1 else ''}: {', '.join(values)}. Got `{arg}`.",
     )
 
 
@@ -402,9 +400,7 @@ def chain_validators(*validators: Callable[[str, Any], Any]) -> Callable[[str, T
     >>> try:
     ...     check_pos_int("foo", ["a"])
     ... except:
-    ...     print(
-    ...         "ValueError: Expected `foo` to be of type `int`. Got `['a']` (type: `list`)."
-    ...     )
+    ...     print("ValueError: Expected `foo` to be of type `int`. Got `['a']` (type: `list`).")
     ValueError: Expected `foo` to be of type `int`. Got `['a']` (type: `list`).
     >>> try:
     ...     check_pos_int("foo", -1)

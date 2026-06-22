@@ -6,7 +6,7 @@ import re
 from collections.abc import Collection
 from enum import Enum, Flag
 from functools import partial
-from typing import Any, NamedTuple, Union
+from typing import Any, NamedTuple
 
 import hypothesis.strategies as st
 import pytest
@@ -21,11 +21,7 @@ from maite.utils.validation import (
 
 
 def everything_except(excluded_types):
-    return (
-        st.from_type(type)
-        .flatmap(st.from_type)
-        .filter(lambda x: not isinstance(x, excluded_types))
-    )
+    return st.from_type(type).flatmap(st.from_type).filter(lambda x: not isinstance(x, excluded_types))
 
 
 any_types = st.from_type(type)
@@ -52,7 +48,7 @@ def test_check_type_passes_good_type(target_type, arg):
 
 
 @given(...)
-def test_check_multiple_types(arg: Union[str, int, None]):
+def test_check_multiple_types(arg: str | int | None):
     out = check_type("dummy", arg, type_=(str, int), optional=True)
     assert out == arg
 
@@ -106,7 +102,7 @@ def test_min_max_ordering_outof_range(kwargs):
         pytest.param(
             {"arg": 1, "lower": 1, "upper": 1, "incl_low": True, "incl_up": True},
             id="1 <= ... <= 1",
-        )
+        ),
     ],
 )
 def test_min_max_order_inrange(kwargs):
@@ -154,7 +150,11 @@ def test_inequality(kwargs):
     incl_low=st.booleans(),
 )
 def test_valid_inequalities(
-    lower, upper, data: st.DataObject, incl_up: bool, incl_low: bool
+    lower,
+    upper,
+    data: st.DataObject,
+    incl_up: bool,
+    incl_low: bool,
 ):
     if lower is None:
         incl_low = True
@@ -163,17 +163,17 @@ def test_valid_inequalities(
 
     if lower is None and upper is None:
         assume(False)
-        assert False
+        raise AssertionError
 
     if lower is not None and upper is not None:
         lower, upper = (upper, lower) if upper < lower else (lower, upper)
 
     if incl_low is False or incl_up is False and lower == upper:
         assume(False)
-        assert False
+        raise AssertionError
     if lower is None and upper is None:
         assume(False)
-        assert False
+        raise AssertionError
 
     arg = (
         data.draw(
@@ -223,8 +223,7 @@ collections = st.lists(st.sampled_from([True, BClass(), BClass]), unique=True)
 
 
 @given(
-    arg=st.sampled_from([None, False, AClass(), AClass, FooEnum, FooEnum.a])
-    | st.integers(-5, 0),
+    arg=st.sampled_from([None, False, AClass(), AClass, FooEnum, FooEnum.a]) | st.integers(-5, 0),
     collection=collections | st.just(BarEnum) | st.just(FlagEnum),
     vals=collections,
     requires_identity=st.booleans(),
@@ -238,29 +237,25 @@ def test_check_one_of_catches_bad_inputs(arg, collection, vals, requires_identit
 
 
 @given(...)
-def test_check_one_of_supports_enum(arg: Union[FooEnum, FlagEnum]):
+def test_check_one_of_supports_enum(arg: FooEnum | FlagEnum):
     assert check_one_of("foo", arg, type(arg)) is arg
 
 
 @given(
-    arg=st.sampled_from([None, False, AClass(), AClass, FooEnum, FooEnum.a])
-    | st.integers(-5, 0),
+    arg=st.sampled_from([None, False, AClass(), AClass, FooEnum, FooEnum.a]) | st.integers(-5, 0),
     collection=collections,
     vals=collections,
     requires_identity=st.booleans(),
 )
 def test_check_one_of_passes(
-    arg, collection: list, vals: list, requires_identity: bool
+    arg,
+    collection: list,
+    vals: list,
+    requires_identity: bool,
 ):
     collection.append(arg)
-    assert (
-        check_one_of("foo", arg, collection, *vals, requires_identity=requires_identity)
-        is arg
-    )
-    assert (
-        check_one_of("foo", arg, vals, *collection, requires_identity=requires_identity)
-        is arg
-    )
+    assert check_one_of("foo", arg, collection, *vals, requires_identity=requires_identity) is arg
+    assert check_one_of("foo", arg, vals, *collection, requires_identity=requires_identity) is arg
 
 
 def test_check_one_of_raises_unsatisfiable():
@@ -279,7 +274,7 @@ def test_chain_validators_pass_through(x: int):
 
 
 @pytest.mark.parametrize(
-    "expr, msg",
+    ("expr", "msg"),
     [
         (
             lambda: check_domain("arg", 1, lower=2, incl_low=False),
@@ -352,7 +347,13 @@ def test_chain_validators_pass_through(x: int):
         (
             # error message should remove redundant names
             lambda: check_one_of(
-                "bar", 1, [True], True, False, 2, requires_identity=True
+                "bar",
+                1,
+                [True],
+                True,
+                False,
+                2,
+                requires_identity=True,
             ),
             r"Expected `bar` to be one of: 2, False, True. Got `1`.",
         ),
