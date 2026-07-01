@@ -56,6 +56,7 @@ understanding of the MAITE library.
    how_tos
    explanation
    api_reference
+   glossary
    changes
 
 Indices and tables
