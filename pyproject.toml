@@ -170,6 +170,7 @@ ignore = [
           "S603",    # `subprocess` call on potentially untrusted input
           "S607",    # `subprocess` call with partial executable path  
           "S202",    # use of `tarfile.open(...).extractall()`
+          "COM812",  # according to ruff (and experience) this rule can cause conflicts when used with formatter
           ]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.

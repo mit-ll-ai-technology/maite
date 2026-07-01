@@ -149,7 +149,7 @@ html_theme_options = {
     "navigation_depth": 4,
     "navbar_align": "left",
     "show_nav_level": 2,
-    "header_links_before_dropdown": 5,
+    "header_links_before_dropdown": 4,
     "default_mode": "dark",
     "navbar_end": [
         "navbar-icon-links",
@@ -194,7 +194,10 @@ html_theme_options = {
 }
 
 # hide "Section Navigation" LHS in changelog section (would be empty anyway)
-html_sidebars = {"changes": []}
+html_sidebars = {
+    "changes": [],
+    "glossary": [],
+}
 
 # Modify elements of docstrings that don't natively crosslink to be fully-qualified
 # in restructured text before sphinx attempts to build html from them

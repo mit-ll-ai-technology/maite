@@ -13,6 +13,9 @@ This page gives an overview of exposed MAITE packages and modules. These include
 * `maite.tasks` - core test & evaluation procedures operating on components and primitives
 * `maite.interop` - wrappers transforming third-party objects into MAITE components
 
+MAITE API
+=========
+
 .. toctree::
    :maxdepth: 2
 
@@ -27,7 +30,6 @@ This page gives an overview of exposed MAITE packages and modules. These include
    :maxdepth: 2
 
    api/interop
-
 
 .. tip::
    Check out the :ref:`MAITE Vision explainer <components_tasks_primitives>` for a clear description of components, tasks, and primitives in the context of the MAITE package.
