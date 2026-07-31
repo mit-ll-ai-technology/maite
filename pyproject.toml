@@ -168,8 +168,6 @@ select = ["F", "E", "W", "C90", "I", "N", "D1", "D200", "D201", "D211", "D403", 
 ignore = [
           "C901",    # McCabe complexity > 5
           "FIX002",  # 'TODO' comments in code (within _internals)
-          "S603",    # `subprocess` call on potentially untrusted input
-          "S607",    # `subprocess` call with partial executable path  
           "S202",    # use of `tarfile.open(...).extractall()`
           "COM812",  # according to ruff (and experience) this rule can cause conflicts when used with formatter
           ]
