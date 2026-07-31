@@ -91,7 +91,7 @@ yolo-models = [
   "pandas (>=2.0)",
   "opencv-python-headless (>=4.6.0)",
   "torch (>=2.2.0)",
-  "ultralytics (>=8.2.78)",
+  "ultralytics (>=8.2.78, <=8.4.90)",
   "yolov5 (<7.0.14)",
   "setuptools (>=70.0.0,<81)",
 ]
@@ -153,7 +153,9 @@ line-length = 120
 indent-width = 4
 target-version = "py310"
 extend-include = ["*.ipynb"]
-
+# "Ruff can now format Python code blocks in Markdown files and will do this by default." (as of 0.16.0)
+# Eventually enable
+extend-exclude = ["*.md"]
 
 
 [tool.ruff.lint]
@@ -166,7 +168,6 @@ select = ["F", "E", "W", "C90", "I", "N", "D1", "D200", "D201", "D211", "D403", 
 ignore = [
           "C901",    # McCabe complexity > 5
           "FIX002",  # 'TODO' comments in code (within _internals)
-          "BLE001",  # catching blind exception 
           "S603",    # `subprocess` call on potentially untrusted input
           "S607",    # `subprocess` call with partial executable path  
           "S202",    # use of `tarfile.open(...).extractall()`

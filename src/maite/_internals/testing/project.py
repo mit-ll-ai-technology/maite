@@ -5,6 +5,7 @@
 import importlib
 import json
 import subprocess
+import sys
 from collections.abc import Collection, Generator, Mapping
 from copy import deepcopy
 from functools import _CacheInfo as CacheInfo
@@ -115,9 +116,12 @@ def _pyright_type_completeness(
     )
     try:
         out = json.loads(proc.stdout)
-    except Exception as e:  # pragma: no cover
-        print(proc.stdout)
-        raise e
+    except (json.JSONDecodeError, TypeError):  # pragma: no cover
+        print("Failed to parse subprocess stdout as JSON.", file=sys.stderr)
+        print(f"Return code: {proc.returncode}", file=sys.stderr)
+        print("stdout:", proc.stdout, file=sys.stderr)
+        print("stderr:", proc.stderr, file=sys.stderr)
+        raise
 
     scan_section = out["typeCompleteness"]
     for k in ["packageRootDirectory", "moduleRootDirectory", "pyTypedPath"]:
@@ -641,7 +645,9 @@ def statically_verify_component_entrypoint_against_protocol(
 
             results[ep.name] = is_valid
 
-        except Exception as e:
+        # Pyright errors and IO errors caught and logged. We want to continue
+        # and gather as many results as possible.
+        except Exception as e:  # noqa: BLE001
             print(f"[ERROR] Failed to check {ep.name}: {e}")
             results[ep.name] = False
 
@@ -754,7 +760,9 @@ def statically_verify_exposed_component_entrypoints(
 
             results[ep.name] = is_valid
 
-        except Exception as e:
+        # Pyright errors and IO errors caught and logged. We want to continue
+        # and gather as many results as possible.
+        except Exception as e:  # noqa: BLE001
             print(f"[ERROR] Failed to check {ep.name}: {e}")
             results[ep.name] = False
 
