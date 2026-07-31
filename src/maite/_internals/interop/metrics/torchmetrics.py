@@ -15,7 +15,7 @@ import maite.protocols.image_classification as ic
 from maite.protocols import ArrayLike, MetricMetadata
 
 
-def _arraylike_as_tensor(
+def arraylike_as_tensor(
     arr: ArrayLike,
     device: Any | None = None,  # noqa: ANN401 (deliberate use of 'Any' type)
     dtype: torch.dtype | None = None,
@@ -32,18 +32,27 @@ def _arraylike_as_tensor(
     """
     try:
         return torch.as_tensor(arr, device=device, dtype=dtype)
-    except Exception as e1:
-        try:
-            arr = np.asarray(arr)
-            return torch.as_tensor(arr, device=device, dtype=dtype)
-        except Exception as e2:
-            raise Exception(
-                (
-                    f"Unable to bridge data of type {type(arr)} directly to torch.Tensor "
-                    f"due to the following error: {e1}. "
-                    "Attempt to bridge to numpy.ndarray as an intermediary also failed."
-                ),
-            ) from e2
+    except (TypeError, ValueError, RuntimeError, NotImplementedError) as torch_error:
+        torch_direct_error = str(torch_error)
+        pass
+
+    try:
+        ndarr = np.asarray(arr)
+    except (TypeError, ValueError, RuntimeError, NotImplementedError) as numpy_error:
+        raise Exception(
+            (
+                f"Unable to bridge data of type {type(arr)} directly to torch.Tensor "
+                f"due to the following error: {torch_direct_error}. "
+                "Attempt to bridge to numpy.ndarray as an intermediary also failed."
+            ),
+        ) from numpy_error
+
+    if ndarr.dtype == np.dtype("O"):
+        raise Exception(
+            f"Conversion of {arr!r} produced an object-dtype ndarray, which cannot be safely bridged to torch.Tensor.",
+        )
+
+    return torch.as_tensor(ndarr, device=device, dtype=dtype)
 
 
 def _get_valid_classification_metrics(
@@ -285,8 +294,8 @@ class TMClassificationMetric:
         metadata_batch : Sequence[ic.DatumMetadataType]
             Batch of metadata.
         """
-        preds_tm = [_arraylike_as_tensor(arr, device=self.device, dtype=self.dtype) for arr in pred_batch]
-        targets_tm = [_arraylike_as_tensor(arr, device=self.device, dtype=self.dtype) for arr in target_batch]
+        preds_tm = [arraylike_as_tensor(arr, device=self.device, dtype=self.dtype) for arr in pred_batch]
+        targets_tm = [arraylike_as_tensor(arr, device=self.device, dtype=self.dtype) for arr in target_batch]
 
         self._assert_valid_dims(preds_tm)
         self._assert_valid_dims(targets_tm)

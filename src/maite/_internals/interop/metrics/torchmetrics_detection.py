@@ -6,45 +6,13 @@ from __future__ import annotations
 from collections.abc import Callable, Sequence
 from typing import Any
 
-import numpy as np
 import torch
 import torchmetrics
 import torchmetrics.detection
 
 import maite.protocols.object_detection as od
-from maite.protocols import ArrayLike, MetricMetadata
-
-
-def _arraylike_as_tensor(
-    arr: ArrayLike,
-    device: Any | None = None,  # noqa: ANN401 (deliberate use of 'Any' type)
-    dtype: torch.dtype | None = None,
-) -> torch.Tensor:
-    """Safe bridging of `maite.ArrayLike` to `torch.Tensor`.
-
-    This is a naive bridging attempt. Direct bridging to `torch.Tensor` is attempted
-    first. If this fails, then bridging to a `numpy.ndarray` is attempted as an
-    intermediate step prior to attempting to bridge to a `torch.Tensor` again.
-
-    Note that this approach may fail for a variety reasons, such as incompatible device
-    placement of data (e.g., CPU vs. GPU), or inherent differences in the library used
-    to instantiate the ArrayLike (e.g., tensorflow.Tensor vs. torch.Tensor).
-    """
-    try:
-        return torch.as_tensor(arr, device=device, dtype=dtype)
-    except Exception as e1:
-        try:
-            arr = np.asarray(arr)
-            return torch.as_tensor(arr, device=device, dtype=dtype)
-        except Exception as e2:
-            raise Exception(
-                (
-                    f"Unable to bridge data of type {type(arr)} directly to torch.Tensor"
-                    f"due to the following error: {e1}. "
-                    f"Attempt to bridge to numpy.ndarray as an intermediary also failed."
-                ),
-            ) from e2
-
+from maite._internals.interop.metrics.torchmetrics import arraylike_as_tensor
+from maite.protocols import MetricMetadata
 
 TM_DETECTION_METRIC_WHITELIST = {
     "CompleteIntersectionOverUnion": torchmetrics.detection.CompleteIntersectionOverUnion,
@@ -195,9 +163,9 @@ class TMDetectionMetric:
         """
         kwargs = {"device": self.device, "dtype": self.dtype}
         return {
-            "boxes": _arraylike_as_tensor(odt.boxes, **kwargs),
-            "scores": _arraylike_as_tensor(odt.scores, **kwargs),
-            "labels": _arraylike_as_tensor(
+            "boxes": arraylike_as_tensor(odt.boxes, **kwargs),
+            "scores": arraylike_as_tensor(odt.scores, **kwargs),
+            "labels": arraylike_as_tensor(
                 odt.labels,
                 device=self.device,
                 dtype=torch.int32,
