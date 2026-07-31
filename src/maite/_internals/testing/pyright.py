@@ -495,6 +495,7 @@ def pyright_analyze(
         raise FileNotFoundError(
             f"`path_to_pyright` – {path_to_pyright} – doesn't exist.",
         )
+    pyright = str(path_to_pyright.resolve(strict=True))
     if not pyright_config:
         pyright_config = {}
 
@@ -577,8 +578,10 @@ def pyright_analyze(
         if pyright_config:
             config_path.write_text(json.dumps(pyright_config))
 
-        proc = subprocess.run(
-            [str(path_to_pyright.absolute()), str(cwd.absolute()), "--outputjson"],
+        # Pyright path is a parameter to this function and checked at the start
+        # of this function. pyright is not a user input.
+        proc = subprocess.run(  # noqa: S603
+            [pyright, str(cwd.absolute()), "--outputjson"],
             cwd=cwd,
             encoding="utf-8",
             text=True,

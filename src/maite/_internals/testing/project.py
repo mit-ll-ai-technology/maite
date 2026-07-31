@@ -101,9 +101,14 @@ def _pyright_type_completeness(
             f"`path_to_pyright` – {path_to_pyright} – doesn't exist.",
         )
 
-    proc = subprocess.run(
+    if PYRIGHT_PATH is None:
+        raise ValueError("`pyright` was not found on the path. It may need to be installed.")
+    pyright = str(PYRIGHT_PATH.resolve(strict=True))
+
+    # pyright is resolved from the path and not from external user input.
+    proc = subprocess.run(  # noqa: S603
         [
-            str(PYRIGHT_PATH),
+            pyright,
             "--ignoreexternal",
             "--outputjson",
             "--verifytypes",

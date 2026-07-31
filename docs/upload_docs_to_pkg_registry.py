@@ -38,6 +38,7 @@ from __future__ import annotations
 import io
 import logging
 import re
+import shutil
 import subprocess
 import sys
 import tarfile
@@ -119,8 +120,14 @@ def build_targz(docdir: Path, version: str) -> bytes:
 
 def get_version_tag() -> str | None:
     try:
-        result = subprocess.run(
-            ["git", "tag", "--points-at", "HEAD"],
+        git = shutil.which("git")
+        if git is None:
+            raise ValueError("Could not resolve location of `git`.")
+
+        # Executable is resolved via PATH for the current trusted build/runtime
+        # environment; shutil.which argument is static string, not  user input.
+        result = subprocess.run(  # noqa: S603
+            [git, "tag", "--points-at", "HEAD"],
             check=True,
             capture_output=True,
             text=True,
