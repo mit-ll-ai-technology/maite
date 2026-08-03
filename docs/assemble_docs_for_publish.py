@@ -287,7 +287,7 @@ def download_prev_docs_from_gitlab(output_dir: Path, token: str):
             file_name = get_pkg_file(pkg, file_infos[0], token=token)
             with tarfile.open(file_name, "r:gz") as file:
                 logger.info(f"Copying {pkg['version']} documentation to {output_dir}")
-                file.extractall(path=output_dir)
+                file.extractall(path=output_dir, filter="data")
         else:
             logger.error(f"No files found for {pkg}")
 
