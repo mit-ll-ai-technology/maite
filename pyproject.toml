@@ -147,44 +147,47 @@ exclude = [
   ".tox",
   "prototype",
   "examples/**/*.ipynb",
+  "__pycache__",
+  ".dev",
 ]
 
 line-length = 120
 indent-width = 4
 target-version = "py310"
 extend-include = ["*.ipynb"]
-# "Ruff can now format Python code blocks in Markdown files and will do this by default." (as of 0.16.0)
-# Eventually enable
-extend-exclude = ["*.md"]
-
+extend-exclude = ["*.md"] # "Ruff can now format Python code blocks in Markdown files and will do this by default." (as of 0.16.0); eventually enable
 
 [tool.ruff.lint]
 select = ["F", "E", "W", "C90", "I", "N", "D1", "D200", "D201", "D211", "D403", "D419", "UP",
           "YTT", "ANN", "S",  "BLE", "B", "A", "COM", "C4", "T10", "ISC", "ICN", "PYI", "PT", "Q",
           "RSE", "RET", "SLF", "SIM", "TID252", "ARG", "FIX", "PD", "FLY", "NPY", "RUF027",  # note: RUF027 is not run without `--preview` flag (as of 20260622)
-          "RUF100", "PERF",]
+          "RUF100", "PERF", "UP045", "RUF013", "PLR0917"]
 
-# ignore some specific ruff tests to be addressed in the future (presented in descending order of instance count)
+# ignore some specific ruff tests to be addressed in the future
 ignore = [
-          "C901",    # McCabe complexity > 5
+          "C901",    # McCabe complexity
           "FIX002",  # 'TODO' comments in code (within _internals)
-          "S202",    # use of `tarfile.open(...).extractall()`
           "COM812",  # according to ruff (and experience) this rule can cause conflicts when used with formatter
+          "PLR0917", # max-positional-args
           ]
+
+external = ["FKA100"]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
 fixable = ["ALL"]
-unfixable = ["C408"]
+unfixable = ["C408",
+             "PERF203", # There can be valid reasons for wanting to use try/except in a loop.
+             "PERF401", "PERF403", # In non-performance critical code comprehensions can be harder to read, especially as they become more complicated.
+]
 
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
-extend-select = ["I"]
-
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = [
   "ANN001", "ANN201", "ANN202", "ANN204", # type annotations
   "C901", # Mccabe complexity
   "D100", "D101","D102","D103","D104", "D105", # docstrings
+  "PLR0917", # positional arguments
   "PT011", # pytest.raises(ValueError) is too broad
   "S101", # assert ok in tests
   ]
@@ -200,7 +203,6 @@ extend-select = ["I"]
   "S101", # allow assert
   "S113", # do not require requests timeout
   "S310", # urls are already audited.
-
 ]
 "src/maite/_internals/testing/project.py" = ["N815"] # Dictionary keys originating from pyright CLI use mixedCase
 
@@ -223,11 +225,14 @@ docstring-code-line-length = "dynamic"
 known-first-party = ["maite"]
 
 [tool.ruff.lint.mccabe]
-# Flag errors (`C901`) whenever the complexity level exceeds 5.
-max-complexity = 5
+# Flag errors (`C901`) whenever the complexity level exceeds threshold.
+max-complexity = 10
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"
+
+[tool.ruff.lint.pylint]
+max-positional-args = 5
 
 [tool.codespell]
 skip = '*.svg'
