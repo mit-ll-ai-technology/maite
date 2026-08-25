@@ -497,7 +497,7 @@ def pyright_analyze(
         )
     pyright = str(path_to_pyright.resolve(strict=True))
     if not pyright_config:
-        pyright_config = {}
+        pyright_config = {"enableExperimentalFeatures": True}
 
     if python_version is not None:
         pyright_config["pythonVersion"] = python_version

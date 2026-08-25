@@ -3,12 +3,28 @@
 # SPDX-License-Identifier: MIT
 "MAITE protocols definitions."
 
-from maite._internals.protocols.generic import (
-    Augmentation,
-    DataLoader,
+from maite._internals.protocols.generic import (  # isort:skip
     Dataset,
-    Metric,
+    DataLoader,
+    Augmentation,
     Model,
+    Metric,
+    DatumMetadata,
+    DatasetMetadata,
+    AugmentationMetadata,
+    ModelMetadata,
+    MetricMetadata,
 )
 
-__all__ = ["Dataset", "DataLoader", "Augmentation", "Model", "Metric"]
+__all__ = [
+    "Dataset",
+    "DataLoader",
+    "Augmentation",
+    "Model",
+    "Metric",
+    "DatumMetadata",
+    "DatasetMetadata",
+    "AugmentationMetadata",
+    "ModelMetadata",
+    "MetricMetadata",
+]

@@ -35,6 +35,10 @@ classifiers = [
 
 [project.optional-dependencies]
 
+experimental = [
+  "beartype>=0.22.9"
+]
+
 # dependencies required to run maite unit tests
 test = [
   "pip",
@@ -44,7 +48,8 @@ test = [
   "pytest >= 7.0.0",
   "hypothesis >= 6.61.0, <= 6.113",
   "pytest-mock >= 3.10.0",
-  "torch >=1.7, != 1.12.0"
+  "torch >=1.7, != 1.12.0",
+  "beartype>=0.22.9",
 ]
 
 # dependencies required to build all documentation with sphinx
@@ -67,6 +72,7 @@ builddocs = [
   "watermark",
   "tox (>=4.24.2,<5.0.0)",
   "ipykernel==6.30.1",
+  "beartype>=0.22.9",
 ]
 
 # dependencies required to contribute to maite as a developer
@@ -236,6 +242,7 @@ max-positional-args = 5
 
 [tool.codespell]
 skip = '*.svg'
+ignore-words-list = "mot"
 
 [tool.coverage.report]
 exclude_lines = [
@@ -282,6 +289,7 @@ exclude = [
 ]
 reportUnnecessaryTypeIgnoreComment = true
 reportUnnecessaryIsInstance = false
+enableExperimentalFeatures = true
 
 [project.entry-points."maite.tasks"]
 maite_evaluate = "maite.tasks:evaluate"
