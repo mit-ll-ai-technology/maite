@@ -70,6 +70,10 @@ def is_av_available() -> bool:
     return importlib.util.find_spec("av") is not None
 
 
+def is_beartype_available() -> bool:
+    return importlib.util.find_spec("beartype") is not None
+
+
 if is_pytest_available():
     import pytest
 

@@ -3,17 +3,20 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from fractions import Fraction
-from typing import Protocol, TypeAlias
+from typing import Annotated, Any, Protocol, TypeAlias, TypeVar, runtime_checkable
 
-from typing_extensions import ReadOnly, Required
+import numpy as np
+from typing_extensions import ReadOnly, Required, TypeForm
 
 from maite import protocols
+from maite._internals.compat import Is
 from maite._internals.protocols import generic as gen
 from maite.protocols import ArrayLike
 
 
+@runtime_checkable
 class VideoFrame(Protocol):
     """
     Contents of a single decoded video frame.
@@ -48,9 +51,7 @@ class VideoFrame(Protocol):
     def frame_index(self) -> int: ...
 
 
-VideoStream: TypeAlias = Iterable[VideoFrame]
-
-
+@runtime_checkable
 class SingleFrameObjectTrackingTarget(Protocol):
     """
     Single-frame object-tracking target.
@@ -101,7 +102,8 @@ class SingleFrameObjectTrackingTarget(Protocol):
         ...
 
 
-class MultiobjectTrackingTarget(Protocol):
+@runtime_checkable
+class _MultiobjectTrackingTarget(Protocol):
     """Set of tracked objects over a sequence of frames.
 
     Attributes
@@ -161,7 +163,44 @@ class DatasetMetadata(protocols.DatasetMetadata):
     """
 
 
-# Type aliases for convenience.
+# Define predicates with which to enrich semantic aliases for verifiability
+
+
+def has_compatible_track_cardinality(x: MultiobjectTrackingTarget) -> bool:
+
+    for frame_track in x.frame_tracks:
+        boxes_arr = np.asarray(frame_track.boxes)
+        labels_arr = np.asarray(frame_track.labels)
+        scores_arr = np.asarray(frame_track.scores)
+        track_ids_arr = np.asarray(frame_track.track_ids)
+
+        # all must have size 0 OR equal first dimension
+        if not (
+            (boxes_arr.size == labels_arr.size == scores_arr.size == track_ids_arr.size == 0)
+            or (boxes_arr.shape[0] == labels_arr.shape[0] == scores_arr.shape[0] == track_ids_arr.shape[0])
+        ):
+            return False
+    return True
+
+
+def boxes_has_4_cols(x: MultiobjectTrackingTarget) -> bool:
+    for frame_track in x.frame_tracks:
+        boxes_arr = np.asarray(frame_track.boxes)
+        if not (boxes_arr.size == 0 or boxes_arr.shape[1] == 4):
+            return False
+    return True
+
+
+# Semantic aliases on which to attach verifiers
+
+VideoStream: TypeAlias = Annotated[Iterable[VideoFrame], ...]
+
+MultiobjectTrackingTarget: TypeAlias = Annotated[
+    _MultiobjectTrackingTarget, Is[has_compatible_track_cardinality], Is[boxes_has_4_cols]
+]
+
+
+# Role-based type aliases for convenience.
 
 InputType: TypeAlias = VideoStream
 
@@ -172,6 +211,29 @@ DatumMetadataType: TypeAlias = DatumMetadata
 Datum: TypeAlias = tuple[InputType, TargetType, DatumMetadataType]
 
 
+# --- spotcheck TypeVar substitution map ---
+# (consumed by maite._internals.spotcheck.spotcheck_tasks). Maps every variance flavor
+# of the generic protocol TypeVars to a single "semantic alias" per role, so a polymorphic
+# task (e.g. `evaluate`/`predict`) that parametrizes protocols by its own TypeVars can be
+# closed at spotcheck time. When beartype is available the aliases carry lightweight
+# validators; otherwise they collapse to the plain types and add no extra validation.
+# (The *_in TypeVars are currently unused by any protocol; kept for forward-compat.)
+# The `Is[...]` predicates are inert when beartype is unavailable (see maite._internals.compat).
+
+TV_SUB_MAP: Mapping[TypeVar, TypeForm[Any]] = {
+    gen.InputType_co: VideoStream,
+    gen.InputType_cn: VideoStream,
+    gen.InputType_in: VideoStream,
+    gen.TargetType_co: MultiobjectTrackingTarget,
+    gen.TargetType_cn: MultiobjectTrackingTarget,
+    gen.TargetType_in: MultiobjectTrackingTarget,
+    gen.DatumMetadataType_co: DatumMetadata,
+    gen.DatumMetadataType_cn: DatumMetadata,
+    gen.DatumMetadataType_in: DatumMetadata,
+}
+
+
+@runtime_checkable
 class Dataset(
     gen.Dataset[InputType, TargetType, DatumMetadataType],
     Protocol,
@@ -210,6 +272,7 @@ class Dataset(
     """
 
 
+@runtime_checkable
 class DataLoader(
     gen.DataLoader[InputType, TargetType, DatumMetadataType],
     Protocol,
@@ -238,6 +301,7 @@ class DataLoader(
     """
 
 
+@runtime_checkable
 class Model(gen.Model[InputType, TargetType], Protocol):
     """
     A model protocol for the multi-object tracking AI problem.
@@ -263,6 +327,7 @@ class Model(gen.Model[InputType, TargetType], Protocol):
     """
 
 
+@runtime_checkable
 class Metric(gen.Metric[TargetType, DatumMetadataType], Protocol):
     """
     A metric protocol for the multi-object tracking AI problem.
@@ -295,6 +360,7 @@ class Metric(gen.Metric[TargetType, DatumMetadataType], Protocol):
     """
 
 
+@runtime_checkable
 class Augmentation(
     gen.Augmentation[
         InputType,
@@ -304,6 +370,7 @@ class Augmentation(
         TargetType,
         DatumMetadataType,
     ],
+    Protocol,
 ):
     """
     An augmentation protocol for the multi-object tracking AI problem.
@@ -333,6 +400,7 @@ class Augmentation(
     """
 
 
+@runtime_checkable
 class FieldwiseDataset(
     Dataset,
     gen.FieldwiseDataset[InputType, TargetType, DatumMetadataType],
