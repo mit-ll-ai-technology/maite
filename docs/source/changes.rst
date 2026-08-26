@@ -8,6 +8,20 @@ Changelog
 This is a record of all past maite releases and what went into them, in reverse 
 chronological order.
 
+.. _v0.10.0:
+
+---------------------
+0.10.0 - 2026-08-26
+---------------------
+
+- Use `Annotated` to associate checkable predicates to protocol-class primitive types
+- Add `spotcheck` and `spotcheck_component` for opt-in runtime verification of checkable predicates (requires `experimental` extra)
+- Add support for Python 3.13 and 3.14
+- Add PyAVAdapter unit tests (within multi-object tracking problem)
+- Improve documentation (add glossary, new crosslinks between `interop` module and tutorials/how-tos/)
+- Tighten ruff formatting standards
+- Increase CI-based security testing
+  
 .. _v0.9.5:
 
 ---------------------
