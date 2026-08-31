@@ -1,0 +1,11 @@
+﻿  
+Model
+=====
+
+.. loaded protocol_class.rst
+
+
+
+.. currentmodule:: maite.protocols.generic
+
+.. autoclass:: Model

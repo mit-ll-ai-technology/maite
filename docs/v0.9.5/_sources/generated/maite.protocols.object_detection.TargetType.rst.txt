@@ -1,0 +1,9 @@
+﻿  
+TargetType
+==========
+
+.. loaded base.rst remplate
+
+.. currentmodule:: maite.protocols.object_detection
+
+.. autoclass:: TargetType

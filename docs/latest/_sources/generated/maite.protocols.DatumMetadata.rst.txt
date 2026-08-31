@@ -1,0 +1,11 @@
+﻿  
+DatumMetadata
+=============
+
+.. loaded protocol_class.rst
+
+
+
+.. currentmodule:: maite.protocols
+
+.. autoclass:: DatumMetadata

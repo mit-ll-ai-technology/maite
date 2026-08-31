@@ -1,0 +1,9 @@
+﻿  
+InputType
+=========
+
+.. loaded base.rst remplate
+
+.. currentmodule:: maite.protocols.image_classification
+
+.. autodata:: InputType

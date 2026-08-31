@@ -1,0 +1,7 @@
+﻿  
+evaluate\_from\_predictions
+===========================
+
+.. currentmodule:: maite.tasks
+
+.. autofunction:: evaluate_from_predictions

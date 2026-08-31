@@ -1,0 +1,964 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>maite._internals.tasks.generic &#8212; maite 0.8.2 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-codeautolink.css?v=b2176991" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=87e54e7c" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../../_static/documentation_options.js?v=dbee5847"></script>
+    <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../_static/copybutton.js?v=30646c52"></script>
+    <script async="async" src="https://www.googletagmanager.com/gtag/js?id=UA-115029372-2"></script>
+    <script src="../../../../_static/gtag.js"></script>
+    <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/maite/_internals/tasks/generic';</script>
+    <script src="../../../../_static/pypi_icon.js?v=74687d30"></script>
+    <script src="../../../../_static/condaforge_icon.js?v=19caf20c"></script>
+    <script src="../../../../_static/anaconda_icon.js?v=e3074ad8"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.8" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">maite 0.8.2 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../tutorials.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../how_tos.html">
+    How-To Guides
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../explanation.html">
+    Explanation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../api_reference.html">
+    Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../changes.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/mit-ll-ai-technology/maite" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/maite/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-custom fa-pypi fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://anaconda.org/conda-forge/maite" title="Anaconda" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-custom fa-anaconda fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Anaconda</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../tutorials.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../how_tos.html">
+    How-To Guides
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../explanation.html">
+    Explanation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../api_reference.html">
+    Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../changes.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/mit-ll-ai-technology/maite" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/maite/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-custom fa-pypi fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://anaconda.org/conda-forge/maite" title="Anaconda" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-custom fa-anaconda fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Anaconda</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">maite._internals.tasks.generic</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for maite._internals.tasks.generic</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright 2024, MASSACHUSETTS INSTITUTE OF TECHNOLOGY</span>
+<span class="c1"># Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014)</span>
+<span class="c1"># SPDX-License-Identifier: MIT</span>
+
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">TypeVar</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">maite._internals.protocols.generic</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Augmentation</span><span class="p">,</span>
+    <span class="n">CollateFn</span><span class="p">,</span>
+    <span class="n">DataLoader</span><span class="p">,</span>
+    <span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">Metric</span><span class="p">,</span>
+    <span class="n">MetricComputeReturnType</span><span class="p">,</span>
+    <span class="n">Model</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">maite._internals.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_progress_bar</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">maite.errors</span><span class="w"> </span><span class="kn">import</span> <span class="n">InvalidArgument</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">maite.protocols</span><span class="w"> </span><span class="kn">import</span> <span class="n">MetricMetadata</span>
+
+<span class="c1"># TODO: Permit returned predictions to be of type tuple[InputDataType, TargetDataType, DatumMetadataType].</span>
+<span class="c1">#       This seems much more natural as it is independent of batch_size.</span>
+<span class="c1">#   - This would require we use some method to iterate over &quot;Batch-types&quot; to get individual types</span>
+<span class="c1">#     and package individual predictions into an iterable. batch objects are iterable and then</span>
+<span class="c1">#     checking that the type of object returned from the iterable is ArrayLike.)</span>
+
+
+<span class="c1"># TODO: Consider the implications of having a flexible implementation that only relies on membership</span>
+<span class="c1">#       in generic class types. Can we guarantee (or test) that satisfying one of our overload</span>
+<span class="c1">#       type signatures is always sufficient to return the types promised by that signature?</span>
+
+<span class="c1">#       A: Yes -- This can be done by using static type checker to determine whether evaluate</span>
+<span class="c1">#          and predict implementations returns promised types from each overload when inputs</span>
+<span class="c1">#          are typed as promised by call signatures. See gitlab issue 425 and discussion on MR129.</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">_DummyMetric</span><span class="p">(</span><span class="n">Metric</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Metric that does nothing and returns an empty dictionary from compute</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">MetricMetadata</span><span class="p">({</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;dummy_metric&quot;</span><span class="p">})</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="o">...</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">__preds_batch</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+        <span class="n">__targets_batch</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MetricComputeReturnType</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">()</span>
+
+
+<span class="c1"># Note: These 3 TypeVars don&#39;t capture coupling constraints between</span>
+<span class="c1"># types of each (i.e. all should be drawn from same AI task).</span>
+
+<span class="n">T_input</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;T_input&quot;</span><span class="p">)</span>
+<span class="n">T_target</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;T_target&quot;</span><span class="p">)</span>
+<span class="n">T_metadata</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;T_metadata&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">default_collate_fn</span><span class="p">(</span>
+    <span class="n">batch_data_as_singles</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">T_input</span><span class="p">,</span> <span class="n">T_target</span><span class="p">,</span> <span class="n">T_metadata</span><span class="p">]],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">T_input</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">T_target</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">T_metadata</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Describe how to create a tuple of batches (i.e.,</span>
+<span class="sd">    (Sequence[InputType], Sequence[TargetType], Sequence[DatumMetadataType]) )</span>
+<span class="sd">    from an iterator of tuples of</span>
+<span class="sd">    (InputType, TargetType, DatumMetadataType)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># first just unpack inputs/targets/metadata from iterator into separate lists</span>
+    <span class="n">input_batch</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">T_input</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">target_batch</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">T_target</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">metadata_batch</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">T_metadata</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">input_datum</span><span class="p">,</span> <span class="n">target_datum</span><span class="p">,</span> <span class="n">metadata_datum</span> <span class="ow">in</span> <span class="n">batch_data_as_singles</span><span class="p">:</span>
+        <span class="n">input_batch</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">input_datum</span><span class="p">)</span>
+        <span class="n">target_batch</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">target_datum</span><span class="p">)</span>
+        <span class="n">metadata_batch</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">metadata_datum</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">input_batch</span><span class="p">,</span> <span class="n">target_batch</span><span class="p">,</span> <span class="n">metadata_batch</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">_SimpleDataLoader</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">T_input</span><span class="p">,</span> <span class="n">T_target</span><span class="p">,</span> <span class="n">T_metadata</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Simple dataloader to create by default should a user not provide their own</span>
+<span class="sd">    dataloader but does provide a Dataset.</span>
+
+<span class="sd">    Preconditions: dataset and collate_fn come from same AI task domain</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">dataset</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">[</span><span class="n">T_input</span><span class="p">,</span> <span class="n">T_target</span><span class="p">,</span> <span class="n">T_metadata</span><span class="p">],</span>
+        <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">collate_fn</span><span class="p">:</span> <span class="n">CollateFn</span><span class="p">[</span><span class="n">T_input</span><span class="p">,</span> <span class="n">T_target</span><span class="p">,</span> <span class="n">T_metadata</span><span class="p">]</span> <span class="o">=</span> <span class="n">default_collate_fn</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">collate_fn</span> <span class="o">=</span> <span class="n">collate_fn</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># iterate over first batch_size examples from dataset, collate them, and yield result</span>
+        <span class="n">n_batches</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">)</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">)</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">==</span> <span class="mi">0</span>
+            <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">)</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">batch_no</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_batches</span><span class="p">):</span>
+            <span class="n">batch_data_as_singles</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span>
+                    <span class="n">batch_no</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span> <span class="p">(</span><span class="n">batch_no</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">)</span>
+            <span class="p">]</span>
+
+            <span class="n">batch_inputs</span><span class="p">,</span> <span class="n">batch_targets</span><span class="p">,</span> <span class="n">batch_metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collate_fn</span><span class="p">(</span>
+                <span class="n">batch_data_as_singles</span>
+            <span class="p">)</span>
+
+            <span class="k">yield</span> <span class="p">(</span><span class="n">batch_inputs</span><span class="p">,</span> <span class="n">batch_targets</span><span class="p">,</span> <span class="n">batch_metadata</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Length of `SimpleDataLoader`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            Length of the `dataset` if `batch_size` is &lt;= 0. Otherwise, the total number of</span>
+<span class="sd">            times the `dataset` can be iterated over given the `batch_size`, before it is exhausted.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">math</span><span class="w"> </span><span class="kn">import</span> <span class="n">ceil</span>
+
+            <span class="k">return</span> <span class="n">ceil</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">)</span>
+
+
+<span class="c1"># begin all overloads for evaluate function</span>
+<span class="c1"># (There are currently no task-specific default arguments, which means</span>
+<span class="c1"># that all runtime-behavior of evaluate is common and no task-specific</span>
+<span class="c1"># procedures need to exist, at least not yet.)</span>
+
+
+<div class="viewcode-block" id="evaluate">
+<a class="viewcode-back" href="../../../../generated/maite.tasks.evaluate.html#maite.tasks.evaluate">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">model</span><span class="p">:</span> <span class="n">Model</span><span class="p">[</span><span class="n">T_input</span><span class="p">,</span> <span class="n">T_target</span><span class="p">],</span>
+    <span class="n">metric</span><span class="p">:</span> <span class="n">Metric</span><span class="p">[</span><span class="n">T_target</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">dataloader</span><span class="p">:</span> <span class="n">DataLoader</span><span class="p">[</span><span class="n">T_input</span><span class="p">,</span> <span class="n">T_target</span><span class="p">,</span> <span class="n">T_metadata</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">dataset</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">[</span><span class="n">T_input</span><span class="p">,</span> <span class="n">T_target</span><span class="p">,</span> <span class="n">T_metadata</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">augmentation</span><span class="p">:</span> <span class="p">(</span>
+        <span class="n">Augmentation</span><span class="p">[</span>
+            <span class="n">T_input</span><span class="p">,</span>
+            <span class="n">T_target</span><span class="p">,</span>
+            <span class="n">T_metadata</span><span class="p">,</span>
+            <span class="n">T_input</span><span class="p">,</span>
+            <span class="n">T_target</span><span class="p">,</span>
+            <span class="n">T_metadata</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="o">|</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">return_augmented_data</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">return_preds</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">collate_fn</span><span class="p">:</span> <span class="n">CollateFn</span><span class="p">[</span><span class="n">T_input</span><span class="p">,</span> <span class="n">T_target</span><span class="p">,</span> <span class="n">T_metadata</span><span class="p">]</span> <span class="o">=</span> <span class="n">default_collate_fn</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span>
+    <span class="n">MetricComputeReturnType</span><span class="p">,</span>
+    <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">T_target</span><span class="p">]],</span>
+    <span class="n">Sequence</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">T_input</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">T_target</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">T_metadata</span><span class="p">]]],</span>
+<span class="p">]:</span>
+    <span class="c1"># doc-ignore: EX01</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Evaluate a model&#39;s performance on data according to some metric with optional augmentation.</span>
+
+<span class="sd">    The types handled by all passed components must be compatible to avoid static type checking</span>
+<span class="sd">    errors. For example, if the __getitem__ method of a passed dataset returns some `InputType`</span>
+<span class="sd">    in the first element of the return tuple then the `model.__call__` argument must be type hinted</span>
+<span class="sd">    such that `Sequence[InputType]` can be assigned to it.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model : SomeModel</span>
+<span class="sd">        Maite Model object.</span>
+
+<span class="sd">    metric : SomeMetric | None, (default=None)</span>
+<span class="sd">        Compatible maite Metric.</span>
+
+<span class="sd">    dataloader : SomeDataloader | None, (default=None)</span>
+<span class="sd">        Compatible maite dataloader.</span>
+
+<span class="sd">    dataset : SomeDataset | None, (default=None)</span>
+<span class="sd">        Compatible maite dataset.</span>
+
+<span class="sd">    batch_size : int, (default=1)</span>
+<span class="sd">        Batch size for use with dataset (ignored if dataset=None).</span>
+
+<span class="sd">    augmentation : SomeAugmentation | None, (default=None)</span>
+<span class="sd">        Compatible maite augmentation.</span>
+
+<span class="sd">    return_augmented_data : bool, (default=False)</span>
+<span class="sd">        Set to True to return post-augmentation data as a function output.</span>
+
+<span class="sd">    return_preds : bool, (default=False)</span>
+<span class="sd">        Set to True to return raw predictions as a function output.</span>
+
+<span class="sd">    collate_fn : Callable[[Iterable[tuple[T_input, T_target, T_metadata]]], tuple[Sequence[T_input], Sequence[T_target], Sequence[T_metadata]] ], (default=None)</span>
+<span class="sd">        Callable responsible for transforming an iterable of 3-tuples where each encodes a single</span>
+<span class="sd">        datapoint in some batch into a tuple of 3 sequences that each represent a batch of collated</span>
+<span class="sd">        inputs, collated targets, and collated metadata, respectively. Defaults to naively push</span>
+<span class="sd">        elements from input iterable onto sequences in their order of iteration.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple[dict[str, Any], Sequence[TargetType], Sequence[tuple[Sequence[InputType], Sequence[TargetType], Sequence[DatumMetadataType]]]]</span>
+<span class="sd">        Tuple of returned metric value, sequence of model predictions, and</span>
+<span class="sd">        sequence of data batch tuples fed to the model during inference. The actual</span>
+<span class="sd">        types represented by InputType, TargetType, and DatumMetadataType will vary</span>
+<span class="sd">        by the AI task of the components provided as input arguments (e.g., image</span>
+<span class="sd">        classification or object detection.)</span>
+<span class="sd">        Note that the second and third return arguments will be empty if</span>
+<span class="sd">        return_augmented_data is False or return_preds is False, respectively.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    InvalidArgument</span>
+<span class="sd">        If neither a dataloader nor a dataset is provided</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Validate potential input combinations.</span>
+    <span class="c1"># User needs to provide ONE of either (a) dataloader (iterable over</span>
+    <span class="c1"># tuples of batch-types) or (b) a dataset (an iterable over tuples</span>
+    <span class="c1"># of individual types) and a collate_fn. (batch_size is assumed</span>
+    <span class="c1"># to be 1 if not provided)</span>
+
+    <span class="c1"># if metric is None, make it a _DummyMetric that does nothing</span>
+
+    <span class="c1"># if dataloader is None, check that we have Dataset and collate_fn.</span>
+    <span class="c1"># If so, construct a dataloader, and assign to dataloader variable</span>
+
+    <span class="k">if</span> <span class="n">metric</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># user provided no metric</span>
+        <span class="n">metric</span> <span class="o">=</span> <span class="n">_DummyMetric</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">dataloader</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">dataset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">InvalidArgument</span><span class="p">(</span><span class="s2">&quot;Do not provide both a dataloader and a dataset&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">dataloader</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">dataset</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># user provided neither a dataloader nor a dataset</span>
+        <span class="k">raise</span> <span class="n">InvalidArgument</span><span class="p">(</span><span class="s2">&quot;One of dataloader and dataset must be provided&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">dataloader</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">dataset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">collate_fn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">InvalidArgument</span><span class="p">(</span>
+                <span class="s2">&quot;If dataset is provided, then collate_fn is required&quot;</span>
+                <span class="o">+</span> <span class="s2">&quot;to permit building a dataloader&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">dataloader</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">dataset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>  <span class="c1"># should never trigger due to previous checks</span>
+        <span class="k">assert</span> <span class="n">batch_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>  <span class="c1"># shouldn&#39;t trigger due to default value</span>
+        <span class="k">assert</span> <span class="n">collate_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>  <span class="c1"># should never trigger due to previous checks</span>
+
+        <span class="n">dataloader</span> <span class="o">=</span> <span class="n">_SimpleDataLoader</span><span class="p">[</span><span class="n">T_input</span><span class="p">,</span> <span class="n">T_target</span><span class="p">,</span> <span class="n">T_metadata</span><span class="p">](</span>
+            <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">collate_fn</span><span class="o">=</span><span class="n">collate_fn</span>
+        <span class="p">)</span>
+
+    <span class="c1"># dataloader, metric, and model are populated by this point</span>
+    <span class="k">assert</span> <span class="n">dataloader</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="k">assert</span> <span class="n">metric</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="k">assert</span> <span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+    <span class="n">preds_batches</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">metric</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+    <span class="n">augmented_data_batches</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">input_datum_batch</span><span class="p">,</span> <span class="n">target_datum_batch</span><span class="p">,</span> <span class="n">metadata_batch</span> <span class="ow">in</span> <span class="n">add_progress_bar</span><span class="p">(</span>
+        <span class="n">dataloader</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="n">augmentation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="p">(</span>
+                <span class="n">input_datum_batch_aug</span><span class="p">,</span>
+                <span class="n">target_datum_batch_aug</span><span class="p">,</span>
+                <span class="n">metadata_batch_aug</span><span class="p">,</span>
+            <span class="p">)</span> <span class="o">=</span> <span class="n">augmentation</span><span class="p">((</span><span class="n">input_datum_batch</span><span class="p">,</span> <span class="n">target_datum_batch</span><span class="p">,</span> <span class="n">metadata_batch</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">input_datum_batch_aug</span><span class="p">,</span> <span class="n">target_datum_batch_aug</span><span class="p">,</span> <span class="n">metadata_batch_aug</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">input_datum_batch</span><span class="p">,</span>
+                <span class="n">target_datum_batch</span><span class="p">,</span>
+                <span class="n">metadata_batch</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="n">preds_batch</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">input_datum_batch_aug</span><span class="p">)</span>
+        <span class="n">metric</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">preds_batch</span><span class="p">,</span> <span class="n">target_datum_batch_aug</span><span class="p">)</span>
+
+        <span class="c1"># store any requested intermediate data for returning to user</span>
+        <span class="k">if</span> <span class="n">return_augmented_data</span><span class="p">:</span>
+            <span class="n">augmented_data_batches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">input_datum_batch_aug</span><span class="p">,</span> <span class="n">target_datum_batch_aug</span><span class="p">,</span> <span class="n">metadata_batch_aug</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">return_preds</span><span class="p">:</span>
+            <span class="n">preds_batches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">preds_batch</span><span class="p">)</span>
+
+    <span class="c1"># TODO: investigate better munging/recollating iterable/batches</span>
+    <span class="c1"># aug_data is currently a sequence of tuples of batch-types</span>
+    <span class="c1"># this is a little artificial as batch-size is typically less relevant</span>
+    <span class="c1"># to test ande evaluation and more an implementation detail of the forward</span>
+    <span class="c1"># pass.</span>
+
+    <span class="n">preds</span> <span class="o">=</span> <span class="n">preds_batches</span>
+    <span class="n">aug_data</span> <span class="o">=</span> <span class="n">augmented_data_batches</span>
+    <span class="n">metric_results</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">metric_results</span><span class="p">,</span> <span class="n">preds</span><span class="p">,</span> <span class="n">aug_data</span></div>
+
+
+
+<div class="viewcode-block" id="evaluate_from_predictions">
+<a class="viewcode-back" href="../../../../generated/maite.tasks.evaluate_from_predictions.html#maite.tasks.evaluate_from_predictions">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">evaluate_from_predictions</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">metric</span><span class="p">:</span> <span class="n">Metric</span><span class="p">[</span><span class="n">T_target</span><span class="p">],</span>
+    <span class="n">predictions</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">T_target</span><span class="p">]],</span>
+    <span class="n">targets</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">T_target</span><span class="p">]],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MetricComputeReturnType</span><span class="p">:</span>
+    <span class="c1"># doc-ignore: EX01</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Evaluate pre-calculated predictions against target (truth) data for some specified metric.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    metric : SomeMetric</span>
+<span class="sd">        Compatible MAITE Metric.</span>
+
+<span class="sd">    predictions : Sequence[Sequence[SomeTargetType]]</span>
+<span class="sd">        Sequence of batches of predictions generated by running inference on some model.</span>
+
+<span class="sd">    targets : Sequence[Sequence[SomeTargetType]]</span>
+<span class="sd">        Sequence of batches of ground-truth targets that correspond to provided predictions argument.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    metric_calculation: MetricComputeReturnType</span>
+<span class="sd">        The resulting metric value.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    InvalidArgument</span>
+<span class="sd">        If predictions or targets arguments have zero length (i.e. no batches), differing lengths,</span>
+<span class="sd">        or corresponding elements (batches) have differing lengths.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Checks for argument compliance.</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">predictions</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">targets</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">InvalidArgument</span><span class="p">(</span>
+            <span class="s2">&quot;Arguments predictions and truth_datum are expected to have the same number of elements (batches)&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">predictions</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">targets</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">InvalidArgument</span><span class="p">(</span><span class="s2">&quot;Predictions and targets must have at least one element.&quot;</span><span class="p">)</span>
+
+    <span class="n">metric</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">predictions_batch</span><span class="p">,</span> <span class="n">targets_batch</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="n">targets</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">predictions_batch</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">targets_batch</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">InvalidArgument</span><span class="p">(</span>
+                <span class="s2">&quot;Corresponding prediction and target batches must have the same length.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">metric</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">predictions_batch</span><span class="p">,</span> <span class="n">targets_batch</span><span class="p">)</span>
+    <span class="n">metric_results</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">metric_results</span></div>
+
+
+
+<div class="viewcode-block" id="predict">
+<a class="viewcode-back" href="../../../../generated/maite.tasks.predict.html#maite.tasks.predict">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">model</span><span class="p">:</span> <span class="n">Model</span><span class="p">[</span><span class="n">T_input</span><span class="p">,</span> <span class="n">T_target</span><span class="p">],</span>
+    <span class="n">dataloader</span><span class="p">:</span> <span class="p">(</span><span class="n">DataLoader</span><span class="p">[</span><span class="n">T_input</span><span class="p">,</span> <span class="n">T_target</span><span class="p">,</span> <span class="n">T_metadata</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">dataset</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">[</span><span class="n">T_input</span><span class="p">,</span> <span class="n">T_target</span><span class="p">,</span> <span class="n">T_metadata</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">augmentation</span><span class="p">:</span> <span class="n">Augmentation</span><span class="p">[</span>
+        <span class="n">T_input</span><span class="p">,</span>
+        <span class="n">T_target</span><span class="p">,</span>
+        <span class="n">T_metadata</span><span class="p">,</span>
+        <span class="n">T_input</span><span class="p">,</span>
+        <span class="n">T_target</span><span class="p">,</span>
+        <span class="n">T_metadata</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">return_augmented_data</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span>
+    <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">T_target</span><span class="p">]],</span>
+    <span class="n">Sequence</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">T_input</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">T_target</span><span class="p">],</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">T_metadata</span><span class="p">]]],</span>
+<span class="p">]:</span>
+    <span class="c1"># doc-ignore: EX01</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Make predictions for a given model &amp; data source with optional augmentation.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model : SomeModel</span>
+<span class="sd">        Maite Model object.</span>
+
+<span class="sd">    dataloader : SomeDataloader | None, (default=None)</span>
+<span class="sd">        Compatible maite dataloader.</span>
+
+<span class="sd">    dataset : SomeDataset | None, (default=None)</span>
+<span class="sd">        Compatible maite dataset.</span>
+
+<span class="sd">    batch_size : int, (default=1)</span>
+<span class="sd">        Batch size for use with dataset (ignored if dataset=None).</span>
+
+<span class="sd">    augmentation : SomeAugmentation | None, (default=None)</span>
+<span class="sd">        Compatible maite augmentation.</span>
+
+<span class="sd">    return_augmented_data : bool, (default=False)</span>
+<span class="sd">        Set to True to return post-augmentation data as a function output.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple[Sequence[Sequence[SomeTargetType], Sequence[tuple[Sequence[SomeInputType], Sequence[SomeTargetType], Sequence[SomeMetadataType]]],</span>
+<span class="sd">        A tuple of the predictions (as a sequence of batches) and a sequence</span>
+<span class="sd">        of tuples containing the information associated with each batch.</span>
+<span class="sd">        Note that the second return argument will be empty if</span>
+<span class="sd">        return_augmented_data is False.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    InvalidArgument</span>
+<span class="sd">        If neither a dataloader nor a dataset is provided.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_</span><span class="p">,</span> <span class="n">preds</span><span class="p">,</span> <span class="n">aug_data</span> <span class="o">=</span> <span class="n">evaluate</span><span class="p">(</span>
+        <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+        <span class="n">dataloader</span><span class="o">=</span><span class="n">dataloader</span><span class="p">,</span>
+        <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span>
+        <span class="n">augmentation</span><span class="o">=</span><span class="n">augmentation</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+        <span class="n">collate_fn</span><span class="o">=</span><span class="n">default_collate_fn</span><span class="p">,</span>
+        <span class="n">return_augmented_data</span><span class="o">=</span><span class="n">return_augmented_data</span><span class="p">,</span>
+        <span class="n">return_preds</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">preds</span><span class="p">,</span> <span class="n">aug_data</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024 Massachusetts Institute of Technology.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

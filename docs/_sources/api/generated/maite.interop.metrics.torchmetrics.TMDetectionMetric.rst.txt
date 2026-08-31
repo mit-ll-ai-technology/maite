@@ -1,0 +1,10 @@
+﻿  
+TMDetectionMetric
+=================
+
+.. loaded class.rst template
+
+.. currentmodule:: maite.interop.metrics.torchmetrics
+
+.. autoclass:: TMDetectionMetric
+

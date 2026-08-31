@@ -1,0 +1,648 @@
+
+<!DOCTYPE html>
+
+<html data-content_root="../" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>MAITE Layered Architecture — maite 0.10.0 documentation</title>
+<script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+<!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+<noscript>
+<style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+</noscript>
+<!-- Loaded before other Sphinx assets -->
+<link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet"/>
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet"/>
+<link href="../_static/pygments.css?v=8f2a1f02" rel="stylesheet" type="text/css"/>
+<link href="../_static/copybutton.css?v=76b2166b" rel="stylesheet" type="text/css"/>
+<link href="../_static/sphinx-codeautolink.css?v=b2176991" rel="stylesheet" type="text/css"/>
+<link href="../_static/sphinx-design.min.css?v=95c83b7e" rel="stylesheet" type="text/css"/>
+<link href="../_static/custom.css?v=aaea0675" rel="stylesheet" type="text/css"/>
+<!-- So that users can add custom icons -->
+<script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+<!-- Pre-loaded scripts that we'll load fully later -->
+<link as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" rel="preload"/>
+<link as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" rel="preload"/>
+<script src="../_static/documentation_options.js?v=82662543"></script>
+<script src="../_static/doctools.js?v=fd6eb6e6"></script>
+<script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+<script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+<script src="../_static/copybutton.js?v=30646c52"></script>
+<script async="async" src="https://www.googletagmanager.com/gtag/js?id=UA-115029372-2"></script>
+<script src="../_static/gtag.js"></script>
+<script src="../_static/design-tabs.js?v=f930bc37"></script>
+<script>DOCUMENTATION_OPTIONS.pagename = 'explanation/maite_architecture';</script>
+<script src="../_static/pypi_icon.js?v=74687d30"></script>
+<script src="../_static/condaforge_icon.js?v=19caf20c"></script>
+<script src="../_static/anaconda_icon.js?v=e3074ad8"></script>
+<link href="../genindex.html" rel="index" title="Index"/>
+<link href="../search.html" rel="search" title="Search"/>
+<link href="maite_users.html" rel="next" title="MAITE User Types"/>
+<link href="maite_vision.html" rel="prev" title="Vision for Interoperability in AI Test and Evaluation"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="en" name="docsearch:language"/>
+<meta content="0.10" name="docsearch:version"/>
+</head>
+<body data-bs-root-margin="0px 0px -60%" data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-default-mode="" data-offset="180">
+<div class="skip-link d-print-none" id="pst-skip-link"><a href="#main-content">Skip to main content</a></div>
+<div id="pst-scroll-pixel-helper"></div>
+<button class="btn rounded-pill" id="pst-back-to-top" type="button">
+<i class="fa-solid fa-arrow-up"></i>Back to top</button>
+<dialog id="pst-search-dialog">
+<form action="../search.html" class="bd-search d-flex align-items-center" method="get">
+<i class="fa-solid fa-magnifying-glass"></i>
+<input aria-label="Search the docs ..." autocapitalize="off" autocomplete="off" autocorrect="off" class="form-control" name="q" placeholder="Search the docs ..." spellcheck="false" type="search"/>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+</dialog>
+<div class="pst-async-banner-revealer d-none">
+<aside aria-label="Version warning" class="d-none d-print-none" id="bd-header-version-warning"></aside>
+</div>
+<header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+<button aria-label="Site navigation" class="pst-navbar-icon sidebar-toggle primary-toggle">
+<span class="fa-solid fa-bars"></span>
+</button>
+<div class="navbar-header-items__start">
+<div class="navbar-item">
+<a class="navbar-brand logo" href="../index.html">
+<p class="title logo__title">maite 0.10.0 documentation</p>
+</a></div>
+</div>
+<div class="navbar-header-items">
+<div class="me-auto navbar-header-items__center">
+<div class="navbar-item">
+<nav>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../tutorials.html">
+    Tutorials
+  </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../how_tos.html">
+    How-To Guides
+  </a>
+</li>
+<li class="nav-item current active">
+<a class="nav-link nav-internal" href="../explanation.html">
+    Explanation
+  </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../api_reference.html">
+    Reference
+  </a>
+</li>
+<li class="nav-item dropdown">
+<button aria-controls="pst-nav-more-links" aria-expanded="false" class="btn dropdown-toggle nav-item" data-bs-toggle="dropdown" type="button">
+                    More
+                </button>
+<ul class="dropdown-menu" id="pst-nav-more-links">
+<li class="">
+<a class="nav-link dropdown-item nav-internal" href="../glossary.html">
+    Glossary
+  </a>
+</li>
+<li class="">
+<a class="nav-link dropdown-item nav-internal" href="../changes.html">
+    Changelog
+  </a>
+</li>
+</ul>
+</li>
+</ul>
+</nav></div>
+</div>
+<div class="navbar-header-items__end">
+<div class="navbar-item navbar-persistent--container">
+<button aria-label="Search" class="btn search-button-field search-button__button pst-js-only" data-bs-placement="bottom" data-bs-toggle="tooltip" title="Search">
+<i class="fa-solid fa-magnifying-glass"></i>
+<span class="search-button__default-text">Search</span>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+</div>
+<div class="navbar-item"><ul aria-label="Icon Links" class="navbar-icon-links">
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://github.com/mit-ll-ai-technology/maite" rel="noopener" target="_blank" title="GitHub"><i aria-hidden="true" class="fa-brands fa-github fa-lg"></i>
+<span class="sr-only">GitHub</span></a>
+</li>
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://pypi.org/project/maite/" rel="noopener" target="_blank" title="PyPI"><i aria-hidden="true" class="fa-custom fa-pypi fa-lg"></i>
+<span class="sr-only">PyPI</span></a>
+</li>
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://anaconda.org/conda-forge/maite" rel="noopener" target="_blank" title="Anaconda"><i aria-hidden="true" class="fa-custom fa-anaconda fa-lg"></i>
+<span class="sr-only">Anaconda</span></a>
+</li>
+</ul></div>
+</div>
+</div>
+<div class="navbar-persistent--mobile">
+<button aria-label="Search" class="btn search-button-field search-button__button pst-js-only" data-bs-placement="bottom" data-bs-toggle="tooltip" title="Search">
+<i class="fa-solid fa-magnifying-glass"></i>
+<span class="search-button__default-text">Search</span>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+</div>
+<button aria-label="On this page" class="pst-navbar-icon sidebar-toggle secondary-toggle">
+<span class="fa-solid fa-outdent"></span>
+</button>
+</div>
+</header>
+<div class="bd-container">
+<div class="bd-container__inner bd-page-width">
+<dialog id="pst-primary-sidebar-modal"></dialog>
+<div class="bd-sidebar-primary bd-sidebar" id="pst-primary-sidebar">
+<div class="sidebar-header-items sidebar-primary__section">
+<div class="sidebar-header-items__center">
+<div class="navbar-item">
+<nav>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../tutorials.html">
+    Tutorials
+  </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../how_tos.html">
+    How-To Guides
+  </a>
+</li>
+<li class="nav-item current active">
+<a class="nav-link nav-internal" href="../explanation.html">
+    Explanation
+  </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../api_reference.html">
+    Reference
+  </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../glossary.html">
+    Glossary
+  </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../changes.html">
+    Changelog
+  </a>
+</li>
+</ul>
+</nav></div>
+</div>
+<div class="sidebar-header-items__end">
+<div class="navbar-item"><ul aria-label="Icon Links" class="navbar-icon-links">
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://github.com/mit-ll-ai-technology/maite" rel="noopener" target="_blank" title="GitHub"><i aria-hidden="true" class="fa-brands fa-github fa-lg"></i>
+<span class="sr-only">GitHub</span></a>
+</li>
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://pypi.org/project/maite/" rel="noopener" target="_blank" title="PyPI"><i aria-hidden="true" class="fa-custom fa-pypi fa-lg"></i>
+<span class="sr-only">PyPI</span></a>
+</li>
+<li class="nav-item">
+<a class="nav-link pst-navbar-icon" data-bs-placement="bottom" data-bs-toggle="tooltip" href="https://anaconda.org/conda-forge/maite" rel="noopener" target="_blank" title="Anaconda"><i aria-hidden="true" class="fa-custom fa-anaconda fa-lg"></i>
+<span class="sr-only">Anaconda</span></a>
+</li>
+</ul></div>
+</div>
+</div>
+<div class="sidebar-primary-items__start sidebar-primary__section">
+<div class="sidebar-primary-item">
+<nav aria-label="Section Navigation" class="bd-docs-nav bd-links">
+<p aria-level="1" class="bd-links__title" role="heading">Section Navigation</p>
+<div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="protocol_overview.html">Overview of MAITE Protocols</a></li>
+<li class="toctree-l1"><a class="reference internal" href="type_hints_for_API_design.html">A Primer on Python Typing: Relevant Language Features, Methods, and Tools for the T&amp;E Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite_vision.html">Vision for Interoperability in AI Test and Evaluation</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">MAITE Layered Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maite_users.html">MAITE User Types</a></li>
+</ul>
+</div>
+</nav></div>
+</div>
+<div class="sidebar-primary-items__end sidebar-primary__section">
+<div class="sidebar-primary-item">
+<div class="flat" data-ea-manual="true" data-ea-publisher="readthedocs" data-ea-type="readthedocs-sidebar" id="ethical-ad-placement">
+</div></div>
+</div>
+</div>
+<main class="bd-main" id="main-content" role="main">
+<div class="bd-content">
+<div class="bd-article-container">
+<div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+<div class="header-article-items__start">
+<div class="header-article-item">
+<nav aria-label="Breadcrumb" class="d-print-none">
+<ul class="bd-breadcrumbs">
+<li class="breadcrumb-item breadcrumb-home">
+<a aria-label="Home" class="nav-link" href="../index.html">
+<i class="fa-solid fa-home"></i>
+</a>
+</li>
+<li class="breadcrumb-item"><a class="nav-link" href="../explanation.html">Explanation</a></li>
+<li aria-current="page" class="breadcrumb-item active"><span class="ellipsis">MAITE Layered Architecture</span></li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+</div>
+<div id="searchbox"></div>
+<article class="bd-article">
+<section id="maite-layered-architecture">
+<span id="id1"></span><h1>MAITE Layered Architecture<a class="headerlink" href="#maite-layered-architecture" title="Link to this heading">#</a></h1>
+<p>MAITE provides an extensible test and evaluation (T&amp;E) architecture organized into layers that each serve distinct purposes.
+This page explains how these layers are organized to enable interoperability and extensibility across AI problems.</p>
+<p>In the remainder of this explainer, we make heavy use the terms “primitive”, “component”, and “task” according to the MAITE-specific definitions provided in <a class="reference internal" href="maite_vision.html#components-tasks-primitives"><span class="std std-ref">Interoperable Object Concepts: “Components”, “Tasks”, and “Primitives”</span></a>.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
+<p>MAITE’s architecture comprises four layers that build on one another.</p>
+<figure class="align-center" id="id12">
+<img alt="MAITE's four-layer architecture overview" src="../_images/layered_overview.svg"/>
+<figcaption>
+<p><span class="caption-text"><strong>MAITE’s Layered Architecture</strong></span><a class="headerlink" href="#id12" title="Link to this image">#</a></p>
+<div class="legend">
+<p>Four layers from fundamental definitions (Level 0) to concrete applications (Level 3).</p>
+</div>
+</figcaption>
+</figure>
+<p>This layered approach supports users at multiple levels while keeping the MAITE library extensible to new problem types and T&amp;E capabilities.
+(See discussion of different MAITE user types is given in <a class="reference internal" href="maite_users.html#maite-users"><span class="std std-ref">MAITE User Types</span></a>. <a class="footnote-reference brackets" href="#practical-layer-spanning-caveat" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>)</p>
+</section>
+<section id="level-0-define-roles-of-fundamental-primitives-and-components">
+<h2>Level 0: Define Roles of Fundamental Primitives and Components<a class="headerlink" href="#level-0-define-roles-of-fundamental-primitives-and-components" title="Link to this heading">#</a></h2>
+<p>The foundational layer defines fundamental roles and relationships between primitives and components in supervised AI/ML.
+This layer establishes the core abstractions that remain consistent across all AI problems. <a class="footnote-reference brackets" href="#polymorphic-tasks" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>
+The architecture is built on the observation that supervised AI problems almost always conform to the structure of a mapping between primitive types.
+By using generics, MAITE can define the type-blind relationships between primitives and components in a given problem.</p>
+<figure class="align-center" id="id13">
+<img alt="Layer 0 showing fundamental primitives and components" src="../_images/layer_0.svg"/>
+<figcaption>
+<p><span class="caption-text"><strong>Level 0: Primitive and Component Fundamental Roles</strong></span><a class="headerlink" href="#id13" title="Link to this image">#</a></p>
+<div class="legend">
+<p>Generic primitives (InputType, TargetType, MetadataType) and components
+(<a class="reference internal" href="../generated/maite.protocols.generic.Model.html#maite.protocols.generic.Model" title="maite.protocols.generic.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></a>, <a class="reference internal" href="../generated/maite.protocols.generic.Metric.html#maite.protocols.generic.Metric" title="maite.protocols.generic.Metric"><code class="xref py py-class docutils literal notranslate"><span class="pre">Metric</span></code></a>, <a class="reference internal" href="../generated/maite.protocols.generic.Augmentation.html#maite.protocols.generic.Augmentation" title="maite.protocols.generic.Augmentation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Augmentation</span></code></a>, <a class="reference internal" href="../generated/maite.protocols.generic.Dataset.html#maite.protocols.generic.Dataset" title="maite.protocols.generic.Dataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> <a class="footnote-reference brackets" href="#dataloader-layer0" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></a>) with their relationships.</p>
+</div>
+</figcaption>
+</figure>
+<p><strong>Outcomes</strong></p>
+<ul class="simple">
+<li><p><strong>Globally consistent component/primitive relationships</strong>: All AI problems use the
+same component structure, just with different concrete types.</p></li>
+<li><p><strong>Architectural openness to new AI problems</strong>: New problems can be added by defining
+new primitive types without modifying the core framework.</p></li>
+<li><p><strong>Facilitation of problem-agnostic utilities</strong>: Generic tasks like evaluation and
+prediction can work across multiple AI problems because they operate on the common
+component structure.</p></li>
+</ul>
+</section>
+<section id="level-1-define-ai-problems">
+<h2>Level 1: Define AI Problems<a class="headerlink" href="#level-1-define-ai-problems" title="Link to this heading">#</a></h2>
+<p>This layer specializes the generic primitives and components for specific AI problem types.
+An AI problem is defined by choosing concrete types for the three primitives and specifying behavioral expectations. <a class="footnote-reference brackets" href="#behavioral-layer1" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></a></p>
+<figure class="align-center" id="id14">
+<img alt="Layer 1 showing object detection AI problem definition" src="../_images/layer_1.svg"/>
+<figcaption>
+<p><span class="caption-text"><strong>Level 1: AI Problem Definition</strong></span><a class="headerlink" href="#id14" title="Link to this image">#</a></p>
+<div class="legend">
+<p>Specializing generic protocols for the object detection AI problem. <a class="footnote-reference brackets" href="#shape-value-semantics" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a></p>
+</div>
+</figcaption>
+</figure>
+<p>The process of defining an AI problem in MAITE comprises 3 steps. <a class="footnote-reference brackets" href="#doing-versus-doing-well" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a></p>
+<ol class="arabic">
+<li><p><strong>Specify primitive types</strong></p>
+<p>MAITE uses a three-layer type alias system to separate what a type technically is (inherent type) from what it means in the domain (semantic alias) and where it appears in protocols (role alias):</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Inherent Type → Semantic Alias → Role Alias
+
+Example
+--------
+  ArrayLike   →      Image       →     InputType
+(Python type)   (domain meaning)   (protocol position)
+</pre></div>
+</div>
+<p>This convention allows the runtime type to be the best available fit from the Python language (e.g., <a class="reference internal" href="../generated/maite.protocols.ArrayLike.html#maite.protocols.ArrayLike" title="maite.protocols.ArrayLike"><code class="xref py py-class docutils literal notranslate"><span class="pre">ArrayLike</span></code></a>), while docstrings on semantic and role aliases provide context-specific behavioral expectations for use within a particular AI problem.</p>
+<p><strong>Why use multiple aliases for the same type?</strong></p>
+<p>A single underlying type like <a class="reference internal" href="../generated/maite.protocols.ArrayLike.html#maite.protocols.ArrayLike" title="maite.protocols.ArrayLike"><code class="xref py py-class docutils literal notranslate"><span class="pre">ArrayLike</span></code></a> can represent many different domain concepts—an image, a bounding box, a segmentation mask, a feature vector. Each semantic alias captures different behavioral expectations through its docstring:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../generated/maite.protocols.image_classification.Image.html#maite.protocols.image_classification.Image" title="maite.protocols.image_classification.Image"><code class="xref py py-type docutils literal notranslate"><span class="pre">Image</span></code></a>: ArrayLike with shape (C, H, W), values in [0, 255] or [0, 1]</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SegmentationMask</span></code>: ArrayLike with shape (H, W), integer class IDs</p></li>
+<li><p><a class="reference internal" href="../generated/maite.protocols.image_classification.ImgClassification.html#maite.protocols.image_classification.ImgClassification" title="maite.protocols.image_classification.ImgClassification"><code class="xref py py-type docutils literal notranslate"><span class="pre">ImgClassification</span></code></a>: ArrayLike with shape (Cl,), probability distribution</p></li>
+</ul>
+<p>Role aliases (<code class="docutils literal notranslate"><span class="pre">InputType</span></code>, <code class="docutils literal notranslate"><span class="pre">TargetType</span></code>, <code class="docutils literal notranslate"><span class="pre">DatumMetadataType</span></code>) then specify which semantic type occupies which position in generic protocols, making protocol signatures both generic and self-documenting.</p>
+<p><strong>Example from image classification:</strong></p>
+<p>See <a class="reference internal" href="../api/image_classification.html#api-image-classification"><span class="std std-ref">image classification</span></a> for a complete example. Key type definitions:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Assuming inherent type of ArrayLike</span>
+
+<span class="c1"># Semantic alias (domain meaning)</span>
+<span class="n">Image</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">ArrayLike</span>
+<span class="sd">"""Semantic alias for a single image datum.</span>
+<span class="sd">Expected shape semantics: (C, H, W)"""</span>
+
+<span class="n">ImgClassification</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">ArrayLike</span>
+<span class="sd">"""Semantic alias for a classification target/prediction vector.</span>
+<span class="sd">Expected shape semantics: (Cl,) where Cl is number of classes"""</span>
+
+<span class="c1"># Role aliases (protocol positions)</span>
+<span class="n">InputType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Image</span>
+<span class="sd">"""Role alias for model/dataset input in the image-classification protocol family."""</span>
+
+<span class="n">TargetType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">ImgClassification</span>
+<span class="sd">"""Role alias for model/dataset target in the image-classification protocol family."""</span>
+
+<span class="n">DatumMetadataType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">DatumMetadata</span>
+<span class="sd">"""Role alias for datum-level metadata in image-classification protocol signatures."""</span>
+</pre></div>
+</div>
+<p>When defining a new AI problem, specify:</p>
+<ul class="simple">
+<li><p><strong>InputType</strong>: What the model consumes (e.g., Image, Text, Audio)</p></li>
+<li><p><strong>TargetType</strong>: What the model predicts (e.g., ObjectDetectionTarget, Label, Transcript)</p></li>
+<li><p><strong>DatumMetadataType</strong>: Information for stratifying analysis, not provided to model</p></li>
+</ul>
+</li>
+<li><p><strong>Parametrize generic component protocols</strong></p>
+<p>Parameterize the generic component protocols with the chosen primitive types:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Generic protocol from Layer 0</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">maite.protocols</span><span class="w"> </span><span class="kn">import</span> <span class="n">generic</span> <span class="k">as</span> <span class="n">gen</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">maite.protocols</span><span class="w"> </span><span class="kn">import</span> <span class="n">object_detection</span> <span class="k">as</span> <span class="n">od</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">Protocol</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">InputT</span><span class="p">,</span> <span class="n">TargetT</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">InputT</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">TargetT</span><span class="p">]:</span> <span class="o">...</span>
+
+<span class="c1"># Specialized for object detection</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">maite.protocols</span><span class="w"> </span><span class="kn">import</span> <span class="n">object_detection</span> <span class="k">as</span> <span class="n">od</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="../generated/maite.protocols.generic.Model.html#maite.protocols.generic.Model" title="maite._internals.protocols.generic.Model"><span class="n">gen</span><span class="o">.</span><span class="n">Model</span></a><span class="p">[</span><span class="n">Image</span><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../generated/maite.protocols.object_detection.ObjectDetectionTarget.html#maite.protocols.object_detection.ObjectDetectionTarget" title="maite.protocols.object_detection.ObjectDetectionTarget"><span class="n">od</span><span class="o">.</span><span class="n">ObjectDetectionTarget</span></a><span class="p">],</span> <span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Object detection model protocol"""</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Explicitly document behavioral expectations on primitive semantic aliases</strong></p>
+<p>Specify semantic expectations on primitives in docstrings, especially those that cannot be enforced by a Python static type checker <a class="footnote-reference brackets" href="#behavioral-layer1" id="id8" role="doc-noteref"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></a>—for example, image shape conventions (C, H, W), bounding box formats [x0, y0, x1, y1], coordinate systems (origin at top-left), or probability constraints (scores sum to 1.0).
+MAITE makes a practice of doing this at the class docstring level for transparency and consistency.</p>
+</li>
+</ol>
+<section id="example-object-detection">
+<h3>Example: Object Detection<a class="headerlink" href="#example-object-detection" title="Link to this heading">#</a></h3>
+<p>The object detection AI problem specializes:</p>
+<ul class="simple">
+<li><p><strong>InputType = Image</strong>: <a class="reference internal" href="../generated/maite.protocols.ArrayLike.html#maite.protocols.ArrayLike" title="maite.protocols.ArrayLike"><code class="xref py py-class docutils literal notranslate"><span class="pre">ArrayLike</span></code></a> with shape (C, H, W)</p></li>
+<li><p><strong>TargetType = ObjectDetectionTarget</strong>: <a class="reference internal" href="../generated/maite.protocols.object_detection.ObjectDetectionTarget.html#maite.protocols.object_detection.ObjectDetectionTarget" title="maite.protocols.object_detection.ObjectDetectionTarget"><code class="xref py py-type docutils literal notranslate"><span class="pre">ObjectDetectionTarget</span></code></a> with boxes, labels, scores attributes</p></li>
+<li><p><strong>MetadataType = DatumMetadata</strong>: <a class="reference internal" href="../generated/maite.protocols.DatumMetadata.html#maite.protocols.DatumMetadata" title="maite.protocols.DatumMetadata"><code class="xref py py-class docutils literal notranslate"><span class="pre">DatumMetadata</span></code></a> TypedDict with required ‘id’ field</p></li>
+</ul>
+<p>Components inherit these types:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../generated/maite.protocols.object_detection.Dataset.html#maite.protocols.object_detection.Dataset" title="maite.protocols.object_detection.Dataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>: Provides (Image, ObjectDetectionTarget, DatumMetadata) tuples</p></li>
+<li><p><a class="reference internal" href="../generated/maite.protocols.object_detection.Model.html#maite.protocols.object_detection.Model" title="maite.protocols.object_detection.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></a>: Maps Sequence[Image] → Sequence[ObjectDetectionTarget]</p></li>
+<li><p><a class="reference internal" href="../generated/maite.protocols.object_detection.Metric.html#maite.protocols.object_detection.Metric" title="maite.protocols.object_detection.Metric"><code class="xref py py-class docutils literal notranslate"><span class="pre">Metric</span></code></a>: Evaluates ObjectDetectionTarget predictions</p></li>
+</ul>
+<p><strong>Outcomes</strong></p>
+<ul class="simple">
+<li><p><strong>AI problem specification</strong>: Structural types encoding behavioral expectations for
+components and primitives</p></li>
+<li><p><strong>Extensibility and interoperability</strong>: Over different primitive, component, and task
+implementations</p></li>
+</ul>
+</section>
+</section>
+<section id="level-2-implement-t-e-capabilities">
+<h2>Level 2: Implement T&amp;E Capabilities<a class="headerlink" href="#level-2-implement-t-e-capabilities" title="Link to this heading">#</a></h2>
+<p>This layer provides concrete implementations that satisfy the AI problem protocols defined in the preceding level.
+Implementations can come from MAITE itself <a class="footnote-reference brackets" href="#interop-namedrop" id="id9" role="doc-noteref"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></a>, third-party libraries, or user code.</p>
+<figure class="align-center" id="id15">
+<img alt="Layer 2 showing concrete implementations [#shape_value_semantics]_" src="../_images/layer_2.svg"/>
+<figcaption>
+<p><span class="caption-text"><strong>Level 2: T&amp;E Capability Implementations</strong></span><a class="headerlink" href="#id15" title="Link to this image">#</a></p>
+<div class="legend">
+<p>Concrete implementations satisfying object detection protocols. <a class="footnote-reference brackets" href="#shape-value-semantics" id="id10" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a> <a class="footnote-reference brackets" href="#maite-task-omission" id="id11" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a></p>
+</div>
+</figcaption>
+</figure>
+<section id="primitive-implementations">
+<h3>Primitive Implementations<a class="headerlink" href="#primitive-implementations" title="Link to this heading">#</a></h3>
+<p>Problem-specific primitive types are implemented using concrete structures:</p>
+<dl class="simple">
+<dt><strong>InputType (Image)</strong>:</dt><dd><ul class="simple">
+<li><p>numpy.ndarray</p></li>
+<li><p>torch.Tensor</p></li>
+<li><p>jax.Array</p></li>
+<li><p>dask.array.Array</p></li>
+<li><p>Any <a class="reference internal" href="../generated/maite.protocols.ArrayLike.html#maite.protocols.ArrayLike" title="maite.protocols.ArrayLike"><code class="xref py py-class docutils literal notranslate"><span class="pre">ArrayLike</span></code></a> type</p></li>
+</ul>
+</dd>
+<dt><strong>TargetType (ObjectDetectionTarget)</strong>:</dt><dd><ul class="simple">
+<li><p>Custom classes implementing the protocol</p></li>
+<li><p>Dataclasses with required attributes</p></li>
+<li><p>Dictionaries satisfying structural requirements</p></li>
+</ul>
+</dd>
+<dt><strong>MetadataType (DatumMetadata)</strong>:</dt><dd><ul class="simple">
+<li><p>TypedDict with optional extra fields</p></li>
+<li><p>Plain dictionaries satisfying required structure</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+<section id="component-implementations">
+<h3>Component Implementations<a class="headerlink" href="#component-implementations" title="Link to this heading">#</a></h3>
+<p>Concrete components satisfy the protocols through structural compatibility:</p>
+<ul class="simple">
+<li><p><strong>Datasets</strong>: COCO dataset wrappers, Torchvision datasets, custom dataset classes</p></li>
+<li><p><strong>Models</strong>: YOLO models, Faster R-CNN, custom detection models</p></li>
+<li><p><strong>Metrics</strong>: COCO metrics, precision/recall calculators, custom evaluators</p></li>
+<li><p><strong>Augmentations</strong>: Image transformations, data augmentation pipelines</p></li>
+</ul>
+<p>Implementations need not explicitly inherit from MAITE protocols.
+They satisfy protocols through structural subtyping—having the required methods and attributes with compatible type signatures.</p>
+<p><strong>Outcomes</strong></p>
+<ul class="simple">
+<li><p><strong>Concrete and interoperable component and task implementations</strong> that can be applied across applications within the same AI problem</p></li>
+</ul>
+</section>
+</section>
+<section id="level-3-apply-t-e-capabilities">
+<h2>Level 3: Apply T&amp;E Capabilities<a class="headerlink" href="#level-3-apply-t-e-capabilities" title="Link to this heading">#</a></h2>
+<p>The top layer represents concrete applications: using implemented components to perform test and evaluation tasks.
+This is where users compose components to generate predictions and evaluate models.</p>
+<p>Applications at this layer have:</p>
+<ul class="simple">
+<li><p><strong>Rich problem context</strong>: Specific datasets, particular model architectures, concrete
+evaluation requirements</p></li>
+<li><p><strong>Concrete instantiations</strong>: Actual Python objects (not protocols or type variables)</p></li>
+<li><p><strong>Executable workflows</strong>: Running evaluation pipelines, generating predictions,
+computing metrics</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Level 3: Application code</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">maite.protocols</span><span class="w"> </span><span class="kn">import</span> <span class="n">object_detection</span> <span class="k">as</span> <span class="n">od</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">maite.tasks</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="../api/generated/maite.tasks.evaluate.html#maite.tasks.evaluate" title="maite.tasks.evaluate"><span class="n">evaluate</span></a>
+
+<span class="c1"># Concrete implementations</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">MyCOCODataset</span><span class="p">()</span>      <span class="c1"># Satisfies od.Dataset</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">MyYOLOModel</span><span class="p">()</span>          <span class="c1"># Satisfies od.Model</span>
+<span class="n">metric</span> <span class="o">=</span> <span class="n">MyCOCOMetric</span><span class="p">()</span>        <span class="c1"># Satisfies od.Metric</span>
+
+<span class="c1"># Apply T&amp;E capability</span>
+<span class="n">results</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../api/generated/maite.tasks.evaluate.html#maite.tasks.evaluate" title="maite.tasks.evaluate"><span class="n">evaluate</span></a><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">metric</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The three layers below (Levels 0-2) together form the complete foundation, with Level 3
+representing any concrete application that composes these capabilities.</p>
+<p><strong>Outcomes</strong></p>
+<ul class="simple">
+<li><p>Application-level T&amp;E results inform next steps in application-level MLOps process</p></li>
+<li><p>Enables lower levels of MAITE architecture to selectively promote/adapt elements that would be useful in other applications. These could be in the same AI problem (corresponding to updates at layer 2) or more broad (corresponding to updates at layers 0 and/or 1).</p></li>
+</ul>
+</section>
+<section id="further-reading">
+<h2>Further Reading<a class="headerlink" href="#further-reading" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="maite_users.html#maite-users"><span class="std std-ref">MAITE User Types</span></a> - MAITE user types and how they interact with each layer</p></li>
+<li><p><a class="reference internal" href="../api/generic.html#api-generic"><span class="std std-ref">generic</span></a> - Generic protocol API reference (Layer 0)</p></li>
+<li><p><a class="reference internal" href="maite_vision.html#maite-vision"><span class="std std-ref">Vision for Interoperability in AI Test and Evaluation</span></a> - Overall vision document</p></li>
+</ul>
+</section>
+<section id="footnotes">
+<h2>Footnotes<a class="headerlink" href="#footnotes" title="Link to this heading">#</a></h2>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="practical-layer-spanning-caveat" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a href="#id2" role="doc-backlink">1</a><span class="fn-bracket">]</span></span>
+<p>In practice, specific users may very easily work across multiple layers, but considering more narrowly defined user categories is helpful for explanation.</p>
+</aside>
+<aside class="footnote brackets" id="polymorphic-tasks" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a href="#id3" role="doc-backlink">2</a><span class="fn-bracket">]</span></span>
+<p>This lowest level of structure that is agnostic of AI problem enables MAITE tasks that are agnostic of problem type (polymorphic over AI problems), but still checked by a static typechecker for compatibility.</p>
+</aside>
+<aside class="footnote brackets" id="shape-value-semantics" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a href="#id6" role="doc-backlink">1</a>,<a href="#id10" role="doc-backlink">2</a>)</span>
+<p>Behavioral Expectations beyond what is visible to a static type-checker should be at least documented, and may include opt-in runtime verification routines tied to problem-specific primitive types.</p>
+</aside>
+<aside class="footnote brackets" id="maite-task-omission" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a href="#id11" role="doc-backlink">4</a><span class="fn-bracket">]</span></span>
+<p>MAITE tasks are not depicted because they are a fundamentally more open concept and are not backed by structural types.</p>
+</aside>
+<aside class="footnote brackets" id="doing-versus-doing-well" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a href="#id7" role="doc-backlink">5</a><span class="fn-bracket">]</span></span>
+<p>While definition may be a simple enough process, doing so well can be much harder; The MAITE development team would hope the examples of AI problem type definitions (exposed via named subpackages in <code class="xref py py-obj docutils literal notranslate"><span class="pre">maite.protocols</span></code>) are useful starting points.</p>
+</aside>
+<aside class="footnote brackets" id="dataloader-layer0" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a href="#id4" role="doc-backlink">6</a><span class="fn-bracket">]</span></span>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">DataLoader`</span></code> component exhibits similar variance with respect to type variables; it is omitted for brevity in these diagrams.</p>
+</aside>
+<aside class="footnote brackets" id="behavioral-layer1" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a href="#id5" role="doc-backlink">1</a>,<a href="#id8" role="doc-backlink">2</a>)</span>
+<p>Behavioral expectations beyond what is visible to a static type checker should be at least documented, and may include opt-in runtime verification routines tied to problem-specific primitive types.</p>
+</aside>
+<aside class="footnote brackets" id="interop-namedrop" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a href="#id9" role="doc-backlink">8</a><span class="fn-bracket">]</span></span>
+<p>This is often via the <code class="xref py py-obj docutils literal notranslate"><span class="pre">interop</span></code> submodule that provides adaptors for popular AI libraries.</p>
+</aside>
+</aside>
+</section>
+</section>
+</article>
+<footer class="prev-next-footer d-print-none">
+<div class="prev-next-area">
+<a class="left-prev" href="maite_vision.html" title="previous page">
+<i class="fa-solid fa-angle-left"></i>
+<div class="prev-next-info">
+<p class="prev-next-subtitle">previous</p>
+<p class="prev-next-title">Vision for Interoperability in AI Test and Evaluation</p>
+</div>
+</a>
+<a class="right-next" href="maite_users.html" title="next page">
+<div class="prev-next-info">
+<p class="prev-next-subtitle">next</p>
+<p class="prev-next-title">MAITE User Types</p>
+</div>
+<i class="fa-solid fa-angle-right"></i>
+</a>
+</div>
+</footer>
+</div>
+<dialog id="pst-secondary-sidebar-modal"></dialog>
+<div class="bd-sidebar-secondary bd-toc" id="pst-secondary-sidebar"><div class="sidebar-secondary-items sidebar-secondary__inner">
+<div class="sidebar-secondary-item">
+<div class="page-toc tocsection onthispage" id="pst-page-navigation-heading-2">
+<i class="fa-solid fa-list"></i> On this page
+  </div>
+<nav aria-labelledby="pst-page-navigation-heading-2" class="bd-toc-nav page-toc">
+<ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#level-0-define-roles-of-fundamental-primitives-and-components">Level 0: Define Roles of Fundamental Primitives and Components</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#level-1-define-ai-problems">Level 1: Define AI Problems</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example-object-detection">Example: Object Detection</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#level-2-implement-t-e-capabilities">Level 2: Implement T&amp;E Capabilities</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#primitive-implementations">Primitive Implementations</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#component-implementations">Component Implementations</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#level-3-apply-t-e-capabilities">Level 3: Apply T&amp;E Capabilities</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#further-reading">Further Reading</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#footnotes">Footnotes</a></li>
+</ul>
+</nav></div>
+<div class="sidebar-secondary-item">
+<div aria-label="source link" role="note">
+<h3>This Page</h3>
+<ul class="this-page-menu">
+<li><a href="../_sources/explanation/maite_architecture.rst.txt" rel="nofollow">Show Source</a></li>
+</ul>
+</div></div>
+</div></div>
+</div>
+<footer class="bd-footer-content">
+</footer>
+</main>
+</div>
+</div>
+<!-- Scripts loaded after <body> so the DOM is not blocked -->
+<script defer="" src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer="" src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+<footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+<div class="footer-items__start">
+<div class="footer-item">
+<p class="copyright">
+    
+      © Copyright 2024 Massachusetts Institute of Technology.
+      <br/>
+</p>
+</div>
+<div class="footer-item">
+<p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+</p>
+</div>
+</div>
+<div class="footer-items__end">
+<div class="footer-item">
+<p class="theme-version">
+<!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+</div>
+</div>
+</footer>
+</body>
+</html>

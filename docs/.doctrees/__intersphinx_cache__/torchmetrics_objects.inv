@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <script>self["MonacoEnvironment"] = (function (paths) {
+          return {
+            globalAPI: false,
+            getWorkerUrl : function (moduleId, label) {
+              var result =  paths[label];
+              if (/^((http:)|(https:)|(file:)|(\/\/))/.test(result)) {
+                var currentUrl = String(window.location);
+                var currentOrigin = currentUrl.substr(0, currentUrl.length - window.location.hash.length - window.location.search.length - window.location.pathname.length);
+                if (result.substring(0, currentOrigin.length) !== currentOrigin) {
+                  var js = '/*' + label + '*/importScripts("' + result + '");';
+                  var blob = new Blob([js], { type: 'application/javascript' });
+                  return URL.createObjectURL(blob);
+                }
+              }
+              return result;
+            }
+          };
+        })({
+  "editorWorkerService": "/monacoeditorwork/editor.worker.bundle.js",
+  "json": "/monacoeditorwork/json.worker.bundle.js",
+  "typescript": "/monacoeditorwork/ts.worker.bundle.js",
+  "html": "/monacoeditorwork/html.worker.bundle.js",
+  "css": "/monacoeditorwork/css.worker.bundle.js",
+  "javascript": "/monacoeditorwork/ts.worker.bundle.js",
+  "less": "/monacoeditorwork/css.worker.bundle.js",
+  "scss": "/monacoeditorwork/css.worker.bundle.js",
+  "handlebars": "/monacoeditorwork/html.worker.bundle.js",
+  "razor": "/monacoeditorwork/html.worker.bundle.js"
+});</script>
+
+    <!-- Makes the browser's own pre-CSS canvas dark, so navigations clear to
+         dark instead of flashing white before the boot splash paints. The boot
+         script below rewrites it for stored-light-theme users pre-paint. -->
+    <meta name="color-scheme" content="dark" />
+    <link rel="preconnect" href="https://assets.lightning.ai" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://www.googletagmanager.com" />
+
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/inter-latin-variable.woff2" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Azeret+Mono:wght@400;500&family=Inconsolata&family=Inter:wght@300;400;500;600;700&family=Roboto&family=Roboto+Mono&family=Source+Code+Pro&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons&display=block" />
+
+    <!-- KaTeX (MIT) CSS for server-rendered docs math. Vendored to /vendor/katex by
+         vite-plugin-katex-assets; the woff2 fonts load only on pages that use math. -->
+    <link rel="stylesheet" href="/vendor/katex/katex.min.css" />
+    <style>
+      /* Must stay after the Google <link>: same unicode-range, last @font-face wins, so latin uses this same-origin file while Google serves the other subsets. */
+      @font-face {
+        font-family: "Inter";
+        font-style: normal;
+        font-display: block;
+        font-weight: 100 900;
+        src: url("/fonts/inter-latin-variable.woff2") format("woff2");
+        unicode-range:
+          U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F,
+          U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+      }
+    </style>
+    <meta charset="utf-8" />
+    <link id="favicon-ico" rel="icon" href="/favicon/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="theme-color" content="#792EE5" />
+    <!-- Boot splash: theme-matched background painted before the JS bundle
+         loads, so there is no white flash — plus, for logged-in users only, the
+         app loader (marketing visitors get a plain page, not app-booting vibes).
+         AppContainer keeps it visible until the initial data load completes,
+         then hides it via setBootSplashVisible(). Deliberately no contentful
+         element inside: authed-route FCP re-baselines to the splash's hide, an
+         accepted measurement artifact. -->
+    <script>
+      (function () {
+        try {
+          // "LaiColorScheme" is StorageLocation.ColorScheme (utils/storage.ts),
+          // JSON-encoded like the app's ThemeProvider reads it. This is the
+          // stored PREFERENCE only: "/" always boots dark (the landing page
+          // forces it and is the top cold entry), and the other forced-dark
+          // marketing routes converge at React mount — a brief light splash
+          // there for stored-light users is the accepted tradeoff. Deriving
+          // more (route lists, last-rendered scheme) mispredicts worse: it
+          // either drifts or flashes dark on light users' dashboards.
+          var scheme = JSON.parse(localStorage.getItem("LaiColorScheme"));
+          if (scheme === "light" && location.pathname !== "/") {
+            document.documentElement.setAttribute("data-boot-theme", "light");
+            var meta = document.querySelector('meta[name="color-scheme"]');
+            if (meta) meta.setAttribute("content", "light");
+          }
+          // No loader for logged-out visitors — mirrors isAppLoading's gate,
+          // areThereLoginCredentials (src/api/login.ts): the stored id/key/token
+          // triple OR a ?token= login handoff in the URL. Marketing pages should
+          // read as a website, not an app booting. setBootSplashVisible(true)
+          // clears this if React's isAppLoading disagrees.
+          var hasCreds =
+            (localStorage.getItem("gridUserId") &&
+              localStorage.getItem("gridUserKey") &&
+              localStorage.getItem("gridUserToken")) ||
+            /[?&]token=/.test(location.search);
+          if (!hasCreds) {
+            document.documentElement.setAttribute("data-boot-bare", "");
+          }
+        } catch (e) {
+          /* default dark */
+        }
+      })();
+    </script>
+    <style>
+      /* values are the theme's background.default / text.secondary
+         (design-system/lib/theme/palette*.ts) */
+      html {
+        --lai-boot-bg: #080808;
+        --lai-boot-text: #b5b5b5;
+        background-color: var(--lai-boot-bg);
+      }
+      html[data-boot-theme="light"] {
+        --lai-boot-bg: #fff;
+        --lai-boot-text: #696969;
+      }
+      #lai-boot-splash {
+        position: fixed;
+        inset: 0;
+        /* "nearly on top" — same convention as the app's topmost overlays */
+        z-index: 2000000000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--lai-boot-bg);
+        /* no pointer-events:none — while loading, the splash must swallow
+           input so users can't interact with the half-initialized app */
+      }
+      html[data-boot-bare] #lai-boot-splash {
+        display: none;
+      }
+      .lai-loader-stack {
+        position: relative;
+        width: 87px;
+        height: 87px;
+      }
+      /* lai-splash-paused is applied by setBootSplashVisible() once the hide
+         fade has fully completed — pausing any earlier would freeze the loader
+         mid-fade. (lai-splash-hidden is added immediately on hide; the hint's
+         countdown below keys on it.) The pseudo-element selectors matter:
+         that's where the loader's animations live. */
+      .lai-splash-paused *,
+      .lai-splash-paused *::before,
+      .lai-splash-paused *::after {
+        animation-play-state: paused;
+      }
+      /* Escape hatch for a boot that never completes (bundle failed to load,
+         crash above the ErrorBoundary): nothing can hide the splash then, so
+         after 60s of visible splash this hint fades in. System font — web
+         fonts may never arrive in that state. Hidden via opacity, not
+         visibility, so it stays in the accessibility tree throughout — the
+         dead-boot case has no JS left to announce it. */
+      .lai-boot-stuck {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: calc(50% + 64px);
+        margin: 0;
+        text-align: center;
+        font-family:
+          system-ui,
+          -apple-system,
+          sans-serif;
+        font-size: 13px;
+        color: var(--lai-boot-text);
+        opacity: 0;
+      }
+      /* declared under :not(hidden) so toggling lai-splash-hidden cancels and
+         restarts the countdown — the 60s budget is per loading episode, not
+         cumulative, with no JS needed */
+      #lai-boot-splash:not(.lai-splash-hidden) .lai-boot-stuck {
+        animation: lai-boot-stuck-in 0.5s ease-out 60s forwards;
+      }
+      @keyframes lai-boot-stuck-in {
+        to {
+          opacity: 1;
+        }
+      }
+      /* CSS port of components/LogoLoader.tsx's visuals — shapes, colors, and
+         filters mirror the component. The bolt's rounded corners come from the
+         blur+contrast filter; the dark variant from the invert filter on
+         .lai-loader-wrap. */
+      .lai-loader-wrap {
+        width: 87px;
+        height: 87px;
+        position: relative;
+        filter: invert(1) hue-rotate(180deg) brightness(1.25);
+      }
+      html[data-boot-theme="light"] .lai-loader-wrap {
+        filter: none;
+      }
+      .lai-lightning-loader {
+        width: 87px;
+        height: 87px;
+        position: relative;
+        overflow: hidden;
+        clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 99%, 7% 75%, 7% 25%);
+      }
+      .lai-lightning-loader::before {
+        content: "";
+        position: absolute;
+        width: 100%;
+        height: 600%;
+        top: 0;
+        left: 0;
+        background: linear-gradient(25deg, #7633e2, #428ff4, #7633e2);
+        z-index: 9;
+        mix-blend-mode: lighten;
+        animation: lai-highlight 8s ease-in-out infinite alternate;
+        transform: translateY(0%) translateZ(0);
+      }
+      @keyframes lai-highlight {
+        100% {
+          transform: translateY(-83%) translateZ(0);
+        }
+      }
+      .lai-loader-inner {
+        position: absolute;
+        width: 95%;
+        height: 95%;
+        top: 2.5%;
+        left: 2.5%;
+        filter: blur(1.5px) contrast(12);
+        background: #fff;
+      }
+      .lai-loader-core {
+        position: absolute;
+        top: 1.5px;
+        left: 1.5px;
+        width: calc(100% - 3px);
+        height: calc(100% - 3px);
+        z-index: 1;
+        background: #000;
+        filter: drop-shadow(-6px 6px 0 #000) drop-shadow(-6px -6px 0 #000);
+      }
+      .lai-loader-core::before,
+      .lai-loader-core::after {
+        content: "";
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+      }
+      .lai-loader-core::before {
+        z-index: 2;
+        background: #000;
+        animation: lai-scale-out-1 2.5s cubic-bezier(0.375, 0.885, 0.32, 1.075) infinite alternate;
+      }
+      .lai-loader-core::after {
+        z-index: 3;
+        background: #fff;
+        animation: lai-scale-out-2 2.5s cubic-bezier(0.375, 0.885, 0.32, 1.075) infinite alternate;
+      }
+      @keyframes lai-scale-out-1 {
+        0%,
+        33% {
+          clip-path: polygon(61% 17%, 55% 43%, 68% 55%, 40% 82%, 45% 57%, 33% 45%);
+        }
+        50%,
+        100% {
+          clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 99%, 7% 75%, 7% 25%);
+        }
+      }
+      @keyframes lai-scale-out-2 {
+        0%,
+        33% {
+          clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 99%, 7% 75%, 7% 25%);
+        }
+        50%,
+        100% {
+          clip-path: polygon(61% 17%, 55% 43%, 68% 55%, 40% 82%, 45% 57%, 33% 45%);
+        }
+      }
+      .lai-loader-spin {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        z-index: 4;
+        animation: lai-spin 5s cubic-bezier(0.25, 0.285, 0.32, 1.075) infinite 1.25s;
+      }
+      @keyframes lai-spin {
+        50% {
+          transform: rotateY(0deg);
+        }
+        100% {
+          transform: rotateY(720deg);
+        }
+      }
+      .lai-loader-spin::before {
+        content: "";
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        background: #000;
+        z-index: 2;
+        animation: lai-scale-out-3 2.5s cubic-bezier(0.375, 0.885, 0.32, 1.075) infinite alternate;
+      }
+      @keyframes lai-scale-out-3 {
+        0%,
+        33% {
+          clip-path: polygon(61% 17%, 55% 43%, 68% 55%, 40% 82%, 45% 57%, 33% 45%);
+        }
+        50%,
+        100% {
+          clip-path: polygon(50% 50%, 50% 50%, 50% 50%, 50% 50%, 50% 50%, 50% 50%);
+        }
+      }
+    </style>
+    <meta
+      name="description"
+      content="The all-in-one platform for AI development. Code together. Prototype. Train. Scale. Serve. From your browser - with zero setup. From the creators of PyTorch Lightning." />
+    <!-- favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
+    <link id="favicon-32x32" rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png" />
+    <link id="favicon-16x16" rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="mask-icon" href="/favicon/safari-pinned-tab.svg" color="#792EE5" />
+    <meta name="msapplication-TileColor" content="#fff" />
+
+    <!-- Open Graph meta for socials -->
+    <meta property="og:url" content="https://lightning.ai" data-rh="true" />
+    <meta property="og:title" content="Lightning AI | Turn ideas into AI, Lightning fast" data-rh="true" />
+    <meta
+      property="og:description"
+      content="The all-in-one platform for AI development. Code together. Prototype. Train. Scale. Serve. From your browser - with zero setup. From the creators of PyTorch Lightning."
+      data-rh="true" />
+    <meta property="og:type" content="website" data-rh="true" />
+    <meta property="og:image" content="https://assets.lightning.ai/app-2/default-social-preview.jpg" data-rh="true" />
+    <meta property="og:image:width" content="1200" data-rh="true" />
+    <meta property="og:image:height" content="630" data-rh="true" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:site_name" content="Lightning AI" />
+    <meta property="og:secure_url" content="https://assets.lightning.ai/app-2/default-social-preview.jpg" />
+    <meta property="og:image" content="https://assets.lightning.ai/app-2/default-social-preview.jpg" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:title" content="Lightning AI | Turn ideas into AI, Lightning fast" />
+    <meta
+      name="twitter:description"
+      content="The all-in-one platform for AI development. Code together. Prototype. Train. Scale. Serve. From your browser - with zero setup. From the creators of PyTorch Lightning." />
+    <meta name="twitter:image" content="https://assets.lightning.ai/app-2/default-social-preview.jpg" />
+    <meta name="twitter:image:alt" content="Lightning AI - The all-in-one AI development platform" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@LightningAI" />
+
+    <meta name="robots" content="index, follow" />
+
+    <title>Lightning AI</title>
+    <!-- Structured data for SERPs -->
+    <script type="application/ld+json">
+      {
+        "@context": "http://schema.org",
+        "@type": "Corporation",
+        "name": "Lightning AI",
+        "url": "https://lightning.ai",
+        "description": "The platform to train, deploy and build AI with PyTorch, Lightning fast. From the makers of PyTorch Lightning.",
+        "logo": "https://lightningaidev.wpengine.com/wp-content/uploads/2023/07/logo.svg",
+        "founder": {
+          "@type": "Person",
+          "name": "William Falcon",
+          "url": "https://twitter.com/_willfalcon"
+        },
+        "sameAs": [
+          "https://twitter.com/LightningAI",
+          "https://discord.gg/MWAEvnC5fU",
+          "https://github.com/lightning-ai/lightning",
+          "https://www.linkedin.com/company/pytorch-lightning"
+        ]
+      }
+    </script>
+    <script type="module" crossorigin src="/static/entry-DwloixSe.js"></script>
+    <link rel="stylesheet" crossorigin href="/static/asset-DpsRipQV.css">
+  <link rel="manifest" href="/manifest.webmanifest"></head>
+
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <!-- With JS disabled nothing removes the splash — hide it so the noscript
+         message above stays readable. -->
+    <noscript
+      ><style>
+        #lai-boot-splash {
+          display: none;
+        }
+      </style></noscript
+    >
+    <!-- aria-hidden on the decorative stack only — the stuck hint below must
+         stay reachable by assistive tech (it's the sole recovery affordance
+         on a boot that never completes) -->
+    <div id="lai-boot-splash" data-testid="global-app-loader">
+      <div class="lai-loader-stack" aria-hidden="true">
+        <div class="lai-loader-wrap">
+          <div class="lai-lightning-loader">
+            <div class="lai-loader-inner">
+              <div class="lai-loader-core">
+                <div class="lai-loader-spin"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="lai-boot-stuck">Taking longer than expected — try refreshing the page.</p>
+    </div>
+  </body>
+</html>
