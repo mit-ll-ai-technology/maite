@@ -8,6 +8,15 @@ Changelog
 This is a record of all past maite releases and what went into them, in reverse 
 chronological order.
 
+.. _v0.10.1:
+
+---------------------
+0.10.1 - 2026-08-27
+---------------------
+
+- Standardize protocol component docstrings (image classification, object detection, multi-object tracking) to describe input/target/metadata types with semantic aliases (e.g. `Image`, `ImgClassification`, `ObjectDetectionTarget`, `VideoStream`, `MultiobjectTrackingTarget`) rather than backing types or role aliases
+- Fix incorrect shape descriptions in image classification and object detection `Dataset` docstrings (model targets no longer described as following `(C, H, W)` semantics)
+
 .. _v0.10.0:
 
 ---------------------
