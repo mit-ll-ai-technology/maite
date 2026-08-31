@@ -152,15 +152,14 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
     to individual examples (as opposed to batches).
 
     Indexing into or iterating over the an object detection dataset returns a `tuple` of
-    types `ArrayLike`, `ObjectDetectionTarget`, and `DatumMetadata`. These
+    types `Image`, `ObjectDetectionTarget`, and `DatumMetadata`. These
     correspond to the model input type, model target type, and datum-level metadata,
-    respectively. The `ArrayLike` protocol implementers associated with model input and
-    model target types are expected to follow (C, H, W) shape semantics.
+    respectively. The model input (`Image`) is expected to follow (C, H, W) shape semantics.
 
     Methods
     -------
 
-    __getitem__(ind: int) -> tuple[ArrayLike, ObjectDetectionTarget, DatumMetadata]
+    __getitem__(ind: int) -> tuple[Image, ObjectDetectionTarget, DatumMetadata]
         Provide mapping-style access to dataset elements. Returned tuple elements
         correspond to model input type, model target type, and datum-specific metadata,
         respectively.
@@ -309,7 +308,7 @@ class FieldwiseDataset(
     Methods
     -------
 
-    __getitem__(ind: int) -> tuple[InputType, TargetType, DatumMetadataType]
+    __getitem__(ind: int) -> tuple[Image, ObjectDetectionTarget, DatumMetadata]
         Provide map-style access to dataset elements. Returned tuple elements
         correspond to model input type, model target type, and datum-specific metadata type,
         respectively.
@@ -317,13 +316,13 @@ class FieldwiseDataset(
     __len__() -> int
         Return the number of data elements in the dataset.
 
-    get_input(index: int, /) -> InputType:
+    get_input(index: int, /) -> Image:
         Get input at the given index.
 
     get_target(index: int, /) -> ObjectDetectionTarget:
         Get target at the given index.
 
-    get_metadata(index: int, /) -> DatumMetadataType:
+    get_metadata(index: int, /) -> DatumMetadata:
         Get metadata at the given index.
 
     Examples
@@ -398,7 +397,7 @@ class DataLoader(
 
     Implementers must provide an iterable object (returning an iterator via the
     `__iter__` method) that yields tuples containing batches of data. These tuples
-    contain types `Sequence[ArrayLike]` (elements of shape `(C, H, W)`),
+    contain types `Sequence[Image]` (elements of shape `(C, H, W)`),
     `Sequence[ObjectDetectionTarget]`, and `Sequence[DatumMetadata]`,
     which correspond to model input batch, model target batch, and a datum metadata batch.
 
@@ -408,9 +407,9 @@ class DataLoader(
     Methods
     -------
 
-    __iter__() -> Iterator[tuple[Sequence[ArrayLike], Sequence[ObjectDetectionTarget], Sequence[DatumMetadata]]]
+    __iter__() -> Iterator[tuple[Sequence[Image], Sequence[ObjectDetectionTarget], Sequence[DatumMetadata]]]
         Return an iterator over batches of data, where each batch contains a tuple of
-        of model input batch (as `Sequence[ArrayLike]`), model target batch (as
+        of model input batch (as `Sequence[Image]`), model target batch (as
         `Sequence[ObjectDetectionTarget]`), and batched datum-level metadata
         (as `Sequence[DatumMetadata]`), respectively.
     """
@@ -421,13 +420,13 @@ class Model(gen.Model[InputType, TargetType], Protocol):
     A model protocol for the object detection AI problem.
 
     Implementers must provide a `__call__` method that operates on a batch of model inputs
-    (as `Sequence[ArrayLike]`s) and returns a batch of model targets (as
+    (as `Sequence[Image]`) and returns a batch of model targets (as
     `Sequence[ObjectDetectionTarget]`)
 
     Methods
     -------
 
-    __call__(input_batch: Sequence[ArrayLike]) -> Sequence[ObjectDetectionTarget]
+    __call__(input_batch: Sequence[Image]) -> Sequence[ObjectDetectionTarget]
         Make a model prediction for inputs in input batch. Elements of input batch
         are expected in the shape `(C, H, W)`.
 
@@ -667,17 +666,17 @@ class Augmentation(
     An augmentation is expected to take a batch of data and return a modified version of
     that batch. Implementers must provide a single method that takes and returns a
     labeled data batch, where a labeled data batch is represented by a tuple of types
-    `Sequence[ArrayLike]`, `Sequence[ObjectDetectionTarget]`, and `Sequence[DatumMetadata]`.
+    `Sequence[Image]`, `Sequence[ObjectDetectionTarget]`, and `Sequence[DatumMetadata]`.
     These correspond to the model input batch type, model target batch type, and datum-level
     metadata batch type, respectively.
 
     Methods
     -------
 
-    __call__(datum: tuple[Sequence[ArrayLike], Sequence[ObjectDetectionTarget], Sequence[DatumMetadata]]) ->\
-          tuple[Sequence[ArrayLike], Sequence[ObjectDetectionTarget], Sequence[DatumMetadata]]
+    __call__(datum: tuple[Sequence[Image], Sequence[ObjectDetectionTarget], Sequence[DatumMetadata]]) ->\
+          tuple[Sequence[Image], Sequence[ObjectDetectionTarget], Sequence[DatumMetadata]]
         Return a modified version of original data batch. A data batch is represented
-        by a tuple of model input batch (as `Sequence[ArrayLike]` with elements of shape
+        by a tuple of model input batch (as `Sequence[Image]` with elements of shape
         `(C, H, W)`), model target batch (as `Sequence[ObjectDetectionTarget]`), and
         batch metadata (as `Sequence[DatumMetadata]`), respectively.
 

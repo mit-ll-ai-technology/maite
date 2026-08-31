@@ -83,15 +83,15 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
     to individual examples (as opposed to batches).
 
     Indexing into or iterating over an image_classification dataset returns a
-    `tuple` of types `ArrayLike`, `ArrayLike`, and `DatumMetadata`.
+    `tuple` of types `Image`, `ImgClassification`, and `DatumMetadata`.
     These correspond to the model input type, model target type, and datum-level
-    metadata, respectively. The `ArrayLike` protocol implementers associated with
-    model input and model target types are expected to follow (C, H, W) shape semantics.
+    metadata, respectively. Model inputs (`Image`) follow `(C, H, W)` shape
+    semantics and model targets (`ImgClassification`) follow `(Cl,)` shape semantics.
 
     Methods
     -------
 
-    __getitem__(ind: int) -> tuple[ArrayLike, ArrayLike, DatumMetadata]
+    __getitem__(ind: int) -> tuple[Image, ImgClassification, DatumMetadata]
         Provide map-style access to dataset elements. Returned tuple elements
         correspond to model input type, model target type, and datum-specific metadata type,
         respectively.
@@ -184,7 +184,7 @@ class FieldwiseDataset(
 
     Methods
     -------
-    __getitem__(ind: int) -> tuple[InputType, TargetType, DatumMetadataType]
+    __getitem__(ind: int) -> tuple[Image, ImgClassification, DatumMetadata]
         Provide map-style access to dataset elements. Returned tuple elements
         correspond to model input type, model target type, and datum-specific metadata type,
         respectively.
@@ -192,13 +192,13 @@ class FieldwiseDataset(
     __len__() -> int
         Return the number of data elements in the dataset.
 
-    get_input(index: int, /) -> InputType:
+    get_input(index: int, /) -> Image:
         Get input at the given index.
 
-    get_target(index: int, /) -> TargetType:
+    get_target(index: int, /) -> ImgClassification:
         Get target at the given index.
 
-    get_metadata(index: int, /) -> DatumMetadataType:
+    get_metadata(index: int, /) -> DatumMetadata:
         Get metadata at the given index.
 
     Examples
@@ -280,8 +280,8 @@ class DataLoader(gen.DataLoader[InputType, TargetType, DatumMetadataType], Proto
 
     Implementers must provide an iterable object (returning an iterator via the
     `__iter__` method) that yields tuples containing batches of data. These tuples
-    contain types `Sequence[ArrayLike]` (elements of shape `(C, H, W)`),
-    `Sequence[ArrayLike]` (elements shape `(Cl, )`), and `Sequence[DatumMetadata]`,
+    contain types `Sequence[Image]` (elements of shape `(C, H, W)`),
+    `Sequence[ImgClassification]` (elements shape `(Cl, )`), and `Sequence[DatumMetadata]`,
     which correspond to model input batch, model target type batch, and a datum metadata batch.
 
     Note: Unlike Dataset, this protocol does not require indexing support, only iterating.
@@ -289,10 +289,10 @@ class DataLoader(gen.DataLoader[InputType, TargetType, DatumMetadataType], Proto
     Methods
     -------
 
-    __iter__ -> Iterator[tuple[Sequence[ArrayLike], Sequence[ArrayLike], Sequence[DatumMetadata]]]
+    __iter__ -> Iterator[tuple[Sequence[Image], Sequence[ImgClassification], Sequence[DatumMetadata]]]
         Return an iterator over batches of data, where each batch contains a tuple of
-        of model input batch (as `Sequence[ArrayLike]`), model target batch (as
-        `Sequence[ArrayLike]`), and batched datum-level metadata
+        of model input batch (as `Sequence[Image]`), model target batch (as
+        `Sequence[ImgClassification]`), and batched datum-level metadata
         (as `Sequence[DatumMetadata]`), respectively.
 
     """
@@ -303,16 +303,16 @@ class Model(gen.Model[InputType, TargetType], Protocol):
     A model protocol for the image classification AI problem.
 
     Implementers must provide a `__call__` method that operates on a batch of model
-    inputs (as `Sequence[ArrayLike]`) and returns a batch of model targets (as
-    `Sequence[ArrayLike]`)
+    inputs (as `Sequence[Image]`) and returns a batch of model targets (as
+    `Sequence[ImgClassification]`)
 
     Methods
     -------
 
-    __call__(input_batch: Sequence[ArrayLike]) -> Sequence[ArrayLike]
+    __call__(input_batch: Sequence[Image]) -> Sequence[ImgClassification]
         Make a model prediction for inputs in input batch. Input batch is expected to
-        be `Sequence[ArrayLike]` with each element of shape `(C, H, W)`. Target batch
-        is expected to be `Sequence[ArrayLike]` with each element of shape `(Cl,)`.
+        be `Sequence[Image]` with each element of shape `(C, H, W)`. Target batch
+        is expected to be `Sequence[ImgClassification]` with each element of shape `(Cl,)`.
 
     Attributes
     ----------
@@ -400,8 +400,8 @@ class Metric(gen.Metric[TargetType, DatumMetadata], Protocol):
     Methods
     -------
 
-    update(pred_batch: Sequence[ArrayLike],
-           target_batch: Sequence[ArrayLike],
+    update(pred_batch: Sequence[ImgClassification],
+           target_batch: Sequence[ImgClassification],
            metadata_batch: Sequence[DatumMetadata]) -> None
         Add predictions and targets (and metadata if applicable) to metric's cache for later calculation. Both
         predictions and targets are expected to be sequences with elements of shape `(Cl,)`.
@@ -520,7 +520,7 @@ class Augmentation(
     An augmentation is expected to take a batch of data and return a modified version of
     that batch. Implementers must provide a single method that takes and returns a
     labeled data batch, where a labeled data batch is represented by a tuple of types
-    `Sequence[ArrayLike]` (with elements of shape `(C, H, W)`), `Sequence[ArrayLike]`
+    `Sequence[Image]` (with elements of shape `(C, H, W)`), `Sequence[ImgClassification]`
     (with elements of shape `(Cl, )`), and `Sequence[DatumMetadata]`. These correspond
     to the model input batch type, model target batch type, and datum-level metadata
     batch type, respectively.
@@ -528,11 +528,11 @@ class Augmentation(
     Methods
     -------
 
-    __call__(datum: tuple[Sequence[ArrayLike], Sequence[ArrayLike], Sequence[DatumMetadata]]) ->\
-          tuple[Sequence[ArrayLike], Sequence[ArrayLike], Sequence[DatumMetadata]])
+    __call__(datum: tuple[Sequence[Image], Sequence[ImgClassification], Sequence[DatumMetadata]]) ->\
+          tuple[Sequence[Image], Sequence[ImgClassification], Sequence[DatumMetadata]])
         Return a modified version of original data batch. A data batch is represented
-        by a tuple of model input batch (as `Sequence[ArrayLike]` with elements of shape
-        `(C, H, W)`), model target batch (as `Sequence[ArrayLike]` with elements of shape
+        by a tuple of model input batch (as `Sequence[Image]` with elements of shape
+        `(C, H, W)`), model target batch (as `Sequence[ImgClassification]` with elements of shape
         `(Cl,)`), and batch metadata (as `Sequence[DatumMetadata]`), respectively.
 
     Attributes

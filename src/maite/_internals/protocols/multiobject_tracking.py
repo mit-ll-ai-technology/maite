@@ -412,7 +412,7 @@ class FieldwiseDataset(
 
     Methods
     -------
-    __getitem__(ind: int) -> tuple[InputType, TargetType, DatumMetadataType]
+    __getitem__(ind: int) -> tuple[VideoStream, MultiobjectTrackingTarget, DatumMetadata]
         Provide map-style access to dataset elements. Returned tuple elements
         correspond to model input type, model target type, and datum-specific metadata type,
         respectively.
@@ -420,12 +420,12 @@ class FieldwiseDataset(
     __len__() -> int
         Return the number of data elements in the dataset.
 
-    get_input(index: int, /) -> InputType:
+    get_input(index: int, /) -> VideoStream:
         Get input at the given index.
 
-    get_target(index: int, /) -> TargetType:
+    get_target(index: int, /) -> MultiobjectTrackingTarget:
         Get target at the given index.
 
-    get_metadata(index: int, /) -> DatumMetadataType:
+    get_metadata(index: int, /) -> DatumMetadata:
         Get metadata at the given index.
     """
