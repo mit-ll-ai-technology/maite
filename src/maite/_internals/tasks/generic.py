@@ -20,22 +20,6 @@ from maite._internals.protocols.generic import (
 from maite._internals.utils import add_progress_bar
 from maite.protocols import MetricMetadata
 
-# TODO: Permit returned predictions to be of type tuple[InputDataType, TargetDataType, DatumMetadataType].
-#       This seems much more natural as it is independent of batch_size.
-#   - This would require we use some method to iterate over "Batch-types" to get individual types
-#     and package individual predictions into an iterable. batch objects are iterable and then
-#     checking that the type of object returned from the iterable is ArrayLike.)
-
-
-# TODO: Consider the implications of having a flexible implementation that only relies on membership
-#       in generic class types. Can we guarantee (or test) that satisfying one of our overload
-#       type signatures is always sufficient to return the types promised by that signature?
-
-#       A: Yes -- This can be done by using static type checker to determine whether evaluate
-#          and predict implementations returns promised types from each overload when inputs
-#          are typed as promised by call signatures. See gitlab issue 425 and discussion on MR129.
-
-
 class _DummyMetric(Metric):
     """Metric that does nothing and returns an empty dictionary from compute"""
 
@@ -362,12 +346,6 @@ def evaluate(
 
         if return_preds:
             pred_batches.append(pred_batch)
-
-    # TODO: investigate better munging/recollating iterable/batches
-    # aug_data is currently a sequence of tuples of batch-types
-    # this is a little artificial as batch-size is typically less relevant
-    # to test ande evaluation and more an implementation detail of the forward
-    # pass.
 
     preds = pred_batches
     aug_data = augmented_data_batches

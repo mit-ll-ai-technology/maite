@@ -65,17 +65,6 @@ class _ObjectDetectionTarget(Protocol):
     def scores(self) -> ArrayLike:  # shape (N,) or (N, CLASSES)
         ...
 
-
-# TODO: remove typeAlias statements for more user readability (or figure out how to resolve TypeAliases
-#       to their targets for end-user.) Knowing a dataset returns a tuple of "InputType, TargetType, DatumMetadataType"
-#       isn't helpful to implementers, however the aliasing *is* helpful to developers.
-#
-#       Perhaps the functionality I want is named TypeVars for generic, so developers can understand that
-#       e.g. generic.Dataset typevars are 'InputType', 'TargetType', and 'MetaDataType' and their values in
-#       concrete Dataset classes (like object_detection.Dataset) are ArrayLike, ObjectDetectionTarget, DatumMetadataType
-#       so users can see an expected return type of tuple[ArrayLike, ObjectDetectionTarget, DatumMetadata]
-
-
 # Define predicates with which to enrich semantic aliases for verifiability
 def is_3dim(x: ArrayLike) -> bool:
     return np.asarray(x).ndim == 3
