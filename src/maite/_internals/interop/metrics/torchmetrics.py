@@ -186,6 +186,7 @@ class TMClassificationMetric:
     def __init__(
         self,
         metric: torchmetrics.Metric,
+        *,
         output_key: str | None = None,
         output_transform: Callable[[torch.Tensor], dict[str, Any]] | None = None,
         device: Any | None = None,  # noqa: ANN401, deliberate use of 'Any' type

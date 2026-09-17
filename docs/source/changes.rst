@@ -8,6 +8,14 @@ Changelog
 This is a record of all past maite releases and what went into them, in reverse 
 chronological order.
 
+.. _unreleased:
+
+---------------------
+Unreleased
+---------------------
+
+- Make the optional parameters of the ``TMClassificationMetric`` and ``TMDetectionMetric`` constructors keyword-only - backwards breaking change for positional call sites
+
 .. _v0.10.3:
 
 ---------------------

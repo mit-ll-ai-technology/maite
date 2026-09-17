@@ -40,6 +40,7 @@ class SpotcheckError(TypeError):
         self,
         value: object,
         hint: TypeForm[Any],
+        *,
         detail: str | None = None,
         failed_predicates: list[str] | None = None,
     ) -> None:
@@ -183,11 +184,11 @@ def spotcheck_node(value: object, hint: TypeForm[Any]) -> None:
         die_if_unbearable(value, cast(Any, hint))
     except BeartypeDoorHintViolation as exc:
         raise SpotcheckError(
-            value, hint, detail=str(exc), failed_predicates=_describe_failed_predicates(value, hint)
+            value=value, hint=hint, detail=str(exc), failed_predicates=_describe_failed_predicates(value, hint)
         ) from exc
     except Exception as exc:
         # Catch-all: a predicate raised something other than a hint violation. Naming the
         # predicate is especially valuable here, since the raw message does not.
         raise SpotcheckError(
-            value, hint, detail=str(exc), failed_predicates=_describe_failed_predicates(value, hint)
+            value=value, hint=hint, detail=str(exc), failed_predicates=_describe_failed_predicates(value, hint)
         ) from exc
