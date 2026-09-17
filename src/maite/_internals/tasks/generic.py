@@ -20,6 +20,7 @@ from maite._internals.protocols.generic import (
 from maite._internals.utils import add_progress_bar
 from maite.protocols import MetricMetadata
 
+
 class _DummyMetric(Metric):
     """Metric that does nothing and returns an empty dictionary from compute"""
 
