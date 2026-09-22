@@ -65,6 +65,7 @@ class _ObjectDetectionTarget(Protocol):
     def scores(self) -> ArrayLike:  # shape (N,) or (N, CLASSES)
         ...
 
+
 # Define predicates with which to enrich semantic aliases for verifiability
 def is_3dim(x: ArrayLike) -> bool:
     return np.asarray(x).ndim == 3
