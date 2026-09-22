@@ -236,7 +236,7 @@ max-complexity = 10
 convention = "numpy"
 
 [tool.ruff.lint.pylint]
-max-positional-args = 5
+max-positional-args = 3
 
 [tool.codespell]
 skip = '*.svg'
