@@ -232,7 +232,7 @@ def test_keep_latest_docs():
             res.append(pkg_info)
         return res
 
-    def t(doc_infos: list[PkgInfo], major: int, minor: int, patch: int):
+    def t(doc_infos: list[PkgInfo], major: int, minor: int, patch: int):  # noqa: PLR0917
         keepers = keep_latest_docs(
             doc_infos,
             max_major_versions=major,
