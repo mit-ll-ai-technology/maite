@@ -23,6 +23,7 @@ def annotation_subset(annotation_file: Path, num_images: int) -> dict[str, Any]:
 
     return d
 
+
 # original annotations file
 annotation_file = Path("instances_val2017.json")
 

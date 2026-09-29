@@ -99,7 +99,7 @@ Our code should adhere to the PEP 8 Style Guide. A general, brief overview of th
 x = {1: "a", 2: "b", 3: "c"}
 
 # Violates PEP8 (excess whitespace):
-x = {1 : "a", 2 : "b", 3 : "c"}
+x = {1 : "a", 2 : "b", 3 : "c"}  # fmt: skip
 ```
 
 ## Naming Conventions
@@ -192,7 +192,7 @@ def compute_student_stats(grade_book, stat_function, student_list=None):
     Examples
     --------
     >>> from statistics import mean
-    >>> grade_book = dict(Bruce=[90., 82., 92.], Courtney=[100., 85., 78.])
+    >>> grade_book = dict(Bruce=[90.0, 82.0, 92.0], Courtney=[100.0, 85.0, 78.0])
     >>> compute_student_stats(grade_book, stat_function=mean)
     [('Bruce', 88.0), ('Courtney', 87.66666666666667)]
     """
