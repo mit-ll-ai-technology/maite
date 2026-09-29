@@ -161,7 +161,6 @@ line-length = 120
 indent-width = 4
 target-version = "py310"
 extend-include = ["*.ipynb"]
-extend-exclude = ["*.md"] # "Ruff can now format Python code blocks in Markdown files and will do this by default." (as of 0.16.0); eventually enable
 
 [tool.ruff.lint]
 select = ["F", "E", "W", "C90", "I", "N", "D1", "D200", "D201", "D211", "D403", "D419", "UP",

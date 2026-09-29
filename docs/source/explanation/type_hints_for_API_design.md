@@ -59,28 +59,30 @@ List[str]
 # and whose values are floats
 Mapping[str, float]
 
+
 # A type named Person that has two attributes: `name` (str) and `age` (int)
 # and a "greeting" method, which accepts no inputs and returns a string
 class Person:
     name: str
     age: int
 
-    def greeting(self) -> str:
-      ...
+    def greeting(self) -> str: ...
+
 
 # A function that accepts a single input and returns an output of the
 # same type
 T = TypeVar("T")
-def type_preserving_func(x: T) -> T:
-  ...
 
-# The following describes *any* type that exposes the method: 
+
+def type_preserving_func(x: T) -> T: ...
+
+
+# The following describes *any* type that exposes the method:
 # `<obj>.open(file_path: str)`
 # Note: this is a protocol, which enables a feature known as "structural subtyping".
 # This will be an important feature that we discuss later
 class Openable(Protocol):
-    def open(self, file_path: str):
-        ...
+    def open(self, file_path: str): ...
 ```
 
 For more examples of type annotations, please refer to [this cheatsheet](https://mypy.readthedocs.io/en/stable/cheat_sheet_py3.html).
@@ -97,12 +99,14 @@ A static type checker is able to scan one's code as a static collection of files
 # contents of example.py
 from typing import Iterable
 
-def get_data_registry() -> dict[str, int]:
-    ...
+
+def get_data_registry() -> dict[str, int]: ...
+
 
 def process_data(x: Iterable[int]) -> int:
     data_total = sum(x)
     return data_total
+
 
 def run_app():
     registry = get_data_registry()
@@ -132,7 +136,9 @@ It is also worthwhile to note that these static type checkers are designed to ma
 ```python
 # Demonstrating pyright's ability to infer types through un-annotated functions
 def make_int() -> int: ...
-def add(x, y): return x + y  # note: not annotated!
+def add(x, y):
+    return x + y  # note: not annotated!
+
 
 x, y = make_int(), make_int()
 z = add(x, y)
@@ -153,6 +159,7 @@ Runtime type checkers are libraries that typically provide function decorators a
 
 ```python
 from beartype import beartype
+
 
 @beartype
 def process_age(age: int) -> int:
@@ -254,11 +261,13 @@ There are some recent Python typing features that help to make type annotations 
 # before PEP 585
 import typing
 
+
 def f(ages: typing.List[int], records: typing.Dict[str, int]): ...
 ```
 ```python
 # after PEP 585
 from __future__ import annotations  # required for Python < 3.9
+
 
 def f(ages: list[int], records: dict[str, int]): ...
 ```
@@ -273,6 +282,7 @@ def f(x: typing.Union[int, str]): ...
 # after PEP 604
 from __future__ import annotations  # required for Python < 3.10
 
+
 def f(x: int | str): ...
 ```
 
@@ -285,15 +295,16 @@ import torch as tr
 
 Scalars: TypeAlias = int | float | complex
 # Supports array-likes from 0D to 2D structures
-ArrayLike: TypeAlias = Scalars | Sequence[Scalars] | Sequence[Sequence[Scalars]] 
+ArrayLike: TypeAlias = Scalars | Sequence[Scalars] | Sequence[Sequence[Scalars]]
 
-def to_tensor(x: ArrayLike) -> tr.Tensor:
-    ...
+
+def to_tensor(x: ArrayLike) -> tr.Tensor: ...
+
 
 to_tensor(0)  # static type checker: OK
 to_tensor([1, []])  # static type checker: ERROR!
 to_tensor([1, 1])  # static type checker: OK
-to_tensor([[2+1j, 3+0j], [1-8j, 2+10j]])  # static type checker: OK
+to_tensor([[2 + 1j, 3 + 0j], [1 - 8j, 2 + 10j]])  # static type checker: OK
 ```
 
 
@@ -312,10 +323,11 @@ from typing import NewType
 
 Shape = TypeVarTuple("Shape")
 
+
 # A PyTorch tensor with additional shape type information
 # This is a so-called "variadic generic": the Shape type variable can vary in length/contents
-class Tensor(Generic[Unpack[Shape]], torch.Tensor):
-    ...
+class Tensor(Generic[Unpack[Shape]], torch.Tensor): ...
+
 
 # Declaring descriptive aliases for common array dimensions
 Height: TypeAlias = int
@@ -324,17 +336,21 @@ Channel: TypeAlias = int
 Time: TypeAlias = int
 Batch: TypeAlias = int
 
+
 # Some representative utility functions for loading tensor data
 def load_time_series(path: str) -> Tensor[Time]: ...
 def load_image(path: str) -> Tensor[Channel, Height, Width]: ...
 def load_video(path: str) -> Tensor[Time, Channel, Height, Width]: ...
 
+
 # Some functions working with tensors..
 # Stack multiple Tensors along a leading "Batch" dimension
 def stack(*arrs: Tensor[Unpack[Shape]]) -> Tensor[Batch, Unpack[Shape]]: ...
 
+
 # Get the resolution, HxW, from any shape-(..., H, W) tensor
 def get_img_resolution(img: Tensor[Unpack[tuple[Any, ...]], Height, Width]) -> tuple[Height, Width]: ...
+
 
 list_of_images = [load_image(p) for p in ["a.png", "b.png"]]  # list[Tensor[Channel, Height, Width]]
 img_tensor = stack(*list_of_images)  # Tensor[Batch, Channel, Height, Width]
@@ -383,10 +399,11 @@ from our_library import BoundingBox
 
 ClassScores: TypeAlias = Dict[Any, float]
 
+
 class OurDetectorAPI(abc.ABC):
     @abc.abstractmethod
-    def detect(self, img: Tensor) -> Sequence[Tuple[BoundingBox, ClassScores]]: 
-        raise NotImplemented() 
+    def detect(self, img: Tensor) -> Sequence[Tuple[BoundingBox, ClassScores]]:
+        raise NotImplemented()
 ```
 
 where `BoundingBox` is a class that we have created that has all sorts of convenient functions for working with bounding boxes. It might look something like:
@@ -397,6 +414,7 @@ class BoundingBox:
         # check that bbox coords satisfy, e.g., left <= right
         # use bbox coords to construct vertices
         ...
+
     def compute_box_area(self) -> float: ...
     def get_intersection(self, other_box: "BoundingBox") -> "BoundingBox": ...
 ```
@@ -427,6 +445,7 @@ For those with pre-existing detectors, this means that they either have to eat t
 ```python
 from our_library import BoundingBox, OurDetectorAPI
 from their_library import TheirDetector
+
 
 class SadCompatShim(OurDetectorAPI):
     def __init__(self, actual_detector: TheirDetector):
@@ -460,6 +479,7 @@ from typing_extensions import TypeAlias, runtime_checkable
 
 ClassScores: TypeAlias = Dict[Any, float]
 
+
 @runtime_checkable
 class BoundingBox(Protocol):
     left: float
@@ -467,15 +487,16 @@ class BoundingBox(Protocol):
     right: float
     bottom: float
 
+
 @runtime_checkable  # <-- enables `isinstance` checks to look for necessary structure [1]
 class OurDetectorAPI(Protocol):
-    def __call__(self, img: Tensor) -> Sequence[Tuple[BoundingBox, ClassScores]]:
-        ...
+    def __call__(self, img: Tensor) -> Sequence[Tuple[BoundingBox, ClassScores]]: ...
+
 
 def measure_detector_precision_and_recall(model: OurDetectorAPI) -> float:
     if not isinstance(model, OurDetectorAPI):  # <-- [1]: I.e, this still works!
         raise TypeError("You've gotta be one of us!")
-    
+
     data = load_data()
     detections = model(data)
     ...
@@ -494,9 +515,11 @@ To hammer home the elegance that we have achieved here, let's see what it looks 
 # Implementing an "empty" detector in the old API
 from our_library import OurDetectorAPI  # <- our library must be installed
 
+
 class EmptyDetector(OurDetectorAPI):
     def detect(self, img):
         return []
+
 
 empty_detector = EmptyDetector()
 ```
@@ -520,7 +543,9 @@ Lastly, it is perfectly fine for a library's internal detector class to have add
 class Configurable(Protocol):
     def ___special_config_interface__(self) -> dict[str, Any]: ...
 
+
 class ConfigurableDetector(OurDetectorAPI, Configurable, Protocol): ...
+
 
 def orchestrate_detector(model: ConfigurableDetector): ...
 ```
@@ -546,23 +571,28 @@ from torch import Tensor
 import torch.nn as nn
 from typing import Iterable
 
+
 def load_data() -> Tensor: ...
 def load_model() -> nn.Module: ...
+
 
 def measure_data_distr(img_batch: Tensor):
     if not batch.ndim == 4 or not batch.shape[1] == 3:
         raise TypeError("Not image batch-like")
     # <actual functionality here>
 
+
 def compute_accuracy(img_batch: Tensor, model: nn.Module):
     if not batch.ndim == 4 or not batch.shape[1] == 3:
         raise TypeError("not batch-like")
     # <actual functionality here>
 
+
 def compute_calibration(img_batch: Tensor, models: Iterable[nn.Module]):
     if not batch.ndim == 4 or not batch.shape[1] == 3:
         raise TypeError("Not image batch-like")
     # <actual functionality here>
+
 
 if __name__ == "__main__":
     tensor = load_data()
@@ -592,22 +622,28 @@ from typing import cast
 #    library depends on across multiple interfaces
 from our_library.narrow_types import NonEmpty
 
+
 # Returns unstructured/unvalidated data
 def stream_data() -> tuple[str, ...]: ...
 
+
 # Create functions that can validate that the data satisfies
-# specific properties and ascribe to the validated data a new 
+# specific properties and ascribe to the validated data a new
 # type, which serves as proof of validation
 def parse_stream(stream: tuple[str, ...]) -> NonEmpty[tuple[str, ...]]:
-    if not isinstance(stream, tuple): raise TypeError("not tuple")
-    if not stream: raise TypeError("is empty")
-    if not all(isinstance(item, str) for item in stream): raise TypeError("not strings")
-    
+    if not isinstance(stream, tuple):
+        raise TypeError("not tuple")
+    if not stream:
+        raise TypeError("is empty")
+    if not all(isinstance(item, str) for item in stream):
+        raise TypeError("not strings")
+
     # The sole purpose of this line is for infroming the static type checker.
     # We don't actually use the `NonEmpty` type to change our data
     # at all!
-    proven_data = cast(NonEmpty[tuple[str, ...]], stream)  
+    proven_data = cast(NonEmpty[tuple[str, ...]], stream)
     return proven_data
+
 
 # Design downstream functions to require this narrowed type, which can only
 # be obtained by going through the parsing process. Now functions operate
@@ -617,10 +653,11 @@ def consumer1(data: NonEmpty[tuple[str, ...]]): ...
 def consumer2(data: NonEmpty[tuple[str, ...]]): ...
 def consumer3(data: NonEmpty[tuple[str, ...]]): ...
 
+
 if __name__ == "__main__":
     # 1. Start with unstructured data
     data = stream_data()  # type checker sees: tuple[str, ...]
-    
+
     # Attempting to pass `data` to, e.g., `consumer1` would produce
     # a static type checking error.
 
@@ -653,7 +690,7 @@ One thing that may be surprising about the above example is that we don't actual
 There are many ways that one can perform type-narrowing. Here are some examples:
 
 ```python
-x: Any   # starting with: x can be Any type
+x: Any  # starting with: x can be Any type
 
 # narrow x via isinstance:
 if isinstance(x, int):
@@ -686,14 +723,17 @@ from typing import Any
 
 from typing_extensions import TypeGuard
 
-class NonNegativeInt(int):
-    ...
+
+class NonNegativeInt(int): ...
+
 
 # this is our type-guard, which can narrow int -> NonNegativeInt
-def is_non_negative_int(x: int) -> TypeGuard[NonNegativeInt]: 
+def is_non_negative_int(x: int) -> TypeGuard[NonNegativeInt]:
     return 0 < x
 
+
 def process_age(x: NonNegativeInt): ...
+
 
 def main(x: int):
     if is_non_negative_int(x):
@@ -722,21 +762,23 @@ from typing_extensions import TypeGuard
 class TensorBCHW(Tensor):
     """Signals that a PyTorch tensor has been validated to
     be shaped like a batch of images: (B, C, H, W)"""
+
     ...
+
 
 def load_data() -> Tensor: ...
 def load_model() -> nn.Module: ...
 
 
-def is_batch_of_images(
-    x: Tensor, expected_channel_size: int
-) -> TypeGuard[TensorBCHW]:
+def is_batch_of_images(x: Tensor, expected_channel_size: int) -> TypeGuard[TensorBCHW]:
     return isinstance(x, Tensor) and x.ndim == 4 and x.shape[1] == expected_channel_size
-        
+
 
 def measure_data_distr(batch: TensorBCHW): ...
 
+
 def compute_accuracy(batch: TensorBCHW, model: nn.Module): ...
+
 
 def compute_calibration(batch: TensorBCHW, models: Iterable[nn.Module]): ...
 
@@ -744,12 +786,11 @@ def compute_calibration(batch: TensorBCHW, models: Iterable[nn.Module]): ...
 if __name__ == "__main__":
     model = load_model()
     tensor = load_data()
-    
+
     # type checker sees tensor as: Tensor
     if not is_batch_of_images(tensor, expected_channel_size=3):
         raise TypeError("not a batch!")
     # type checker sees tensor as: TensorBCHW
-
 
     # static type-checker ensures input is `TensorBCHW`
     measure_data_distr(tensor)
