@@ -171,7 +171,6 @@ select = ["F", "E", "W", "C90", "I", "N", "D1", "D200", "D201", "D211", "D403", 
 # ignore some specific ruff tests to be addressed in the future
 ignore = [
           "C901",    # McCabe complexity
-          "FIX002",  # 'TODO' comments in code (within _internals)
           "COM812",  # according to ruff (and experience) this rule can cause conflicts when used with formatter
           "PLR0917", # max-positional-args
           ]
