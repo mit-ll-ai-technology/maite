@@ -8,6 +8,15 @@ Changelog
 This is a record of all past maite releases and what went into them, in reverse 
 chronological order.
 
+.. _v0.10.2:
+
+---------------------
+0.10.2 - 2026-10-01
+---------------------
+
+- Guard against imports not available in conda-forge within MAITE tests (enabling conda-forge release)
+- Pin numpydoc dependency in response to upstream breaking change to MAITE unit tests
+
 .. _v0.10.1:
 
 ---------------------
