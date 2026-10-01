@@ -88,6 +88,8 @@ if not import_utils.is_torchmetrics_available():
 if not import_utils.is_torcheval_available():
     collect_ignore_glob.append("*torcheval*.py")
 
+if not import_utils.is_yolov5_available() or not import_utils.is_ultralytics_available():
+    collect_ignore_glob.append("*yolo*.py")
 
 def pytest_addoption(parser):
     parser.addoption(

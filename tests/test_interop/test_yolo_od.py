@@ -2,20 +2,23 @@ import contextlib
 import io
 
 import pytest
-import ultralytics
 
 from maite._internals.import_utils import (
     is_ultralytics_available,
     is_yolov5_available,
 )
+
+# Skip this whole module if dependencies are not installed (avoiding bad imports)
+# (This is redundant behind conftest.py collect_ignore_glob)
+if not is_yolov5_available() or not is_ultralytics_available():
+    pytest.skip("test module requires both yolov5 and ultralytics packages", allow_module_level=True)
+
+import ultralytics
+
 from maite.interop.models.yolo import YoloObjectDetector
 from maite.protocols import ModelMetadata
 
 
-@pytest.mark.skipif(
-    not is_yolov5_available() or not is_ultralytics_available(),
-    reason="test requires both yolov5 and ultralytics packages",
-)
 def test_load_yolo_wrapper():
     with (
         contextlib.redirect_stdout(io.StringIO()),

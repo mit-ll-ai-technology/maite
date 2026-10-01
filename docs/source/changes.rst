@@ -8,10 +8,10 @@ Changelog
 This is a record of all past maite releases and what went into them, in reverse 
 chronological order.
 
-.. _v0.10.2:
+.. _v0.10.3:
 
 ---------------------
-0.10.2 - 2026-10-01
+0.10.3 - 2026-10-01
 ---------------------
 
 - Guard against imports not available in conda-forge within MAITE tests (enabling conda-forge release)
