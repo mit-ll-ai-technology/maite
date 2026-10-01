@@ -233,10 +233,7 @@ class ModuleScan:
         scan = self._cached_scan if cached else _pyright_type_completeness
         out = scan(module_name, path_to_pyright=path_to_pyright)
         _summary = out["summary"]
-        # TODO: If a project does not have a py.typed file then no files will be analyzed.
-        #       This does *not* mean that the module was not found. Instead, we should
-        #       raise an error that explicitly states that the project was found be requires
-        #       a py.typed file in order to be analyzed
+
         if _summary["errorCount"] > 0 and _summary["filesAnalyzed"] == 0:
             raise ModuleNotFoundError(
                 f"No files were found to analyze in association "
@@ -446,14 +443,6 @@ def import_public_symbols(
 
     for symbol in symbols:
         module_path, name = symbol["name"].rsplit(".", maxsplit=1)
-
-        # TODO: probably need a more sophisticated method for importing
-        # e.g. https://github.com/facebookresearch/hydra/blob/9ce67207488965431c69b2e2b8e1a2baa0ada4b8/hydra/_internal/utils.py#L614
-        #
-        # For example, if 'method' is included in `categories` then we can cash each
-        # class-object that we import and then getattr on it when we encounter a
-        # method/variable on that class. Because the symbols are sorted alphabetically
-        # we are always guaranteed to encounter a class object before its members.
 
         if symbol["category"] == "function" and module_path in cached_typeddict_names and "method" not in categories:
             continue

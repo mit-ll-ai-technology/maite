@@ -54,19 +54,6 @@ DatumMetadataType_in = TypeVar(
 
 MetricComputeReturnType = Mapping[str, Any]
 
-# TODO: Consider whether using Datum as a TypeAlias is more confusing than helpful
-#         It seems we just need 3 typevars in the TypeAlias assignment and the TypeVar
-#         type variance is completely inconsequential (because they are substituted for
-#         when the TypeAlias is used (as 'Any' or as the provided bracketed types.) We
-#         could also define a 4th version of Input/Target/Metadata types, but this also
-#         seems confusing.
-# TODO: Consider how easily and usefully variadic generics (which sound a bit scary)
-#         could be used to helpfully represent the shape of an expected array.
-#         So, for example, instead of having type hints that specified that 'InputType=ArrayLike'
-#         we could say 'InputType=ArrayLike[H,W,C]'. -- This would require python > 3.11, which is
-#         not an option in short to mid term.
-
-
 # Generic versions of all protocols
 
 # myee: this version of Dataset was identical to DataLoader so both redundant
@@ -77,7 +64,6 @@ MetricComputeReturnType = Mapping[str, Any]
 #             self
 #     ) -> Iterator[tuple[InputType_co, TargetType_co, DatumMetadataType_co]]:
 #         ...
-
 
 # Define component metadata types
 # (currently these are completely AI problem agnostic, but it is
