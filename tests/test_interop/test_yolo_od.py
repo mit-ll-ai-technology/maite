@@ -1,18 +1,27 @@
 import contextlib
 import io
 
-from ultralytics.models import YOLO
+import pytest
+import ultralytics
 
+from maite._internals.import_utils import (
+    is_ultralytics_available,
+    is_yolov5_available,
+)
 from maite.interop.models.yolo import YoloObjectDetector
 from maite.protocols import ModelMetadata
 
 
+@pytest.mark.skipif(
+    not is_yolov5_available() or not is_ultralytics_available(),
+    reason="test requires both yolov5 and ultralytics packages",
+)
 def test_load_yolo_wrapper():
     with (
         contextlib.redirect_stdout(io.StringIO()),
         contextlib.redirect_stderr(io.StringIO()),
     ):
-        yolov5_model = YOLO("yolov5nu")
+        yolov5_model = ultralytics.models.YOLO("yolov5nu")
 
     metadata = ModelMetadata(id="test", index2label=yolov5_model.names)
     YoloObjectDetector(yolov5_model, metadata)
