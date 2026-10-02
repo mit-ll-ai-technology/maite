@@ -1,0 +1,7 @@
+﻿  
+InvalidArgument
+===============
+
+.. currentmodule:: maite.errors
+
+.. autoexception:: InvalidArgument
