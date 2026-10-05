@@ -78,6 +78,7 @@ class TMDetectionMetric:
     def __init__(
         self,
         metric: torchmetrics.Metric,
+        *,
         output_key: str | None = None,
         output_transform: Callable[[dict[str, torch.Tensor]], Any] | None = None,
         device: Any | None = None,  # noqa: ANN401, deliberate use of 'Any' type

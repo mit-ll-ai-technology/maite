@@ -156,6 +156,7 @@ class TrackerManager(Protocol[TDet_in, TDet_out]):
         self,
         video_id: int,
         dets: TDet_in,
+        *,
         t_sec: float | None = None,
         frame_index: int | None = None,
         image_size: tuple[int, int] | None = None,
@@ -366,6 +367,7 @@ class PyAVAdapter:
 
     @staticmethod
     def _is_at_or_past_start(
+        *,
         frame: avVideoFrame,
         source_frame_index: int,
         plan: _SamplingPlan,
@@ -384,6 +386,7 @@ class PyAVAdapter:
     @classmethod
     def _get_to_first_frame(
         cls,
+        *,
         container: InputContainer,
         stream: avVideoStream,
         plan: _SamplingPlan,
@@ -404,16 +407,17 @@ class PyAVAdapter:
 
         for source_frame_index, frame in enumerate(decoded_frames):
             if cls._is_at_or_past_start(
-                frame,
-                source_frame_index,
-                plan,
-                anchor_frame_pts,
+                frame=frame,
+                source_frame_index=source_frame_index,
+                plan=plan,
+                anchor_frame_pts=anchor_frame_pts,
             ):
                 return chain([frame], decoded_frames)
         return None
 
     @staticmethod
     def _is_beyond_duration(
+        *,
         frame: avVideoFrame,
         decoded_count: int,
         first_frame_pts: int | None,
@@ -435,6 +439,7 @@ class PyAVAdapter:
 
     @staticmethod
     def _is_this_frame_included_in_subsampling(
+        *,
         frame: avVideoFrame,
         decoded_count: int,
         anchor_pts: int | None,
@@ -541,10 +546,10 @@ class PyAVAdapter:
                 container.seek(anchor_frame.pts, backward=True, stream=stream)
 
             decoded_frames = self._get_to_first_frame(
-                container,
-                stream,
-                plan,
-                anchor_frame.pts,
+                container=container,
+                stream=stream,
+                plan=plan,
+                anchor_frame_pts=anchor_frame.pts,
             )
             if decoded_frames is None:
                 return
@@ -559,10 +564,10 @@ class PyAVAdapter:
                     if first_frame_pts is not None and anchor_frame.pts is not None:
                         next_pts_to_include = first_frame_pts - anchor_frame.pts
                 if self._is_beyond_duration(
-                    frame,
-                    decoded_count,
-                    first_frame_pts,
-                    plan,
+                    frame=frame,
+                    decoded_count=decoded_count,
+                    first_frame_pts=first_frame_pts,
+                    plan=plan,
                 ):
                     break
 

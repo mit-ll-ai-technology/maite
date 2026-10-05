@@ -351,6 +351,7 @@ def get_public_symbols(
 
 def import_public_symbols(
     scan: ModuleScanResults,
+    *,
     submodule: str = "",
     categories: Collection[Category] = frozenset(["function", "class"]),
     skip_module_not_found: bool | Literal["pytest-skip"] = True,
@@ -471,6 +472,7 @@ def import_public_symbols(
 
 
 def generate_implementer_static_verification_code_snippet(
+    *,
     class_module: str,
     class_name: str,
     protocol_module: str,
@@ -535,6 +537,7 @@ def load_object(fqname: str):  # noqa: ANN202
 
 
 def statically_verify_component_entrypoint_against_protocol(
+    *,
     protocol_module: str,
     protocol_name: str,
     package_name: str | None = None,

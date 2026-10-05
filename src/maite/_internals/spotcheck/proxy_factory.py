@@ -454,6 +454,7 @@ def wrap_with_config(
 
 def spotcheck_component(
     protocol: type[P],
+    *,
     rate: float = 1.0,
     check_procedure: CheckProcedure = spotcheck_node,
     override_existing: bool = False,
