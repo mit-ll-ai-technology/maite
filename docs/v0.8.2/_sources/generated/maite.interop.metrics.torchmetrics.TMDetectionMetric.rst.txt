@@ -1,0 +1,11 @@
+﻿  
+metrics.torchmetrics.TMDetectionMetric
+======================================
+
+.. currentmodule:: maite.interop.metrics.torchmetrics
+
+.. autoclass:: TMDetectionMetric
+
+   
+   
+   

@@ -1,0 +1,672 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.19: https://docutils.sourceforge.io/" name="generator"/>
+<title>Hugging Face Image Classification Example — maite 0.7.3 documentation</title>
+<script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+<!-- Loaded before other Sphinx assets -->
+<link href="../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet"/>
+<link href="../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet"/>
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet"/>
+<link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet"/>
+<link as="font" crossorigin="" href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" rel="preload" type="font/woff2"/>
+<link as="font" crossorigin="" href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" rel="preload" type="font/woff2"/>
+<link as="font" crossorigin="" href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" rel="preload" type="font/woff2"/>
+<link href="../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/copybutton.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" rel="stylesheet" type="text/css"/>
+<!-- Pre-loaded scripts that we'll load fully later -->
+<link as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" rel="preload"/>
+<link as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" rel="preload"/>
+<script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+<script src="../_static/doctools.js"></script>
+<script src="../_static/sphinx_highlight.js"></script>
+<script src="../_static/clipboard.min.js"></script>
+<script src="../_static/copybutton.js"></script>
+<script async="async" src="https://www.googletagmanager.com/gtag/js?id=UA-115029372-2"></script>
+<script src="../_static/gtag.js"></script>
+<script src="../_static/design-tabs.js"></script>
+<script>DOCUMENTATION_OPTIONS.pagename = 'tutorials/hf_image_classification';</script>
+<link href="../genindex.html" rel="index" title="Index"/>
+<link href="../search.html" rel="search" title="Search"/>
+<link href="torchvision_object_detection.html" rel="next" title="Torchvision Object Detection Example"/>
+<link href="../tutorials.html" rel="prev" title="Tutorials"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="en" name="docsearch:language"/>
+</head>
+<body data-bs-root-margin="0px 0px -60%" data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-default-mode="" data-offset="180">
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<input class="sidebar-toggle" id="__primary" name="__primary" type="checkbox"/>
+<label class="overlay overlay-primary" for="__primary"></label>
+<input class="sidebar-toggle" id="__secondary" name="__secondary" type="checkbox"/>
+<label class="overlay overlay-secondary" for="__secondary"></label>
+<div class="search-button__wrapper">
+<div class="search-button__overlay"></div>
+<div class="search-button__search-container">
+<form action="../search.html" class="bd-search d-flex align-items-center" method="get">
+<i class="fa-solid fa-magnifying-glass"></i>
+<input aria-label="Search the docs ..." autocapitalize="off" autocomplete="off" autocorrect="off" class="form-control" id="search-input" name="q" placeholder="Search the docs ..." spellcheck="false" type="search"/>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+</div>
+<nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+<label class="sidebar-toggle primary-toggle" for="__primary">
+<span class="fa-solid fa-bars"></span>
+</label>
+<div class="navbar-header-items__start">
+<div class="navbar-item">
+<a class="navbar-brand logo" href="../index.html">
+<p class="title logo__title">maite 0.7.3 documentation</p>
+</a></div>
+</div>
+<div class="col-lg-9 navbar-header-items">
+<div class="me-auto navbar-header-items__center">
+<div class="navbar-item"><nav class="navbar-nav">
+<p aria-label="Site Navigation" aria-level="1" class="sidebar-header-items__title" role="heading">
+    Site Navigation
+  </p>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item current active">
+<a class="nav-link nav-internal" href="../tutorials.html">
+                        Tutorials
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../how_tos.html">
+                        How-To Guides
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../explanation.html">
+                        Explanation
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../api_reference.html">
+                        Reference
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../changes.html">
+                        Changelog
+                      </a>
+</li>
+</ul>
+</nav></div>
+</div>
+<div class="navbar-header-items__end">
+<div class="navbar-item navbar-persistent--container">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+</div>
+<div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+</div>
+</div>
+<div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+</div>
+<label class="sidebar-toggle secondary-toggle" for="__secondary">
+<span class="fa-solid fa-outdent"></span>
+</label>
+</div>
+</nav>
+<div class="bd-container">
+<div class="bd-container__inner bd-page-width">
+<div class="bd-sidebar-primary bd-sidebar">
+<div class="sidebar-header-items sidebar-primary__section">
+<div class="sidebar-header-items__center">
+<div class="navbar-item"><nav class="navbar-nav">
+<p aria-label="Site Navigation" aria-level="1" class="sidebar-header-items__title" role="heading">
+    Site Navigation
+  </p>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item current active">
+<a class="nav-link nav-internal" href="../tutorials.html">
+                        Tutorials
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../how_tos.html">
+                        How-To Guides
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../explanation.html">
+                        Explanation
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../api_reference.html">
+                        Reference
+                      </a>
+</li>
+<li class="nav-item">
+<a class="nav-link nav-internal" href="../changes.html">
+                        Changelog
+                      </a>
+</li>
+</ul>
+</nav></div>
+</div>
+<div class="sidebar-header-items__end">
+<div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+</div>
+</div>
+<div class="sidebar-primary-items__start sidebar-primary__section">
+<div class="sidebar-primary-item"><nav aria-label="Section Navigation" class="bd-docs-nav bd-links">
+<p aria-level="1" class="bd-links__title" role="heading">Section Navigation</p>
+<div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Hugging Face Image Classification Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torchvision_object_detection.html">Torchvision Object Detection Example</a></li>
+</ul>
+</div>
+</nav></div>
+</div>
+<div class="sidebar-primary-items__end sidebar-primary__section">
+</div>
+<div id="rtd-footer-container"></div>
+</div>
+<main class="bd-main" id="main-content">
+<div class="bd-content">
+<div class="bd-article-container">
+<div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+<div class="header-article-items__start">
+<div class="header-article-item">
+<nav aria-label="Breadcrumbs">
+<ul aria-label="Breadcrumb" class="bd-breadcrumbs" role="navigation">
+<li class="breadcrumb-item breadcrumb-home">
+<a aria-label="Home" class="nav-link" href="../index.html">
+<i class="fa-solid fa-home"></i>
+</a>
+</li>
+<li class="breadcrumb-item"><a class="nav-link" href="../tutorials.html">Tutorials</a></li>
+<li aria-current="page" class="breadcrumb-item active">Hugging Face Image Classification Example</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+</div>
+<div id="searchbox"></div>
+<article class="bd-article" role="main">
+<blockquote>
+<div><p>Copyright 2024, MASSACHUSETTS INSTITUTE OF TECHNOLOGY Subject to FAR
+52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).
+SPDX-License-Identifier: MIT</p>
+</div></blockquote>
+<section id="hugging-face-image-classification-example">
+<h1>Hugging Face Image Classification Example<a class="headerlink" href="#hugging-face-image-classification-example" title="Permalink to this heading">#</a></h1>
+<p>The MAITE library provides interfaces for AI components such as
+datasets, models, metrics, and augmentations to make their use more
+consistent across test and evaluation (T&amp;E) tools and workflows.</p>
+<p>In this tutorial you will use MAITE, in conjunction with a set of common
+libraries, to:</p>
+<ul class="simple">
+<li><p>Wrap an image classification dataset from Hugging Face (CIFAR-10),</p></li>
+<li><p>Wrap an image classification model from Hugging Face (Vision
+Transformer),</p></li>
+<li><p>Wrap a metric from TorchMetrics (multiclass accuracy), and</p></li>
+<li><p>Compute performance on the clean dataset using MAITE’s evaluate
+workflow utility.</p></li>
+</ul>
+<p>Once complete, you will have a basic understanding of MAITE’s interfaces
+for datasets, models, and metrics, as well as how to use MAITE’s native
+API for running evaluations.</p>
+<p>This tutorial does not assume any prior knowledge, but some experience
+with Python, machine learning, and the PyTorch framework may be helpful.</p>
+<section id="getting-started">
+<h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this heading">#</a></h2>
+<p>This tutorial uses MAITE, PyTorch, Torchvision, TorchMetrics, Hugging
+Face datasets and transformers, and Matplotlib.</p>
+<p>For running this notebook on your local machine, you can use the
+following commands to create a conda environment with the required
+dependencies:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">create</span> <span class="o">--</span><span class="n">name</span> <span class="n">hf_image_classification</span> <span class="n">python</span><span class="o">=</span><span class="mf">3.10</span> <span class="n">pip</span>
+<span class="n">conda</span> <span class="n">activate</span> <span class="n">hf_image_classification</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">maite</span> <span class="n">datasets</span> <span class="n">jupyter</span> <span class="n">matplotlib</span> <span class="n">torch</span> <span class="n">torchmetrics</span> <span class="n">torchvision</span> <span class="n">transformers</span> <span class="n">watermark</span>
+</pre></div>
+</div>
+<p>Now that you have an environment, we import the necessary libraries:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">datasets</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">maite.protocols.image_classification</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ic</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">maite.protocols</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="../generated/maite.protocols.ArrayLike.html#maite.protocols.ArrayLike" title="maite.protocols.ArrayLike"><span class="n">ArrayLike</span></a><span class="p">,</span> <span class="n">DatasetMetadata</span><span class="p">,</span> <span class="n">MetricMetadata</span><span class="p">,</span> <span class="n">ModelMetadata</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">maite.workflows</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="../generated/maite.workflows.evaluate.html#maite.workflows.evaluate" title="maite.workflows.evaluate"><span class="n">evaluate</span></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchmetrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">Accuracy</span><span class="p">,</span> <span class="n">Metric</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchvision.transforms.functional</span><span class="w"> </span><span class="kn">import</span> <span class="n">to_tensor</span><span class="p">,</span> <span class="n">resize</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">AutoModelForImageClassification</span><span class="p">,</span> <span class="n">ViTForImageClassification</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Any" title="typing.Any"><span class="n">Any</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="typing.Optional"><span class="n">Optional</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="typing.Sequence"><span class="n">Sequence</span></a>
+</pre></div>
+</div>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">watermark</span><span class="w"> </span><span class="kn">import</span> <span class="n">watermark</span>
+<a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="s2">"This notebook was executed with the following:</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="n">watermark</span><span class="p">(</span><span class="n">python</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">packages</span><span class="o">=</span><span class="s2">"datasets,jupyter,matplotlib,numpy,torch,torchmetrics,torchvision,transformers,watermark"</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">This</span> <span class="n">notebook</span> <span class="n">was</span> <span class="n">executed</span> <span class="k">with</span> <span class="n">the</span> <span class="n">following</span><span class="p">:</span>
+
+<span class="n">Python</span> <span class="n">implementation</span><span class="p">:</span> <span class="n">CPython</span>
+<span class="n">Python</span> <span class="n">version</span>       <span class="p">:</span> <span class="mf">3.9.21</span>
+<span class="n">IPython</span> <span class="n">version</span>      <span class="p">:</span> <span class="mf">8.18.1</span>
+
+<span class="n">datasets</span>    <span class="p">:</span> <span class="mf">3.3.1</span>
+<span class="n">jupyter</span>     <span class="p">:</span> <span class="mf">1.1.1</span>
+<span class="n">matplotlib</span>  <span class="p">:</span> <span class="mf">3.9.4</span>
+<span class="n">numpy</span>       <span class="p">:</span> <span class="mf">1.26.4</span>
+<span class="n">torch</span>       <span class="p">:</span> <span class="mf">2.6.0</span>
+<span class="n">torchmetrics</span><span class="p">:</span> <span class="mf">1.6.1</span>
+<span class="n">torchvision</span> <span class="p">:</span> <span class="mf">0.21.0</span>
+<span class="n">transformers</span><span class="p">:</span> <span class="mf">4.49.0</span>
+<span class="n">watermark</span>   <span class="p">:</span> <span class="mf">2.5.0</span>
+</pre></div>
+</div>
+</section>
+<section id="wrapping-a-hugging-face-dataset">
+<h2>Wrapping a Hugging Face Dataset<a class="headerlink" href="#wrapping-a-hugging-face-dataset" title="Permalink to this heading">#</a></h2>
+<p>We’ll be working with a common computer vision benchmark dataset called
+<a class="reference external" href="https://www.cs.toronto.edu/~kriz/cifar.html">CIFAR-10</a>, which
+consists of color images (size 32 x 32 pixels) covering 10 classes
+(airplane, automobile, bird, cat, deer, dog, frog, horse, ship, and
+truck). The dataset is available through the Hugging Face <code class="docutils literal notranslate"><span class="pre">datasets</span></code>
+library, which provides access to officially curated datasets as well as
+datasets contributed to <a class="reference external" href="https://huggingface.co/datasets">Hugging Face
+Hub</a> from the machine learning
+community.</p>
+<p>First we load a subset of the “native” Hugging Face dataset:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">subset_size</span> <span class="o">=</span> <span class="mi">256</span>
+<span class="n">hf_dataset</span><span class="p">:</span> <span class="n">datasets</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s2">"cifar10"</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="sa">f</span><span class="s2">"test[:</span><span class="si">{</span><span class="n">subset_size</span><span class="si">}</span><span class="s2">]"</span><span class="p">)</span> <span class="c1"># type: ignore</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>README.md:   0%|          | 0.00/5.16k [00:00&lt;?, ?B/s]
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>train-00000-of-00001.parquet:   0%|          | 0.00/120M [00:00&lt;?, ?B/s]
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>test-00000-of-00001.parquet:   0%|          | 0.00/23.9M [00:00&lt;?, ?B/s]
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Generating train split:   0%|          | 0/50000 [00:00&lt;?, ? examples/s]
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Generating test split:   0%|          | 0/10000 [00:00&lt;?, ? examples/s]
+</pre></div>
+</div>
+<p>Next, we wrap the dataset so it can be used with MAITE.</p>
+<p>In order to facilitate executing T&amp;E workflows with datasets from
+difference sources (e.g., existing libraries like Torchvision or Hugging
+Face or custom datasets), MAITE provides a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> protocol that
+specifies the expected interface (i.e, a minimal set of required
+attributes, methods, and method type signatures).</p>
+<p>At a high level, a MAITE image classification dataset needs to have two
+methods (<code class="docutils literal notranslate"><span class="pre">__len__</span></code> and <code class="docutils literal notranslate"><span class="pre">__getitem__</span></code>) and return the image, target
+(label/class), and metadata associated with a requested dataset index.
+The dataset also needs to have a <code class="docutils literal notranslate"><span class="pre">metadata</span></code> attribute containing some
+basic metadata (at least an <code class="docutils literal notranslate"><span class="pre">id</span></code> field).</p>
+<p>The following wrapper internally converts from the “native” format of
+the dataset to types compatible with MAITE:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">HuggingFaceDataset</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hf_dataset</span><span class="p">:</span> <span class="n">datasets</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">,</span> <span class="n">index2label</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#dict" title="dict"><span class="nb">dict</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">],</span> <span class="n">resize_shape</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#list" title="list"><span class="nb">list</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hf_dataset</span> <span class="o">=</span> <span class="n">hf_dataset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_classes</span> <span class="o">=</span> <span class="n">hf_dataset</span><span class="o">.</span><span class="n">features</span><span class="p">[</span><span class="s2">"label"</span><span class="p">]</span><span class="o">.</span><span class="n">num_classes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resize_shape</span> <span class="o">=</span> <span class="n">resize_shape</span>
+
+        <span class="c1"># Create required dataset metadata attribute</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">:</span> <span class="n">DatasetMetadata</span> <span class="o">=</span> <span class="n">DatasetMetadata</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="n">index2label</span><span class="o">=</span><span class="n">index2label</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">:</span>
+        <span class="k">return</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#len" title="len"><span class="nb">len</span></a><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hf_dataset</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">)</span> <span class="o">-&gt;</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="tuple"><span class="nb">tuple</span></a><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">ic</span><span class="o">.</span><span class="n">DatumMetadataType</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">index</span> <span class="o">&gt;=</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#len" title="len"><span class="nb">len</span></a><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">raise</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="IndexError"><span class="ne">IndexError</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">"Index </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2"> is out of range for the dataset, which has length </span><span class="si">{</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#len" title="len"><span class="nb">len</span></a><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
+
+        <span class="c1"># Get the PIL image and integer label from the base HF dataset element (which is a dictionary)</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hf_dataset</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="n">img_pil</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">"img"</span><span class="p">]</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">"label"</span><span class="p">]</span>
+
+        <span class="c1"># Convert the PIL image to a PyTorch tensor for compatibility with PyTorch libraries</span>
+        <span class="n">img_pt</span> <span class="o">=</span> <span class="n">to_tensor</span><span class="p">(</span><span class="n">img_pil</span><span class="p">)</span>
+
+        <span class="c1"># Apply resizing if requested</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">resize_shape</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">img_pt</span> <span class="o">=</span> <span class="n">resize</span><span class="p">(</span><span class="n">img_pt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">resize_shape</span><span class="p">)</span>
+
+        <span class="c1"># Create one-hot encoded tensor with true class label for this image</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_classes</span><span class="p">)</span>
+        <span class="n">target</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">img_pt</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">ic</span><span class="o">.</span><span class="n">DatumMetadataType</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">index</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We now create an instance of the MAITE complient version of the Hugging
+Face dataset.</p>
+<p>Note that the dataset variable has <code class="docutils literal notranslate"><span class="pre">ic.Dataset</span></code> as the type hint. If
+your environment has a static type checker enabled (e.g., the Pyright
+type checker via the Pylance language server in VS Code), then the type
+checker will verify that our wrapped dataset conforms to the protocol
+and indicate a problem if not (e.g., by underlining with a red
+squiggle).</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create map from integer class index to string label</span>
+<span class="n">num_classes</span> <span class="o">=</span> <span class="n">hf_dataset</span><span class="o">.</span><span class="n">features</span><span class="p">[</span><span class="s2">"label"</span><span class="p">]</span><span class="o">.</span><span class="n">num_classes</span>
+<span class="n">index2label</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="n">hf_dataset</span><span class="o">.</span><span class="n">features</span><span class="p">[</span><span class="s2">"label"</span><span class="p">]</span><span class="o">.</span><span class="n">int2str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#range" title="range"><span class="nb">range</span></a><span class="p">(</span><span class="n">num_classes</span><span class="p">)}</span>
+
+<span class="c1"># Wrap dataset</span>
+<span class="n">wrapped_hf_dataset</span><span class="p">:</span> <span class="n">ic</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">=</span> <span class="n">HuggingFaceDataset</span><span class="p">(</span>
+    <span class="n">hf_dataset</span><span class="p">,</span>
+    <span class="nb">id</span><span class="o">=</span><span class="s2">"CIFAR-10"</span><span class="p">,</span>
+    <span class="n">index2label</span><span class="o">=</span><span class="n">index2label</span><span class="p">,</span>
+    <span class="n">resize_shape</span><span class="o">=</span><span class="p">[</span><span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">]</span>
+<span class="p">)</span>
+
+<a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print" title="print"><span class="nb">print</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#len" title="len"><span class="nb">len</span></a><span class="p">(</span><span class="n">wrapped_hf_dataset</span><span class="p">)</span><span class="w"> </span><span class="si">= }</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">len</span><span class="p">(</span><span class="n">wrapped_hf_dataset</span><span class="p">)</span> <span class="o">=</span> <span class="mi">256</span>
+</pre></div>
+</div>
+<p>Here are some sample CIFAR-10 images along with their ground truth
+labels:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ncols</span> <span class="o">=</span> <span class="mi">6</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#range" title="range"><span class="nb">range</span></a><span class="p">(</span><span class="n">ncols</span><span class="p">):</span>
+    <span class="c1"># Get datum i</span>
+    <span class="n">img</span><span class="p">,</span> <span class="n">label_onehot</span><span class="p">,</span> <span class="n">md</span> <span class="o">=</span> <span class="n">wrapped_hf_dataset</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+    <span class="c1"># Convert to NumPy array in height, width, color channel (HWC) order (for display with matplotlib)</span>
+    <span class="n">img_np</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">img</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># Get ground truth class index and label</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">label_onehot</span><span class="p">)</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="n">index2label</span><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">(</span><span class="n">index</span><span class="p">)]</span>
+
+    <span class="c1"># Plot image with label</span>
+    <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">"off"</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img_np</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+</pre></div>
+</div>
+<img alt="../_images/hf_image_classification_12_0.png" src="../_images/hf_image_classification_12_0.png"/>
+</section>
+<section id="wrapping-a-hugging-face-model">
+<h2>Wrapping a Hugging Face Model<a class="headerlink" href="#wrapping-a-hugging-face-model" title="Permalink to this heading">#</a></h2>
+<p>In this section, we’ll wrap a Hugging Face Vision Transformer (ViT)
+classification model that is available through Hugging Face Hub. The
+model has been trained on ImageNet-21k and fine-tuned on the CIFAR-10
+dataset.</p>
+<p>First we load the “native” Hugging Face model:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">hf_model</span><span class="p">:</span> <span class="n">ViTForImageClassification</span> <span class="o">=</span> <span class="n">AutoModelForImageClassification</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span>
+    <span class="s2">"aaraki/vit-base-patch16-224-in21k-finetuned-cifar10"</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>config.json:   0%|          | 0.00/1.01k [00:00&lt;?, ?B/s]
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>pytorch_model.bin:   0%|          | 0.00/343M [00:00&lt;?, ?B/s]
+</pre></div>
+</div>
+<p>Next we wrap the model to conform to the MAITE <code class="docutils literal notranslate"><span class="pre">ic.Model</span></code> protocol,
+which requires a <code class="docutils literal notranslate"><span class="pre">__call__</span></code> method that takes a batch of inputs and
+returns a batch of predictions. The model also needs to have a
+<code class="docutils literal notranslate"><span class="pre">metadata</span></code> attribute containing some basic metadata (at least an
+<code class="docutils literal notranslate"><span class="pre">id</span></code> field).</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">HuggingFaceModel</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hf_model</span><span class="p">:</span> <span class="n">ViTForImageClassification</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">,</span> <span class="n">index2label</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#dict" title="dict"><span class="nb">dict</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">],</span> <span class="n">device</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a> <span class="o">=</span> <span class="s2">"cpu"</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hf_model</span> <span class="o">=</span> <span class="n">hf_model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span>
+
+        <span class="c1"># Create required model metadata attribute</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">:</span> <span class="n">ModelMetadata</span> <span class="o">=</span> <span class="n">ModelMetadata</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="n">index2label</span><span class="o">=</span><span class="n">index2label</span><span class="p">)</span>
+
+        <span class="c1"># Move the model to requested device and set to eval mode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hf_model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span> <span class="c1"># type: ignore</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hf_model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">ArrayLike</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
+        <span class="c1"># Combine inputs into PyTorch tensor of shape-(N,C,H,W) (batch size, color channels, height, width)</span>
+        <span class="n">batch_pt</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">batch</span><span class="p">])</span>
+
+        <span class="c1"># Move tensor to the desired device</span>
+        <span class="n">batch_pt</span> <span class="o">=</span> <span class="n">batch_pt</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+
+        <span class="c1"># Apply model to batch (NOTE: preprocessing not needed for this particular HF model)</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hf_model</span><span class="p">(</span><span class="n">batch_pt</span><span class="p">)</span>
+
+        <span class="c1"># Restructure to expected output format (sequence of probability/logit vectors)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">output</span><span class="o">.</span><span class="n">logits</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()]</span>
+        <span class="k">return</span> <span class="n">result</span>
+</pre></div>
+</div>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">wrapped_hf_model</span><span class="p">:</span> <span class="n">ic</span><span class="o">.</span><span class="n">Model</span> <span class="o">=</span> <span class="n">HuggingFaceModel</span><span class="p">(</span>
+    <span class="n">hf_model</span><span class="p">,</span>
+    <span class="nb">id</span><span class="o">=</span><span class="s2">"vit-base-patch16-224-in21k-finetuned-cifar10"</span><span class="p">,</span>
+    <span class="n">index2label</span><span class="o">=</span><span class="n">index2label</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>For an initial test, we’ll manually create an input batch and perform
+inference on it with the wrapped model:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create batch with single image</span>
+<span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">md</span> <span class="o">=</span> <span class="n">wrapped_hf_dataset</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+<span class="n">xb</span><span class="p">,</span> <span class="n">yb</span><span class="p">,</span> <span class="n">mdb</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">],</span> <span class="p">[</span><span class="n">y</span><span class="p">],</span> <span class="p">[</span><span class="n">md</span><span class="p">]</span>
+
+<span class="c1"># Apply model and get first (only) prediction of size-1 batch of results</span>
+<span class="n">preds</span> <span class="o">=</span> <span class="n">wrapped_hf_model</span><span class="p">(</span><span class="n">xb</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">y_hat</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">preds</span><span class="p">)</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+
+<span class="c1"># Plot image with model prediction</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">))</span>
+<span class="n">img_np</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">"off"</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img_np</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">"pred: </span><span class="si">{</span><span class="n">index2label</span><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#int" title="int"><span class="nb">int</span></a><span class="p">(</span><span class="n">y_hat</span><span class="p">)]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+</pre></div>
+</div>
+<img alt="../_images/hf_image_classification_20_0.png" src="../_images/hf_image_classification_20_0.png"/>
+<p>We see that the model predicts the correct class for the first example.
+But we’d like to perform a more quantitative evaluation across a larger
+set of images.</p>
+</section>
+<section id="metrics">
+<h2>Metrics<a class="headerlink" href="#metrics" title="Permalink to this heading">#</a></h2>
+<p>In this section we wrap a TorchMetrics metric to conform to the MAITE
+<code class="docutils literal notranslate"><span class="pre">ic.Metric</span></code> protocol.</p>
+<p>First we create a “native” TorchMetrics accuracy metric:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tm_acc</span><span class="p">:</span> <span class="n">Metric</span> <span class="o">=</span> <span class="n">Accuracy</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s2">"multiclass"</span><span class="p">,</span> <span class="n">num_classes</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Next we wrap the metric as a MAITE <code class="docutils literal notranslate"><span class="pre">ic.Metric</span></code> that has the required
+update, compute, and reset methods, as well as the required metadata
+attribute:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">TorchMetricsClassificationMetric</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tm_metric</span><span class="p">:</span> <span class="n">Metric</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a> <span class="o">=</span> <span class="s2">"cpu"</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tm_metric</span> <span class="o">=</span> <span class="n">tm_metric</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span>
+
+        <span class="c1"># Create required metric metadata attribute</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">:</span> <span class="n">MetricMetadata</span> <span class="o">=</span> <span class="n">MetricMetadata</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tm_metric</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">preds</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">ArrayLike</span><span class="p">],</span> <span class="n">targets</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">ArrayLike</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Convert inputs to PyTorch tensors of shape-(N, num_classes)</span>
+        <span class="n">preds_pt</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">preds</span><span class="p">])</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">preds_pt</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span>
+
+        <span class="n">targets_pt</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">])</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">targets_pt</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span>
+
+        <span class="c1"># Convert probabilities/logits to predicted class indices and update native TorchMetrics metric</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tm_metric</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">preds_pt</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">targets_pt</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#dict" title="dict"><span class="nb">dict</span></a><span class="p">[</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#str" title="str"><span class="nb">str</span></a><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">result</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tm_metric</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">result</span>
+</pre></div>
+</div>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">wrapped_tm_acc</span><span class="p">:</span> <span class="n">ic</span><span class="o">.</span><span class="n">Metric</span> <span class="o">=</span> <span class="n">TorchMetricsClassificationMetric</span><span class="p">(</span><span class="n">tm_acc</span><span class="p">,</span> <span class="s2">"accuracy"</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="workflows">
+<h2>Workflows<a class="headerlink" href="#workflows" title="Permalink to this heading">#</a></h2>
+<p>Now we’ll run MAITE’s <code class="docutils literal notranslate"><span class="pre">evaluate</span></code> workflow, which manages the process
+of performing model inference on the dataset and computing the desired
+metric.</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">results</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">evaluate</span><span class="p">(</span>
+    <span class="n">dataset</span><span class="o">=</span><span class="n">wrapped_hf_dataset</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">wrapped_hf_model</span><span class="p">,</span>
+    <span class="n">metric</span><span class="o">=</span><span class="n">wrapped_tm_acc</span>
+<span class="p">)</span>
+
+<span class="n">results</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>0%|          | 0/256 [00:00&lt;?, ?it/s]
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>model.safetensors:   0%|          | 0.00/343M [00:00&lt;?, ?B/s]
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">'accuracy'</span><span class="p">:</span> <span class="n">tensor</span><span class="p">(</span><span class="mf">0.9531</span><span class="p">)}</span>
+</pre></div>
+</div>
+<p>We see that the model performs very well on this dataset, achieving an
+accuracy of over 95%.</p>
+<p>Congratulations! You have now successfully used MAITE to wrap a dataset,
+model, and metric from various libraries, and run an evaluation to
+compute the performance of the pretrained model on a subset of the
+CIFAR-10 test split.</p>
+</section>
+</section>
+</article>
+<footer class="bd-footer-article">
+<div class="footer-article-items footer-article__inner">
+<div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+<a class="left-prev" href="../tutorials.html" title="previous page">
+<i class="fa-solid fa-angle-left"></i>
+<div class="prev-next-info">
+<p class="prev-next-subtitle">previous</p>
+<p class="prev-next-title">Tutorials</p>
+</div>
+</a>
+<a class="right-next" href="torchvision_object_detection.html" title="next page">
+<div class="prev-next-info">
+<p class="prev-next-subtitle">next</p>
+<p class="prev-next-title">Torchvision Object Detection Example</p>
+</div>
+<i class="fa-solid fa-angle-right"></i>
+</a>
+</div></div>
+</div>
+</footer>
+</div>
+<div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+<div class="sidebar-secondary-item">
+<div class="page-toc tocsection onthispage">
+<i class="fa-solid fa-list"></i> On this page
+  </div>
+<nav class="bd-toc-nav page-toc">
+<ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-started">Getting Started</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#wrapping-a-hugging-face-dataset">Wrapping a Hugging Face Dataset</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#wrapping-a-hugging-face-model">Wrapping a Hugging Face Model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#metrics">Metrics</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#workflows">Workflows</a></li>
+</ul>
+</nav></div>
+<div class="sidebar-secondary-item">
+<div class="tocsection sourcelink">
+<a href="../_sources/tutorials/hf_image_classification.rst.txt">
+<i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+</div>
+</div>
+</div></div>
+</div>
+<footer class="bd-footer-content">
+</footer>
+</main>
+</div>
+</div>
+<!-- Scripts loaded after <body> so the DOM is not blocked -->
+<script src="../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+<footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+<div class="footer-items__start">
+<div class="footer-item">
+<p class="copyright">
+    
+      © Copyright 2024 Massachusetts Institute of Technology.
+      <br/>
+</p>
+</div>
+<div class="footer-item">
+<p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.2.1.
+    <br/>
+</p>
+</div>
+</div>
+<div class="footer-items__end">
+<div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+</p></div>
+</div>
+</div>
+</footer>
+</body>
+</html>
