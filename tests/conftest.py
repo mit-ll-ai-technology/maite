@@ -26,6 +26,10 @@ if bool(os.environ.get("CI_JOB_ID")):
     print("*** Running in CI, using CI settings ***")
     settings.load_profile("cicd")
 
+# Helper modules that live under tests/ but are not test modules themselves;
+# excluded so `--doctest-modules` doesn't import them during collection.
+collect_ignore = ["test_interop/generate_test_videos.py"]
+
 # Skip collection of tests that don't work on the current version of Python.
 collect_ignore_glob = []
 

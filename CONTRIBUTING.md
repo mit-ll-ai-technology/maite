@@ -36,8 +36,10 @@ MAITE uses [poetry](https://python-poetry.org/) as a build backend. MAITE also m
 Install MAITE along with all development dependencies; checkout the repo, navigate to its top level and run
 
 ```shell
-uv sync --all-extras
+uv sync --all-extras --all-groups
 ```
+
+`--all-extras` installs the optional feature extras (`mot-utils`, `torchmetrics`, `yolo-models`), while `--all-groups` installs the `test`, `builddocs`, and `dev` dependency-groups (pytest, pyright, docs tooling, etc.). Both are needed for a full development environment; `--all-extras` alone will not install the test toolchain.
 
 This command ensures that any local changes that you make to the project's source code will be reflected in your install (similar to `pip install -e`) and that you will use a the same set of dependency versions as all other developers.  If you want the virtual environment created somewhere besides ./.venv set [$UV_PROJECT_ENVIRONMENT](https://docs.astral.sh/uv/concepts/projects/config/#project-environment-path) before running the command.
 
@@ -78,10 +80,10 @@ Navigate to the top-level of `maite` and run:
 pytest tests/
 ```
 
-If you want to quickly run through the test suite, just to verify that it runs without error, you can run:
+If you want to quickly run through the required (no optional extras) test suite, just to verify that it runs without error, you can run:
 
 ```console
-uvx tox -e py # or tox -e py
+uvx tox -e py310 # or: tox -e py310 (substitute your Python version)
 ```
 
 Additional Resources to Learn About Our Approach to Automated Testing, see: https://github.com/rsokl/testing-tutorial
@@ -356,16 +358,18 @@ $ pip install tox-conda
 
 The library's tox config is located under the `[tool.tox]` entry in the pyproject.toml file. Navigate to the top-level `maite` directory and run `tox -a -v` to list all of the environments and their descriptions.
 
-As an example, to run the test suite in Python 3.10 environment, run:
+Test environments are named `py<version>[-<factor>]`. A bare `py<version>` with no factor runs the required-feature tests with no optional extras installed. A `<factor>` selects an optional extra instead: one of `mot_utils` / `torchmetrics` / `yolo_models` (that extra in isolation), or `all` (every extra, full suite).
+
+As an example, to run the full test suite (all optional extras) in a Python 3.10 environment, run:
 
 ```console
-uvx tox -e py310
+uvx tox -e py310-all
 ```
 
-by default, we have configured this to run the test suite in a parallelized fashion according to the number of available CPUs. To run the tests in serial, instead run:
+Tests run serially by default (`-n 0`). To run them in parallel across your available CPUs (via `pytest-xdist`), re-supply the test paths along with `-n auto` — posargs replace tox's default pytest arguments:
 
 ```console
-uvx tox -e py310 -- -n 0
+uvx tox -e py310-all -- tests src -n auto
 ```
 
 Consult the descriptions section of each environment to understand what they do.

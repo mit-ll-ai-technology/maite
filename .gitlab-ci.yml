@@ -74,8 +74,20 @@ tests:
   script:
     - *install-libgl1
     - *setup-python
-    - echo "Testing against minimum dependencies."
-    - tox -e py
+    - echo "Testing full suite with all optional extras installed."
+    - tox -e py-all
+
+extras:
+  stage: test
+  image: python:3.14
+  parallel:
+    matrix:
+      - TOX_ENV: ["py314", "py314-mot_utils", "py314-torchmetrics", "py314-yolo_models"]
+  script:
+    - *install-libgl1
+    - *setup-python
+    - echo "Testing '$TOX_ENV' in isolation on Python 3.14."
+    - tox -e $TOX_ENV
 
 coverage:
   stage: test

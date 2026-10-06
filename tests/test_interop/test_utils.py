@@ -13,11 +13,16 @@ from maite._internals.interop.utils import (
     PyAVAdapter,
     SampleSpec,
 )
+
+pytest.importorskip("av")
+
 from tests.test_interop.generate_test_videos import (
     FRAME_HEIGHT,
     FRAME_WIDTH,
     decode_block_coded_frame,
 )
+
+pytestmark = pytest.mark.mot_utils
 
 DATA_DIR = os.path.dirname(__file__)
 VIDEO_1_PATH = os.path.join(DATA_DIR, "test_video_1.mp4")

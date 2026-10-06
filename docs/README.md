@@ -16,7 +16,7 @@ The HTML files will be saved to `/.tox/docs/build/html`.
 Install `maite` with doc-building requirements:
 
 ```shell
-> pip install ".[builddocs]"
+> pip install -e . --group builddocs
 > cd docs
 docs> pip install -r requirements.txt
 ```

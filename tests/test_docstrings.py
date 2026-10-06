@@ -9,6 +9,10 @@ from maite._internals.testing.project import get_public_symbols, import_public_s
 from maite._internals.testing.pyright import list_error_messages, pyright_analyze
 from tests import module_scan
 
+# This suite scans docstrings across the whole public API (including extras)
+# under pyright. scan_docs is distinct from required/optional markers.
+pytestmark = pytest.mark.scan_docs
+
 # Generates a string that imports all symbols from the maite's public API.
 
 # Note that some symbols within maite.protocols module and its submodules

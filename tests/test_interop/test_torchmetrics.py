@@ -21,6 +21,8 @@ from maite._internals.interop.metrics.torchmetrics import (
 )
 from maite.protocols import ArrayLike
 
+pytestmark = pytest.mark.torchmetrics
+
 
 def make_metadata_batch(xs: Sequence[Any]):
     r: list[ic.DatumMetadataType] = [{"id": i} for i, _ in enumerate(xs)]
