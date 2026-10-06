@@ -6,7 +6,8 @@
 from __future__ import annotations
 
 from collections.abc import Iterable, Iterator, Sequence
-from typing import Any, Generic, TypeVar
+from typing import Any, Generic, TypeVar, assert_type
+import warnings
 
 from maite._internals.protocols.generic import (
     Augmentation,
@@ -484,14 +485,33 @@ def evaluate(
                 metadata_batch,
             )
 
-        pred_batch = model(input_datum_batch_aug)
-        metric.update(pred_batch, target_datum_batch_aug, metadata_batch_aug)
-
         # store any requested intermediate data for returning to user
+
         if return_augmented_data:
+            ## if {input,target,metadata} type happens to be an iterator AND return_augmented_data is True
+            ## we materialize the reference of the iterator into a list to avoid returning
+            ## spent iterator. This will consume more memory so we warn at runtime and mention it in docstring
+            warning_msg = ("Setting 'return_augmented_data' to 'True' in the case of iterator-type MAITE primitives "
+                          "will attempt to materialize primitives as deliberate alternatie to returning spent iterators. "
+                          "This may be memory-intensive for iterators referencing large amounts of data.")
+            
+            if isinstance(input_datum_batch_aug[0], Iterator):
+                warnings.warn(warning_msg)
+                input_datum_batch_aug: Sequence[T_input] = tuple(tuple(input_elem) for input_elem in input_datum_batch_aug)
+            if isinstance(target_datum_batch_aug[0], Iterator):
+                warnings.warn(warning_msg)
+                target_datum_batch_aug: Sequence[T_target] = tuple(tuple(target_elem) for target_elem in target_datum_batch_aug)
+            if isinstance(metadata_batch_aug[0], Iterator):
+                warnings.warn(warning_msg)
+                metadata_batch_aug: Sequence[T_metadata]= tuple(tuple[md_elem] for md_elem in metadata_batch_aug)
+
             augmented_data_batches.append(
                 (input_datum_batch_aug, target_datum_batch_aug, metadata_batch_aug),
             )
+
+        pred_batch = model(input_datum_batch_aug)
+        metric.update(pred_batch, target_datum_batch_aug, metadata_batch_aug)
+
 
         if return_preds:
             pred_batches.append(pred_batch)
