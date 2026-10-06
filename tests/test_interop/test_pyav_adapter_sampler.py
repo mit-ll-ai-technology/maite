@@ -2,8 +2,11 @@ from fractions import Fraction
 from pathlib import Path
 
 import numpy as np
+import pytest
 
 from maite._internals.interop.utils import PyAVAdapter, SampleSpec
+
+pytestmark = pytest.mark.mot_utils
 
 
 class _DummyFrame:

@@ -21,6 +21,8 @@ from maite._internals.interop.metrics.torchmetrics_detection import (
 from maite.protocols import ArrayLike
 from maite.protocols.object_detection import DatumMetadataType
 
+pytestmark = pytest.mark.torchmetrics
+
 
 @dataclass
 class ODTgt:

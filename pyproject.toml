@@ -33,7 +33,7 @@ classifiers = [
   "Programming Language :: Python :: 3 :: Only",
 ]
 
-[project.optional-dependencies]
+[dependency-groups]
 
 experimental = [
   "beartype>=0.22.9"
@@ -82,6 +82,8 @@ dev = [
   "pre-commit",
 ]
 
+[project.optional-dependencies]
+
 # dependencies required to use YOLO model wrappers
 
 # There is an implicit dep not recorded in yolov5 7.0.13 on setuptools which includes 'pkg_resources'
@@ -109,6 +111,10 @@ mot-utils = [
 
 # dependencies required to use TorchMetrics metric wrappers
 torchmetrics = ["torchmetrics[detection] (>=1.7.0,<2.0.0)"]
+
+# `all` extra: installs every optional feature at once (`pip install maite[all]`).
+# Kept equivalent to the union of the individual extras by tests/test_extras_all.py.
+all = ["maite[mot-utils,torchmetrics,yolo-models]"]
 
 [project.urls]
 "Homepage" = "https://github.com/mit-ll-ai-technology/maite"
@@ -262,14 +268,24 @@ omit = ["src/maite/_internals/interop/utils.py"]
 [tool.pytest.ini_options]
 xfail_strict = true
 addopts = [
+    "--strict-markers",
+    "--strict-config",
     "--import-mode=importlib",  # Using an "importlib" import-mode that permits duplicate module names in different tested directories to avoid collisions (between "validation.py" files, for example). See https://docs.pytest.org/en/stable/explanation/pythonpath.html#import-modes
     "--ignore-glob=tests/dummy_projects/*",
     "--doctest-modules",
     "--doctest-report=udiff",
     "--doctest-continue-on-failure"
 ]
+
+
 markers = [
-    "slow: mark a test as slow",
+   "required: Test of a required feature; needs no optional extra. Derived from the extra markers by the repo-root conftest.",
+   "optional: Test of an optional feature; needs one of the optional extras. Derived from the extra markers by the repo-root conftest.",
+   "yolo_models: Run tests that require yolo models",
+   "mot_utils: Run tests that require MoT",
+   "torchmetrics: Run tests that require torchmetrics",
+   "slow: mark a test as slow",
+   "scan_docs: Docstring/pyright scan suite; selected/deselected independently of the extra markers.",
 ]
 
 [tool.pyright]
