@@ -27,10 +27,6 @@ MAITE uses uv for dependency management. Follow the [installation instructions](
 
 CI uses tox and it's helpful to run tox locally. If you want to manage your tox installation with uv, install tox with `uv tool install tox --with tox-uv`. To run tox use `uvx tox`.
 
-## Installing poetry
-
-MAITE uses [poetry](https://python-poetry.org/) as a build backend. MAITE also maintains a poetry.lock file for upstream verification of dependencies. Modifying the lock file by poetry can take up to an hour when run internally on our development network. When adding dependencies and you want to ensure the lock file is up to date you must install poetry. Follow the [installation instructions](https://python-poetry.org/docs/#installation).
-
 ## Installing MAITE for development
 
 Install MAITE along with all development dependencies; checkout the repo, navigate to its top level and run
@@ -50,7 +46,7 @@ Going forward in this document, any console commands run as a developer (e.g. `p
 We provide contributors with pre-commit hooks, which will apply auto-formatters and
 linters to your code before your commit takes effect. You must install these in order to contribute to the repo.
 
-The pre-commit library should already be installed in your poetry-managed development environment.
+The pre-commit library should already be installed in your uv-managed development environment.
 To configure it, you need to run two commands **in that environment**.
 Then, in the top-level of the `maite` repo, run:
 
@@ -275,10 +271,10 @@ Our CI runs the `pyright` type-checker in basic mode against maite's entire code
 
 If you use VSCode with Pylance, then make sure that `Type Checking Mode` is set to `basic` for your maite workspace. Your IDE will then mark any problematic code.Other IDEs can leverage the pyright language server to a similar effect.
 
-While this is helpful for getting immediate feedback about your code, it is no substitute for running `pyright` from the commandline. To do so, run the following tox job:
+While this is helpful for getting immediate feedback about your code, it is no substitute for running `pyright` from the commandline. This can be done from (any environment with MAITE dependencies importable) via the simple:
 
 ```console
-poetry run tox -e pyright
+pyright
 ```
 
 # Maintaining MAITE
@@ -288,13 +284,13 @@ The following lays out the essentials for maintaining the MAITE library. It is r
 
 ## Project dependencies, metadata, and versioning
 
-The project's build tooling (e.g. that we use poetry to build the installable artifacts), metadata (e.g. author list), and dependencies are all specified in the [pyproject.toml](https://github.com/mit-ll-responsible-ai/responsible-ai-toolbox/blob/main/pyproject.toml) file.
+The project's build tooling (we use [hatchling](https://hatch.pypa.io/latest/) as the build backend), metadata (e.g. author list), and dependencies are all specified in the [pyproject.toml](https://github.com/mit-ll-ai-technology/maite/blob/main/pyproject.toml) file.
 
 The `project > dependencies` section is where the project's minimum dependencies are specified.
 
-In the case that a new dependency is added, [poetry add](https://python-poetry.org/docs/cli/#add) should be used with a minimum version must be specified. `poetry add` provides several [options](https://python-poetry.org/docs/cli/#options) for adding the dev dependencies, extras dependencies or group dependencies. The pyproject.toml `project.optional-dependencies` lists the MAITE dependency groups.
+In the case that a new dependency is added, [uv add](https://docs.astral.sh/uv/concepts/projects/dependencies/) should be used and a minimum version must be specified. `uv add` provides several options for adding dependencies to specific optional groups. The pyproject.toml `project.optional-dependencies` lists the MAITE dependency groups.
 
-The project's version (e.g. `v0.3.0`) is managed by [poetry-dynamic-versioning](https://github.com/mtkennerly/poetry-dynamic-versioning), meaning that the `maite.__version__` attribute is not set manually, rather it is derived from the project's latest git-commit tag of the form `vX.Y.Z`. See [Creating a new release and publishing to PyPI](#creating-a-new-release-and-publishing-to-pypi) for more details.
+The project's version (e.g. `v0.3.0`) is managed by [hatch-vcs](https://github.com/ofek/hatch-vcs), meaning that the `maite.__version__` attribute is not set manually, rather it is derived from the project's latest git-commit tag of the form `vX.Y.Z`. At build/install time hatch-vcs generates `src/maite/_version.py` (which is git-ignored) from that tag; between tagged releases the version is a development version derived from the distance to the last tag (e.g. `0.10.1.dev2+g<hash>`).
 
 ### Upgrading locked packages
 
