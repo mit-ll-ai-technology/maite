@@ -10,7 +10,6 @@ stages:
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
   GITLAB_REPO_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi"
-  POETRY_DYNAMIC_VERSIONING_DEBUG: "1"
 
 # Pip's cache doesn't store the python packages
 # https://pip.pypa.io/en/stable/topics/caching/
@@ -41,6 +40,7 @@ cache:
 default:
   tags:
     - CDAO
+
 
 workflow:
   rules:
@@ -143,7 +143,7 @@ pages:
     - python docs/upload_docs_to_pkg_registry.py upload --skip-nonrelease --docdir .tox/docs/build/html --token "$CI_DOC_TOKEN"
     # Populate `docs` directory with (a) built docs from last release, (b) previous doc builds in `docs/<version>` dirs, and (c) last doc build in 'latest' dir
     - python docs/assemble_docs_for_publish.py --token "$CI_DOC_TOKEN" --outdir ./public
-    - git clone --branch=gh-pages "https://oath2:$CI_DOC_TOKEN@gitlab.jatic.net/jatic/cdao/maite.git" gh-pages-branch
+    - git clone --branch=gh-pages "https://oauth2:${CI_DOC_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git" gh-pages-branch
     - cd gh-pages-branch
     - git reset --hard empty-doc
     - cp -r ../public docs
@@ -159,11 +159,15 @@ pages:
 deploy:
   stage: deploy
   image: python:3.10
+  variables:
+    # hatch-vcs derives the version via `git describe`, so the deploy job needs
+    # the tag and full history (not GitLab's default shallow clone).
+    GIT_DEPTH: 0
   rules:
     - if: $CI_COMMIT_TAG
   script:
     - *setup-python
-    - pip install poetry twine --upgrade
+    - pip install build twine --upgrade
     - twine --version
-    - poetry build
+    - python -m build
     - twine upload --repository-url $GITLAB_REPO_URL -u gitlab-ci-token -p $CI_JOB_TOKEN dist/*
