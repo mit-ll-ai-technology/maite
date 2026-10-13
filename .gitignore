@@ -9,6 +9,8 @@ __pycache__/
 *.so
 
 # Distribution / packaging
+# Version file generated at build/install time by hatch-vcs from the git tag.
+src/maite/_version.py
 .Python
 build/
 develop-eggs/
