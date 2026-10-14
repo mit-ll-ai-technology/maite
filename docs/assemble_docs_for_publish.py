@@ -34,7 +34,7 @@ Arguments:
 
 """
 
-import datetime
+import datetime as dt
 import logging
 import shutil
 import sys
@@ -130,7 +130,7 @@ def get_pkg_file_infos(pkg: PkgInfo, token: str) -> list[PkgFileInfo]:
         js = response.json()
         assert isinstance(js, list)
         js.sort(
-            key=lambda pkg: datetime.datetime.strptime(
+            key=lambda pkg: dt.datetime.strptime(
                 pkg["created_at"],
                 "%Y-%m-%dT%H:%M:%S.%fZ",
             ),
