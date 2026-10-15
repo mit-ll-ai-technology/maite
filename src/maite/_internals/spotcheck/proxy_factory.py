@@ -161,6 +161,87 @@ def _checked_property(
     return property(fget, fset)
 
 
+def _detect_method_kind(func: object) -> Literal["static", "class", "instance"]:
+    """Classify an attribute pulled from the wrapped target as static/class/instance."""
+    if inspect.isfunction(func):
+        return "static"
+    if inspect.ismethod(func) and isinstance(func.__self__, type):
+        return "class"
+    return "instance"
+
+
+def _bind_for_kind(
+    method_kind: Literal["static", "class", "instance"],
+    sig: inspect.Signature,
+    target: object,
+    *,
+    args: tuple[Any, ...],
+    kwargs: dict[str, Any],
+) -> inspect.BoundArguments:
+    """Bind call arguments to *sig*, injecting the implicit self/cls for bound kinds."""
+    if method_kind == "static":
+        bound_args = sig.bind(*args, **kwargs)
+    elif method_kind == "class":
+        bound_args = sig.bind(type(target), *args, **kwargs)
+    else:  # instance
+        bound_args = sig.bind(target, *args, **kwargs)
+
+    bound_args.apply_defaults()
+    return bound_args
+
+
+def _check_one_argument(
+    param: inspect.Parameter,
+    arg_val: Any,  # noqa: ANN401, proxy wrapping requires Any
+    hint: TypeForm[Any],
+    *,
+    config: _ProxyConfig,
+) -> None:
+    """Run the check procedure over one bound argument, spreading *args/**kwargs."""
+    if param.kind == inspect.Parameter.VAR_POSITIONAL:
+        for item in arg_val:
+            config.check_procedure(item, hint)
+    elif param.kind == inspect.Parameter.VAR_KEYWORD:
+        for item in arg_val.values():
+            config.check_procedure(item, hint)
+    else:
+        config.check_procedure(arg_val, hint)
+
+
+def _check_bound_arguments(
+    bound_args: inspect.BoundArguments,
+    method_kind: Literal["static", "class", "instance"],
+    sig: inspect.Signature,
+    *,
+    config: _ProxyConfig,
+    do_check: bool,
+    receiver: object,
+) -> None:
+    """Validate each bound argument against its hint.
+
+    The implicit first parameter of instance/class methods is skipped by position
+    (protocols need not name it ``self``/``cls``). Missing hints always raise;
+    the actual check procedure only runs when *do_check* is set. *receiver* is the
+    proxy instance, used only to construct ``VapidMethodError``.
+    """
+    param_names = list(sig.parameters.keys())
+
+    for arg_name, arg_val in bound_args.arguments.items():
+        # Skip the first parameter for instance and class methods BY POSITION
+        # This handles protocols where the first param is not named 'self' or 'cls'
+        if method_kind in ("instance", "class") and param_names and arg_name == param_names[0]:
+            continue
+
+        param = sig.parameters[arg_name]
+        hint = param.annotation
+
+        if hint is inspect.Parameter.empty:
+            raise VapidMethodError(method_obj=receiver)
+
+        if do_check:
+            _check_one_argument(param, arg_val, hint, config=config)
+
+
 def _checked_method(
     name: str,
     sig: inspect.Signature,
@@ -196,50 +277,14 @@ def _checked_method(
 
         # Detect method kind once on first call
         if method_kind is None:
-            if inspect.isfunction(func):
-                method_kind = "static"
-            elif inspect.ismethod(func) and isinstance(func.__self__, type):
-                method_kind = "class"
-            else:
-                method_kind = "instance"
+            method_kind = _detect_method_kind(func)
 
-        # Bind arguments for validation based on method kind
-        if method_kind == "static":
-            bound_args = sig.bind(*args, **kwargs)
-        elif method_kind == "class":
-            bound_args = sig.bind(type(target), *args, **kwargs)
-        else:  # instance
-            bound_args = sig.bind(target, *args, **kwargs)
-
-        bound_args.apply_defaults()
+        bound_args = _bind_for_kind(method_kind, sig, target, args=args, kwargs=kwargs)
 
         # decide whether to do check at all in this call
         do_check = config.rate >= 1 or (_rng.random() <= config.rate)
 
-        # Get parameter names for position-based skipping
-        param_names = list(sig.parameters.keys())
-
-        for arg_name, arg_val in bound_args.arguments.items():
-            # Skip the first parameter for instance and class methods BY POSITION
-            # This handles protocols where the first param is not named 'self' or 'cls'
-            if method_kind in ("instance", "class") and param_names and arg_name == param_names[0]:
-                continue
-
-            param = sig.parameters[arg_name]
-            hint = param.annotation
-
-            if hint is inspect.Parameter.empty:
-                raise VapidMethodError(method_obj=self)
-
-            if do_check:
-                if param.kind == inspect.Parameter.VAR_POSITIONAL:
-                    for item in arg_val:
-                        config.check_procedure(item, hint)
-                elif param.kind == inspect.Parameter.VAR_KEYWORD:
-                    for item in arg_val.values():
-                        config.check_procedure(item, hint)
-                else:
-                    config.check_procedure(arg_val, hint)
+        _check_bound_arguments(bound_args, method_kind, sig, config=config, do_check=do_check, receiver=self)
 
         if sig.return_annotation is inspect.Signature.empty:
             raise VapidMethodError(method_obj=self)
@@ -265,6 +310,42 @@ def _fallback_dunder(name: str, func_form: Callable[..., object]) -> Callable[..
 
     fallback.__name__ = name
     return fallback
+
+
+def _iter_with_checked_fallback(
+    getitem_return_hint: TypeForm[Any],
+    config: _ProxyConfig,
+) -> Callable[[_ProxyBase], Iterator[Any]]:
+    """Build a checked ``__iter__`` for proxies exposing ``__getitem__`` but no ``__iter__``.
+
+    Mirrors Python's 'free iterator' protocol so that iteration is validated instead
+    of routing ``proxy.__iter__ -> iter(proxy.__wrapped__)`` (which would bypass checks).
+    """
+
+    def iter_w_checked_fallback(self: _ProxyBase) -> Iterator[Any]:
+        impl = self.__wrapped__
+        do_check = config.rate >= 1 or (_rng.random() <= config.rate)
+        if hasattr(type(impl), "__iter__"):
+            # just forward to inner __iter__ and verify return
+            for item in impl:  # type: ignore , see 'hasattr' check
+                if do_check:
+                    spotcheck_node(item, getitem_return_hint)
+                yield item
+        else:
+            # imitate 'free iterator' construct (getting validation
+            # through Proxy class' __getitem__)
+            i = 0
+            while True:
+                try:
+                    item = self[i]  # type: ignore , we know proxy has '__getitem__'
+                    if do_check:
+                        spotcheck_node(item, getitem_return_hint)
+                except IndexError:
+                    return
+                yield item
+                i += 1
+
+    return iter_w_checked_fallback
 
 
 @functools.lru_cache(maxsize=128)
@@ -304,32 +385,8 @@ def _build_proxy_class(
     # proxy.__iter__ -> iter(proxy.__wrapped__) routing that would otherwise not be checked.
 
     if "__getitem__" in members.methods and "__iter__" not in members.methods:
-
-        def iter_w_checked_fallback(self: _ProxyBase) -> Iterator[Any]:
-            impl = self.__wrapped__
-            getitem_return_hint = members.methods["__getitem__"].return_annotation
-            do_check = config.rate >= 1 or (_rng.random() <= config.rate)
-            if hasattr(type(impl), "__iter__"):
-                # just forward to inner __iter__ and verify return
-                for item in impl:  # type: ignore , see 'hasattr' check
-                    if do_check:
-                        spotcheck_node(item, getitem_return_hint)
-                    yield item
-            else:
-                # imitate 'free iterator' construct (getting validation
-                # through Proxy class' __getitem__)
-                i = 0
-                while True:
-                    try:
-                        item = self[i]  # type: ignore , we know proxy has '__getitem__'
-                        if do_check:
-                            spotcheck_node(item, getitem_return_hint)
-                    except IndexError:
-                        return
-                    yield item
-                    i += 1
-
-        namespace["__iter__"] = iter_w_checked_fallback
+        getitem_return_hint = members.methods["__getitem__"].return_annotation
+        namespace["__iter__"] = _iter_with_checked_fallback(getitem_return_hint, config)
 
     for dunder in _FALLBACK_DUNDER_FORWARDS:
         if dunder not in members.methods:

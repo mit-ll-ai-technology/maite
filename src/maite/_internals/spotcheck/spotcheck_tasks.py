@@ -201,6 +201,80 @@ def _reduce_to_forwardable_hint(hint: TypeForm[Any] | None) -> TypeForm[Any] | N
     return None
 
 
+def _compute_wrap_plan(
+    func: Callable[..., Any],
+) -> tuple[frozenset[str], bool, dict[str, TypeForm[Any]], inspect.Signature] | None:
+    """Analyze *func*'s hints to decide what ``spotcheck`` should wrap.
+
+    Returns ``(args_to_wrap, check_return, forward_hints, sig)``, or ``None`` when
+    no parameter or return hint names a MAITE component protocol (nothing to do).
+    """
+    # include_extras=True avoids stripping 'Annotated' for nested spotcheck_component calls
+    task_hints: dict[str, TypeForm[Any]] = get_type_hints(func, include_extras=True)
+    # e.g. {'ds': od.Dataset, 'aug': od.Augmentation, ... 'return': od.Dataset}
+
+    args_to_wrap = frozenset(n for n, h in task_hints.items() if n != "return" and hint_matches_component_protocol(h))
+    check_return = hint_matches_component_protocol(task_hints.get("return"))
+
+    if not (args_to_wrap or check_return):
+        return None
+
+    # Precompute the hint forwarded to spotcheck_component for each wrapped slot.
+    # Optional/Annotated/TypeAlias wrappers are stripped here so spotcheck_component
+    # receives a bare Protocol class or parametrized alias (its precondition),
+    # never an Optional/Union it would reject.
+    forward_hints: dict[str, TypeForm[Any]] = {}
+    for name in (*args_to_wrap, *(("return",) if check_return else ())):
+        reduced = _reduce_to_forwardable_hint(task_hints[name])
+        if reduced is not None:
+            forward_hints[name] = reduced
+
+    return args_to_wrap, check_return, forward_hints, inspect.signature(func)
+
+
+def _make_spotcheck_wrapper(
+    func: Callable[P, R],
+    plan: tuple[frozenset[str], bool, dict[str, TypeForm[Any]], inspect.Signature],
+    *,
+    rate: float,
+    override_existing: bool,
+    tv_sub_map: Mapping[TypeVar, TypeForm[Any]] | None,
+) -> Callable[P, R]:
+    """Build the runtime wrapper that spotchecks *func*'s component-typed slots."""
+    args_to_wrap, check_return, forward_hints, sig = plan
+
+    @functools.wraps(func)
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
+        # wrap arguments
+        if args_to_wrap:
+            bound = sig.bind(*args, **kwargs)  # canonicalize arguments
+            for name in args_to_wrap & bound.arguments.keys():
+                # guard against None-valued implementers for 'Optional'-typed slots
+                if bound.arguments[name] is not None and name in forward_hints:
+                    bound.arguments[name] = spotcheck_component(
+                        forward_hints[name],  # type: ignore , assume _reduce_to_forwardable doesn't change assignability
+                        rate=rate,
+                        override_existing=override_existing,
+                        tv_sub_map=tv_sub_map,
+                    )(bound.arguments[name])
+            result = func(*bound.args, **bound.kwargs)
+        else:
+            result = func(*args, **kwargs)
+
+        if result is not None and check_return:
+            # check return value, but don't return wrapped object
+            spotcheck_component(
+                forward_hints["return"],  # type: ignore , assume _reduce_to_forwardable doesn't change assignability
+                rate=rate,
+                override_existing=True,  # override existing proxy in case task passes it through
+                tv_sub_map=tv_sub_map,
+            )(result)
+
+        return _unwrap_proxied(result)  # unwrap in case result was wrapped on entering task
+
+    return wrapper
+
+
 @overload
 def spotcheck(
     maite_task: Callable[P, R], /, *, rate: float = ..., override_existing: bool = ..., ai_problem: str | None = ...
@@ -266,64 +340,18 @@ def spotcheck(
             raise UndefinedAIProblemError(ai_problem_label=ai_problem)
 
     def deco(func: Callable[P, R]) -> Callable[P, R]:
+        # Find all arguments/return of *maite_task* typed as MAITE component protocols.
+        plan = _compute_wrap_plan(func)
+        if plan is None:
+            return func  # nothing hinted as a component protocol -> no wrapping needed
 
-        # Find all arguments to *maite_task* that are typed as MAITE component protocols
-        # (Note we need to set include_extras=True to avoid stripping 'Annotated' for nested spotcheck_component calls)
-        task_hints: dict[str, TypeForm[Any]] = get_type_hints(func, include_extras=True)
-        # e.g. {'ds': od.Dataset, 'aug': od.Augmentation, ... 'return': od.Dataset}
-
-        args_to_wrap = frozenset(
-            n for n, h in task_hints.items() if n != "return" and hint_matches_component_protocol(h)
+        return _make_spotcheck_wrapper(
+            func,
+            plan,
+            rate=rate,
+            override_existing=override_existing,
+            tv_sub_map=tv_sub_map,
         )
-
-        check_return = hint_matches_component_protocol(task_hints.get("return"))
-
-        if not (args_to_wrap or check_return):
-            return func
-
-        # Precompute the hint forwarded to spotcheck_component for each wrapped slot.
-        # Optional/Annotated/TypeAlias wrappers are stripped here so spotcheck_component
-        # receives a bare Protocol class or parametrized alias (its precondition),
-        # never an Optional/Union it would reject.
-        forward_hints: dict[str, TypeForm[Any]] = {}
-        for name in (*args_to_wrap, *(("return",) if check_return else ())):
-            reduced = _reduce_to_forwardable_hint(task_hints[name])
-            if reduced is not None:
-                forward_hints[name] = reduced
-
-        sig = inspect.signature(func)
-
-        # define wrapper that applies spotcheck
-        @functools.wraps(func)
-        def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
-            # wrap arguments
-            if args_to_wrap:
-                bound = sig.bind(*args, **kwargs)  # canonicalize arguments
-                for name in args_to_wrap & bound.arguments.keys():
-                    # guard against None-valued implementers for 'Optional'-typed slots
-                    if bound.arguments[name] is not None and name in forward_hints:
-                        bound.arguments[name] = spotcheck_component(
-                            forward_hints[name],  # type: ignore , assume _reduce_to_forwardable doesn't change assignability
-                            rate=rate,
-                            override_existing=override_existing,
-                            tv_sub_map=tv_sub_map,
-                        )(bound.arguments[name])
-                result = func(*bound.args, **bound.kwargs)
-            else:
-                result = func(*args, **kwargs)
-
-            if result is not None and check_return:
-                # check return value, but don't return wrapped object
-                spotcheck_component(
-                    forward_hints["return"],  # type: ignore , assume _reduce_to_forwardable doesn't change assignability
-                    rate=rate,
-                    override_existing=True,  # override existing proxy in case task passes it through
-                    tv_sub_map=tv_sub_map,
-                )(result)
-
-            return _unwrap_proxied(result)  # unwrap in case result was wrapped on entering task
-
-        return wrapper
 
     # enables calling in decorator form (where maite_task is 'None'
     # and deco call is deferred) or single-pass wrapping form.

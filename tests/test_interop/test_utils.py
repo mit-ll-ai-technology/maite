@@ -2,7 +2,7 @@ import json
 import os
 from fractions import Fraction
 from pathlib import Path
-from typing import Literal, TypedDict, cast
+from typing import TYPE_CHECKING, Literal, TypedDict, cast
 
 import numpy as np
 import pytest
@@ -12,6 +12,7 @@ from maite._internals.interop.utils import (
     DatumMetadata,
     PyAVAdapter,
     SampleSpec,
+    _SamplingPlan,
 )
 
 pytest.importorskip("av")
@@ -21,6 +22,10 @@ from tests.test_interop.generate_test_videos import (
     FRAME_WIDTH,
     decode_block_coded_frame,
 )
+
+if TYPE_CHECKING:
+    from av.container import InputContainer
+    from av.video import VideoStream as avVideoStream
 
 pytestmark = pytest.mark.mot_utils
 
@@ -122,6 +127,56 @@ def _test_video_decode(
         assert decoded_frame == expected_frame["decoded_frame"]
         assert frame.pts == expected_pts
         assert frame.time_s == pytest.approx(expected_time_s)
+
+
+def test_seek_to_start_pts_less_stream_rewinds_to_zero():
+    """Frame-based sampling of a PTS-less stream must not seek with ``None``.
+
+    Regression test: streams that carry no PTS decode frames whose ``pts`` is
+    ``None``. Frame-based starts count frame indices (not timestamps), so the
+    start path must rewind to offset ``0`` rather than passing ``None`` to
+    ``container.seek`` (which raises ``TypeError`` in PyAV).
+    """
+
+    class _FakeFrame:
+        def __init__(self, pts: int | None) -> None:
+            self.pts = pts
+
+    frames = [_FakeFrame(None), _FakeFrame(None), _FakeFrame(None)]
+    seek_offsets: list[object] = []
+
+    class _FakeContainer:
+        def decode(self, _stream: object):
+            # A fresh iterator each call, mirroring PyAV re-decoding after a seek.
+            return iter(frames)
+
+        def seek(self, offset: object, **_kwargs: object) -> None:
+            seek_offsets.append(offset)
+
+    # Frame-based plan: nothing requires PTS, so a None-pts anchor is valid.
+    plan = _SamplingPlan(
+        start_mode="frame",
+        start_frame=0,
+        start_pts=0,
+        duration_mode="unbounded",
+        duration_frames=0,
+        duration_pts=0,
+        subsample_mode="frame",
+        subsample_interval_frames=1,
+        subsample_interval_pts=0,
+    )
+
+    adapter = PyAVAdapter(av_module=object())  # _seek_to_start uses the passed container, not self._av
+    # The fakes stand in for the real PyAV container/stream (duck-typed at runtime).
+    container = cast("InputContainer", _FakeContainer())
+    stream = cast("avVideoStream", object())
+
+    result = adapter._seek_to_start(container, stream, plan)  # noqa: SLF001, exercising internal seek/rewind helper
+
+    assert result is not None
+    anchor_frame, _decoded_frames = result
+    assert anchor_frame.pts is None
+    assert seek_offsets == [0]  # rewound to stream start, not seek(None)
 
 
 @pytest.mark.parametrize(

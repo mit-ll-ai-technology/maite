@@ -113,6 +113,24 @@ def check_type(
     return arg
 
 
+def _check_bounds_satisfiable(
+    lower: Comparable | None,
+    upper: Comparable | None,
+    *,
+    incl_low: bool,
+    incl_up: bool,
+) -> None:
+    """Raise ``Unsatisfiable`` if the requested domain bounds cannot be satisfied."""
+    if lower is not None and upper is not None:
+        if incl_up and incl_low:
+            if not (lower <= upper):
+                raise Unsatisfiable(f"{lower} <= {upper}")
+        elif not lower < upper:
+            raise Unsatisfiable(f"{lower} < {upper}")
+    elif lower is None and upper is None:
+        raise Unsatisfiable("Neither `lower` nor `upper` were specified.")
+
+
 @overload
 def check_domain(
     name: str,
@@ -225,14 +243,7 @@ def check_domain(
     check_type("incl_low", incl_low, bool)
     check_type("incl_up", incl_up, bool)
 
-    if lower is not None and upper is not None:
-        if incl_up and incl_low:
-            if not (lower <= upper):
-                raise Unsatisfiable(f"{lower} <= {upper}")
-        elif not lower < upper:
-            raise Unsatisfiable(f"{lower} < {upper}")
-    elif lower is None and upper is None:
-        raise Unsatisfiable("Neither `lower` nor `upper` were specified.")
+    _check_bounds_satisfiable(lower, upper, incl_low=incl_low, incl_up=incl_up)
 
     min_satisfied = (lower <= arg if incl_low else lower < arg) if lower is not None else True
     max_satisfied = (arg <= upper if incl_up else arg < upper) if upper is not None else True

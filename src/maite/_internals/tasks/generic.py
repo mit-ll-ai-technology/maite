@@ -175,6 +175,38 @@ def augment_dataloader(
         yield augmented_batch
 
 
+def _resolve_dataloader(
+    dataloader: DataLoader[T_input, T_target, T_metadata] | None,
+    dataset: Dataset[T_input, T_target, T_metadata] | None,
+    *,
+    batch_size: int,
+    collate_fn: CollateFn[T_input, T_target, T_metadata],
+) -> DataLoader[T_input, T_target, T_metadata]:
+    """Return the provided `dataloader`, or build a `_SimpleDataLoader` from `dataset`.
+
+    Exactly one of `dataloader` or `dataset` must be provided. The branch structure
+    both validates this and narrows the types for static analysis.
+
+    Raises
+    ------
+    ValueError
+        If both `dataloader` and `dataset` are provided, or if neither is.
+    """
+    if dataloader is not None:
+        if dataset is not None:
+            raise ValueError("Do not provide both a dataloader and a dataset")
+        return dataloader
+
+    if dataset is None:
+        raise ValueError("One of dataloader and dataset must be provided")
+
+    return _SimpleDataLoader[T_input, T_target, T_metadata](
+        dataset=dataset,
+        batch_size=batch_size,
+        collate_fn=collate_fn,
+    )
+
+
 # begin all overloads for evaluate function
 # (There are currently no task-specific default arguments, which means
 # that all runtime-behavior of evaluate is common and no task-specific
@@ -267,54 +299,19 @@ def evaluate(
         If neither a dataloader nor a dataset is provided
     """
 
-    # Validate potential input combinations.
     # User needs to provide ONE of either (a) dataloader (iterable over
     # tuples of batch-types) or (b) a dataset (an iterable over tuples
-    # of individual types) and a collate_fn. (batch_size is assumed
-    # to be 1 if not provided)
+    # of individual types); a collate_fn and batch_size default to sensible
+    # values used only when building a dataloader from a dataset.
 
-    # if metric is None, make it a _DummyMetric that does nothing
-
-    # if dataloader is None, check that we have Dataset and collate_fn.
-    # If so, construct a dataloader, and assign to dataloader variable
+    if model is None:
+        raise ValueError("Model must be provided")
 
     if metric is None:
         # user provided no metric
         metric = _DummyMetric()
 
-    if dataloader is not None and dataset is not None:
-        raise ValueError("Do not provide both a dataloader and a dataset")
-
-    if dataloader is None and dataset is None:
-        # user provided neither a dataloader nor a dataset
-        raise ValueError("One of dataloader and dataset must be provided")
-
-    if dataloader is None and dataset is not None and collate_fn is None:
-        raise ValueError(
-            "If dataset is provided, then collate_fn is requiredto permit building a dataloader",
-        )
-
-    if dataloader is None:
-        if dataset is None:
-            raise ValueError("Dataload or dataset must be provided.")
-        if batch_size is None:
-            raise ValueError("batch_size must be provided.")
-        if collate_fn is None:
-            raise ValueError("collate_fn must be provided.")
-
-        dataloader = _SimpleDataLoader[T_input, T_target, T_metadata](
-            dataset=dataset,
-            batch_size=batch_size,
-            collate_fn=collate_fn,
-        )
-
-    # dataloader, metric, and model are populated by this point
-    if dataloader is None:
-        raise ValueError("Dataloader not set")
-    if metric is None:
-        raise ValueError("Metric must be provided.")
-    if model is None:
-        raise ValueError("Model must be provided")
+    dataloader = _resolve_dataloader(dataloader, dataset, batch_size=batch_size, collate_fn=collate_fn)
 
     pred_batches = []
     metric.reset()

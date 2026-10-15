@@ -490,6 +490,53 @@ class PyAVAdapter:
             frame_index=yielded_frame_index,
         )
 
+    def _seek_to_start(
+        self,
+        container: InputContainer,
+        stream: avVideoStream,
+        plan: _SamplingPlan,
+    ) -> tuple[avVideoFrame, Iterator[avVideoFrame]] | None:
+        """Seek to and advance up to the first frame satisfying *plan*'s start.
+
+        Returns ``(anchor_frame, decoded_frames)`` -- the reference frame and the
+        partially-consumed decode iterator positioned at the first included frame --
+        or ``None`` when the stream has nothing to decode.
+        """
+        requires_pts = plan.start_mode == "pts" or plan.duration_mode == "pts" or plan.subsample_mode == "pts"
+
+        try:
+            anchor_frame: avVideoFrame = next(container.decode(stream))
+        except StopIteration:
+            return None
+
+        if requires_pts and anchor_frame.pts is None:
+            raise ValueError("Time-based SampleSpec used, but no PTS found.")
+
+        if plan.start_mode == "pts" and plan.start_pts > 0:
+            if anchor_frame.pts is None:
+                raise ValueError("anchor_frame.pts is None")
+            container.seek(
+                plan.start_pts + anchor_frame.pts,
+                backward=True,
+                stream=stream,
+            )
+        else:
+            # Frame-based starts (or start_pts == 0) may run on PTS-less streams,
+            # where anchor_frame.pts is None; rewind to the stream start in that case.
+            seek_target = anchor_frame.pts if anchor_frame.pts is not None else 0
+            container.seek(seek_target, backward=True, stream=stream)
+
+        decoded_frames = self._get_to_first_frame(
+            container=container,
+            stream=stream,
+            plan=plan,
+            anchor_frame_pts=anchor_frame.pts,
+        )
+        if decoded_frames is None:
+            return None
+
+        return anchor_frame, decoded_frames
+
     def decode_iter(
         self,
         spec: SampleSpec,
@@ -524,35 +571,11 @@ class PyAVAdapter:
         with self._av.open(str(video_filepath)) as container:
             stream = container.streams.video[0]
             plan = self._compile_sampling_plan(spec, stream)
-            requires_pts = plan.start_mode == "pts" or plan.duration_mode == "pts" or plan.subsample_mode == "pts"
 
-            try:
-                anchor_frame: avVideoFrame = next(container.decode(stream))
-            except StopIteration:
+            prepared = self._seek_to_start(container, stream, plan)
+            if prepared is None:
                 return
-
-            if requires_pts and anchor_frame.pts is None:
-                raise ValueError("Time-based SampleSpec used, but no PTS found.")
-
-            if plan.start_mode == "pts" and plan.start_pts > 0:
-                if anchor_frame.pts is None:
-                    raise ValueError("anchor_frame.pts is None")
-                container.seek(
-                    plan.start_pts + anchor_frame.pts,
-                    backward=True,
-                    stream=stream,
-                )
-            else:
-                container.seek(anchor_frame.pts, backward=True, stream=stream)
-
-            decoded_frames = self._get_to_first_frame(
-                container=container,
-                stream=stream,
-                plan=plan,
-                anchor_frame_pts=anchor_frame.pts,
-            )
-            if decoded_frames is None:
-                return
+            anchor_frame, decoded_frames = prepared
 
             yielded_count = 0
             next_pts_to_include = 0

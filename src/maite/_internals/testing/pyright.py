@@ -119,6 +119,36 @@ def get_docstring_examples(doc: str) -> str:
     return "\n".join(src_lines)
 
 
+def _render_code_block(lines: list[str], *, pycon: bool) -> str:
+    """Join collected code-block *lines* and normalize them for pyright.
+
+    ``pycon`` blocks (REPL transcripts) have their prompts and expected output
+    stripped via `get_docstring_examples`; plain ``python`` blocks are dedented.
+    """
+    block_str = "\n".join(lines) + "\n"
+    return get_docstring_examples(block_str) if pycon else textwrap.dedent(block_str)
+
+
+def _append_rst_block(block: list[str] | None, preamble: str | None, blocks: list[str]) -> None:
+    """Render an rst code block and append it to *blocks* (no-op for empty blocks)."""
+    if block:
+        if not preamble:
+            raise ValueError("preable not set")
+        blocks.append(_render_code_block(block, pycon="pycon" in preamble))
+
+
+def _append_md_block(block: list[str] | None, preamble: str | None, blocks: list[str]) -> None:
+    """Render a markdown code block and append it to *blocks*.
+
+    Unknown block languages (neither ``python`` nor ``pycon``) are silently skipped.
+    """
+    if block:
+        if preamble is None:
+            raise ValueError("preamble is None")
+        if preamble in ("pycon", "python"):
+            blocks.append(_render_code_block(block, pycon=preamble == "pycon"))
+
+
 def rst_to_code(src: str) -> str:
     """
     Consumes rst-formatted text like::
@@ -161,27 +191,13 @@ def rst_to_code(src: str) -> str:
     n = -float("inf")  # line no in code block
     blocks: list[str] = []  # respective code blocks, each ready for processing
 
-    def add_block(
-        block: list[str] | None,
-        preamble: str | None,
-        blocks: list[str],
-    ) -> None:
-        if block:
-            block_str = "\n".join(block) + "\n"
-            if not preamble:
-                raise ValueError("preable not set")
-            if "pycon" in preamble:
-                blocks.append(get_docstring_examples(block_str))
-            else:
-                blocks.append(textwrap.dedent(block_str))
-
     for line in src.splitlines():
         n += 1
         # 0 <= n: if within code block
 
         if line.strip().startswith(".. code-block:: py"):
             # Entering python/pycon code block
-            add_block(block, preamble, blocks)
+            _append_rst_block(block, preamble, blocks)
             n = -1
             block = []
             indentation = line.split("..")[0] + " " * 3
@@ -200,7 +216,7 @@ def rst_to_code(src: str) -> str:
         if not (line.startswith(indentation) or not line.strip()):
             # encountering non-empty line that isn't within
             # minimum indentation leaves the code block
-            add_block(block, preamble, blocks)
+            _append_rst_block(block, preamble, blocks)
             block = None
             n = -float("inf")
             continue
@@ -218,7 +234,7 @@ def rst_to_code(src: str) -> str:
 
         block.append(line)
 
-    add_block(block, preamble, blocks)
+    _append_rst_block(block, preamble, blocks)
     return "\n".join(blocks)
 
 
@@ -271,23 +287,6 @@ def md_to_code(src: str) -> str:
     # ```
     in_code_block: bool = False
 
-    def add_block(
-        block: list[str] | None,
-        preamble: str | None,
-        blocks: list[str],
-    ) -> None:
-        if block:
-            block_str = "\n".join(block) + "\n"
-            if preamble is None:
-                raise ValueError("preamble is None")
-            if preamble == "pycon":
-                blocks.append(get_docstring_examples(block_str))
-            elif preamble == "python":
-                blocks.append(textwrap.dedent(block_str))
-            else:
-                # unknown block
-                pass
-
     for line in src.splitlines():
         stripped = line.strip()
 
@@ -296,7 +295,7 @@ def md_to_code(src: str) -> str:
 
         if not in_literal_block and stripped.startswith("```py"):
             # Entering python/pycon code block
-            add_block(block, preamble, blocks)
+            _append_md_block(block, preamble, blocks)
             if in_code_block:
                 raise ValueError(f"in_code_block: {line}")
             in_code_block = True
@@ -313,15 +312,195 @@ def md_to_code(src: str) -> str:
 
         if not in_literal_block and stripped == "`" * 3:
             # encountering ``` leaves the code block
-            add_block(block, preamble, blocks)
+            _append_md_block(block, preamble, blocks)
             block = None
             in_code_block = False
             continue
 
         block.append(line)
 
-    add_block(block, preamble, blocks)
+    _append_md_block(block, preamble, blocks)
     return "\n".join(blocks)
+
+
+def _build_pyright_config(
+    pyright_config: dict[str, Any] | None,
+    python_version: str | None,
+    report_unnecessary_type_ignore_comment: bool | None,
+    *,
+    type_checking_mode: Literal["basic", "strict"] | None,
+) -> dict[str, Any]:
+    """Assemble the pyright JSON config, applying the convenience overrides."""
+    if not pyright_config:
+        pyright_config = {"enableExperimentalFeatures": True}
+
+    if python_version is not None:
+        pyright_config["pythonVersion"] = python_version
+
+    if report_unnecessary_type_ignore_comment is not None:
+        pyright_config["reportUnnecessaryTypeIgnoreComment"] = report_unnecessary_type_ignore_comment
+
+    if type_checking_mode is not None:
+        pyright_config["typeCheckingMode"] = type_checking_mode
+
+    return pyright_config
+
+
+def _resolve_path_source(path: Path) -> str | None:
+    """Transpile a supported doc/notebook file to Python source for pyright.
+
+    Returns ``None`` when `path` is a `.py` file or a directory -- those are
+    handed to pyright directly rather than being rewritten.
+    """
+    if not path.exists():
+        raise FileNotFoundError(
+            f"Specified path {path} does not exist. Cannot be scanned by pyright.",
+        )
+
+    if path.suffix == ".rst":
+        return rst_to_code(path.read_text("utf-8"))
+    if path.suffix == ".md":
+        return md_to_code(path.read_text("utf-8"))
+    if path.suffix == ".ipynb":
+        return notebook_to_py_text(path)
+    if path.is_file() and path.suffix != ".py":
+        raise ValueError(
+            f"{path}: File type {path.suffix} not supported by `pyright_analyze`.",
+        )
+    return None
+
+
+def _resolve_source(
+    code_or_path: Any,  # noqa: ANN401, deliberate use of 'Any' type
+    *,
+    scan_docstring: bool,
+    preamble: str,
+) -> tuple[str | None, Any]:
+    """Resolve one input into ``(source, target)``.
+
+    `source` is the Python text pyright should scan, or ``None`` when `target`
+    is a file/directory that pyright scans directly. `target` is the resolved
+    path (for path inputs) or the original code object.
+    """
+    if isinstance(code_or_path, (str, Path)):
+        if scan_docstring:
+            raise ValueError(
+                "`scan_docstring=True` can only be specified when `code_or_path` is an "
+                "object with a `__doc__` attribute that returns a string.",
+            )
+        path = Path(code_or_path).resolve()
+        return _resolve_path_source(path), path
+
+    if scan_docstring and code_or_path.__doc__ is None:
+        raise ValueError(
+            "`scan_docstring=True` can only be specified when `code_or_path` is an "
+            "object with a `__doc__` attribute that returns a string.",
+        )
+
+    if preamble and not preamble.endswith("\n"):
+        preamble = preamble + "\n"
+
+    if scan_docstring:
+        docstring = inspect.getdoc(code_or_path)
+        if docstring is None:
+            raise ValueError("docstring is None")
+        return preamble + get_docstring_examples(docstring), code_or_path
+
+    return preamble + textwrap.dedent(inspect.getsource(code_or_path)), code_or_path
+
+
+def _run_pyright(
+    sources: list[str | None],
+    targets: list[Any],
+    pyright_config: dict[str, Any],
+    *,
+    pyright: str,
+) -> PyrightOutput:
+    """Write each resolved source into a temp workspace and run pyright over it."""
+    with chdir():
+        cwd = Path.cwd()
+
+        for n, (source, code_or_path) in enumerate(
+            zip(sources, targets, strict=True),
+        ):
+            target_dir = cwd / str(n)
+
+            if source is not None:
+                target_dir.mkdir()
+                file_ = target_dir / f"{getattr(code_or_path, '__name__', 'source')}.py"
+                file_.write_text(source, encoding="utf-8")
+            else:
+                file_ = Path(code_or_path).absolute()
+                if file_.is_dir():
+                    file_ = shutil.copytree(file_, target_dir / "SCAN_DIR")
+                elif file_ != cwd:
+                    target_dir.mkdir()
+                    file_ = shutil.copy(file_, target_dir / file_.name)
+
+        config_path = cwd / "pyrightconfig.json"
+
+        if pyright_config:
+            config_path.write_text(json.dumps(pyright_config))
+
+        # Pyright path is a parameter to this function and checked at the start
+        # of this function. pyright is not a user input.
+        proc = subprocess.run(  # noqa: S603
+            [pyright, str(cwd.absolute()), "--outputjson"],
+            cwd=cwd,
+            encoding="utf-8",
+            text=True,
+            capture_output=True,
+        )
+        try:
+            scan: PyrightOutput = json.loads(proc.stdout)
+        except Exception as e:  # pragma: no cover
+            print(proc.stdout)
+            raise e
+
+    return scan
+
+
+def _collate_results(scan: PyrightOutput, num_items: int) -> list[PyrightOutput]:
+    """Group pyright's flat diagnostics back into one `PyrightOutput` per input."""
+    out = scan["generalDiagnostics"]
+    diagnostics_by_file: defaultdict[int, list[Diagnostic]] = defaultdict(list)
+
+    for item in out:
+        file_str = item["file"]
+        if "SCAN_DIR" in file_str:
+            name = Path(file_str).name
+            target_dir = file_str.find("SCAN_DIR")
+            file_path = Path(file_str[:target_dir])
+        else:
+            file_path_all = Path(file_str)
+            name = file_path_all.name
+            file_path = file_path_all.parent
+
+        file_index = int(file_path.name)
+        diagnostic = item.copy()
+        diagnostic["file"] = name
+        diagnostics_by_file[file_index].append(diagnostic)
+
+    results: list[PyrightOutput] = []
+
+    for n in range(num_items):
+        severities = Counter(d["severity"] for d in diagnostics_by_file[n])
+        summary = Summary(
+            filesAnalyzed=1,
+            errorCount=severities["error"],
+            warningCount=severities["warning"],
+            informationCount=severities["information"],
+            timeInSec=scan["summary"]["timeInSec"],
+        )
+        results.append(
+            PyrightOutput(
+                version=scan["version"],
+                time=scan["time"],
+                generalDiagnostics=diagnostics_by_file[n],
+                summary=summary,
+            ),
+        )
+    return results
 
 
 def pyright_analyze(
@@ -496,142 +675,27 @@ def pyright_analyze(
             f"`path_to_pyright` – {path_to_pyright} – doesn't exist.",
         )
     pyright = str(path_to_pyright.resolve(strict=True))
-    if not pyright_config:
-        pyright_config = {"enableExperimentalFeatures": True}
 
-    if python_version is not None:
-        pyright_config["pythonVersion"] = python_version
-
-    if report_unnecessary_type_ignore_comment is not None:
-        pyright_config["reportUnnecessaryTypeIgnoreComment"] = report_unnecessary_type_ignore_comment
-
-    if type_checking_mode is not None:
-        pyright_config["typeCheckingMode"] = type_checking_mode
+    pyright_config = _build_pyright_config(
+        pyright_config,
+        python_version,
+        report_unnecessary_type_ignore_comment,
+        type_checking_mode=type_checking_mode,
+    )
 
     sources: list[str | None] = []
-    code_objs_and_or_paths_resolved = []
+    targets: list[Any] = []
     for code_or_path in code_objs_and_or_paths:
-        if scan_docstring and (isinstance(code_or_path, (Path, str)) or code_or_path.__doc__ is None):
-            raise ValueError(
-                "`scan_docstring=True` can only be specified when `code_or_path` is an "
-                "object with a `__doc__` attribute that returns a string.",
-            )
-
-        if isinstance(code_or_path, str):
-            code_or_path = Path(code_or_path)
-
-        if isinstance(code_or_path, Path):
-            code_or_path = code_or_path.resolve()
-
-            if not code_or_path.exists():
-                raise FileNotFoundError(
-                    f"Specified path {code_or_path} does not exist. Cannot be scanned by pyright.",
-                )
-
-            if code_or_path.suffix == ".rst":
-                source = rst_to_code(code_or_path.read_text("utf-8"))
-            elif code_or_path.suffix == ".md":
-                source = md_to_code(code_or_path.read_text("utf-8"))
-            elif code_or_path.suffix == ".ipynb":
-                source = notebook_to_py_text(code_or_path)
-            elif code_or_path.is_file() and code_or_path.suffix != ".py":
-                raise ValueError(
-                    f"{code_or_path}: File type {code_or_path.suffix} not supported by `pyright_analyze`.",
-                )
-            else:
-                source = None
-        else:
-            if preamble and not preamble.endswith("\n"):
-                preamble = preamble + "\n"
-            if not scan_docstring:
-                source = preamble + textwrap.dedent(inspect.getsource(code_or_path))
-            else:
-                docstring = inspect.getdoc(code_or_path)
-                if docstring is None:
-                    raise ValueError("docstring is None")
-                source = preamble + get_docstring_examples(docstring)
+        source, target = _resolve_source(
+            code_or_path,
+            scan_docstring=scan_docstring,
+            preamble=preamble,
+        )
         sources.append(source)
-        code_objs_and_or_paths_resolved.append(code_or_path)
+        targets.append(target)
 
-    with chdir():
-        cwd = Path.cwd()
-
-        for n, (source, code_or_path) in enumerate(
-            zip(sources, code_objs_and_or_paths_resolved, strict=True),
-        ):
-            target_dir = cwd / str(n)
-
-            if source is not None:
-                target_dir.mkdir()
-                file_ = target_dir / f"{getattr(code_or_path, '__name__', 'source')}.py"
-                file_.write_text(source, encoding="utf-8")
-            else:
-                file_ = Path(code_or_path).absolute()
-                if file_.is_dir():
-                    file_ = shutil.copytree(file_, target_dir / "SCAN_DIR")
-                elif file_ != cwd:
-                    target_dir.mkdir()
-                    file_ = shutil.copy(file_, target_dir / file_.name)
-
-        config_path = cwd / "pyrightconfig.json"
-
-        if pyright_config:
-            config_path.write_text(json.dumps(pyright_config))
-
-        # Pyright path is a parameter to this function and checked at the start
-        # of this function. pyright is not a user input.
-        proc = subprocess.run(  # noqa: S603
-            [pyright, str(cwd.absolute()), "--outputjson"],
-            cwd=cwd,
-            encoding="utf-8",
-            text=True,
-            capture_output=True,
-        )
-        try:
-            scan: PyrightOutput = json.loads(proc.stdout)
-        except Exception as e:  # pragma: no cover
-            print(proc.stdout)
-            raise e
-
-    out = scan["generalDiagnostics"]
-    diagnostics_by_file: defaultdict[int, list[Diagnostic]] = defaultdict(list)
-
-    for item in out:
-        file_str = item["file"]
-        if "SCAN_DIR" in file_str:
-            name = Path(file_str).name
-            target_dir = file_str.find("SCAN_DIR")
-            file_path = Path(file_str[:target_dir])
-        else:
-            file_path_all = Path(file_str)
-            name = file_path_all.name
-            file_path = file_path_all.parent
-
-        file_index = int(file_path.name)
-        diagnostic = item.copy()
-        diagnostic["file"] = name
-        diagnostics_by_file[file_index].append(diagnostic)
-
-    results: list[PyrightOutput] = []
-
-    for n in range(len(code_objs_and_or_paths)):
-        severities = Counter(d["severity"] for d in diagnostics_by_file[n])
-        summary = Summary(
-            filesAnalyzed=1,
-            errorCount=severities["error"],
-            warningCount=severities["warning"],
-            informationCount=severities["information"],
-            timeInSec=scan["summary"]["timeInSec"],
-        )
-        results.append(
-            PyrightOutput(
-                version=scan["version"],
-                time=scan["time"],
-                generalDiagnostics=diagnostics_by_file[n],
-                summary=summary,
-            ),
-        )
-    return results
+    scan = _run_pyright(sources, targets, pyright_config, pyright=pyright)
+    return _collate_results(scan, len(code_objs_and_or_paths))
 
 
 def list_error_messages(results: PyrightOutput) -> list[str]:

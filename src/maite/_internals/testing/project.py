@@ -6,7 +6,7 @@ import importlib
 import json
 import subprocess
 import sys
-from collections.abc import Collection, Generator, Mapping
+from collections.abc import Collection, Generator, Iterator, Mapping
 from copy import deepcopy
 from functools import _CacheInfo as CacheInfo
 from functools import lru_cache
@@ -349,6 +349,50 @@ def get_public_symbols(
     return list(out)
 
 
+def _resolve_skip_marker(
+    skip_module_not_found: bool | Literal["pytest-skip"],
+) -> tuple[Any, Any]:
+    """Resolve the ``(marker, param)`` pair used to represent unimportable symbols.
+
+    Returns ``(None, None)`` for the bool modes. For ``"pytest-skip"`` returns a
+    pytest skip marker and the ``pytest.param`` factory used to emit skip-marked
+    params (kept optional so pytest is only imported when requested).
+    """
+    if isinstance(skip_module_not_found, bool):
+        return None, None
+    if skip_module_not_found == "pytest-skip":
+        # pytest should be kept optional.
+        from pytest import mark, param  # noqa: PT013
+
+        return mark.skip(reason="Module not found."), param
+
+    check_one_of(
+        "skip_module_not_found",
+        skip_module_not_found,
+        [True, False, "pytest-skip"],
+    )
+    raise Exception("unreachable")  # pragma: no cover
+
+
+def _select_symbols(
+    scan: ModuleScanResults,
+    submodule: str,
+    categories: Collection[Category],
+) -> Iterator[Symbol]:
+    """Validate *categories* and return matching scanned symbols, name-sorted."""
+    for cat in categories:
+        check_one_of("categories", cat, CATEGORIES)
+
+    category_set = set(categories)
+    return filter(
+        lambda symbol: symbol["category"] in category_set,
+        sorted(
+            get_public_symbols(scan, submodule=submodule),
+            key=lambda symbol: symbol["name"],
+        ),
+    )
+
+
 def import_public_symbols(
     scan: ModuleScanResults,
     *,
@@ -410,34 +454,9 @@ def import_public_symbols(
     [<function entrypoint at ...>, <function main at ...>]
     """
 
-    if isinstance(skip_module_not_found, bool):
-        marker = None
-    elif skip_module_not_found == "pytest-skip":
-        # pytest should be kept optional.
-        from pytest import mark, param  # noqa: PT013
+    marker, param = _resolve_skip_marker(skip_module_not_found)
 
-        marker = mark.skip(reason="Module not found.")
-    else:
-        check_one_of(
-            "skip_module_not_found",
-            skip_module_not_found,
-            [True, False, "pytest-skip"],
-        )
-        marker = None  # pragma: no cover
-        raise Exception("unreachable")  # pragma: no cover
-
-    for cat in categories:
-        check_one_of("categories", cat, CATEGORIES)
-
-    categories = set(categories)
-
-    symbols = filter(
-        lambda symbol: symbol["category"] in categories,
-        sorted(
-            get_public_symbols(scan, submodule=submodule),
-            key=lambda symbol: symbol["name"],
-        ),
-    )
+    symbols = _select_symbols(scan, submodule, categories)
 
     err = (ModuleNotFoundError, AttributeError) if skip_module_not_found else ()
     cached_typeddict_names = set()
@@ -452,7 +471,7 @@ def import_public_symbols(
             module = import_module(module_path)
         except err:
             if marker is not None:
-                yield param(symbol["name"], marks=marker)  # type: ignore
+                yield param(symbol["name"], marks=marker)
 
             else:
                 continue
@@ -466,7 +485,7 @@ def import_public_symbols(
             except err:  # pragma: no cover
                 # it is possible that a symbol is unreachable at runtime
                 if marker is not None:
-                    yield param(symbol["name"], marks=marker)  # type: ignore
+                    yield param(symbol["name"], marks=marker)
                 else:
                     continue
 
