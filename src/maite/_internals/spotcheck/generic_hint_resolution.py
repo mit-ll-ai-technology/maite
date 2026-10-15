@@ -91,6 +91,32 @@ def _free_typevars(hint: TypeForm[Any]) -> tuple[TypeVar, ...]:
     return tuple(dict.fromkeys(found))  # keep order and dedupe
 
 
+def _safe_merge(
+    tv: TypeVar,
+    hint: TypeForm[Any],
+    tv_sub_map: dict[TypeVar, TypeForm[Any]],
+    *,
+    pinned_tv_keys: frozenset[TypeVar],
+) -> None:
+    """Merge item (*tv*: *hint*) into *tv_sub_map*, looking for conflicts either with
+    the user-provided pinned substitutions or with a binding discovered earlier in the MRO."""
+    resolved = _substitute(hint, tv_sub_map)
+    if tv in pinned_tv_keys:
+        # A caller pin supplies the type for an otherwise-open parametrization.
+        # If the class derives a *concrete* (TypeVar-free) binding that disagrees,
+        # that is a genuine conflict. If the derived binding is itself still an
+        # open TypeVar -- as when a polymorphic task (e.g. ``evaluate``) parametrizes
+        # a protocol by its own TypeVars -- the pin legitimately closes it and wins.
+        if not _free_typevars(resolved) and resolved != tv_sub_map[tv]:
+            raise SubstitutionConflictError(tv, tv_sub_map[tv], resolved)
+        return
+    if tv in tv_sub_map:
+        if resolved != tv_sub_map[tv]:
+            raise UninferrableSubstitutionError(tv, tv_sub_map[tv], resolved)
+        return
+    tv_sub_map[tv] = resolved  # key isn't present already
+
+
 def _typevar_subs_from_class(
     cls: type, derived_tv_submap: TypeVarSubMap | None = None, pinned_tv_submap: TypeVarSubMap | None = None
 ) -> TypeVarSubMap:
@@ -119,28 +145,9 @@ def _typevar_subs_from_class(
     tv_sub_map: TypeVarSubMap = dict(pinned_tv_submap or {})
     pinned_tv_keys = frozenset(tv_sub_map)
 
-    def safe_merge(tv: TypeVar, hint: TypeForm[Any]) -> None:
-        """Try adding item (*tv*: *hint*) into tv_submap, looking for conflicts either with
-        user-provided pinned_tv_submap or from earlier in MRO."""
-        resolved = _substitute(hint, tv_sub_map)
-        if tv in pinned_tv_keys:
-            # A caller pin supplies the type for an otherwise-open parametrization.
-            # If the class derives a *concrete* (TypeVar-free) binding that disagrees,
-            # that is a genuine conflict. If the derived binding is itself still an
-            # open TypeVar -- as when a polymorphic task (e.g. ``evaluate``) parametrizes
-            # a protocol by its own TypeVars -- the pin legitimately closes it and wins.
-            if not _free_typevars(resolved) and resolved != tv_sub_map[tv]:
-                raise SubstitutionConflictError(tv, tv_sub_map[tv], resolved)
-            return
-        if tv in tv_sub_map:
-            if resolved != tv_sub_map[tv]:
-                raise UninferrableSubstitutionError(tv, tv_sub_map[tv], resolved)
-            return
-        tv_sub_map[tv] = resolved  # key isn't present already
-
     # attempt to merge pinned substitution map with derived substitution map
     for tv, hint in (derived_tv_submap or {}).items():
-        safe_merge(tv, hint)
+        _safe_merge(tv, hint, tv_sub_map, pinned_tv_keys=pinned_tv_keys)
 
     # Walk through classes in MRO starting with *cls* and going toward 'object'
     # (Note that mro elements have no subscripts! We need to use '__parameters__'
@@ -156,7 +163,9 @@ def _typevar_subs_from_class(
                 continue  # either klass is unsubscripted or has no open type parameters
 
             for tv, value in zip(origin.__parameters__, get_args(base), strict=True):
-                safe_merge(tv, value)  # update tv_sub_map, looking for collisions
+                _safe_merge(
+                    tv, value, tv_sub_map, pinned_tv_keys=pinned_tv_keys
+                )  # update tv_sub_map, looking for collisions
 
     return tv_sub_map
 
