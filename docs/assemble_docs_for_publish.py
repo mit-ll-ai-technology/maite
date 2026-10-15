@@ -306,7 +306,8 @@ def main(token: str, output_dir: Path):
         print(f"{output_dir} must not exist before running script", file=sys.stderr)
         sys.exit(1)
 
-    assert Path().cwd().name == "maite", "Must be run from maite directory"
+    # only match first 5 chars to avoid blocking case we have CI-testing repos named like 'maite-cicd'
+    assert Path().cwd().name[:5] == "maite", f"Must be run from maite directory, instead found {Path().cwd().name=}"
     output_dir.mkdir(parents=True)
 
     download_prev_docs_from_gitlab(output_dir=output_dir, token=token)

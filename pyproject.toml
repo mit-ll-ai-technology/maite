@@ -1,6 +1,6 @@
 [build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0", "poetry-dynamic-versioning>=1.0.0,<2.0.0"]
-build-backend = "poetry_dynamic_versioning.backend"
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
 
 
 [project]
@@ -122,24 +122,23 @@ all = ["maite[mot-utils,torchmetrics,yolo-models]"]
 "Source" = "https://github.com/mit-ll-ai-technology/maite"
 
 
-[tool.poetry]
-include = [
-  { path = "tests", format = "sdist" },
-  { path = "maite"}
-]
-version = "0.0.0"
+[tool.hatch.version]
+source = "vcs"
 
-[tool.poetry.requires-plugins]
-poetry-dynamic-versioning = { version = ">=1.0.0,<2.0.0", extras = ["plugin"] }
+[tool.hatch.version.raw-options]
+# setuptools-scm handles v-prefixed tags by default; explicit here for clarity
+tag_regex = "^v(?P<version>.+)$"
 
-[tool.poetry-dynamic-versioning]
-enable = true
-vcs = "git"
+[tool.hatch.build.hooks.vcs]
+# Generated at build/install time from the git tag
+version-file = "src/maite/_version.py"
 
-[tool.poetry-dynamic-versioning.substitution]
-folders = [
-    { path = "src/maite", files = ["_version.py"] }
-]
+[tool.hatch.build.targets.wheel]
+packages = ["src/maite"]
+
+[tool.hatch.build.targets.sdist]
+# include tests dir in the sdist.
+include = ["src/maite", "tests"]
 
 
 [tool.isort]
