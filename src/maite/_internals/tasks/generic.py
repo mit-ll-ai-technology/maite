@@ -172,8 +172,8 @@ def augment_dataloader(
 
     Examples
     --------
-    We illustrate with an image classification problem, but the same pattern
-    applies to any MAITE task. See the `maite.protocols.image_classification`
+    We illustrate with image classification, but the same pattern applies to any
+    AI problem. See the `maite.protocols.image_classification`
     documentation for details on writing compliant components.
 
     >>> import numpy as np
@@ -348,8 +348,8 @@ def evaluate(
 
     Examples
     --------
-    We illustrate with an image classification problem, but the same pattern
-    applies to any MAITE task. See the `maite.protocols.image_classification`
+    We illustrate with image classification, but the same pattern applies to any
+    AI problem. See the `maite.protocols.image_classification`
     documentation for details on writing compliant components.
 
     >>> import numpy as np
@@ -368,8 +368,8 @@ def evaluate(
     >>> images = [make_image(c) for c in [0, 1, 2, 0]]
     >>> targets = [np.eye(3)[t] for t in [0, 1, 2, 1]]  # note: last image is mislabeled
 
-    A `Model` predicts the brightest-channel class for each image in a batch,
-    returning a one-hot score vector per image.
+    We create a `Model` that predicts the brightest-channel class for each image in a batch,
+    returning a prediction vector per image.
 
     >>> class ChannelClassifier:
     ...     metadata: ModelMetadata = {"id": "ChannelClassifier"}
@@ -381,7 +381,7 @@ def evaluate(
     ...             preds.append(np.eye(3)[cls])
     ...         return preds
 
-    A `Metric` that accumulates predictions and targets across batches and
+    We define a `Metric` that accumulates predictions and targets across batches and
     computes accuracy on `compute`.
 
     >>> class Accuracy:
@@ -408,7 +408,7 @@ def evaluate(
     ...     def compute(self) -> dict[str, float]:
     ...         return {"accuracy": self._correct / self._total}
 
-    A `Dataset` that returns an (input, target, metadata) 3-tuple per index.
+    We create a `Dataset` that returns an (input, target, metadata) 3-tuple per index.
 
     >>> class ImageDataset:
     ...     metadata: DatasetMetadata = {"id": "example_dataset"}
@@ -545,8 +545,8 @@ def evaluate_from_predictions(
 
     Examples
     --------
-    We illustrate with an image classification problem, but the same pattern
-    applies to any MAITE task. See the `maite.protocols.image_classification`
+    We illustrate with image classification, but the same pattern
+    applies to any AI problem. See the `maite.protocols.image_classification`
     documentation for details on writing compliant components.
 
     >>> import numpy as np
@@ -554,7 +554,7 @@ def evaluate_from_predictions(
     >>> from maite.protocols import ArrayLike, DatumMetadata, MetricMetadata
     >>> from maite.protocols import image_classification as ic
 
-    A `Metric` that accumulates predictions and targets across batches and
+    First we define a `Metric` that accumulates predictions and targets across batches and
     computes accuracy on `compute`.
 
     >>> class Accuracy:
@@ -582,7 +582,7 @@ def evaluate_from_predictions(
     ...         return {"accuracy": self._correct / self._total}
 
     Predictions and targets are each supplied as a sequence of batches, where a
-    batch is a sequence of per-datum one-hot score vectors. Here we have two
+    batch is a sequence of per-datum score or one-hot label vectors. Here we have two
     batches of two datapoints, with one of the four predictions disagreeing with
     its target.
 
@@ -687,8 +687,8 @@ def predict(
 
     Examples
     --------
-    We illustrate with an image classification problem, but the same pattern
-    applies to any MAITE task. See the `maite.protocols.image_classification`
+    We illustrate with image classification, but the same pattern
+    applies to any AI problem. See the `maite.protocols.image_classification`
     documentation for details on writing compliant components.
 
     >>> import numpy as np
@@ -707,8 +707,8 @@ def predict(
     >>> images = [make_image(c) for c in [0, 1, 2, 0]]
     >>> targets = [np.eye(3)[t] for t in [0, 1, 2, 0]]
 
-    A `Model` predicts the brightest-channel class for each image in a batch,
-    returning a one-hot score vector per image.
+    We create a `Model` that predicts the brightest-channel class for each image in a batch,
+    returning a prediction vector per image.
 
     >>> class ChannelClassifier:
     ...     metadata: ModelMetadata = {"id": "ChannelClassifier"}
@@ -720,7 +720,7 @@ def predict(
     ...             preds.append(np.eye(3)[cls])
     ...         return preds
 
-    A `Dataset` that returns an (input, target, metadata) 3-tuple per index.
+    We define a `Dataset` that returns an (input, target, metadata) 3-tuple per index.
     `predict` ignores targets, so any placeholder target of the correct type
     will do.
 
