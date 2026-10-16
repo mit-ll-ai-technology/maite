@@ -151,7 +151,7 @@ def augment_dataloader(
     ],
     dataloader: DataLoader[T_input, T_target, T_metadata],
 ) -> DataLoader[T_input, T_target, T_metadata_aug]:
-    # doc-ignore: EX01, YD01
+    # doc-ignore: YD01
     # YD01 We prefer to document the function as returning a DataLoader, rather than yielding augmented
     # batch elements.
     """
@@ -169,6 +169,55 @@ def augment_dataloader(
     -------
     DataLoader[InputType, TargetType, DatumMetadataType]
         DataLoader for augmented inputs.
+
+    Examples
+    --------
+    We illustrate with image classification, but the same pattern applies to any
+    AI problem. See the `maite.protocols.image_classification`
+    documentation for details on writing compliant components.
+
+    >>> import numpy as np
+    >>> import numpy.typing as npt
+    >>> from collections.abc import Sequence
+    >>> from maite.protocols import ArrayLike, AugmentationMetadata, DatumMetadata
+    >>> from maite.protocols import image_classification as ic
+
+    An `Augmentation` takes a data batch (a tuple of input, target, and metadata
+    batches) and returns a modified batch. This one zeros out the first channel
+    of every image.
+
+    >>> class ZeroFirstChannel:
+    ...     metadata: AugmentationMetadata = {"id": "zero_first_channel"}
+    ...
+    ...     def __call__(
+    ...         self,
+    ...         batch: tuple[Sequence[ArrayLike], Sequence[ArrayLike], Sequence[DatumMetadata]],
+    ...     ) -> tuple[Sequence[npt.NDArray], Sequence[ArrayLike], Sequence[DatumMetadata]]:
+    ...         inputs, targets, metadata = batch
+    ...         inputs_aug = []
+    ...         for x in inputs:
+    ...             arr = np.asarray(x).copy()
+    ...             arr[0] = 0.0
+    ...             inputs_aug.append(arr)
+    ...         return inputs_aug, targets, metadata
+
+    A `DataLoader` is any iterable of such batches. Here we build one by hand from
+    two shape-`(3, 4, 4)` images.
+
+    >>> images = [np.ones((3, 4, 4)) for _ in range(2)]
+    >>> targets = [np.eye(3)[c] for c in [0, 1]]
+    >>> metadata: list[DatumMetadata] = [{"id": 0}, {"id": 1}]
+    >>> dataloader = [(images, targets, metadata)]
+
+    Wrapping the dataloader with the augmentation yields a new dataloader whose
+    batches have been augmented.
+
+    >>> from maite.tasks import augment_dataloader
+    >>> augmentation: ic.Augmentation = ZeroFirstChannel()
+    >>> augmented = augment_dataloader(augmentation=augmentation, dataloader=dataloader)
+    >>> aug_inputs, _, _ = next(iter(augmented))
+    >>> float(np.asarray(aug_inputs[0])[0].sum())  # first channel is now all zeros
+    0.0
     """
     for input_batch in add_progress_bar(dataloader):
         augmented_batch = augmentation(input_batch)
@@ -239,7 +288,6 @@ def evaluate(
     Sequence[Sequence[T_target]],
     Sequence[tuple[Sequence[T_input], Sequence[T_target], Sequence[T_metadata]]],
 ]:
-    # doc-ignore: EX01
     """
     Evaluate a model's performance on data according to some metric with optional augmentation.
 
@@ -297,6 +345,109 @@ def evaluate(
     ------
     ValueError
         If neither a dataloader nor a dataset is provided
+
+    Examples
+    --------
+    We illustrate with image classification, but the same pattern applies to any
+    AI problem. See the `maite.protocols.image_classification`
+    documentation for details on writing compliant components.
+
+    >>> import numpy as np
+    >>> import numpy.typing as npt
+    >>> from collections.abc import Sequence
+    >>> from maite.protocols import ArrayLike, DatasetMetadata, DatumMetadata, MetricMetadata, ModelMetadata
+    >>> from maite.protocols import image_classification as ic
+
+    We set up a tiny three-class problem in which the class of an image is the
+    index of its brightest channel.
+
+    >>> def make_image(bright_channel: int) -> npt.NDArray:
+    ...     img = np.full((3, 4, 4), 0.1)
+    ...     img[bright_channel] = 0.9
+    ...     return img
+    >>> images = [make_image(c) for c in [0, 1, 2, 0]]
+    >>> targets = [np.eye(3)[t] for t in [0, 1, 2, 1]]  # note: last image is mislabeled
+
+    We create a `Model` that predicts the brightest-channel class for each image in a batch,
+    returning a prediction vector per image.
+
+    >>> class ChannelClassifier:
+    ...     metadata: ModelMetadata = {"id": "ChannelClassifier"}
+    ...
+    ...     def __call__(self, batch: Sequence[ArrayLike]) -> Sequence[npt.NDArray]:
+    ...         preds = []
+    ...         for x in batch:
+    ...             cls = int(np.asarray(x).mean(axis=(1, 2)).argmax())
+    ...             preds.append(np.eye(3)[cls])
+    ...         return preds
+
+    We define a `Metric` that accumulates predictions and targets across batches and
+    computes accuracy on `compute`.
+
+    >>> class Accuracy:
+    ...     metadata: MetricMetadata = {"id": "accuracy"}
+    ...
+    ...     def __init__(self) -> None:
+    ...         self.reset()
+    ...
+    ...     def reset(self) -> None:
+    ...         self._correct = 0
+    ...         self._total = 0
+    ...
+    ...     def update(
+    ...         self,
+    ...         preds: Sequence[ArrayLike],
+    ...         targets: Sequence[ArrayLike],
+    ...         metadata: Sequence[DatumMetadata],
+    ...     ) -> None:
+    ...         pred_classes = np.vstack([np.asarray(p) for p in preds]).argmax(axis=1)
+    ...         true_classes = np.vstack([np.asarray(t) for t in targets]).argmax(axis=1)
+    ...         self._correct += int((pred_classes == true_classes).sum())
+    ...         self._total += len(pred_classes)
+    ...
+    ...     def compute(self) -> dict[str, float]:
+    ...         return {"accuracy": self._correct / self._total}
+
+    We create a `Dataset` that returns an (input, target, metadata) 3-tuple per index.
+
+    >>> class ImageDataset:
+    ...     metadata: DatasetMetadata = {"id": "example_dataset"}
+    ...
+    ...     def __init__(self, images: list[npt.NDArray], targets: list[npt.NDArray]) -> None:
+    ...         self.images = images
+    ...         self.targets = targets
+    ...
+    ...     def __len__(self) -> int:
+    ...         return len(self.images)
+    ...
+    ...     def __getitem__(self, i: int) -> tuple[npt.NDArray, npt.NDArray, DatumMetadata]:
+    ...         md: DatumMetadata = {"id": i}
+    ...         return self.images[i], self.targets[i], md
+
+    We type-hint each instance against its protocol so a static type checker can
+    verify compliance, then run `evaluate`. Passing a `dataset` (rather than a
+    `dataloader`) lets `evaluate` build batches of `batch_size` internally.
+
+    >>> from maite.tasks import evaluate
+    >>> model: ic.Model = ChannelClassifier()
+    >>> metric: ic.Metric = Accuracy()
+    >>> dataset: ic.Dataset = ImageDataset(images, targets)
+    >>> metric_results, _, _ = evaluate(
+    ...     model=model,
+    ...     metric=metric,
+    ...     dataset=dataset,
+    ...     batch_size=2,
+    ... )
+
+    Three of the four images are classified in agreement with their (possibly
+    noisy) targets.
+
+    >>> metric_results
+    {'accuracy': 0.75}
+
+    Set `return_preds=True` and/or `return_augmented_data=True` to additionally
+    receive the per-batch predictions and the (post-augmentation) data batches
+    fed to the model; both are empty sequences otherwise.
     """
 
     # User needs to provide ONE of either (a) dataloader (iterable over
@@ -359,9 +510,12 @@ def evaluate_from_predictions(
     target_batches: Sequence[Sequence[T_target]],
     metadata_batches: Sequence[Sequence[T_metadata]],
 ) -> MetricComputeReturnType:
-    # doc-ignore: EX01
     """
     Evaluate pre-calculated predictions against target (truth) data for some specified metric.
+
+    This is useful when predictions have already been computed (e.g., by a prior
+    call to `predict`, or by a model outside of MAITE) and only the metric value
+    is needed, avoiding a second inference pass.
 
     Parameters
     ----------
@@ -388,6 +542,66 @@ def evaluate_from_predictions(
     ValueError
         If predictions or targets arguments have zero length (i.e. no batches), differing lengths,
         or corresponding elements (batches) have differing lengths.
+
+    Examples
+    --------
+    We illustrate with image classification, but the same pattern
+    applies to any AI problem. See the `maite.protocols.image_classification`
+    documentation for details on writing compliant components.
+
+    >>> import numpy as np
+    >>> from collections.abc import Sequence
+    >>> from maite.protocols import ArrayLike, DatumMetadata, MetricMetadata
+    >>> from maite.protocols import image_classification as ic
+
+    First we define a `Metric` that accumulates predictions and targets across batches and
+    computes accuracy on `compute`.
+
+    >>> class Accuracy:
+    ...     metadata: MetricMetadata = {"id": "accuracy"}
+    ...
+    ...     def __init__(self) -> None:
+    ...         self.reset()
+    ...
+    ...     def reset(self) -> None:
+    ...         self._correct = 0
+    ...         self._total = 0
+    ...
+    ...     def update(
+    ...         self,
+    ...         preds: Sequence[ArrayLike],
+    ...         targets: Sequence[ArrayLike],
+    ...         metadata: Sequence[DatumMetadata],
+    ...     ) -> None:
+    ...         pred_classes = np.vstack([np.asarray(p) for p in preds]).argmax(axis=1)
+    ...         true_classes = np.vstack([np.asarray(t) for t in targets]).argmax(axis=1)
+    ...         self._correct += int((pred_classes == true_classes).sum())
+    ...         self._total += len(pred_classes)
+    ...
+    ...     def compute(self) -> dict[str, float]:
+    ...         return {"accuracy": self._correct / self._total}
+
+    Predictions and targets are each supplied as a sequence of batches, where a
+    batch is a sequence of per-datum score or one-hot label vectors. Here we have two
+    batches of two datapoints, with one of the four predictions disagreeing with
+    its target.
+
+    >>> pred_batches = [[np.eye(3)[c] for c in [0, 1]], [np.eye(3)[c] for c in [2, 0]]]
+    >>> target_batches = [[np.eye(3)[c] for c in [0, 1]], [np.eye(3)[c] for c in [2, 1]]]
+    >>> metadata_batches: list[list[DatumMetadata]] = [
+    ...     [{"id": 0}, {"id": 1}],
+    ...     [{"id": 2}, {"id": 3}],
+    ... ]
+
+    >>> from maite.tasks import evaluate_from_predictions
+    >>> metric: ic.Metric = Accuracy()
+    >>> evaluate_from_predictions(
+    ...     metric=metric,
+    ...     pred_batches=pred_batches,
+    ...     target_batches=target_batches,
+    ...     metadata_batches=metadata_batches,
+    ... )
+    {'accuracy': 0.75}
     """
     # Checks for argument compliance.
 
@@ -434,7 +648,6 @@ def predict(
     Sequence[Sequence[T_target]],
     Sequence[tuple[Sequence[T_input], Sequence[T_target], Sequence[T_metadata]]],
 ]:
-    # doc-ignore: EX01
     """
     Make predictions for a given model & data source with optional augmentation.
 
@@ -471,6 +684,74 @@ def predict(
     ------
     ValueError
         If neither a dataloader nor a dataset is provided.
+
+    Examples
+    --------
+    We illustrate with image classification, but the same pattern
+    applies to any AI problem. See the `maite.protocols.image_classification`
+    documentation for details on writing compliant components.
+
+    >>> import numpy as np
+    >>> import numpy.typing as npt
+    >>> from collections.abc import Sequence
+    >>> from maite.protocols import ArrayLike, DatasetMetadata, DatumMetadata, ModelMetadata
+    >>> from maite.protocols import image_classification as ic
+
+    We set up a tiny three-class problem in which the class of an image is the
+    index of its brightest channel.
+
+    >>> def make_image(bright_channel: int) -> npt.NDArray:
+    ...     img = np.full((3, 4, 4), 0.1)
+    ...     img[bright_channel] = 0.9
+    ...     return img
+    >>> images = [make_image(c) for c in [0, 1, 2, 0]]
+    >>> targets = [np.eye(3)[t] for t in [0, 1, 2, 0]]
+
+    We create a `Model` that predicts the brightest-channel class for each image in a batch,
+    returning a prediction vector per image.
+
+    >>> class ChannelClassifier:
+    ...     metadata: ModelMetadata = {"id": "ChannelClassifier"}
+    ...
+    ...     def __call__(self, batch: Sequence[ArrayLike]) -> Sequence[npt.NDArray]:
+    ...         preds = []
+    ...         for x in batch:
+    ...             cls = int(np.asarray(x).mean(axis=(1, 2)).argmax())
+    ...             preds.append(np.eye(3)[cls])
+    ...         return preds
+
+    We define a `Dataset` that returns an (input, target, metadata) 3-tuple per index.
+    `predict` ignores targets, so any placeholder target of the correct type
+    will do.
+
+    >>> class ImageDataset:
+    ...     metadata: DatasetMetadata = {"id": "example_dataset"}
+    ...
+    ...     def __init__(self, images: list[npt.NDArray], targets: list[npt.NDArray]) -> None:
+    ...         self.images = images
+    ...         self.targets = targets
+    ...
+    ...     def __len__(self) -> int:
+    ...         return len(self.images)
+    ...
+    ...     def __getitem__(self, i: int) -> tuple[npt.NDArray, npt.NDArray, DatumMetadata]:
+    ...         md: DatumMetadata = {"id": i}
+    ...         return self.images[i], self.targets[i], md
+
+    Running `predict` returns one sequence of prediction batches (plus a sequence
+    of augmented-data batches, empty here since `return_augmented_data` defaults
+    to False).
+
+    >>> from maite.tasks import predict
+    >>> model: ic.Model = ChannelClassifier()
+    >>> dataset: ic.Dataset = ImageDataset(images, targets)
+    >>> preds, _ = predict(model=model, dataset=dataset, batch_size=2)
+
+    We flatten the batched predictions and take the argmax of each score vector
+    to recover the predicted class per image.
+
+    >>> [int(np.asarray(p).argmax()) for batch in preds for p in batch]
+    [0, 1, 2, 0]
     """
 
     _, preds, aug_data = evaluate(
