@@ -1,0 +1,833 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>maite._internals.interop.metrics.torchmetrics &#8212; maite 0.8.2 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/sphinx-codeautolink.css?v=b2176991" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/sphinx-design.min.css?v=87e54e7c" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../../../_static/documentation_options.js?v=dbee5847"></script>
+    <script src="../../../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../../_static/copybutton.js?v=30646c52"></script>
+    <script async="async" src="https://www.googletagmanager.com/gtag/js?id=UA-115029372-2"></script>
+    <script src="../../../../../_static/gtag.js"></script>
+    <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/maite/_internals/interop/metrics/torchmetrics';</script>
+    <script src="../../../../../_static/pypi_icon.js?v=74687d30"></script>
+    <script src="../../../../../_static/condaforge_icon.js?v=19caf20c"></script>
+    <script src="../../../../../_static/anaconda_icon.js?v=e3074ad8"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.8" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">maite 0.8.2 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../tutorials.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../how_tos.html">
+    How-To Guides
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../explanation.html">
+    Explanation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../api_reference.html">
+    Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../changes.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/mit-ll-ai-technology/maite" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/maite/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-custom fa-pypi fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://anaconda.org/conda-forge/maite" title="Anaconda" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-custom fa-anaconda fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Anaconda</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../tutorials.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../how_tos.html">
+    How-To Guides
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../explanation.html">
+    Explanation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../api_reference.html">
+    Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../changes.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/mit-ll-ai-technology/maite" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/maite/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-custom fa-pypi fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://anaconda.org/conda-forge/maite" title="Anaconda" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-custom fa-anaconda fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Anaconda</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">maite._internals.interop.metrics.torchmetrics</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for maite._internals.interop.metrics.torchmetrics</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright 2025, MASSACHUSETTS INSTITUTE OF TECHNOLOGY</span>
+<span class="c1"># Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).</span>
+<span class="c1"># SPDX-License-Identifier: MIT</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Type</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torchmetrics</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torchmetrics.classification</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">maite.protocols.image_classification</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ic</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">maite.errors</span><span class="w"> </span><span class="kn">import</span> <span class="n">InvalidArgument</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">maite.protocols</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArrayLike</span><span class="p">,</span> <span class="n">MetricMetadata</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_arraylike_as_tensor</span><span class="p">(</span>
+    <span class="n">arr</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="n">Any</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">dtype</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Safe bridging of `maite.ArrayLike` to `torch.Tensor`.</span>
+
+<span class="sd">    This is a naive bridging attempt. Direct bridging to `torch.Tensor` is attempted</span>
+<span class="sd">    first. If this fails, then bridging to a `numpy.ndarray` is attempted as an</span>
+<span class="sd">    intermediate step prior to attempting to bridge to a `torch.Tensor` again.</span>
+
+<span class="sd">    Note that this approach may fail for a variety reasons, such as incompatible device</span>
+<span class="sd">    placement of data (e.g., CPU vs. GPU), or inherent differences in the library used</span>
+<span class="sd">    to instantiate the ArrayLike (e.g., tensorflow.Tensor vs. torch.Tensor).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e1</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Unable to bridge data of type </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span><span class="si">}</span><span class="s2"> directly to torch.Tensor due to the following error: </span><span class="si">{</span><span class="n">e1</span><span class="si">}</span><span class="s2">.&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Attempt to bridge to numpy.ndarray as an intermediary also failed.&quot;</span>
+                <span class="p">)</span>
+            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e2</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_valid_classification_metrics</span><span class="p">(</span>
+    <span class="n">allowed_modules</span><span class="p">:</span> <span class="p">(</span>
+        <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;Multiclass&quot;</span><span class="p">,</span> <span class="s2">&quot;Binary&quot;</span><span class="p">,</span> <span class="s2">&quot;Multilabel&quot;</span><span class="p">]</span>
+        <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;Multiclass&quot;</span><span class="p">,</span> <span class="s2">&quot;Binary&quot;</span><span class="p">,</span> <span class="s2">&quot;Multilabel&quot;</span><span class="p">]]</span>
+        <span class="o">|</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">torchmetrics</span><span class="o">.</span><span class="n">Metric</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if a classification metric is supported by `TMClassificationMetric`.</span>
+
+<span class="sd">    Metrics are gathered dynamically from `torchmetrics.classification` and must be of</span>
+<span class="sd">    type, or subclass of, `torchmetrics.Metric`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    allowed_modules : Literal[&quot;Multiclass&quot;, &quot;Binary&quot;, &quot;Multilabel&quot;] | list[Literal[&quot;Multiclass&quot;, &quot;Binary&quot;, &quot;Multilabel&quot;]], default=None</span>
+<span class="sd">        Allowed module names. If provided, only metrics from these modules will be</span>
+<span class="sd">        returned. If none are provided, all classification metrics are returned.</span>
+<span class="sd">        Elements of the list must be either &quot;Multiclass&quot;, &quot;Binary&quot;, or &quot;Multilabel&quot;.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Post-filtering is required to ensure the metrics support the ic.Metrics protocol.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">allowed_modules</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">allowed_modules</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Multiclass&quot;</span><span class="p">,</span> <span class="s2">&quot;Binary&quot;</span><span class="p">,</span> <span class="s2">&quot;Multilabel&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">allowed_modules</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">allowed_modules</span> <span class="o">=</span> <span class="p">[</span><span class="n">allowed_modules</span><span class="p">]</span>
+    <span class="n">modules</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="n">torchmetrics</span><span class="o">.</span><span class="n">classification</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">allowed_module_type</span> <span class="ow">in</span> <span class="n">allowed_modules</span><span class="p">:</span>
+            <span class="n">attr</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">torchmetrics</span><span class="o">.</span><span class="n">classification</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">allowed_module_type</span> <span class="ow">in</span> <span class="n">module</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="n">torchmetrics</span><span class="o">.</span><span class="n">Metric</span><span class="p">):</span>
+                        <span class="k">continue</span>
+                <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">modules</span><span class="p">[</span><span class="n">attr</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]</span> <span class="o">=</span> <span class="n">attr</span>
+    <span class="k">return</span> <span class="n">modules</span>
+
+
+<span class="c1"># TM_CLASSIFICATION_METRIC_WHITELIST = _get_valid_classification_metrics(&quot;Multiclass&quot;)</span>
+<span class="n">TM_CLASSIFICATION_METRIC_WHITELIST</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Type</span><span class="p">[</span><span class="n">torchmetrics</span><span class="o">.</span><span class="n">Metric</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;MulticlassAccuracy&quot;</span><span class="p">:</span> <span class="n">torchmetrics</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">MulticlassAccuracy</span><span class="p">,</span>
+    <span class="s2">&quot;MulticlassCohenKappa&quot;</span><span class="p">:</span> <span class="n">torchmetrics</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">MulticlassCohenKappa</span><span class="p">,</span>
+    <span class="s2">&quot;MulticlassConfusionMatrix&quot;</span><span class="p">:</span> <span class="n">torchmetrics</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">MulticlassConfusionMatrix</span><span class="p">,</span>
+    <span class="s2">&quot;MulticlassExactMatch&quot;</span><span class="p">:</span> <span class="n">torchmetrics</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">MulticlassExactMatch</span><span class="p">,</span>
+    <span class="s2">&quot;MulticlassF1Score&quot;</span><span class="p">:</span> <span class="n">torchmetrics</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">MulticlassF1Score</span><span class="p">,</span>
+    <span class="s2">&quot;MulticlassFBetaScore&quot;</span><span class="p">:</span> <span class="n">torchmetrics</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">MulticlassFBetaScore</span><span class="p">,</span>
+    <span class="s2">&quot;MulticlassHammingDistance&quot;</span><span class="p">:</span> <span class="n">torchmetrics</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">MulticlassHammingDistance</span><span class="p">,</span>
+    <span class="s2">&quot;MulticlassJaccardIndex&quot;</span><span class="p">:</span> <span class="n">torchmetrics</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">MulticlassJaccardIndex</span><span class="p">,</span>
+    <span class="s2">&quot;MulticlassMatthewsCorrCoef&quot;</span><span class="p">:</span> <span class="n">torchmetrics</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">MulticlassMatthewsCorrCoef</span><span class="p">,</span>
+    <span class="s2">&quot;MulticlassNegativePredictiveValue&quot;</span><span class="p">:</span> <span class="n">torchmetrics</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">MulticlassNegativePredictiveValue</span><span class="p">,</span>
+    <span class="s2">&quot;MulticlassPrecision&quot;</span><span class="p">:</span> <span class="n">torchmetrics</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">MulticlassPrecision</span><span class="p">,</span>
+    <span class="s2">&quot;MulticlassRecall&quot;</span><span class="p">:</span> <span class="n">torchmetrics</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">MulticlassRecall</span><span class="p">,</span>
+    <span class="s2">&quot;MulticlassSpecificity&quot;</span><span class="p">:</span> <span class="n">torchmetrics</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">MulticlassSpecificity</span><span class="p">,</span>
+    <span class="s2">&quot;MulticlassStatScores&quot;</span><span class="p">:</span> <span class="n">torchmetrics</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">MulticlassStatScores</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="TMClassificationMetric">
+<a class="viewcode-back" href="../../../../../generated/maite.interop.metrics.torchmetrics.TMClassificationMetric.html#maite.interop.metrics.torchmetrics.TMClassificationMetric">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TMClassificationMetric</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    MAITE-compliant Wrapper for TorchMetrics Classification Metrics.</span>
+
+<span class="sd">    `TMClassificationMetric` is a wrapper around `torchmetrics.classification` metrics</span>
+<span class="sd">    adhering to MAITE&#39;s `image_classification.Metric` protocol.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Only `Multiclass` metrics are currently supported. Please refer to the `torchmetrics`</span>
+<span class="sd">    documentation for more information: https://lightning.ai/docs/torchmetrics/stable/.</span>
+
+<span class="sd">    Supported metrics:</span>
+<span class="sd">        * `~torchmetrics.classification.MulticlassAccuracy`</span>
+<span class="sd">        * `~torchmetrics.classification.MulticlassCohenKappa`</span>
+<span class="sd">        * `~torchmetrics.classification.MulticlassConfusionMatrix`</span>
+<span class="sd">        * `~torchmetrics.classification.MulticlassExactMatch`</span>
+<span class="sd">        * `~torchmetrics.classification.MulticlassF1Score`</span>
+<span class="sd">        * `~torchmetrics.classification.MulticlassFBetaScore`</span>
+<span class="sd">        * `~torchmetrics.classification.MulticlassHammingDistance`</span>
+<span class="sd">        * `~torchmetrics.classification.MulticlassJaccardIndex`</span>
+<span class="sd">        * `~torchmetrics.classification.MulticlassMatthewsCorrCoef`</span>
+<span class="sd">        * `~torchmetrics.classification.MulticlassNegativePredictiveValue`</span>
+<span class="sd">        * `~torchmetrics.classification.MulticlassPrecision`</span>
+<span class="sd">        * `~torchmetrics.classification.MulticlassRecall`</span>
+<span class="sd">        * `~torchmetrics.classification.MulticlassSpecificity`</span>
+<span class="sd">        * `~torchmetrics.classification.MulticlassStatScores`</span>
+
+<span class="sd">    (Unsupported metrics either require `preds` and `targets` to be of varying different</span>
+<span class="sd">    shapes or require additional parameters in their `update()` function signature.)</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    &gt;&gt;&gt; import torch</span>
+<span class="sd">    &gt;&gt;&gt; import torchmetrics.classification</span>
+<span class="sd">    &gt;&gt;&gt; from typing_extensions import Sequence</span>
+<span class="sd">    &gt;&gt;&gt; from maite.protocols import image_classification as ic, MetricMetadata</span>
+<span class="sd">    &gt;&gt;&gt; from maite.interop.metrics.torchmetrics import TMClassificationMetric</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; preds: Sequence[ic.TargetType] = [torch.tensor([0.1, 0.8, 0.1]), torch.tensor([0.6, 0.2, 0.2]), torch.tensor([0.4, 0.3, 0.3])]</span>
+<span class="sd">    &gt;&gt;&gt; target: Sequence[ic.TargetType] = [torch.tensor([0, 1, 0]), torch.tensor([1, 0, 0]), torch.tensor([0, 0, 1])]</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # Create native TorchMetrics metric</span>
+<span class="sd">    &gt;&gt;&gt; classification_metric = torchmetrics.classification.MulticlassAccuracy(num_classes=3)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # Add additional field to base MetricMetadata</span>
+<span class="sd">    &gt;&gt;&gt; class MyMetricMetadata(MetricMetadata):</span>
+<span class="sd">    ...     num_classes: int</span>
+<span class="sd">    &gt;&gt;&gt; metadata: MyMetricMetadata = {&quot;id&quot;: &quot;Multiclass Accuracy&quot;, &quot;num_classes&quot;: 3}</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # Wrap metric and apply to sample data</span>
+<span class="sd">    &gt;&gt;&gt; wrapped_classification_metric: ic.Metric = TMClassificationMetric(</span>
+<span class="sd">    ...     classification_metric, metadata=metadata</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &gt;&gt;&gt; wrapped_classification_metric.update(preds, target)</span>
+<span class="sd">    &gt;&gt;&gt; result = wrapped_classification_metric.compute()</span>
+<span class="sd">    &gt;&gt;&gt; result  # doctest: +SKIP</span>
+<span class="sd">    {&#39;MulticlassAccuracy&#39;: tensor(0.6667)}</span>
+<span class="sd">    &gt;&gt;&gt; print(f&quot;{result[&#39;MulticlassAccuracy&#39;].item():0.3f}&quot;)  # consistent formatting for doctest</span>
+<span class="sd">    0.667</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">metric</span><span class="p">:</span> <span class="n">torchmetrics</span><span class="o">.</span><span class="n">Metric</span><span class="p">,</span>
+        <span class="n">output_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">output_transform</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">device</span><span class="p">:</span> <span class="n">Any</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">dtype</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">metadata</span><span class="p">:</span> <span class="n">MetricMetadata</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        metric : `torchmetrics.Metric`</span>
+<span class="sd">            Metric being wrapped. The metric must be a `torchmetrics.classification`</span>
+<span class="sd">            metric.</span>
+<span class="sd">        output_key : str, optional</span>
+<span class="sd">            Outermost key returned from calling `TMClassificationMetric.compute()`. If</span>
+<span class="sd">            neither output_key nor output_transform is provided and the metric result is</span>
+<span class="sd">            not already a dictionary with str keys, then the name of the</span>
+<span class="sd">            `torchmetrics.Metric` will be used as the default outmost key. Note: At most</span>
+<span class="sd">            one of output_key and output_transform may be provided.</span>
+<span class="sd">        output_transform : Callable[[torch.Tensor], dict[str, Any]], optional</span>
+<span class="sd">            Function that takes the output of `torchmetrics.Metric.compute()` as input</span>
+<span class="sd">            and returns a modified version of it to be returned by</span>
+<span class="sd">            `TMClassificationMetric.compute()`. Note: At most one of output_key and</span>
+<span class="sd">            output_transform may be provided.</span>
+<span class="sd">        device : Any, optional</span>
+<span class="sd">            Torch device type on which a torch.Tensor is or will be allocated. If none</span>
+<span class="sd">            is passed, then the device will be inferred by torch.</span>
+<span class="sd">        dtype : `torch.dtype`, optional</span>
+<span class="sd">            Torch data type. If none is passed, then data type will be inferred by</span>
+<span class="sd">            torch.</span>
+<span class="sd">        metadata : `MetricMetadata`</span>
+<span class="sd">            A typed dictionary containing at least an &#39;id&#39; field of type str.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">TMClassificationMetric</span><span class="o">.</span><span class="n">_assert_valid_classification_metric</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">output_key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">output_transform</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">InvalidArgument</span><span class="p">(</span>
+                <span class="s2">&quot;Only one of `output_key` and `output_transform` may be provided&quot;</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">metric</span> <span class="o">=</span> <span class="n">metric</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_key</span> <span class="o">=</span> <span class="n">output_key</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_transform</span> <span class="o">=</span> <span class="n">output_transform</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="n">dtype</span>
+
+        <span class="k">if</span> <span class="n">metadata</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">metric</span><span class="o">.</span><span class="n">_get_name</span><span class="p">()}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_assert_valid_dims</span><span class="p">(</span><span class="n">tensors</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure tensor elements are of shape `(Cl,)`.</span>
+
+<span class="sd">        Note this is required by MAITE&#39;s `image_classification.Metric` protocol, where</span>
+<span class="sd">        `Cl` refers to the classes, or labels, of the data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">tensor</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">tensor</span> <span class="ow">in</span> <span class="n">tensors</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Invalid dimensions for `preds` or `targets` elements. Expected 1-dimensional `ArrayLike` elements of shape `(Cl,)`&quot;</span>
+            <span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_assert_valid_classification_metric</span><span class="p">(</span><span class="n">metric</span><span class="p">:</span> <span class="n">torchmetrics</span><span class="o">.</span><span class="n">Metric</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">TM_CLASSIFICATION_METRIC_WHITELIST</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Invalid `metric` supplied: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span><span class="si">}</span><span class="s2">. Must be one of </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">TM_CLASSIFICATION_METRIC_WHITELIST</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># doc-ignore: EX01</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reset the metric&#39;s internal state.</span>
+
+<span class="sd">        This method is used to reset the metric&#39;s internal state, such as counters or</span>
+<span class="sd">        accumulators, to their initial values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">preds</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">ic</span><span class="o">.</span><span class="n">TargetType</span><span class="p">],</span>
+        <span class="n">targets</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">ic</span><span class="o">.</span><span class="n">TargetType</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># doc-ignore: EX01</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update the internal state of the metric with new predictions and targets.</span>
+
+<span class="sd">        MAITE&#39;s `image_classification.Metric` protocol requires the elements of `preds`</span>
+<span class="sd">        and `targets` to be of shape `(Cl,)`, where `Cl` refers to the classes, or</span>
+<span class="sd">        labels, of the data.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        preds : ic.TargetBatchType</span>
+<span class="sd">            Batch of predicted classificaton values.</span>
+<span class="sd">        targets : ic.TargetBatchType</span>
+<span class="sd">            Batch of ground truth classification values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">preds_tm</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">_arraylike_as_tensor</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">arr</span> <span class="ow">in</span> <span class="n">preds</span>
+        <span class="p">]</span>
+        <span class="n">targets_tm</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">_arraylike_as_tensor</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">arr</span> <span class="ow">in</span> <span class="n">targets</span>
+        <span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_assert_valid_dims</span><span class="p">(</span><span class="n">preds_tm</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_assert_valid_dims</span><span class="p">(</span><span class="n">targets_tm</span><span class="p">)</span>
+
+        <span class="n">preds_tm</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">preds_tm</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">targets_tm</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">targets_tm</span><span class="p">)</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">preds_tm</span><span class="p">,</span> <span class="n">targets_tm</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="c1"># doc-ignore: EX01</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the TorchMetric metric result and format it.</span>
+
+<span class="sd">        If `TMClassificationMetric.output_transform` is provided, the result will be</span>
+<span class="sd">        passed to the `output_transform` function for additional post-processing.</span>
+
+<span class="sd">        If `TMClassificationMetric.output_key` is provided, the</span>
+<span class="sd">        result will be wrapped in a dictionary with that key. Otherwise, if the result is</span>
+<span class="sd">        not already a dictionary, it will be wrapped in a dictionary with a key derived</span>
+<span class="sd">        from the metric&#39;s name.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Dict[str, Any]</span>
+<span class="sd">            The formatted metric result.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_transform</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># User wants full control over reformatting the results that get returned</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_transform</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># User wants the output with a top-level key</span>
+            <span class="k">return</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">output_key</span><span class="p">:</span> <span class="n">results</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span>
+            <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="p">):</span>
+            <span class="c1"># Ensure dict[str, Any]</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="o">.</span><span class="n">_get_name</span><span class="p">()</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">results</span><span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">results</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024 Massachusetts Institute of Technology.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
