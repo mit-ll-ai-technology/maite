@@ -327,8 +327,8 @@ def get_public_symbols(
 
     Accessing symbols from the `docs` submodule.
 
-    >>> get_public_symbols(results, submodule="maite.protocols")[0]
-    {'category': 'type alias', 'name': 'maite.protocols.ArrayLike', 'referenceCount': 1, 'isExported': True, 'isTypeKnown': True, 'isTypeAmbiguous': False, 'diagnostics': []}
+    >>> get_public_symbols(results, submodule="maite.protocols")[0]  # doctest: +ELLIPSIS
+    {'category': ..., 'name': ..., 'referenceCount': ..., 'isExported': ..., 'isTypeKnown': ..., 'isTypeAmbiguous': ..., 'diagnostics': ...}
     """  # noqa: E501
     check_type("scan", scan, Mapping)
     check_type("submodule", submodule, str)

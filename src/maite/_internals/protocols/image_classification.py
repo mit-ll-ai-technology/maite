@@ -5,25 +5,12 @@
 # import component generics from generic.py and specialize them for image_classification
 from __future__ import annotations
 
-from collections.abc import Mapping
-from typing import Annotated, Protocol, TypeAlias, TypeVar
+from typing import Protocol, TypeAlias
 
-import numpy as np
-from typing_extensions import TypeForm
+from typing_extensions import TypeAliasType
 
-from maite._internals.compat import Is
 from maite._internals.protocols import generic as gen
 from maite.protocols import ArrayLike, DatumMetadata
-
-
-# Define predicates with which to enrich semantic classes for verifiability
-def is_3dim(x: ArrayLike) -> bool:
-    return np.asarray(x).ndim == 3
-
-
-def is_1dim(x: ArrayLike) -> bool:
-    return np.asarray(x).ndim == 1
-
 
 # In below, the dimension names/meanings used are:
 #
@@ -33,11 +20,20 @@ def is_1dim(x: ArrayLike) -> bool:
 # C  - image channel
 # Cl - classification label (one-hot for ground-truth label; probabilities or logits for predictions)
 
+# These are the *plain*, isinstance-compatible-where-the-base-permits public primitives.
+# They carry NO value-based predicates (no `Annotated[..., Is[...]]`): the runtime-
+# verification forms that do live in
+# `maite._internals.protocols.runtime_verify.image_classification` and are re-attached by
+# spotcheck at runtime. `TypeAliasType` gives each primitive a distinct object identity
+# (the key spotcheck's identity-based lookup relies on to tell `Image` from
+# `ImgClassification`, which share the same `ArrayLike` base) and a stable static display
+# name (`Image` rather than the expanded union).
+
 # ArrayLike representing image data with (C, H, W) shape semantics
-Image: TypeAlias = Annotated[ArrayLike, Is[is_3dim]]
+Image = TypeAliasType("Image", ArrayLike)
 
 # ArrayLike following (Cl,) shape semantics (where 'Cl' refers to number of target classes)
-ImgClassification: TypeAlias = Annotated[ArrayLike, Is[is_1dim]]
+ImgClassification = TypeAliasType("ImgClassification", ArrayLike)
 
 InputType: TypeAlias = Image
 TargetType: TypeAlias = ImgClassification
@@ -49,27 +45,6 @@ Datum: TypeAlias = tuple[
 ]  # Alias of tuple[:py:type:`~maite.protocols.image_classification.InputType`,
 # :py:type:`~maite.protocols.image_classification.TargetType`,
 # :py:type:`~maite.protocols.image_classification.DatumMetadataType`]
-
-# --- spotcheck TypeVar substitution map ---
-# (consumed by maite._internals.spotcheck.spotcheck_tasks). Maps every variance flavor
-# of the generic protocol TypeVars to a single "semantic alias" per role, so a polymorphic
-# task (e.g. `evaluate`/`predict`) that parametrizes protocols by its own TypeVars can be
-# closed at spotcheck time. When beartype is available the aliases carry lightweight
-# validators; otherwise they collapse to the plain types and add no extra validation.
-# (The *_in TypeVars are currently unused by any protocol; kept for forward-compat.)
-# The `Is[...]` predicates are inert when beartype is unavailable (see maite._internals.compat).
-
-TV_SUB_MAP: Mapping[TypeVar, TypeForm] = {
-    gen.InputType_co: Image,
-    gen.InputType_cn: Image,
-    gen.InputType_in: Image,
-    gen.TargetType_co: ImgClassification,
-    gen.TargetType_cn: ImgClassification,
-    gen.TargetType_in: ImgClassification,
-    gen.DatumMetadataType_co: DatumMetadataType,
-    gen.DatumMetadataType_cn: DatumMetadataType,
-    gen.DatumMetadataType_in: DatumMetadataType,
-}
 
 
 # Initialize component classes based on generic and Input/Target/Metadata types
