@@ -11,9 +11,15 @@ from typing import Annotated, Any, ParamSpec, TypeVar, Union, get_args, get_orig
 
 from typing_extensions import TypeAliasType, TypeForm, is_protocol
 
-from maite._internals.protocols.image_classification import TV_SUB_MAP as _IMAGE_CLASSIFICATION_TV_SUB_MAP
-from maite._internals.protocols.multiobject_tracking import TV_SUB_MAP as _MULTIOBJECT_TRACKING_TV_SUB_MAP
-from maite._internals.protocols.object_detection import TV_SUB_MAP as _OBJECT_DETECTION_TV_SUB_MAP
+from maite._internals.protocols.runtime_verify.image_classification import (
+    TV_SUB_MAP as _IMAGE_CLASSIFICATION_TV_SUB_MAP,
+)
+from maite._internals.protocols.runtime_verify.multiobject_tracking import (
+    TV_SUB_MAP as _MULTIOBJECT_TRACKING_TV_SUB_MAP,
+)
+from maite._internals.protocols.runtime_verify.object_detection import (
+    TV_SUB_MAP as _OBJECT_DETECTION_TV_SUB_MAP,
+)
 from maite._internals.spotcheck.proxy_factory import _unwrap_proxied, spotcheck_component
 from maite.protocols.generic import (
     Augmentation,
@@ -169,7 +175,7 @@ def _reduce_to_forwardable_hint(hint: TypeForm[Any] | None) -> TypeForm[Any] | N
     survives as ``Dataset[int]`` rather than being reduced to ``Dataset``). Returns
     ``None`` for genuine multi-member unions and for anything otherwise
     irreducible. This is what lets a decorated task forward a clean Protocol class
-    or parametrized alias -- never an ``Optional``/``Union`` that
+    or parametrized generic Protocol class -- never an ``Optional``/``Union`` that
     ``spotcheck_component`` would reject.
     """
 
@@ -196,7 +202,7 @@ def _reduce_to_forwardable_hint(hint: TypeForm[Any] | None) -> TypeForm[Any] | N
             else:
                 return None  # genuine multi-member union -> nothing single to forward
         else:
-            return hint  # plain type or parametrized alias -> forward as-is
+            return hint  # plain type or parametrized generic Protocol -> forward as-is
 
     return None
 
@@ -252,7 +258,7 @@ def _make_spotcheck_wrapper(
                 # guard against None-valued implementers for 'Optional'-typed slots
                 if bound.arguments[name] is not None and name in forward_hints:
                     bound.arguments[name] = spotcheck_component(
-                        forward_hints[name],  # type: ignore , assume _reduce_to_forwardable doesn't change assignability
+                        forward_hints[name],
                         rate=rate,
                         override_existing=override_existing,
                         tv_sub_map=tv_sub_map,
@@ -264,7 +270,7 @@ def _make_spotcheck_wrapper(
         if result is not None and check_return:
             # check return value, but don't return wrapped object
             spotcheck_component(
-                forward_hints["return"],  # type: ignore , assume _reduce_to_forwardable doesn't change assignability
+                forward_hints["return"],
                 rate=rate,
                 override_existing=True,  # override existing proxy in case task passes it through
                 tv_sub_map=tv_sub_map,

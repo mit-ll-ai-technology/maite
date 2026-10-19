@@ -7,19 +7,27 @@ and type violation detection across various interaction modes.
 
 from __future__ import annotations
 
-from collections.abc import Callable, Iterator, Mapping
-from typing import Any, Protocol, TypeVar, cast
+import warnings
+from collections.abc import Callable, Iterator, Mapping, Sequence
+from types import NoneType
+from typing import Annotated, Any, Protocol, TypeVar, cast
 
 import pytest
-from typing_extensions import TypeForm
+from beartype.vale import Is  # real validator (carries `is_valid`); module already hard-requires beartype
+from typing_extensions import TypeAliasType, TypeForm
 
 # Correct, localized imports per structural guidelines
 from maite._internals.spotcheck import proxy_factory
+from maite._internals.spotcheck.generic_hint_resolution import resolve_protocol_members
 from maite._internals.spotcheck.protocol_introspection import (
     ProtocolMembers,
     protocol_members,
 )
 from maite._internals.spotcheck.proxy_factory import (
+    _ENRICH,
+    RedundantSpotcheckWarning,
+    _hint_carries_value_predicate,
+    _members_carry_value_predicate,
     _ProxyBase,
     _ProxyConfig,
     _unwrap_proxied,
@@ -32,6 +40,13 @@ from maite._internals.spotcheck.spotcheck_node import (
 )
 
 T = TypeVar("T")
+
+# Nearly every test in this file wraps a predicate-free protocol (`RefProto`, the
+# `Underhinted*` protos), each of which now trips `RedundantSpotcheckWarning` at
+# proxy-build time. That is expected here, so ignore it module-wide rather than
+# decorating each test. `pytest.warns` (used below to assert the warning *does*
+# fire) overrides this filter locally, so the assertion still holds.
+pytestmark = pytest.mark.filterwarnings("ignore::maite._internals.spotcheck.proxy_factory.RedundantSpotcheckWarning")
 
 
 class RefProto(Protocol):
@@ -612,3 +627,120 @@ def test_fallback_dunder_unsupported_raises_typeerror() -> None:
     proxy: Any = spotcheck_component(MinimalProto)(MinimalImpl())
     with pytest.raises(TypeError):
         _ = 1 in proxy
+
+
+# ==============================================================================
+# Value-predicate detection and RedundantSpotcheckWarning
+#
+# `spotcheck_component`'s distinctive value is runtime *value* validation via
+# beartype `Is[...]` predicates. A protocol carrying none yields a proxy whose
+# checks reduce to structural/nominal conformance (a duplicate of static typing),
+# so `_build_proxy_class` warns. These tests cover the hint walker, the
+# member-level scan, and the warning wiring.
+# ==============================================================================
+
+_POS = Is[lambda x: x > 0]  # a real predicate: `getattr(_POS, "is_valid")` is callable
+
+
+@pytest.mark.parametrize(
+    ("hint", "expected"),
+    [
+        # --- bare leaves: no predicate ---
+        (int, False),
+        (Any, False),
+        # --- Annotated metadata that is NOT a value-predicate ---
+        (Annotated[int, ...], False),  # Ellipsis-only (cf. MOT VideoStream)
+        (Annotated[int, "docstring"], False),  # non-`Is` metadata
+        # --- Annotated carrying a predicate ---
+        (Annotated[int, _POS], True),
+        # --- predicate nested inside containers (the IC __getitem__ shape) ---
+        (tuple[Annotated[int, _POS], str], True),
+        (tuple[int, str], False),
+        (Sequence[Annotated[int, _POS]], True),
+        (dict[str, Annotated[int, _POS]], True),
+        # --- predicate nested inside a union / Optional ---
+        (Annotated[int, _POS] | NoneType, True),
+        (str | Annotated[int, _POS], True),
+        # --- doubly nested: Annotated wrapping a container of Annotated ---
+        (Annotated[tuple[Annotated[int, _POS], str], "outer"], True),
+    ],
+)
+def test_hint_carries_value_predicate(hint: TypeForm[Any], expected: bool) -> None:
+    assert _hint_carries_value_predicate(hint) is expected
+
+
+# ------------------------------------------------------------------------------
+# TypeAliasType unwrapping in the hint walker.
+#
+# maite's own protocol primitives (`ic.Image`, `mot.VideoStream`, ...) are
+# `typing_extensions.TypeAliasType` objects built for stable identity, so the
+# walker unwraps `hint.__value__` -- guarded by an `id()`-keyed `_seen` set so a
+# self- or mutually-recursive alias can't spin forever. The aliases live at module
+# scope with names matching their string arg (pyright requires both, and a
+# `TypeAliasType` may only be assigned in module/class scope).
+# ------------------------------------------------------------------------------
+
+# No `Is[...]` anywhere beneath the wrapper.
+PredicateFreeAlias = TypeAliasType("PredicateFreeAlias", Annotated[tuple[int, str], "arbitrary_nonpredicate_metadata"])
+
+# Predicate is two hops down: outer alias -> tuple -> inner alias -> Annotated[Is].
+InnerPredicateAlias = TypeAliasType("InnerPredicateAlias", Annotated[int, _POS])
+OuterPredicateAlias = TypeAliasType("OuterPredicateAlias", tuple[InnerPredicateAlias, str])
+
+# A predicate-carrying alias for the recursion-guard test (see below).
+RecursiveAlias = TypeAliasType("RecursiveAlias", Annotated[int, _POS])
+
+
+def test_typealias_without_predicate_is_false() -> None:
+    assert _hint_carries_value_predicate(PredicateFreeAlias) is False
+
+
+def test_typealias_transitively_carrying_predicate_is_true() -> None:
+    assert _hint_carries_value_predicate(OuterPredicateAlias) is True
+
+
+def test_recursive_typealias_terminates() -> None:
+    # The walker unwraps a TypeAliasType via `hint.__value__`; a self- or mutually-recursive
+    # alias would re-enter the same object forever without the `id()`-keyed `_seen` guard.
+    # A real cyclic alias can't be spelled portably -- the constructor is eager (a value can
+    # only name already-defined aliases, never itself) and native `__value__` is read-only --
+    # so exercise the guard at its contract: hand the walker an alias it is already visiting
+    # and confirm it short-circuits instead of descending. Direct self-reference is the
+    # minimal case; mutual recursion (A -> B -> A) is just a longer cycle the same guard stops.
+    assert _hint_carries_value_predicate(RecursiveAlias) is True  # unguarded walk descends and finds the predicate
+    seen = frozenset({id(RecursiveAlias)})  # ... but if we are already inside this alias,
+    assert _hint_carries_value_predicate(RecursiveAlias, seen) is False  # the guard short-circuits before descending
+
+
+def test_members_scan_false_for_predicate_free_protocol() -> None:
+    # RefProto's members are hinted only with int/str/bool/float -- no `Is[...]`.
+    assert _members_carry_value_predicate(protocol_members(RefProto)) is False
+
+
+def test_members_scan_true_for_real_maite_protocol() -> None:
+    # IC's public primitives are now plain (isinstance-able, non-Annotated), so IC
+    # Dataset's `__orig_bases__` binding carries no `Is[...]` on its own. The value
+    # predicates are re-attached at resolution time through the `leaf_rewrite=_ENRICH`
+    # seam (identity-keyed lookup of the plain primitive leaves) -- the same seam
+    # `_build_proxy_class` uses -- so the scan is True once enrichment is applied.
+    from maite._internals.protocols import image_classification as ic
+
+    assert _members_carry_value_predicate(resolve_protocol_members(ic.Dataset, leaf_rewrite=_ENRICH)) is True
+
+
+def test_predicate_free_wrap_warns() -> None:
+    # cache_clear() forces a cache miss so the (once-per-protocol) warning actually fires;
+    # RefProto is wrapped throughout this suite and would otherwise be a cache hit.
+    # (pytest.warns overrides the module-level ignore filter, so this still records.)
+    proxy_factory._build_proxy_class.cache_clear()  # noqa: SLF001 (accessing private member)
+    with pytest.warns(RedundantSpotcheckWarning, match="no value-based predicates"):
+        spotcheck_component(RefProto)
+
+
+def test_predicate_bearing_wrap_does_not_warn() -> None:
+    from maite._internals.protocols import image_classification as ic
+
+    proxy_factory._build_proxy_class.cache_clear()  # noqa: SLF001 (accessing private member)
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", RedundantSpotcheckWarning)
+        spotcheck_component(ic.Dataset)  # must not raise: predicates present

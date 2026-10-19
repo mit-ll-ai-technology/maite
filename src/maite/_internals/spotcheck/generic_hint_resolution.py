@@ -10,8 +10,9 @@ to enable wrapping generic components.
 from __future__ import annotations
 
 import inspect
-from collections.abc import Mapping
-from typing import Any, TypeVar, cast, get_args, get_origin
+from collections.abc import Callable, Mapping
+from types import UnionType
+from typing import Annotated, Any, TypeVar, Union, cast, get_args, get_origin
 
 from typing_extensions import TypeForm, get_original_bases, is_protocol
 
@@ -68,7 +69,7 @@ class UninferrableSubstitutionError(TypeError):
         )
 
 
-def _substitute(hint: TypeForm[Any], sub_map: TypeVarSubMap) -> TypeForm[Any]:
+def _typevar_substitute(hint: TypeForm[Any], sub_map: TypeVarSubMap) -> TypeForm[Any]:
     """
     Close *hint* over *env*. Subscription on a generic alias performs
     recursive, order-aware TypeVar replacement, so no manual tree walk
@@ -80,6 +81,87 @@ def _substitute(hint: TypeForm[Any], sub_map: TypeVarSubMap) -> TypeForm[Any]:
     if params:
         return hint[tuple(sub_map.get(p, p) for p in params)]  # type: ignore[index],  if *params* exists we can count on *hint* being subscriptable
     return hint
+
+
+def _hint_substitute(hint: TypeForm[Any], fn: Callable[[TypeForm[Any]], TypeForm[Any]]) -> TypeForm[Any]:
+    """Walk *hint*'s type-expression tree, offering *fn* every node.
+
+    Perform substitution for type hint (a sibling of :func:`_typevar_substitute`, but keyed
+    on node *identity* rather than TypeVar binding). *fn* is offered each node --
+    the whole hint first, then every nested argument recursively -- and returns
+    either a replacement or the node unchanged. A node that *fn* replaces is taken
+    as-is and not descended into; composite hints (``Annotated``, unions, and
+    subscripted generic aliases such as ``tuple`` / ``Sequence``) that *fn* leaves
+    alone are rebuilt from their possibly-rewritten arguments. Leaves *fn* does not
+    touch are returned unchanged, so an unchanged subtree returns the identical
+    object (and a fully-unchanged tree returns *hint* itself).
+
+    This helper embeds no MAITE-domain knowledge (of AI problems, tasks, or
+    primitives): which leaves get rewritten -- and into what -- lives entirely in
+    *fn*. (This is the seam ``spotcheck`` uses to re-attach value predicates to plain
+    primitive leaves after generic TypeVar substitution.)
+
+    **Idempotency.** ``_hint_substitute(_hint_substitute(h, fn), fn) == _hint_substitute(h, fn)``
+    for any *fn* whose replacement outputs are ``Annotated`` forms wrapping the very
+    leaf they replace (as ``spotcheck``'s enrichment is). Such an output has an
+    ``Annotated`` base that is *itself* a replacement target, so a naive second walk
+    would descend into it, re-match, and double the metadata. The ``Annotated`` branch
+    guards exactly that case: when the immediate base is one *fn* would replace, the
+    node is an already-enriched form and is returned unchanged (a fixed point).
+    Unrelated ``Annotated`` nodes (metadata over a non-target base) and composite
+    bases are still descended into normally.
+    """
+    replaced = fn(hint)
+    if replaced is not hint:
+        return replaced  # fn claimed this node; do not descend into the replacement
+
+    origin = get_origin(hint)
+    if origin is None:
+        return hint  # bare leaf fn declined to rewrite
+
+    if origin is Annotated:
+        # Rewrite only the wrapped base; the metadata (Is[...] validators, etc.) is
+        # opaque to a type rewrite and is carried through untouched.
+        base, *metadata = get_args(hint)
+        if fn(base) is not base:
+            # `base` is itself a replacement target -> this Annotated node is an
+            # already-enriched form; descending would re-match `base` and double the
+            # metadata. Treat it as a fixed point.
+            return hint
+        new_base = _hint_substitute(base, fn)
+        if new_base is base:
+            return hint
+        return cast(TypeForm[Any], Annotated[(new_base, *metadata)])
+
+    args = get_args(hint)
+    if not args:
+        return hint
+
+    new_args = tuple(_hint_substitute(a, fn) for a in args)
+    if new_args == args:
+        return hint
+
+    if origin is Union or origin is UnionType:
+        # `Union[...]` subscripted with the runtime arg-tuple collapses a 1-tuple to
+        # the sole member and accepts any typeforms (Annotated leaves included), which
+        # a `|` fold would not reliably do across special forms.
+        return cast(TypeForm[Any], Union[new_args])  # noqa: UP007
+
+    single = new_args[0] if len(new_args) == 1 else new_args
+    return cast(TypeForm[Any], origin[single])  # origin is a subscriptable generic alias
+
+
+def _rewrite_signature_leaves(
+    sig: inspect.Signature, fn: Callable[[TypeForm[Any]], TypeForm[Any]]
+) -> inspect.Signature:
+    params = [
+        p.replace(annotation=_hint_substitute(p.annotation, fn)) if p.annotation is not inspect.Parameter.empty else p
+        for p in sig.parameters.values()
+    ]
+    ret = sig.return_annotation
+    if ret is not inspect.Signature.empty:
+        ret = _hint_substitute(ret, fn)
+    return sig.replace(parameters=params, return_annotation=ret)
 
 
 def _free_typevars(hint: TypeForm[Any]) -> tuple[TypeVar, ...]:
@@ -100,7 +182,7 @@ def _safe_merge(
 ) -> None:
     """Merge item (*tv*: *hint*) into *tv_sub_map*, looking for conflicts either with
     the user-provided pinned substitutions or with a binding discovered earlier in the MRO."""
-    resolved = _substitute(hint, tv_sub_map)
+    resolved = _typevar_substitute(hint, tv_sub_map)
     if tv in pinned_tv_keys:
         # A caller pin supplies the type for an otherwise-open parametrization.
         # If the class derives a *concrete* (TypeVar-free) binding that disagrees,
@@ -172,27 +254,38 @@ def _typevar_subs_from_class(
 
 def _resolved_signature(sig: inspect.Signature, env: TypeVarSubMap) -> inspect.Signature:
     params = [
-        p.replace(annotation=_substitute(p.annotation, env)) if p.annotation is not inspect.Parameter.empty else p
+        p.replace(annotation=_typevar_substitute(p.annotation, env))
+        if p.annotation is not inspect.Parameter.empty
+        else p
         for p in sig.parameters.values()
     ]
 
     ret = sig.return_annotation
     if ret is not inspect.Signature.empty:
-        ret = _substitute(ret, env)
+        ret = _typevar_substitute(ret, env)
     return sig.replace(parameters=params, return_annotation=ret)
 
 
 def resolve_protocol_members(
     protocol: TypeForm[Any],
+    *,
     require_closed: bool = True,
     pinned_tv_sub_map: TypeVarSubMap | None = None,
+    leaf_rewrite: Callable[[TypeForm[Any]], TypeForm[Any]] | None = None,
 ) -> ProtocolMembers:
     """
     Introspect *protocol with all derivable TypeVar substitution applied.
 
-    The single resolution point: parametrized aliases, plain protocols, and
-    subclasses of parametrized generics (any numberof hops) all route through
+    The single resolution point: parametrized generic protocols, plain protocols,
+    and subclasses of parametrized generics (any number of hops) all route through
     here; future variants extend this function alone
+
+    *leaf_rewrite*, when supplied, is applied as a final pass to every resolved
+    attribute hint and method-signature annotation (after TypeVar substitution and
+    the ``require_closed`` check) via :func:`_hint_substitute`. It is the seam through
+    which ``spotcheck`` re-attaches value predicates to plain primitive leaves; it
+    receives each hint node and returns a replacement or the node unchanged. It runs
+    after closedness is decided, so it cannot affect TypeVar resolution.
     """
 
     # resolve *protocol* hint to nearest actual type
@@ -211,7 +304,7 @@ def resolve_protocol_members(
         # producing a proxy for an ambiguous/non-protocol hint.
         origin = get_origin(protocol)
         if not (isinstance(origin, type) and is_protocol(origin)):
-            raise TypeError(f"{protocol!r} is neither a class nor a parametrized Protocol alias")
+            raise TypeError(f"{protocol!r} is neither a protocol class nor a parametrized generic protocol")
 
         derived_tv_sub_map: TypeVarSubMap = dict(
             zip(getattr(origin, "__parameters__", ()), get_args(protocol), strict=True)
@@ -223,11 +316,11 @@ def resolve_protocol_members(
 
     members = protocol_members(origin_cls)
 
-    # _substitute is dynamic hint-tree rewrite; the checker cannot follow
+    # _typevar_substitute is dynamic hint-tree rewrite; the checker cannot follow
     # subscription-based substitution, so the TypeForm claim is restated here
 
     attrs: dict[str, TypeForm[Any] | None] = {
-        name: None if hint is None else cast(TypeForm[Any], _substitute(hint, tv_sub_map))
+        name: None if hint is None else cast(TypeForm[Any], _typevar_substitute(hint, tv_sub_map))
         for name, hint in members.attrs.items()
     }
 
@@ -254,5 +347,12 @@ def resolve_protocol_members(
                 open_members[name] = tvs
         if open_members:
             raise UnresolvedTypeVarsError(protocol, open_members)
+
+    if leaf_rewrite is not None:
+        attrs = {
+            name: None if hint is None else cast(TypeForm[Any], _hint_substitute(hint, leaf_rewrite))
+            for name, hint in attrs.items()
+        }
+        methods = {name: _rewrite_signature_leaves(sig, leaf_rewrite) for name, sig in methods.items()}
 
     return ProtocolMembers(attrs=attrs, methods=methods)

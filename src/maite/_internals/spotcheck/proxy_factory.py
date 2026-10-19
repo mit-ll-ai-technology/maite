@@ -10,10 +10,11 @@ import warnings
 from collections.abc import Callable, Iterator, Mapping
 from dataclasses import dataclass
 from types import MappingProxyType
-from typing import Any, ClassVar, Literal, TypeVar, cast, get_origin
+from typing import Annotated, Any, ClassVar, Literal, TypeVar, cast, get_args, get_origin
 
-from typing_extensions import TypeForm
+from typing_extensions import TypeAliasType, TypeForm
 
+from maite._internals.protocols.runtime_verify import RUNTIME_VERIFY_LOOKUP
 from maite._internals.spotcheck.generic_hint_resolution import resolve_protocol_members
 from maite._internals.spotcheck.protocol_introspection import ProtocolMembers
 from maite._internals.spotcheck.spotcheck_node import (
@@ -32,6 +33,16 @@ _rng = random.Random()  # noqa: S311 (not used for cryptographic purposes, but f
 
 P = TypeVar("P")
 T = TypeVar("T")
+
+
+class RedundantSpotcheckWarning(UserWarning):
+    """A wrapped protocol carries no value-based predicates.
+
+    Emitted when ``spotcheck_component`` is handed a protocol whose resolved
+    member signatures contain no beartype ``Is[...]`` validators. The proxy will
+    still run, but its checks reduce to structural/nominal type conformance --
+    largely a duplicate of what static type checking already verifies.
+    """
 
 
 @dataclass(frozen=True)
@@ -348,6 +359,99 @@ def _iter_with_checked_fallback(
     return iter_w_checked_fallback
 
 
+def _hint_carries_value_predicate(hint: object, _seen: frozenset[int] = frozenset()) -> bool:
+    """Return ``True`` if *hint* embeds at least one value-based predicate.
+
+    A "value-based predicate" is a beartype ``Is[...]`` validator carried in an
+    ``Annotated`` hint's metadata -- a check on a runtime *value* (shape,
+    cardinality, ...) that static type checking cannot perform. It is detected
+    with the same ``is_valid`` duck-type used in
+    ``spotcheck_node._describe_failed_predicates`` (a bare ``Ellipsis`` metadatum,
+    as in ``Annotated[X, ...]``, has no ``is_valid`` and so is *not* counted).
+
+    The walk descends through ``Annotated``, ``Union``, and generic aliases
+    (``tuple`` / ``list`` / ``dict`` / ``Sequence`` / ``Mapping`` / user generics)
+    down to leaves; ``TypeAliasType`` wrappers are unwrapped, guarded against
+    self-reference. A bare leaf (concrete class, free ``TypeVar``, ``Any``,
+    ``None``) carries no predicate.
+    """
+
+    if id(hint) in _seen:  # guard against infinite recursion
+        return False
+
+    if isinstance(hint, TypeAliasType):  # unwrap TypeAliasType (3.12+)
+        return _hint_carries_value_predicate(hint.__value__, _seen | {id(hint)})
+
+    origin = get_origin(hint)
+
+    if origin is Annotated:
+        base, *metadata_elems = get_args(hint)
+        if any(callable(getattr(m, "is_valid", None)) for m in metadata_elems):
+            return True
+        return _hint_carries_value_predicate(base, _seen | {id(hint)})
+
+    if origin is not None:  # Union, tuple, list, Mapping, user generics, ...
+        return any(_hint_carries_value_predicate(a, _seen | {id(hint)}) for a in get_args(hint))
+
+    return False  # bare leaf: concrete class, free TypeVar, Any, None
+
+
+def _members_carry_value_predicate(members: ProtocolMembers) -> bool:
+    """Return ``True`` if any resolved member hint embeds a value-based predicate.
+
+    Scans attribute hints and every parameter / return annotation of the resolved
+    methods. Unhinted slots (``inspect.Parameter.empty`` / ``Signature.empty``)
+    and ``None`` attribute hints are skipped -- they contribute no predicate.
+    """
+
+    for hint in members.attrs.values():
+        if hint is not None and _hint_carries_value_predicate(hint):
+            return True
+
+    for sig in members.methods.values():
+        for param in sig.parameters.values():
+            if param.annotation is not inspect.Parameter.empty and _hint_carries_value_predicate(param.annotation):
+                return True
+        if sig.return_annotation is not inspect.Signature.empty and _hint_carries_value_predicate(
+            sig.return_annotation
+        ):
+            return True
+
+    return False
+
+
+def _enrich_leaf(hint: TypeForm[Any]) -> TypeForm[Any]:
+    """Identity-keyed rewrite of a plain primitive leaf to its runtime-verify form.
+
+    The plain primitives exposed from ``maite.protocols.<ai_problem>`` are
+    deliberately non-``Annotated`` (and isinstance-able where the base is a class),
+    so the value predicates ``spotcheck`` needs never ride in through the
+    concrete-protocol ``__orig_bases__`` path. This closure re-attaches them: it
+    looks each resolved leaf up in ``RUNTIME_VERIFY_LOOKUP`` by object *identity*
+    (``id``) and, on a hit, returns the replacement -- an ``Annotated`` form that
+    associates runtime-checkable ``Is[...]`` predicates with the bare base type;
+    every other node is returned unchanged.
+
+    Two properties matter for :func:`_hint_substitute` and the ``_build_proxy_class``
+    cache. It is *idempotent* in composition with :func:`_hint_substitute`: a
+    replacement is an ``Annotated`` form whose base is itself a lookup key, so the
+    walker's ``Annotated`` branch recognizes it as already-enriched and leaves it
+    untouched -- a second pass, or a leaf already substituted to its runtime-verify
+    form via a pinned ``tv_sub_map`` (the polymorphic-task path), is never
+    double-wrapped. (This holds for both union-backed and class-backed primitives;
+    it does *not* rely on the replacement's id being a non-key, which is false for
+    the class-backed forms that wrap the class directly.) And it is a *stable
+    module-level identity*, so it is a constant of the rewrite rather than part of
+    the cache key.
+    """
+    return RUNTIME_VERIFY_LOOKUP.get(id(hint), hint)
+
+
+# Stable module-level identity: the leaf-enrichment pass is a constant applied inside
+# `_build_proxy_class`, not part of its `lru_cache` key.
+_ENRICH = _enrich_leaf
+
+
 @functools.lru_cache(maxsize=128)
 def _build_proxy_class(
     protocol: TypeForm[Any],
@@ -364,10 +468,29 @@ def _build_proxy_class(
     promise is asserted separately, at the wrapper boundary in ``wrap_with_config``.
     """
 
-    # Resolve entries of protocol that have TypeVars. Caller-pinned substitutions
-    # are carried on the config but not yet consumed here; wire them in when ready:
-    #   members = resolve_protocol_members(protocol, pinned_tv_sub_map=dict(config.tv_sub_map) or None)
-    members = resolve_protocol_members(protocol, pinned_tv_sub_map=config.pinned_subs)
+    # Resolve entries of protocol that have TypeVars, then re-attach value predicates
+    # to the plain primitive leaves via `_ENRICH`. The enrichment is idempotent, so it
+    # is a no-op on leaves a pinned `tv_sub_map` already substituted to their
+    # runtime-verify (`Annotated`) forms (the polymorphic-task path) and only does work
+    # on the plain primitives left by the concrete-protocol `__orig_bases__` path.
+    members = resolve_protocol_members(protocol, pinned_tv_sub_map=config.pinned_subs, leaf_rewrite=_ENRICH)
+
+    # A predicate-free protocol yields a proxy whose checks reduce to structural /
+    # nominal type conformance -- work that largely duplicates static type checking.
+    # The distinctive value of spotcheck is the value-based `Is[...]` predicates, so
+    # warn when none are present anywhere in the resolved member signatures. (This
+    # runs once per unique (protocol, config) because `_build_proxy_class` is
+    # lru_cached, so the warning is not emitted on every wrap of the same protocol.)
+    if not _members_carry_value_predicate(members):
+        warnings.warn(
+            f"spotcheck_component was applied to {getattr(protocol, '__name__', protocol)!r}, whose "
+            "resolved member signatures carry no value-based predicates (beartype `Is[...]` validators). "
+            "The proxy will perform only structural/nominal type checks, which largely duplicate static "
+            "type checking. Attach predicates via `Annotated[..., Is[...]]` (e.g. through a parametrized "
+            "alias or TypeVar substitution) for runtime verification beyond static typing.",
+            RedundantSpotcheckWarning,
+            stacklevel=4,  # user code → spotcheck_component → wrap_with_config → _build_proxy_class → warnings.warn
+        )
 
     namespace: dict[str, object] = {
         "__proxy_config__": config,
@@ -470,7 +593,7 @@ def _unwrap_proxied(obj: T) -> T:
 
 
 def wrap_with_config(
-    protocol: type[P],
+    protocol: TypeForm[P],
     config: _ProxyConfig | None = None,
     override_existing: bool = False,
 ) -> Callable[[P], P]:
@@ -510,7 +633,7 @@ def wrap_with_config(
 
 
 def spotcheck_component(
-    protocol: type[P],
+    protocol: TypeForm[P],
     *,
     rate: float = 1.0,
     check_procedure: CheckProcedure = spotcheck_node,
@@ -595,11 +718,14 @@ def spotcheck_component(
         ...
     maite.spotcheck.SpotcheckError: ...
     """
+
     if not (isinstance(protocol, type) or get_origin(protocol) is not None):
         raise TypeError(
             "spotcheck_component requires `protocol` to be a Protocol class or a "
-            f"parametrized Protocol alias (e.g. Dataset or Dataset[int]); got {protocol!r}."
+            f"parametrized generic protocol (e.g. Dataset or Dataset[int]); got {protocol!r}."
         )
+
+    protocol = cast(TypeForm[P], protocol)  # above guard widens static type of 'protocol' erroneously
 
     # -- pass through config-related args to _ProxyConfig constructor --
     # (We are effectively writing defaults to _ProxyConfig here and not in config
