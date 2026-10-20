@@ -2,7 +2,19 @@
 # Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).
 # SPDX-License-Identifier: MIT
 
-from collections.abc import Sequence
+import warnings
+
+# --- unit tests for iterator materialization helpers ---
+#
+# When `return_augmented_data=True`, `evaluate` must not hand back (or feed to the
+# model/metric) an iterator that has already been consumed. `_materialize_batch_if_needed`
+# captures destructively-iterating elements (iterators) into tuples while leaving
+# safely re-iterable values untouched; `_believed_nondestructive_iterable` is the
+# predicate that distinguishes the two. These tests pin down that policy directly.
+from collections.abc import (
+    Iterator,
+    Sequence,
+)
 from pathlib import Path
 from typing import Any, Literal
 
@@ -10,10 +22,15 @@ import numpy as np
 import pytest
 
 import maite.protocols.image_classification as ic
+import maite.protocols.multiobject_tracking as mot
 import maite.protocols.object_detection as od
 from maite._internals.protocols import generic as gen
 from maite._internals.protocols import image_semantic_segmentation as iseg
-from maite._internals.tasks.generic import _SimpleDataLoader
+from maite._internals.tasks.generic import (
+    _believed_nondestructive_iterable,
+    _materialize_batch_if_needed,
+    _SimpleDataLoader,
+)
 from maite._internals.testing.pyright import (
     PyrightOutput,
     chdir,
@@ -25,8 +42,101 @@ from tests.component_impls import (
     ic_simple_component_impls as ici,
 )
 from tests.component_impls import (
+    mot_simple_component_impls as moti,
+)
+from tests.component_impls import (
     od_simple_component_impls as odi,
 )
+
+
+class _ReusableIterable:
+    """Iterable whose `__iter__` returns a fresh iterator each call (non-destructive)."""
+
+    def __init__(self, n: int) -> None:
+        self._n = n
+
+    def __iter__(self) -> Iterator[int]:
+        return iter(range(self._n))
+
+
+class _OneShotIterator:
+    """Self-returning iterator: consumed by a single pass (destructive)."""
+
+    def __init__(self, n: int) -> None:
+        self._it = iter(range(n))
+
+    def __iter__(self) -> "_OneShotIterator":
+        return self
+
+    def __next__(self) -> int:
+        return next(self._it)
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        [1, 2, 3],
+        (1, 2, 3),
+        {1, 2},
+        frozenset({1}),
+        {"a": 1},
+        range(3),
+        "a_string",
+        b"bytes",
+        np.arange(6),
+        42,
+        3.14,
+        None,
+    ],
+)
+def test_materialize_leaves_nondestructive_values_untouched(value):
+    # Non-iterable or safely re-iterable values pass through by identity, no replacement.
+    batch = [value]
+    out, replaced = _materialize_batch_if_needed(batch)
+    assert replaced is False
+    assert out[0] is value
+
+
+def test_materialize_captures_generator_element():
+    gen = (i for i in range(3))
+    out, replaced = _materialize_batch_if_needed([gen])
+    assert replaced is True
+    assert isinstance(out[0], tuple)
+    assert out[0] == (0, 1, 2)
+
+
+def test_materialize_only_replaces_offending_elements():
+    arr = np.arange(3)
+    gen = (i for i in range(3))
+    out, replaced = _materialize_batch_if_needed([arr, gen])
+    assert replaced is True
+    assert out[0] is arr  # ndarray left untouched
+    assert out[1] == (0, 1, 2)  # generator captured
+
+
+def test_materialized_element_is_rereadable():
+    # The core guarantee: a captured iterator yields identical content on repeat reads.
+    out, _ = _materialize_batch_if_needed([(i for i in range(3))])
+    first = out[0]
+    assert isinstance(first, tuple)
+    assert list(first) == [0, 1, 2]
+    assert list(first) == [0, 1, 2]  # a spent iterator would give [] here
+
+
+@pytest.mark.parametrize(
+    "value",
+    [[1], (1,), {1}, frozenset({1}), {"a": 1}, range(2), "s", b"b", _ReusableIterable(3)],
+)
+def test_believed_nondestructive_true(value):
+    assert _believed_nondestructive_iterable(value) is True
+
+
+@pytest.mark.parametrize(
+    "value",
+    [(i for i in range(3)), iter([1, 2, 3]), _OneShotIterator(3)],
+)
+def test_believed_nondestructive_false(value):
+    assert _believed_nondestructive_iterable(value) is False
 
 
 def test_ic_elemaccess_dataset():
@@ -518,6 +628,80 @@ def test_evaluate_no_augmentation(ic_mock_dataset, ic_mock_model, ic_accuracy_me
     # Verify augmented data returned and unchanged (since not really augmented)
     check_num_returned_batches(dataset_size, batch_size, "augmented_data", aug_data)
     check_returned_data_unchanged(aug_data)
+
+
+# --- end-to-end: iterator-typed data through `evaluate` (multi-object tracking) ---
+#
+# To exercise materialization honestly we need a domain whose input type is genuinely
+# iterable (not an ArrayLike coerced into a generator). Multi-object tracking fits: its
+# InputType is `VideoStream = Iterable[VideoFrame]`, so a model input is naturally a
+# (possibly lazy, destructively-iterating) stream of frames. The `mot` components below
+# yield each video as a generator of frames -- a valid in-domain input that iterates once.
+
+
+def test_evaluate_materializes_video_stream_augmented_data():
+    # Returned augmented data must be a re-readable video stream (not a spent iterator),
+    # and the model/metric must have seen the same non-spent stream (agreement == 1.0).
+    n_frames = 3
+    model: mot.Model = moti.ModelImpl()
+    dataset: mot.Dataset = moti.DatasetImpl(size=4, n_frames=n_frames)
+    metric: mot.Metric = moti.MetricImpl()
+    with pytest.warns(UserWarning, match="materialize"):
+        result, _, aug_data = evaluate(
+            model=model,
+            dataset=dataset,
+            metric=metric,
+            batch_size=1,
+            return_augmented_data=True,
+        )
+
+    # Model consumed non-spent streams -> every frame count matched its target.
+    assert result["frame_count_agreement"] == 1.0
+
+    # Returned input stream is materialized and re-readable twice over.
+    assert len(aug_data) == len(dataset)
+    xb, _, _ = aug_data[0]
+    x0 = xb[0]
+    assert isinstance(x0, tuple)  # the frame generator was captured into a tuple
+    first_pass = [f.frame_index for f in x0]
+    second_pass = [f.frame_index for f in x0]  # a spent iterator would give []
+    assert first_pass == second_pass == list(range(n_frames))
+
+
+def test_evaluate_materialization_warns_only_once():
+    model: mot.Model = moti.ModelImpl()
+    dataset: mot.Dataset = moti.DatasetImpl(size=4)
+    metric: mot.Metric = moti.MetricImpl()
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        evaluate(
+            model=model,
+            dataset=dataset,
+            metric=metric,
+            batch_size=1,
+            return_augmented_data=True,
+        )
+    materialization_warnings = [w for w in caught if "materialize" in str(w.message)]
+    assert len(materialization_warnings) == 1, (
+        f"expected exactly one materialization warning across all batches; got {len(materialization_warnings)}"
+    )
+
+
+def test_evaluate_no_materialization_warning_for_reiterable_data(
+    ic_mock_dataset,
+    ic_mock_model,
+    ic_accuracy_metric,
+):
+    # ndarray inputs are safely re-iterable: no materialization, no warning.
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")  # any warning becomes an error
+        evaluate(
+            model=ic_mock_model,
+            dataset=ic_mock_dataset,
+            metric=ic_accuracy_metric,
+            batch_size=2,
+            return_augmented_data=True,
+        )
 
 
 def test_evaluate_false_return_flags(

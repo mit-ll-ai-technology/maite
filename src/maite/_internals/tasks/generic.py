@@ -5,9 +5,9 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Iterator, Sequence
-from typing import Any, Generic, TypeVar, assert_type
 import warnings
+from collections.abc import Iterable, Iterator, Sequence
+from typing import Any, Generic, TypeVar
 
 from maite._internals.protocols.generic import (
     Augmentation,
@@ -17,6 +17,7 @@ from maite._internals.protocols.generic import (
     Metric,
     MetricComputeReturnType,
     Model,
+    T_in,
 )
 from maite._internals.utils import add_progress_bar
 from maite.protocols import MetricMetadata
@@ -320,6 +321,18 @@ def evaluate(
     return_augmented_data : bool, (default=False)
         Set to True to return post-augmentation data as a function output.
 
+        When this is True, any individual input, target, or metadata datum whose
+        type iterates destructively (i.e. an iterator, such as a generator) is
+        materialized into a tuple before being stored for return. This avoids
+        handing back a spent iterator that has already been consumed by the model
+        or metric. Non-destructive iterables (e.g. lists, tuples, strings, NumPy
+        arrays) are returned unchanged. Materialization holds the datum's full
+        contents in memory, so a one-time ``UserWarning`` is issued if it occurs;
+        this may be costly for iterator-typed data referencing large amounts of
+        data. Note that only the top level of each datum is materialized: an
+        iterator nested inside an otherwise reusable container may still be
+        returned spent.
+
     return_preds : bool, (default=False)
         Set to True to return raw predictions as a function output.
 
@@ -340,7 +353,9 @@ def evaluate(
         by the AI problem of the components provided as input arguments (e.g., image
         classification or object detection.)
         Note that the second and third return arguments will be empty if
-        return_augmented_data is False or return_preds is False, respectively.
+        return_preds is False or return_augmented_data is False, respectively.
+        See ``return_augmented_data`` above for how iterator-typed data in the
+        third return argument is materialized to avoid returning spent iterators.
 
     Raises
     ------
@@ -469,6 +484,9 @@ def evaluate(
     metric.reset()
     augmented_data_batches = []
 
+    # Materialization warning if 'return_augmented_data' set to True and at least one type needs materializing
+    have_shown_mat_warning = False
+
     for input_datum_batch, target_datum_batch, metadata_batch in add_progress_bar(
         dataloader,
     ):
@@ -491,19 +509,20 @@ def evaluate(
             ## if {input,target,metadata} type happens to be an iterator AND return_augmented_data is True
             ## we materialize the reference of the iterator into a list to avoid returning
             ## spent iterator. This will consume more memory so we warn at runtime and mention it in docstring
-            warning_msg = ("Setting 'return_augmented_data' to 'True' in the case of iterator-type MAITE primitives "
-                          "will attempt to materialize primitives as deliberate alternatie to returning spent iterators. "
-                          "This may be memory-intensive for iterators referencing large amounts of data.")
-            
-            if isinstance(input_datum_batch_aug[0], Iterator):
-                warnings.warn(warning_msg)
-                input_datum_batch_aug: Sequence[T_input] = tuple(tuple(input_elem) for input_elem in input_datum_batch_aug)
-            if isinstance(target_datum_batch_aug[0], Iterator):
-                warnings.warn(warning_msg)
-                target_datum_batch_aug: Sequence[T_target] = tuple(tuple(target_elem) for target_elem in target_datum_batch_aug)
-            if isinstance(metadata_batch_aug[0], Iterator):
-                warnings.warn(warning_msg)
-                metadata_batch_aug: Sequence[T_metadata]= tuple(tuple[md_elem] for md_elem in metadata_batch_aug)
+
+            input_datum_batch_aug, warn_in = _materialize_batch_if_needed(input_datum_batch_aug)
+            target_datum_batch_aug, warn_tgt = _materialize_batch_if_needed(target_datum_batch_aug)
+            metadata_batch_aug, warn_md = _materialize_batch_if_needed(metadata_batch_aug)
+
+            if (warn_in or warn_tgt or warn_md) and not have_shown_mat_warning:
+                warnings.warn(
+                    "Setting 'return_augmented_data' to 'True' in the case of iterator-type MAITE primitives "
+                    "will attempt to materialize primitives as deliberate alternative to returning spent iterators. "
+                    "This may be memory-intensive for iterator-typed primitives referencing large amounts of data.",
+                    stacklevel=2,
+                    category=UserWarning,
+                )
+                have_shown_mat_warning = True
 
             augmented_data_batches.append(
                 (input_datum_batch_aug, target_datum_batch_aug, metadata_batch_aug),
@@ -511,7 +530,6 @@ def evaluate(
 
         pred_batch = model(input_datum_batch_aug)
         metric.update(pred_batch, target_datum_batch_aug, metadata_batch_aug)
-
 
         if return_preds:
             pred_batches.append(pred_batch)
@@ -521,6 +539,39 @@ def evaluate(
     metric_results = metric.compute()
 
     return metric_results, preds, aug_data
+
+
+def _materialize_batch_if_needed(item_batch: Sequence[T_in]) -> tuple[Sequence[T_in], bool]:
+    """
+    Iterate over elements of batch of {input, target, metadata} and
+    selectively replace any elements that are both iterable and not known to
+    be non-destructively iterable. Also return an indicator of whether a replacement
+    happened to determine whether a warning message is needed."""
+
+    did_replacement = False
+    item_batch_mutable = list(item_batch)
+    for i, input_elem in enumerate(item_batch_mutable):
+        if isinstance(input_elem, Iterable) and not _believed_nondestructive_iterable(input_elem):
+            item_batch_mutable[i] = tuple(input_elem)
+            did_replacement = True
+        else:
+            item_batch_mutable[i] = input_elem
+
+    return (tuple(item_batch_mutable), did_replacement)
+
+
+def _believed_nondestructive_iterable(x: Iterable) -> bool:
+    """
+    Infer (imperfectly) whether an Iterable is non-destructive.
+
+    We can't guarantee that structural properties (like implementing
+    Iterator methods/signatures) imply behavioral ones, but it's the best
+    check we have. We err on the side of overassuming nondestructive
+    iterability. (We'd rather return a spent iterator on an unexpected
+    class than materialize a type and potentially change it meaningfully.)
+    """
+
+    return not isinstance(x, Iterator)
 
 
 def evaluate_from_predictions(
