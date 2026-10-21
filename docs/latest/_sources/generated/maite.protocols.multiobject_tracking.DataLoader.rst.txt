@@ -1,0 +1,11 @@
+﻿  
+DataLoader
+==========
+
+.. loaded protocol_class.rst
+
+
+
+.. currentmodule:: maite.protocols.multiobject_tracking
+
+.. autoclass:: DataLoader

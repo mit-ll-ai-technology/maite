@@ -1,0 +1,848 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>maite._internals.validation &#8212; maite 0.7.3 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-codeautolink.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    <script async="async" src="https://www.googletagmanager.com/gtag/js?id=UA-115029372-2"></script>
+    <script src="../../../_static/gtag.js"></script>
+    <script src="../../../_static/design-tabs.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/maite/_internals/validation';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  <div class="navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    <p class="title logo__title">maite 0.7.3 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../tutorials.html">
+                        Tutorials
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../how_tos.html">
+                        How-To Guides
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../explanation.html">
+                        Explanation
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../api_reference.html">
+                        Reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../changes.html">
+                        Changelog
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+    </div>
+  
+
+  
+</div>
+
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../tutorials.html">
+                        Tutorials
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../how_tos.html">
+                        How-To Guides
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../explanation.html">
+                        Explanation
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../api_reference.html">
+                        Reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../changes.html">
+                        Changelog
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumbs">
+  <ul class="bd-breadcrumbs" role="navigation" aria-label="Breadcrumb">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">maite._internals.validation</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <h1>Source code for maite._internals.validation</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright 2024, MASSACHUSETTS INSTITUTE OF TECHNOLOGY</span>
+<span class="c1"># Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).</span>
+<span class="c1"># SPDX-License-Identifier: MIT</span>
+
+<span class="c1"># pyright: strict</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Collection</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">EnumMeta</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">chain</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Protocol</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">overload</span><span class="p">,</span> <span class="n">runtime_checkable</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">maite.errors</span><span class="w"> </span><span class="kn">import</span> <span class="n">InvalidArgument</span>
+
+<span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;T&quot;</span><span class="p">)</span>
+<span class="n">N</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;N&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+<span class="n">C</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;Comparable&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_tick</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s2">&quot;`&quot;</span> <span class="o">+</span> <span class="n">x</span> <span class="o">+</span> <span class="s2">&quot;`&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_safe_name</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">ticked</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s2">&quot;__name__&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">_tick</span><span class="p">(</span><span class="n">out</span><span class="p">)</span> <span class="k">if</span> <span class="n">ticked</span> <span class="k">else</span> <span class="n">out</span>
+
+
+<span class="nd">@runtime_checkable</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Comparable</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">__x</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="o">...</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">C</span><span class="p">,</span> <span class="n">__x</span><span class="p">:</span> <span class="n">C</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="o">...</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__gt__</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">C</span><span class="p">,</span> <span class="n">__x</span><span class="p">:</span> <span class="n">C</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="o">...</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__le__</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">C</span><span class="p">,</span> <span class="n">__x</span><span class="p">:</span> <span class="n">C</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="o">...</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__ge__</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">C</span><span class="p">,</span> <span class="n">__x</span><span class="p">:</span> <span class="n">C</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="o">...</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Unsatisfiable</span><span class="p">(</span><span class="ne">AssertionError</span><span class="p">):</span>
+    <span class="o">...</span>
+
+
+<div class="viewcode-block" id="check_type"><a class="viewcode-back" href="../../../generated/maite.utils.validation.check_type.html#maite.utils.validation.check_type">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">check_type</span><span class="p">(</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">type</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">type</span><span class="p">,</span> <span class="o">...</span><span class="p">]],</span> <span class="o">*</span><span class="p">,</span> <span class="n">optional</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check that an argument is an instance of one or more types.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        The argument&#39;s name.</span>
+
+<span class="sd">    arg : T (Any)</span>
+<span class="sd">        The argument.</span>
+
+<span class="sd">    type_ : type | tuple[type, ...]</span>
+<span class="sd">        The type that `arg` should belong to. If multiple types are provided</span>
+<span class="sd">        then checks that `arg` is an instance of at least one of them.</span>
+
+<span class="sd">    optional : bool, keyword, optional (default=False)</span>
+<span class="sd">        If ``True``, then ``arg`` can be None.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    T</span>
+<span class="sd">        The input value, `arg`, unchanged.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    InvalidArgument</span>
+<span class="sd">        `arg` is not of the expected type.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from maite.utils.validation import check_type</span>
+<span class="sd">    &gt;&gt;&gt; check_type(&#39;apple&#39;, 1, int)</span>
+<span class="sd">    1</span>
+
+<span class="sd">    &gt;&gt;&gt; try:</span>
+<span class="sd">    ...     check_type(&#39;apple&#39;, 1, bool)</span>
+<span class="sd">    ... except:</span>
+<span class="sd">    ...     print(&quot;maite.errors.InvalidArgument: Expected `apple` to be of type `bool`. Got `1` (type: `int`).&quot;)</span>
+<span class="sd">    maite.errors.InvalidArgument: Expected `apple` to be of type `bool`. Got `1` (type: `int`).</span>
+
+<span class="sd">    &gt;&gt;&gt; check_type(&#39;apple&#39;, 1, (int, bool))</span>
+<span class="sd">    1</span>
+
+<span class="sd">    &gt;&gt;&gt; print(check_type(&#39;apple&#39;, None, (int, bool), optional=True))</span>
+<span class="sd">    None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">optional</span> <span class="ow">and</span> <span class="n">arg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">arg</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">type_</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">type_</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="n">clause</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;of types: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_safe_name</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">type_</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">clause</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;of type </span><span class="si">{</span><span class="n">_safe_name</span><span class="p">(</span><span class="n">type_</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">raise</span> <span class="n">InvalidArgument</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Expected `</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">` to be </span><span class="si">{</span><span class="s1">&#39;`None` or &#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">optional</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="si">}{</span><span class="n">clause</span><span class="si">}</span><span class="s2">. Got &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;`</span><span class="si">{</span><span class="n">arg</span><span class="si">}</span><span class="s2">` (type: </span><span class="si">{</span><span class="n">_safe_name</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">arg</span><span class="p">))</span><span class="si">}</span><span class="s2">).&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">arg</span></div>
+
+
+<span class="nd">@overload</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_domain</span><span class="p">(</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">arg</span><span class="p">:</span> <span class="n">C</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">lower</span><span class="p">:</span> <span class="n">Comparable</span><span class="p">,</span>
+    <span class="n">upper</span><span class="p">:</span> <span class="n">Comparable</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">incl_low</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">incl_up</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">lower_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">upper_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">C</span><span class="p">:</span>
+    <span class="o">...</span>
+
+
+<span class="nd">@overload</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_domain</span><span class="p">(</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">arg</span><span class="p">:</span> <span class="n">C</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">lower</span><span class="p">:</span> <span class="n">Comparable</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">upper</span><span class="p">:</span> <span class="n">Comparable</span><span class="p">,</span>
+    <span class="n">incl_low</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">incl_up</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">lower_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+    <span class="n">upper_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">C</span><span class="p">:</span>
+    <span class="o">...</span>
+
+
+<div class="viewcode-block" id="check_domain"><a class="viewcode-back" href="../../../generated/maite.utils.validation.check_domain.html#maite.utils.validation.check_domain">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">check_domain</span><span class="p">(</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">arg</span><span class="p">:</span> <span class="n">C</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">lower</span><span class="p">:</span> <span class="n">Comparable</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">upper</span><span class="p">:</span> <span class="n">Comparable</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">incl_low</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">incl_up</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">lower_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="n">upper_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">C</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check that an argument falls within `[lower &lt;=] arg [&lt;= upper]`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        The argument&#39;s name.</span>
+
+<span class="sd">    arg : Comparable</span>
+<span class="sd">        The value to be checked.</span>
+
+<span class="sd">    lower : Comparable|None</span>
+<span class="sd">        The lower bound of the domain. This bound is not checked</span>
+<span class="sd">        if unspecified.</span>
+
+<span class="sd">    upper : Comparable|None</span>
+<span class="sd">        The upper bound of the domain. This bound is not checked</span>
+<span class="sd">        if unspecified.</span>
+
+<span class="sd">    incl_low : bool, optional (default=True)</span>
+<span class="sd">        If `True`, the lower bound is inclusive.</span>
+
+<span class="sd">    incl_up : bool, optional (default=True)</span>
+<span class="sd">        If `True`, the upper bound is inclusive.</span>
+
+<span class="sd">    lower_name : str = &quot;&quot;</span>
+<span class="sd">        If specified, includes the name of the lower bound in the</span>
+<span class="sd">        error message.</span>
+
+<span class="sd">    upper_name : str = &quot;&quot;</span>
+<span class="sd">        If specified, includes the name of the upper bound in the</span>
+<span class="sd">        error message.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Comparable</span>
+<span class="sd">        The input value, `arg`, unchanged.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    InvalidArgument</span>
+<span class="sd">        `arg` does not satisfy the inequality.</span>
+
+<span class="sd">    Unsatisfiable</span>
+<span class="sd">        An internal assertion error when the provided domain</span>
+<span class="sd">        bounds cannot be satisfied.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from maite.utils.validation import check_domain</span>
+<span class="sd">    &gt;&gt;&gt; try:</span>
+<span class="sd">    ...     check_domain(&quot;x&quot;, 1, lower=20)</span>
+<span class="sd">    ... except:</span>
+<span class="sd">    ...     print(&quot;maite.errors.InvalidArgument: `x` must satisfy `20 &lt;= x`.  Got: `1`.&quot;)</span>
+<span class="sd">    maite.errors.InvalidArgument: `x` must satisfy `20 &lt;= x`.  Got: `1`.</span>
+
+<span class="sd">    &gt;&gt;&gt; try:</span>
+<span class="sd">    ...     check_domain(&quot;x&quot;, 1, lower=1, incl_low=False)</span>
+<span class="sd">    ... except:</span>
+<span class="sd">    ...     print(&quot;maite.errors.InvalidArgument: `x` must satisfy `1 &lt; x`.  Got: `1`.&quot;)</span>
+<span class="sd">    maite.errors.InvalidArgument: `x` must satisfy `1 &lt; x`.  Got: `1`.</span>
+
+<span class="sd">    &gt;&gt;&gt; check_domain(&quot;x&quot;, 1, lower=1, incl_low=True) # ok</span>
+<span class="sd">    1</span>
+
+<span class="sd">    &gt;&gt;&gt; check_domain(&quot;x&quot;, 0.0, lower=-10, upper=10)  # ok</span>
+<span class="sd">    0.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># check internal params</span>
+    <span class="n">check_type</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+    <span class="n">check_type</span><span class="p">(</span><span class="s2">&quot;incl_low&quot;</span><span class="p">,</span> <span class="n">incl_low</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+    <span class="n">check_type</span><span class="p">(</span><span class="s2">&quot;incl_up&quot;</span><span class="p">,</span> <span class="n">incl_up</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">lower</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">upper</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">incl_up</span> <span class="ow">and</span> <span class="n">incl_low</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">lower</span> <span class="o">&lt;=</span> <span class="n">upper</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">Unsatisfiable</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lower</span><span class="si">}</span><span class="s2"> &lt;= </span><span class="si">{</span><span class="n">upper</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">lower</span> <span class="o">&lt;</span> <span class="n">upper</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">Unsatisfiable</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lower</span><span class="si">}</span><span class="s2"> &lt; </span><span class="si">{</span><span class="n">upper</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">lower</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">upper</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Unsatisfiable</span><span class="p">(</span><span class="s2">&quot;Neither `lower` nor `upper` were specified.&quot;</span><span class="p">)</span>
+
+    <span class="n">min_satisfied</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">lower</span> <span class="o">&lt;=</span> <span class="n">arg</span> <span class="k">if</span> <span class="n">incl_low</span> <span class="k">else</span> <span class="n">lower</span> <span class="o">&lt;</span> <span class="n">arg</span><span class="p">)</span> <span class="k">if</span> <span class="n">lower</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">max_satisfied</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">arg</span> <span class="o">&lt;=</span> <span class="n">upper</span> <span class="k">if</span> <span class="n">incl_up</span> <span class="k">else</span> <span class="n">arg</span> <span class="o">&lt;</span> <span class="n">upper</span><span class="p">)</span> <span class="k">if</span> <span class="n">upper</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">True</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">min_satisfied</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">max_satisfied</span><span class="p">:</span>
+        <span class="n">lsymb</span> <span class="o">=</span> <span class="s2">&quot;&lt;=&quot;</span> <span class="k">if</span> <span class="n">incl_low</span> <span class="k">else</span> <span class="s2">&quot;&lt;&quot;</span>
+        <span class="n">rsymb</span> <span class="o">=</span> <span class="s2">&quot;&lt;=&quot;</span> <span class="k">if</span> <span class="n">incl_up</span> <span class="k">else</span> <span class="s2">&quot;&lt;&quot;</span>
+
+        <span class="n">err_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;`</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">` must satisfy `&quot;</span>
+
+        <span class="k">if</span> <span class="n">lower</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">lower_name</span><span class="p">:</span>
+                <span class="n">lower</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lower_name</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">lower</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">err_msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lower</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">lsymb</span><span class="si">}</span><span class="s2"> &quot;</span>
+
+        <span class="n">err_msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">if</span> <span class="n">upper</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">upper_name</span><span class="p">:</span>
+                <span class="n">upper</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">upper_name</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">upper</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">err_msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">rsymb</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">upper</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="n">err_msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;`.  Got: `</span><span class="si">{</span><span class="n">arg</span><span class="si">}</span><span class="s2">`.&quot;</span>
+
+        <span class="k">raise</span> <span class="n">InvalidArgument</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">arg</span></div>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">SupportsEq</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">__o</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="o">...</span>
+
+
+<div class="viewcode-block" id="check_one_of"><a class="viewcode-back" href="../../../generated/maite.utils.validation.check_one_of.html#maite.utils.validation.check_one_of">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">check_one_of</span><span class="p">(</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">arg</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span>
+    <span class="n">collection</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Collection</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span> <span class="nb">type</span><span class="p">[</span><span class="n">Enum</span><span class="p">]],</span>
+    <span class="o">*</span><span class="n">vals</span><span class="p">:</span> <span class="n">SupportsEq</span><span class="p">,</span>
+    <span class="n">requires_identity</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check that `arg` is a member of `collection` or of `vals`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        The argument&#39;s name.</span>
+
+<span class="sd">    arg : T (Any)</span>
+<span class="sd">        The argument.</span>
+
+<span class="sd">    collection : Collection | type[Enum]</span>
+<span class="sd">        Any collection (i.e., supports `__contains__` and `__iter__`) or enum type.</span>
+
+<span class="sd">    *vals : Any</span>
+<span class="sd">        Additional values to check `arg` against.</span>
+
+<span class="sd">    requires_identity : bool, optional (default=False)</span>
+<span class="sd">        If `True`, all (non hash-based) membership checks are performed element-wise</span>
+<span class="sd">        using `x is e` rather  than the default `x is e or x == e`.</span>
+
+<span class="sd">        This can be helpful for ensuring strict identity, e.g., preventing `1` from</span>
+<span class="sd">        matching against `True`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    T</span>
+<span class="sd">        The input value, `arg`, unchanged.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    InvalidArgument</span>
+<span class="sd">        `arg` is not of a member of `collections` nor `vals`.</span>
+
+<span class="sd">    Unsatisfiable</span>
+<span class="sd">        An internal assertion error when the provided collection is empty.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from maite.utils.validation import check_one_of</span>
+<span class="sd">    &gt;&gt;&gt; try:</span>
+<span class="sd">    ...     check_one_of(&quot;foo&quot;, None, [1, 2])</span>
+<span class="sd">    ... except:</span>
+<span class="sd">    ...     print(&quot;maite.errors.InvalidArgument: Expected `foo` to be one of: 1, 2. Got `None`.&quot;)</span>
+<span class="sd">    maite.errors.InvalidArgument: Expected `foo` to be one of: 1, 2. Got `None`.</span>
+
+<span class="sd">    Including `None` as an acceptable value</span>
+
+<span class="sd">    &gt;&gt;&gt; print(check_one_of(&quot;foo&quot;, None, [1, 2], None))</span>
+<span class="sd">    None</span>
+
+<span class="sd">    Enforcing strict identity using `requires_identity`:</span>
+
+<span class="sd">    &gt;&gt;&gt; check_one_of(&quot;foo&quot;, 1, [True])  # `1` == `True`</span>
+<span class="sd">    1</span>
+
+<span class="sd">    &gt;&gt;&gt; try:</span>
+<span class="sd">    ...     check_one_of(&quot;foo&quot;, 1, [True], requires_identity=True)</span>
+<span class="sd">    ... except:</span>
+<span class="sd">    ...     print(&quot;maite.errors.InvalidArgument: Expected `foo` to be: True. Got `1`.&quot;)</span>
+<span class="sd">    maite.errors.InvalidArgument: Expected `foo` to be: True. Got `1`.</span>
+
+<span class="sd">    Support for enums:</span>
+
+<span class="sd">    &gt;&gt;&gt; from enum import Enum</span>
+<span class="sd">    &gt;&gt;&gt; class Pet(Enum):</span>
+<span class="sd">    ...     cat = 1</span>
+<span class="sd">    ...     dog = 2</span>
+
+<span class="sd">    &gt;&gt;&gt; try:</span>
+<span class="sd">    ...     check_one_of(&quot;bar&quot;, 88, Pet)</span>
+<span class="sd">    ... except:</span>
+<span class="sd">    ...     print(&quot;maite.errors.InvalidArgument: Expected `bar` to be one of: Pet.cat, Pet.dog. Got `88`.&quot;)</span>
+<span class="sd">    maite.errors.InvalidArgument: Expected `bar` to be one of: Pet.cat, Pet.dog. Got `88`.</span>
+<span class="sd">    &gt;&gt;&gt; check_one_of(&quot;bar&quot;, Pet.cat, Pet)</span>
+<span class="sd">    &lt;Pet.cat: 1&gt;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">collection</span><span class="p">,</span> <span class="n">EnumMeta</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">collection</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">arg</span>
+    <span class="k">elif</span> <span class="n">requires_identity</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">arg</span> <span class="ow">is</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">chain</span><span class="p">(</span><span class="n">collection</span><span class="p">,</span> <span class="n">vals</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">arg</span>
+    <span class="k">elif</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">collection</span> <span class="ow">or</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">vals</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">arg</span>
+
+    <span class="n">values</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">({</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">chain</span><span class="p">(</span><span class="n">collection</span><span class="p">,</span> <span class="n">vals</span><span class="p">)})</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">values</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Unsatisfiable</span><span class="p">(</span><span class="s2">&quot;`collections` and `args` are both empty.&quot;</span><span class="p">)</span>
+
+    <span class="k">raise</span> <span class="n">InvalidArgument</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Expected `</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">` to be</span><span class="si">{</span><span class="s1">&#39; one of&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="si">}</span><span class="s2">: &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">values</span><span class="p">)</span><span class="si">}</span><span class="s2">. Got `</span><span class="si">{</span><span class="n">arg</span><span class="si">}</span><span class="s2">`.&quot;</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="chain_validators"><a class="viewcode-back" href="../../../generated/maite.utils.validation.chain_validators.html#maite.utils.validation.chain_validators">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">chain_validators</span><span class="p">(</span><span class="o">*</span><span class="n">validators</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">,</span> <span class="n">T</span><span class="p">],</span> <span class="n">T</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enable validators to be chained together.</span>
+
+<span class="sd">    Validators are functions like `(name: str, arg: T, [...]) -&gt; T`. This is meant to be</span>
+<span class="sd">    used with partial&#39;d validators, where only the `name` and `arg` fields need be</span>
+<span class="sd">    populated.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    *validators : Callable[[str, T], T]</span>
+<span class="sd">        Accepts `name` and `arg`, and returns `arg` if it is a valid input, otherwise</span>
+<span class="sd">        should raise `InvalidArgument`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Callable[[str, T], T]</span>
+<span class="sd">        A function of signature `chain(name: str, arg: T) -&gt; T` that calls each</span>
+<span class="sd">        validator as `val(name, arg)` in order from low-index to high-index.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from maite.utils.validation import check_type, check_domain, chain_validators</span>
+<span class="sd">    &gt;&gt;&gt; from functools import partial</span>
+<span class="sd">    &gt;&gt;&gt; is_int = partial(check_type, type_=int)</span>
+<span class="sd">    &gt;&gt;&gt; is_pos = partial(check_domain, lower=0)</span>
+<span class="sd">    &gt;&gt;&gt; check_pos_int = chain_validators(is_int, is_pos)</span>
+<span class="sd">    &gt;&gt;&gt; check_pos_int(&quot;foo&quot;, 10)</span>
+<span class="sd">    10</span>
+<span class="sd">    &gt;&gt;&gt; try:</span>
+<span class="sd">    ...     check_pos_int(&quot;foo&quot;, [&quot;a&quot;])</span>
+<span class="sd">    ... except:</span>
+<span class="sd">    ...     print(&quot;maite.errors.InvalidArgument: Expected `foo` to be of type `int`. Got `[&#39;a&#39;]` (type: `list`).&quot;)</span>
+<span class="sd">    maite.errors.InvalidArgument: Expected `foo` to be of type `int`. Got `[&#39;a&#39;]` (type: `list`).</span>
+<span class="sd">    &gt;&gt;&gt; try:</span>
+<span class="sd">    ...     check_pos_int(&quot;foo&quot;, -1)</span>
+<span class="sd">    ... except:</span>
+<span class="sd">    ...     print(&quot;maite.errors.InvalidArgument: `foo` must satisfy `0 &lt;= foo`.  Got: `-1`.&quot;)</span>
+<span class="sd">    maite.errors.InvalidArgument: `foo` must satisfy `0 &lt;= foo`.  Got: `-1`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">chain</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">validators</span><span class="p">:</span>
+            <span class="n">v</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">arg</span>
+
+    <span class="k">return</span> <span class="n">chain</span></div>
+</pre></div>
+
+                </article>
+              
+              
+              
+                <footer class="bd-footer-article">
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+</div></div>
+  
+</div>
+
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  <p class="copyright">
+    
+      © Copyright 2024 Massachusetts Institute of Technology.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.2.1.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
