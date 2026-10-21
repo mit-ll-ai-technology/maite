@@ -39,7 +39,7 @@ cache:
 
 default:
   tags:
-    - CDAO
+    - k8s-small-cpu
 
 
 workflow:
@@ -71,6 +71,8 @@ tests:
   parallel:
     matrix:
       - PYTHON_VERSIONS: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+  tags:
+    - k8s-medium-cpu
   script:
     - *install-libgl1
     - *setup-python
@@ -101,6 +103,8 @@ coverage:
 min-deps:
   stage: test
   image: python:3.10
+  tags:
+    - k8s-medium-cpu
   script:
     - *install-libgl1
     - *setup-python
