@@ -131,6 +131,8 @@ pages:
   stage: docs
   environment: docs_env
   image: python:3.12
+  tags:
+    - k8s-large-cpu
   variables:
     TQDM_DISABLE: true
   before_script:
@@ -163,6 +165,8 @@ pages:
 deploy:
   stage: deploy
   image: python:3.10
+  tags:
+    - k8s-medium-cpu
   variables:
     # hatch-vcs derives the version via `git describe`, so the deploy job needs
     # the tag and full history (not GitLab's default shallow clone).
