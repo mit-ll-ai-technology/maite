@@ -91,20 +91,21 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
     >>> from typing_extensions import TypedDict
     >>> from maite.protocols import ArrayLike, DatasetMetadata, DatumMetadata
 
-    Assume we have 5 classes, 10 datapoints, and 10 target labels, and that we want
-    to simply have an integer 'id' field in each datapoint's metadata:
+    Assume we have 5 classes, 12 datapoints, and 12 target labels:
 
     >>> N_CLASSES: int = 5
-    >>> N_DATUM: int = 10
-    >>> images: list[np.ndarray] = [np.random.rand(3, 32, 16) for _ in range(N_DATUM)]
+    >>> N_DATUM: int = 12
+    >>> images: np.ndarray = np.random.rand(N_DATUM, 3, 32, 16)
     >>> targets: np.ndarray = np.eye(N_CLASSES)[np.random.choice(N_CLASSES, N_DATUM)]
 
-    We can type our datum metadata as a maite.protocols DatumMetadata, or define our
-    own TypedDict with additional fields
+    We want each datapoint's metadata to have a unique integer 'id' field and a
+    floating-point 'hour_of_day' field, so we subclass the `DatumMetadata` TypedDict:
 
     >>> class MyDatumMetadata(DatumMetadata):
     ...     hour_of_day: float
-    >>> datum_metadata = [MyDatumMetadata(id=i, hour_of_day=np.random.rand() * 24) for i in range(N_DATUM)]
+    >>> datum_metadata: list[MyDatumMetadata] = [
+    ...     MyDatumMetadata(id=i, hour_of_day=np.random.rand() * 24) for i in range(N_DATUM)
+    ... ]
 
     Constructing a compliant dataset just involves a simple wrapper that fetches
     individual datapoints, where a datapoint is a single image, target, metadata 3-tuple.
@@ -114,7 +115,7 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
     ...         self,
     ...         dataset_name: str,
     ...         index2label: dict[int, str],
-    ...         images: list[np.ndarray],
+    ...         images: np.ndarray,
     ...         targets: np.ndarray,
     ...         datum_metadata: list[MyDatumMetadata],
     ...     ):
@@ -140,6 +141,8 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
     ...     targets,
     ...     datum_metadata,
     ... )
+    >>> print(len(dataset))
+    12
 
     Note that when writing a Dataset implementer, return types may be narrower than the
     return types promised by the protocol (np.ndarray is a subtype of ArrayLike), but
@@ -186,20 +189,21 @@ class FieldwiseDataset(
     >>> from typing_extensions import TypedDict
     >>> from maite.protocols import ArrayLike, DatasetMetadata, DatumMetadata
 
-    Assume we have 5 classes, 10 datapoints, and 10 target labels, and that we want
-    to simply have an integer 'id' field in each datapoint's metadata:
+    Assume we have 5 classes, 12 datapoints, and 12 target labels:
 
     >>> N_CLASSES: int = 5
-    >>> N_DATUM: int = 10
-    >>> images: list[np.ndarray] = [np.random.rand(3, 32, 16) for _ in range(N_DATUM)]
+    >>> N_DATUM: int = 12
+    >>> images: np.ndarray = np.random.rand(N_DATUM, 3, 32, 16)
     >>> targets: np.ndarray = np.eye(N_CLASSES)[np.random.choice(N_CLASSES, N_DATUM)]
 
-    We can type our datum metadata as a maite.protocols DatumMetadata, or define our
-    own TypedDict with additional fields
+    We want each datapoint's metadata to have a unique integer 'id' field and a
+    floating-point 'hour_of_day' field, so we subclass the `DatumMetadata` TypedDict:
 
     >>> class MyDatumMetadata(DatumMetadata):
     ...     hour_of_day: float
-    >>> datum_metadata = [MyDatumMetadata(id=i, hour_of_day=np.random.rand() * 24) for i in range(N_DATUM)]
+    >>> datum_metadata: list[MyDatumMetadata] = [
+    ...     MyDatumMetadata(id=i, hour_of_day=np.random.rand() * 24) for i in range(N_DATUM)
+    ... ]
 
     Constructing a compliant dataset just involves a simple wrapper that fetches
     individual datapoints, where a datapoint is a single image, target, metadata 3-tuple.
@@ -209,7 +213,7 @@ class FieldwiseDataset(
     ...         self,
     ...         dataset_name: str,
     ...         index2label: dict[int, str],
-    ...         images: list[np.ndarray],
+    ...         images: np.ndarray,
     ...         targets: np.ndarray,
     ...         datum_metadata: list[MyDatumMetadata],
     ...     ):
@@ -244,6 +248,8 @@ class FieldwiseDataset(
     ...     targets,
     ...     datum_metadata,
     ... )
+    >>> print(len(dataset))
+    12
 
     """
 
@@ -269,6 +275,53 @@ class DataLoader(gen.DataLoader[InputType, TargetType, DatumMetadataType], Proto
         of model input batch (as `Sequence[Image]`), model target batch (as
         `Sequence[ImgClassification]`), and batched datum-level metadata
         (as `Sequence[DatumMetadata]`), respectively.
+
+    Examples
+    --------
+
+    We create an implementation of the dataloader protocol that returns dummy data.
+
+    >>> import numpy as np
+    >>> from itertools import count
+    >>> from typing import Iterator
+
+    Assume there are 5 classes, and we want to return 3 batches of data, where
+    each batch has 4 datapoints and 4 target labels:
+
+    >>> N_CLASSES: int = 5
+    >>> N_BATCHES: int = 3
+    >>> N_DATUM: int = 4
+
+    We want each datapoint's metadata to have a unique integer 'id' field and a
+    floating-point 'hour_of_day' field, so we subclass the `DatumMetadata` TypedDict:
+
+    >>> from maite.protocols import DatumMetadata
+    >>> class MyDatumMetadata(DatumMetadata):
+    ...     hour_of_day: float
+
+    The dataloader assigns sequential 'id' values to each datapoint, but otherwise
+    the data it returns during each iteration is randomly generated.
+
+    >>> class MyDataLoader:
+    ...     def __iter__(self) -> Iterator[tuple[list[np.ndarray], list[np.ndarray], list[MyDatumMetadata]]]:
+    ...         datum_id = count()
+    ...         for _ in range(N_BATCHES):
+    ...             images: list[np.ndarray] = list(np.random.rand(N_DATUM, 3, 32, 16))
+    ...             targets: list[np.ndarray] = list(np.eye(N_CLASSES)[np.random.choice(N_CLASSES, N_DATUM)])
+    ...             datum_metadata: list[MyDatumMetadata] = [
+    ...                 MyDatumMetadata(id=next(datum_id), hour_of_day=np.random.rand() * 24) for _ in range(N_DATUM)
+    ...             ]
+    ...             yield images, targets, datum_metadata
+
+    We can typehint an instance of the above class as a DataLoader:
+
+    >>> from maite.protocols import image_classification as ic
+    >>> dataloader: ic.DataLoader = MyDataLoader()
+
+    Finally, we iterate over all batches and print the size of each batch:
+
+    >>> print([len(images) for images, _, _ in dataloader])
+    [4, 4, 4]
 
     """
 
