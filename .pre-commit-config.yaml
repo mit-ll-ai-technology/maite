@@ -1,10 +1,18 @@
 repos:
-- repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.16.7
+- repo: local
   hooks:
     - id: ruff-check
-      args: [ --fix ]
+      name: ruff check
+      entry: uv run --locked --only-group lint ruff check --fix
+      language: system
+      types_or: [python, pyi, jupyter, markdown]
+      require_serial: true
     - id: ruff-format
+      name: ruff format
+      entry: uv run --locked --only-group lint ruff format
+      language: system
+      types_or: [python, pyi, jupyter, markdown]
+      require_serial: true
 - repo: https://github.com/codespell-project/codespell
   rev: v2.2.6
   hooks:
