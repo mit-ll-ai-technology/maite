@@ -1,0 +1,9 @@
+﻿  
+Image
+=====
+
+.. loaded base.rst remplate
+
+.. currentmodule:: maite.protocols.image_classification
+
+.. autotype:: Image

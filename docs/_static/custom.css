@@ -1,0 +1,19 @@
+/* Force transparent backgrounds for all SVG images */
+img[src$=".svg"],
+.figure img[src$=".svg"],
+svg,
+svg rect {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+/* Ensure figure containers don't add backgrounds */
+.figure {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+/* Override any inline styles on SVG elements */
+svg[style*="background"] {
+    background: transparent !important;
+}
