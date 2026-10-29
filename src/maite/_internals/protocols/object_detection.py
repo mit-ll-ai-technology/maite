@@ -116,60 +116,48 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
     Examples
     --------
 
-    We create a dummy set of a data and use it to create a class the implements this
+    We generate a dummy set of data and use it with a class that implements the
     lightweight dataset protocol:
 
     >>> import numpy as np
     >>> from dataclasses import dataclass
-    >>> from maite.protocols import (
-    ...     DatumMetadata,
-    ...     DatasetMetadata,
-    ...     object_detection as od,
-    ... )
+    >>> from maite.protocols import DatumMetadata, DatasetMetadata, object_detection as od
+    >>> from typing import Generator
 
-    Specify the parameters that will be used to create the dummy dataset.
+    We will generate 12 images with random data, each having 3 color channels and a
+    height and width of 10 pixels.
 
-    >>> N_DATUM = 5  # data points in dataset
-    >>> N_CLASSES = 2  # possible classes that can be detected
-    >>> C = 3  # number of color channels
-    >>> H = 10  # image height
-    >>> W = 10  # image width
-
-    The dummy dataset will consist of a set of images, their associated annotations (detections),
-    and some image-specific metadata (hour of day each image was taken).
-
-    We define helper functions to create the dummy annotations. Each image datum will be
-    randomly assigned zero, one, or two detections. Annotations for each image consist
-    of randomly generated bounding boxes and class labels.
-
-    >>> def generate_random_bbox(n_classes: int, min_size: int = 2, max_size: int = 4) -> np.ndarray:
-    ...     # Generate random coordinates for top-left corner of bbox
-    ...     x1 = np.random.randint(0, W - min_size)
-    ...     y1 = np.random.randint(0, H - min_size)
-    ...     # Generate random width and height, ensuring bounding box stays within image boundaries
-    ...     bbox_width = np.random.randint(min_size, min(max_size, W - x1))
-    ...     bbox_height = np.random.randint(min_size, min(max_size, H - y1))
-    ...     # Set coordinates for bottom-right corner of bbox
-    ...     x2 = x1 + bbox_width
-    ...     y2 = y1 + bbox_height
-    ...     # Pick random class label
-    ...     label = np.random.choice(n_classes)
-    ...     return np.array([x1, y1, x2, y2, label])
-
-    >>> def generate_random_annotation(max_num_detections: int = 2) -> np.ndarray:
-    ...     num_detections = np.random.choice(max_num_detections + 1)
-    ...     annotation = [generate_random_bbox(N_CLASSES) for _ in range(num_detections)]
-    ...     return np.vstack(annotation) if num_detections > 0 else np.empty(0)
-
-    We now create the dummy dataset of images, corresponding annotations, and metadata.
-
+    >>> N_DATUM = 12
+    >>> C, H, W = 3, 10, 10
     >>> images: list[np.ndarray] = list(np.random.rand(N_DATUM, C, H, W))
-    >>> annotations: list[np.ndarray] = [generate_random_annotation() for _ in range(N_DATUM)]
-    >>> hour_of_day: list[int] = [np.random.choice(24) for _ in range(N_DATUM)]
-    >>> dataset: list[tuple] = list(zip(images, annotations, hour_of_day))
 
-    To support our MAITE dataset, we create an object detection target class that defines
-    the boxes, labels, and scores for each detection in an image.
+    Each image may have zero, one, or two detections, which will be chosen at random.
+    Each detection will have a randomly-drawn bounding box (with a minimum and maximum
+    size in each dimension) and a label chosen randomly from 2 classes. The bounding
+    box coordinates and labels are the "annotations" for the image.
+
+    >>> MAX_DETECTIONS = 2
+    >>> MIN_BOX_SIZE, MAX_BOX_SIZE = 2, 4
+    >>> N_CLASSES = 2
+    >>> def generate_random_annotations() -> Generator[np.ndarray]:
+    ...     for _ in range(N_DATUM):
+    ...         n_detections = np.random.choice(MAX_DETECTIONS + 1)
+    ...         box_sizes = np.random.randint(MIN_BOX_SIZE, MAX_BOX_SIZE, (n_detections, 2))
+    ...         box_tl_coords = np.random.randint(0, np.array([W, H]) - box_sizes)
+    ...         box_br_coords = box_tl_coords + box_sizes
+    ...         labels = np.random.choice(N_CLASSES, (n_detections, 1))
+    ...         yield np.hstack([box_tl_coords, box_br_coords, labels])
+    >>> annotations: list[np.ndarray] = list(generate_random_annotations())
+
+    Each image has a randomly-chosen hour of day that it was taken. The datum-specific
+    metadata class is extended to include the hour of day (along with the unique id).
+
+    >>> hours_of_day: list[int] = list(np.random.choice(24, N_DATUM))
+    >>> class MyDatumMetadata(DatumMetadata):
+    ...     hour_of_day: int
+
+    An object detection target class defines the bounding boxes, labels, and scores
+    for each detection in an image.
 
     >>> @dataclass
     ... class MyObjectDetectionTarget:
@@ -177,15 +165,9 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
     ...     labels: np.ndarray
     ...     scores: np.ndarray
 
-    Lastly, we extend `maite.protocols.DatumMetadata` to hold datum-specifc metadata to
-    add the notional hour of day field (in addition to the required unique id).
-
-    >>> class MyDatumMetadata(DatumMetadata):
-    ...     hour_of_day: int
-
-    Constructing a compliant dataset now just involves a simple wrapper that fetches
-    individual data points, where a data point is a single image, ground truth detection(s),
-    and metadata.
+    Now we can construct a compliant dataset with a simple wrapper that fetches individual
+    data points, where a data point is a single image, ground truth detection(s), and
+    metadata.
 
     >>> class ImageDataset:
     ...     # Set up required dataset-level metadata
@@ -194,29 +176,22 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
     ...         "index2label": {i: f"class_name_{i}" for i in range(N_CLASSES)},
     ...     }
     ...
-    ...     def __init__(self, dataset: list[tuple[np.ndarray, np.ndarray, int]]):
-    ...         self.dataset = dataset
+    ...     def __init__(self, images: list[np.ndarray], annotations: list[np.ndarray], hours_of_day: list[int]):
+    ...         self.images = images
+    ...         self.annotations = annotations
+    ...         self.hours_of_day = hours_of_day
     ...
     ...     def __len__(self) -> int:
-    ...         return len(self.dataset)
+    ...         return len(self.images)
     ...
-    ...     def __getitem__(self, index: int) -> tuple[np.ndarray, od.ObjectDetectionTarget, DatumMetadata]:
+    ...     def __getitem__(self, index: int) -> tuple[np.ndarray, MyObjectDetectionTarget, MyDatumMetadata]:
     ...         if index < 0 or index >= len(self):
     ...             raise IndexError(f"Index {index} is out of range for the dataset, which has length {len(self)}.")
-    ...         image, annotations, hour_of_day = self.dataset[index]
+    ...         image, annotations, hour_of_day = self.images[index], self.annotations[index], self.hours_of_day[index]
     ...         # Structure ground truth target
-    ...         boxes, labels = [], []
-    ...         for _, ann in enumerate(annotations):
-    ...             bbox = ann[:-1]
-    ...             label = ann[-1:]
-    ...             if len(bbox) != 0:
-    ...                 boxes.append(bbox)
-    ...                 labels.append(label)
-    ...         od_target = MyObjectDetectionTarget(
-    ...             boxes=np.array(boxes),
-    ...             labels=np.array(labels),
-    ...             scores=np.ones(len(boxes)),
-    ...         )
+    ...         boxes, labels = np.hsplit(annotations, [-1])
+    ...         scores = np.ones_like(labels)
+    ...         od_target = MyObjectDetectionTarget(boxes, labels, scores)
     ...         # Structure datum-level metadata
     ...         datum_metadata: MyDatumMetadata = {
     ...             "id": str(index),
@@ -227,7 +202,9 @@ class Dataset(gen.Dataset[InputType, TargetType, DatumMetadataType], Protocol):
     We can instantiate this class and type hint it as an object_detection.Dataset. By
     using type hinting, we permit a static typechecker to verify protocol compliance.
 
-    >>> maite_od_dataset: od.Dataset = ImageDataset(dataset)
+    >>> maite_od_dataset: od.Dataset = ImageDataset(images, annotations, hours_of_day)
+    >>> print(len(maite_od_dataset))
+    12
 
     Note that when writing a Dataset implementer, return types may be narrower than the
     return types promised by the protocol (np.ndarray is a subtype of ArrayLike), but
@@ -267,19 +244,59 @@ class FieldwiseDataset(
 
     Examples
     --------
-    We create a dummy set of data and use it to create a class that implements
-    the dataset protocol:
+
+    We generate a dummy set of data and use it with a class that implements the
+    dataset protocol:
 
     >>> import numpy as np
-    >>> from maite.protocols import (
-    ...     DatumMetadata,
-    ...     DatasetMetadata,
-    ...     object_detection as od,
-    ... )
+    >>> from dataclasses import dataclass
+    >>> from maite.protocols import DatumMetadata, DatasetMetadata, object_detection as od
+    >>> from typing import Generator
 
-    Constructing a compliant dataset now just involves a simple wrapper that fetches
-    individual data points, where a data point is a single image, ground truth detection(s),
-    and metadata.
+    We will generate 12 images with random data, each having 3 color channels and a
+    height and width of 10 pixels.
+
+    >>> N_DATUM = 12
+    >>> C, H, W = 3, 10, 10
+    >>> images: list[np.ndarray] = list(np.random.rand(N_DATUM, C, H, W))
+
+    Each image may have zero, one, or two detections, which will be chosen at random.
+    Each detection will have a randomly-drawn bounding box (with a minimum and maximum
+    size in each dimension) and a label chosen randomly from 2 classes. The bounding
+    box coordinates and labels are the "annotations" for the image.
+
+    >>> MAX_DETECTIONS = 2
+    >>> MIN_BOX_SIZE, MAX_BOX_SIZE = 2, 4
+    >>> N_CLASSES = 2
+    >>> def generate_random_annotations() -> Generator[np.ndarray]:
+    ...     for _ in range(N_DATUM):
+    ...         n_detections = np.random.choice(MAX_DETECTIONS + 1)
+    ...         box_sizes = np.random.randint(MIN_BOX_SIZE, MAX_BOX_SIZE, (n_detections, 2))
+    ...         box_tl_coords = np.random.randint(0, np.array([W, H]) - box_sizes)
+    ...         box_br_coords = box_tl_coords + box_sizes
+    ...         labels = np.random.choice(N_CLASSES, (n_detections, 1))
+    ...         yield np.hstack([box_tl_coords, box_br_coords, labels])
+    >>> annotations: list[np.ndarray] = list(generate_random_annotations())
+
+    Each image has a randomly-chosen hour of day that it was taken. The datum-specific
+    metadata class is extended to include the hour of day (along with the unique id).
+
+    >>> hours_of_day: list[int] = list(np.random.choice(24, N_DATUM))
+    >>> class MyDatumMetadata(DatumMetadata):
+    ...     hour_of_day: int
+
+    An object detection target class defines the bounding boxes, labels, and scores
+    for each detection in an image.
+
+    >>> @dataclass
+    ... class MyObjectDetectionTarget:
+    ...     boxes: np.ndarray
+    ...     labels: np.ndarray
+    ...     scores: np.ndarray
+
+    Now we can construct a compliant dataset with a simple wrapper that fetches individual
+    data points, where a data point is a single image, ground truth detection(s), and
+    metadata.
 
     >>> class ExampleDataset:
     ...     # Set up required dataset-level metadata
@@ -288,38 +305,40 @@ class FieldwiseDataset(
     ...         "index2label": {i: f"class_{i}" for i in range(5)},
     ...     }
     ...
-    ...     def __init__(
-    ...         self,
-    ...         inputs: list[np.ndarray],
-    ...         targets: list[od.TargetType],
-    ...         metadatas: list[od.DatumMetadataType],
-    ...     ):
-    ...         self.inputs = inputs
-    ...         self.targets = targets
-    ...         self.metadatas = metadatas
+    ...     def __init__(self, images: list[np.ndarray], annotations: list[np.ndarray], hours_of_day: list[int]):
+    ...         self.images = images
+    ...         self.annotations = annotations
+    ...         self.hours_of_day = hours_of_day
     ...
     ...     def __len__(self) -> int:
-    ...         return len(self.inputs)
+    ...         return len(self.images)
     ...
-    ...     def __getitem__(self, index: int) -> tuple[np.ndarray, od.ObjectDetectionTarget, od.DatumMetadataType]:
-    ...         image = self.inputs[index]
-    ...         target = self.targets[index]
-    ...         metadata = self.metadatas[index]
-    ...         return image, target, metadata
+    ...     def __getitem__(self, index: int) -> tuple[np.ndarray, MyObjectDetectionTarget, MyDatumMetadata]:
+    ...         return self.get_input(index), self.get_target(index), self.get_metadata(index)
     ...
     ...     def get_input(self, index: int, /) -> np.ndarray:
-    ...         return self.inputs[index]
+    ...         return self.images[index]
     ...
-    ...     def get_target(self, index: int, /) -> od.ObjectDetectionTarget:
-    ...         return self.targets[index]
+    ...     def get_target(self, index: int, /) -> MyObjectDetectionTarget:
+    ...         annotations = self.annotations[index]
+    ...         boxes, labels = np.hsplit(annotations, [-1])
+    ...         scores = np.ones_like(labels)
+    ...         return MyObjectDetectionTarget(boxes, labels, scores)
     ...
-    ...     def get_metadata(self, index: int, /) -> od.DatumMetadataType:
-    ...         return self.metadatas[index]
+    ...     def get_metadata(self, index: int, /) -> MyDatumMetadata:
+    ...         hour_of_day = self.hours_of_day[index]
+    ...         return {
+    ...             "id": str(index),
+    ...             "hour_of_day": hour_of_day,
+    ...         }
 
-    We can instantiate this class and type hint it as an object_detection.Dataset. By
-    using type hinting, we permit a static typechecker to verify protocol compliance.
+    We can instantiate this class and type hint it as an object_detection.FieldwiseDataset.
+    By using type hinting, we permit a static typechecker to verify protocol compliance.
 
-    >>> maite_od_dataset: od.FieldwiseDataset = ExampleDataset([], [], [])
+    >>> maite_od_dataset: od.FieldwiseDataset = ExampleDataset(images, annotations, hours_of_day)
+    >>> print(len(maite_od_dataset))
+    12
+
     """
 
 
@@ -352,6 +371,84 @@ class DataLoader(
         of model input batch (as `Sequence[Image]`), model target batch (as
         `Sequence[ObjectDetectionTarget]`), and batched datum-level metadata
         (as `Sequence[DatumMetadata]`), respectively.
+
+    Examples
+    --------
+
+    We create an implementation of the dataloader protocol that returns dummy data.
+
+    >>> import numpy as np
+    >>> from dataclasses import dataclass
+    >>> from maite.protocols import DatumMetadata, DatasetMetadata, object_detection as od
+    >>> from itertools import count
+    >>> from typing import Generator, Iterator
+
+    We will return 3 batches with 4 images each, where each image has 3 color channels
+    and a height and width of 10 pixels.
+
+    >>> N_BATCHES = 3
+    >>> N_DATUM = 4
+    >>> C, H, W = 3, 10, 10
+
+    Each image may have zero, one, or two detections, which will be chosen at random.
+    Each detection will have a randomly-drawn bounding box (with a minimum and maximum
+    size in each dimension) and a label chosen randomly from 2 classes. The bounding
+    box coordinates and labels are the "annotations" for the image.
+
+    >>> MAX_DETECTIONS = 2
+    >>> MIN_BOX_SIZE, MAX_BOX_SIZE = 2, 4
+    >>> N_CLASSES = 2
+    >>> def generate_random_annotations() -> Generator[np.ndarray]:
+    ...     for _ in range(N_DATUM):
+    ...         n_detections = np.random.choice(MAX_DETECTIONS + 1)
+    ...         box_sizes = np.random.randint(MIN_BOX_SIZE, MAX_BOX_SIZE, (n_detections, 2))
+    ...         box_tl_coords = np.random.randint(0, np.array([W, H]) - box_sizes)
+    ...         box_br_coords = box_tl_coords + box_sizes
+    ...         labels = np.random.choice(N_CLASSES, (n_detections, 1))
+    ...         yield np.hstack([box_tl_coords, box_br_coords, labels])
+
+    Each image has a randomly-chosen hour of day that it was taken. The datum-specific
+    metadata class is extended to include the hour of day (along with the unique id).
+
+    >>> class MyDatumMetadata(DatumMetadata):
+    ...     hour_of_day: int
+
+    An object detection target class defines the bounding boxes, labels, and scores
+    for each detection in an image.
+
+    >>> @dataclass
+    ... class MyObjectDetectionTarget:
+    ...     boxes: np.ndarray
+    ...     labels: np.ndarray
+    ...     scores: np.ndarray
+
+    The dataloader assigns sequential 'id' values to each datapoint, but otherwise
+    the data it returns during each iteration is randomly generated.
+
+    >>> class MyDataLoader:
+    ...     def __iter__(
+    ...         self,
+    ...     ) -> Iterator[tuple[list[np.ndarray], list[MyObjectDetectionTarget], list[MyDatumMetadata]]]:
+    ...         datum_id = count()
+    ...         for _ in range(N_BATCHES):
+    ...             images: list[np.ndarray] = list(np.random.rand(N_DATUM, C, H, W))
+    ...             annotations: list[np.ndarray] = list(generate_random_annotations())
+    ...             boxes: list[np.ndarray] = [a[:, :-1] for a in annotations]
+    ...             labels: list[np.ndarray] = [a[:, -1:] for a in annotations]
+    ...             scores: list[np.ndarray] = [np.ones_like(l) for l in labels]
+    ...             od_targets = list(map(MyObjectDetectionTarget, boxes, labels, scores))
+    ...             hours_of_day = list(np.random.choice(24, N_DATUM))
+    ...             datum_metadata: list[MyDatumMetadata] = [
+    ...                 MyDatumMetadata(id=next(datum_id), hour_of_day=h) for h in hours_of_day
+    ...             ]
+    ...             yield images, od_targets, datum_metadata
+
+    We can typehint an instance of the above class as a DataLoader and inspect the sizes of each batch:
+
+    >>> dataloader: od.DataLoader = MyDataLoader()
+    >>> print([len(images) for images, _, _ in dataloader])
+    [4, 4, 4]
+
     """
 
 
