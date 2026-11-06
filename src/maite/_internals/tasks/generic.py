@@ -555,6 +555,8 @@ def _materialize_batch_if_needed(item_batch: Sequence[T_in]) -> tuple[Sequence[T
             # We use `isinstance(x, Iterator)` as a decently-reliable structural
             # indicator of destructive iteration. This far from guaranteed,
             # but it is a reasonable generally-available check.
+            # (More concretely, we are relying on convention that implementing
+            # both `__iter__` and `__next__` implies destructive iteration)
             item_batch_mutable[i] = tuple(input_elem)
             did_replacement = True
         else:

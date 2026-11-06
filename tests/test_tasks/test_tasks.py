@@ -27,7 +27,6 @@ import maite.protocols.object_detection as od
 from maite._internals.protocols import generic as gen
 from maite._internals.protocols import image_semantic_segmentation as iseg
 from maite._internals.tasks.generic import (
-    _believed_nondestructive_iterable,
     _materialize_batch_if_needed,
     _SimpleDataLoader,
 )
@@ -121,22 +120,6 @@ def test_materialized_element_is_rereadable():
     assert isinstance(first, tuple)
     assert list(first) == [0, 1, 2]
     assert list(first) == [0, 1, 2]  # a spent iterator would give [] here
-
-
-@pytest.mark.parametrize(
-    "value",
-    [[1], (1,), {1}, frozenset({1}), {"a": 1}, range(2), "s", b"b", _ReusableIterable(3)],
-)
-def test_believed_nondestructive_true(value):
-    assert _believed_nondestructive_iterable(value) is True
-
-
-@pytest.mark.parametrize(
-    "value",
-    [(i for i in range(3)), iter([1, 2, 3]), _OneShotIterator(3)],
-)
-def test_believed_nondestructive_false(value):
-    assert _believed_nondestructive_iterable(value) is False
 
 
 def test_ic_elemaccess_dataset():
