@@ -744,6 +744,18 @@ def predict(
     return_augmented_data : bool, (default=False)
         Set to True to return post-augmentation data as a function output.
 
+        When this is True, any individual input, target, or metadata datum whose
+        type iterates destructively (i.e. an iterator, such as a generator) is
+        materialized into a tuple before being stored for return. This avoids
+        handing back a spent iterator that has already been consumed by the model
+        or metric. Non-destructive iterables (e.g. lists, tuples, strings, NumPy
+        arrays) are returned unchanged. Materialization holds the datum's full
+        contents in memory, so a one-time ``UserWarning`` is issued if it occurs;
+        this may be costly for iterator-typed data referencing large amounts of
+        data. Note that only the top level of each datum is materialized: an
+        iterator nested inside an otherwise reusable container may still be
+        returned spent.
+
     Returns
     -------
     tuple[Sequence[Sequence[SomeTargetType]],
@@ -752,6 +764,8 @@ def predict(
         of tuples containing the information associated with each batch.
         Note that the second return argument will be empty if
         return_augmented_data is False.
+        See ``return_augmented_data`` above for how iterator-typed data in the
+        third return argument is materialized to avoid returning spent iterators.
 
     Raises
     ------
