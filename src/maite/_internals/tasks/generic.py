@@ -557,7 +557,9 @@ def _materialize_batch_if_needed(item_batch: Sequence[T_in]) -> tuple[Sequence[T
         else:
             item_batch_mutable[i] = input_elem
 
-    return (tuple(item_batch_mutable), did_replacement)
+    if did_replacement:
+        return (tuple(item_batch_mutable), did_replacement)
+    return (item_batch, did_replacement)
 
 
 def _believed_nondestructive_iterable(x: Iterable) -> bool:
