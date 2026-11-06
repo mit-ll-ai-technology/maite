@@ -551,7 +551,10 @@ def _materialize_batch_if_needed(item_batch: Sequence[T_in]) -> tuple[Sequence[T
     did_replacement = False
     item_batch_mutable = list(item_batch)
     for i, input_elem in enumerate(item_batch_mutable):
-        if isinstance(input_elem, Iterable) and not _believed_nondestructive_iterable(input_elem):
+        if isinstance(input_elem, Iterator):
+            # We use `isinstance(x, Iterator)` as a decently-reliable structural
+            # indicator of destructive iteration. This far from guaranteed,
+            # but it is a reasonable generally-available check.
             item_batch_mutable[i] = tuple(input_elem)
             did_replacement = True
         else:
@@ -560,20 +563,6 @@ def _materialize_batch_if_needed(item_batch: Sequence[T_in]) -> tuple[Sequence[T
     if did_replacement:
         return (tuple(item_batch_mutable), did_replacement)
     return (item_batch, did_replacement)
-
-
-def _believed_nondestructive_iterable(x: Iterable) -> bool:
-    """
-    Infer (imperfectly) whether an Iterable is non-destructive.
-
-    We can't guarantee that structural properties (like implementing
-    Iterator methods/signatures) imply behavioral ones, but it's the best
-    check we have. We err on the side of overassuming nondestructive
-    iterability. (We'd rather return a spent iterator on an unexpected
-    class than materialize a type and potentially change it meaningfully.)
-    """
-
-    return not isinstance(x, Iterator)
 
 
 def evaluate_from_predictions(
