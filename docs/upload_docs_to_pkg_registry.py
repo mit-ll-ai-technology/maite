@@ -37,7 +37,7 @@ from __future__ import annotations
 
 import io
 import logging
-import re
+import os
 import shutil
 import subprocess
 import sys
@@ -46,12 +46,13 @@ from http import HTTPStatus
 from pathlib import Path
 
 import requests
+from packaging.version import InvalidVersion, Version
 
 logger = logging.getLogger(__name__)
 
 
 BASE_URL = "https://gitlab.jatic.net/api/v4/projects"
-PROJECT_ID = "70"
+PROJECT_ID = proj_id if (proj_id := os.environ.get("CI_PROJECT_ID")) else "70"
 
 PACKAGE_NAME = "maite-doc"
 
@@ -86,19 +87,50 @@ def upload_package(file: Path | bytes, package_url: str, token: str):
         )
 
 
-def validate_version(version: str):
-    v = version.strip()
-    if v[0] != "v":
-        raise ValueError(f"Invalid version: Expecting vN.N.N not: {v}")
-    ns = v[1:].split(".")
-    if len(ns) != 3:
-        raise ValueError(f"Invalid version: Expecting vN.N.N not: {v}")
+def normalize_release_tag(tag: str) -> str | None:
+    """Return the PEP440-canonical ``vX.Y.Z`` for a final-release tag, else ``None``.
+
+    This is the single source of truth for turning a tag into the directory name
+    used for published docs. It applies the *same* normalization
+    (``packaging.Version``) that ``docs/source/conf.py`` uses to bake
+    ``theme_switcher_version_match`` into the built HTML. (e.g. a ``v0.12.01`` tag
+    -- legal PEP 440, but which normalizes to ``v0.12.1`` -- would otherwise
+    produce a ``v0.12.01/`` directory whose HTML is labeled ``v0.12.1``, leaving
+    the switcher unable to highlight that release).
+
+    Only final releases are published, so pre/post/dev/local versions and
+    anything that is not an ``X.Y.Z`` triple are rejected (``None``).
+
+    Parameters
+    ----------
+    tag : str
+        A candidate git tag, with or without surrounding whitespace.
+
+    Returns
+    -------
+    str or None
+        ``"v" + Version(tag).base_version`` for an accepted final release,
+        otherwise ``None``.
+    """
+    tag = tag.strip()
+    if not tag.startswith("v"):
+        return None
     try:
-        for n in ns:
-            int(n)
-    except ValueError as err:
-        raise ValueError(f"Invalid version: Expecting vN.N.N not: {v}") from err
-    return v
+        _verobj = Version(tag[1:])
+    except InvalidVersion:
+        return None
+    if _verobj.is_prerelease or _verobj.is_postrelease or _verobj.is_devrelease or _verobj.local:
+        return None
+    if len(_verobj.release) != 3:
+        return None
+    return f"v{_verobj.base_version}"
+
+
+def validate_version(version: str):
+    normalized = normalize_release_tag(version)
+    if normalized is None:
+        raise ValueError(f"Invalid version: Expecting vN.N.N not: {version.strip()}")
+    return normalized
 
 
 def validate_docdir(docdir: Path):
@@ -125,7 +157,7 @@ def get_version_tag() -> str | None:
             raise ValueError("Could not resolve location of `git`.")
 
         # Executable is resolved via PATH for the current trusted build/runtime
-        # environment; shutil.which argument is static string, not  user input.
+        # environment; shutil.which argument is static string, not user input.
         result = subprocess.run(  # noqa: S603
             [git, "tag", "--points-at", "HEAD"],
             check=True,
@@ -133,21 +165,20 @@ def get_version_tag() -> str | None:
             text=True,
         )
 
-        txt = result.stdout
-        tags = txt.splitlines()
-        release_tags: list[str] = []
-        for tag in tags:
-            m = re.match(r"^(v[0-9]+\.[0-9]+\.[0-9]+)$", tag.strip())
-            if m:
-                release_tag = m.group(1)
-                release_tags.append(release_tag)
-                logger.info(f"Found release tag: {release_tag}")
+        # Normalize every tag through the same PEP 440 authority conf.py uses, so
+        # the directory name we return agrees with the build's version_match.
+        release_tags: set[str] = set()
+        for tag in result.stdout.splitlines():
+            normalized = normalize_release_tag(tag)
+            if normalized is not None:
+                release_tags.add(normalized)
+                logger.info(f"Found release tag: {tag.strip()} (normalized: {normalized})")
         if len(release_tags) > 1:
             raise ValueError(
-                f"Multiple ambiguous version tags found: {' '.join(release_tags)}",
+                f"Multiple ambiguous version tags found: {' '.join(sorted(release_tags))}",
             )
         if len(release_tags) == 1:
-            return release_tags[0]
+            return release_tags.pop()
         return None
     except subprocess.CalledProcessError as e:
         logger.error("Problem finding release tag")

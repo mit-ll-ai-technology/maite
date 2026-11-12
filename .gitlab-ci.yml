@@ -143,16 +143,22 @@ pages:
     - pip install requests
     - git config --global user.email "doc@maite"
     - git config --global user.name "Doc"
+    # Give runner permission to run git commands even if its uid is different than repo cloner (relates to CVE-2022-24765)
+    - git config --global --add safe.directory "$CI_PROJECT_DIR"
   script:
     - tox -e docs
     # Upload built docs to package registry if commit is tagged in format "^v\d+.\d+.\d+$"
     - python docs/upload_docs_to_pkg_registry.py upload --skip-nonrelease --docdir .tox/docs/build/html --token "$CI_DOC_TOKEN"
     # Populate `docs` directory with (a) built docs from last release, (b) previous doc builds in `docs/<version>` dirs, and (c) last doc build in 'latest' dir
     - python docs/assemble_docs_for_publish.py --token "$CI_DOC_TOKEN" --outdir ./public
+    # Generate switcher.json for GitLab Pages into 'public' directory, which serves this project under CI_PAGES_URL's path.
+    - python docs/generate_switcher.py --outdir ./public --base-url "$CI_PAGES_URL"
     - git clone --branch=gh-pages "https://oauth2:${CI_DOC_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git" gh-pages-branch
     - cd gh-pages-branch
     - git reset --hard empty-doc
     - cp -r ../public docs
+    # Generate switcher.json (again) for GitHub in the gh-pages copy (overwriting previous switcher.json only in 'docs' dir)
+    - python ../docs/generate_switcher.py --outdir docs --base-url "/$CI_PROJECT_NAME"
     - git add .
     - git commit -m "Update docs"
     - git push -f origin gh-pages

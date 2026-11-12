@@ -7,19 +7,24 @@ assemble_docs_for_publish.py
 
 
 A command-line script for assembling the documentation published to gh-pages
- intended by be called in the gitlab CI pages job
+intended to be called in the gitlab CI pages job
 
 The published documentation has two parts, the previous release documentation
-stored in  the gitlab generic package repository and the latest documentation
+stored in the gitlab generic package repository and the latest documentation
 built by tox. This script creates a directory structure like:
 
 ```
-/           # doc root, contains the documentation for latest release
+/           # doc root; holds only the redirect index.html (written later by
+            # generate_switcher.py), not a full copy of any version
 /v0.6.1     # doc for previous release
 /v0.7.1     # doc for previous release
 ...
 /latest     # documentation from latest commit, not necessarily part of a release
 ```
+
+Every version build is kept at a uniform depth of 1 (``/<version>/``). The root
+itself holds no documentation; ``docs/generate_switcher.py`` later writes a
+client-side redirect there that points at the newest release.
 
 To create documentation from previous releases the gitlab generic registry is queried
 and a limited number of previous releases are downloaded.
@@ -36,6 +41,7 @@ Arguments:
 
 import datetime as dt
 import logging
+import os
 import shutil
 import sys
 import tarfile
@@ -46,7 +52,7 @@ from typing import TypedDict
 import requests
 
 BASE_URL = "https://gitlab.jatic.net/api/v4/projects"
-PROJECT_ID = "70"
+PROJECT_ID = proj_id if (proj_id := os.environ.get("CI_PROJECT_ID")) else "70"
 
 MAX_MAJOR_VERSIONS = 3
 MAX_MINOR_VERSIONS = 4
@@ -291,14 +297,13 @@ def download_prev_docs_from_gitlab(output_dir: Path, token: str):
         else:
             logger.error(f"No files found for {pkg}")
 
-    # E.g. copy DIR/v0.6.0 to DIR/ so that it appears in the documentation root
-    #
-    # Pkgs are sorted by version number, i=0 has greatest version
-    last_release_pkg = pkgs[0]
-    last_version = last_release_pkg["version"]
-    release_docs = output_dir / last_version
-    logger.info(f"Copying last stable {last_version} documentation to {output_dir}")
-    shutil.copytree(release_docs, output_dir, dirs_exist_ok=True)
+    # NOTE: The docs root directory is reserved for the client-side redirect index.html
+    # written by docs/generate_switcher.py, which points visitors at the newest release.
+    # Since switcher URL is hard-coded into static html, htmls are stored immutably in package
+    # registry, and we need switcher to work across multiple hosts (GitLab and GitHub),
+    # we need relative paths in each built doc's html and a consistent directory structure.
+    # Keeping every doc build at a uniform depth of 1 is thus what lets the relative
+    # json_url resolve correctly on every host.
 
 
 def main(token: str, output_dir: Path):
