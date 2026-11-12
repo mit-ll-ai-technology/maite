@@ -17,6 +17,8 @@
 import re
 from collections.abc import Mapping
 
+from packaging.version import InvalidVersion, Version
+
 import maite
 
 # -- Project information -----------------------------------------------------
@@ -29,6 +31,23 @@ author = "Ryan Soklaski, Justin Goodwin, Michael Yee"
 version = ".".join(maite.__version__.split(".")[:-1])
 # The full version, including alpha/beta/rc tags
 release = maite.__version__
+
+# Set version_match to be either 'latest' for non-releases, or 'vX.Y.Z' for releases.
+# A missing/garbled _version.py (e.g. in a local .venv built without VCS metadata)
+# makes maite.__version__ unparsable; fall back to 'latest' rather than crash the build.
+try:
+    _verobj = Version(maite.__version__)  # use packaging library to build a Version object
+    version_match = "latest" if (_verobj.is_devrelease or _verobj.local) else f"v{_verobj.base_version}"
+except InvalidVersion:
+    version_match = "latest"
+
+# Guard against baking a malformed version_match into an (immutable) release tarball:
+# it must be exactly 'latest' or a 'v'-prefixed semver triple, matching the directory
+# names that generate_switcher.py emits and the entries it writes to switcher.json.
+# A mismatch here would permanently break the switcher for this build.
+assert version_match == "latest" or re.fullmatch(r"v\d+\.\d+\.\d+", version_match), (
+    f"version_match {version_match!r} must be 'latest' or a 'vX.Y.Z' semver triple"
+)
 
 
 # -- General configuration ---------------------------------------------------
@@ -151,8 +170,18 @@ html_theme_options = {
     "show_nav_level": 2,
     "header_links_before_dropdown": 4,
     "default_mode": "dark",
+    "switcher": {
+        # Since every build lives exactly 1 level deep (/latest/, /v0.12.99/),
+        # the path to public/_static/ is always a constant '../'
+        "json_url": "../_static/switcher.json",
+        "version_match": version_match,  # either 'latest' or 'v'-prefixed semver triple
+        # switcher.json does not exist at build time (it is generated post-assembly by
+        # docs/generate_switcher.py), so disable the theme's build-time existence check.
+        "check_switcher": False,
+    },
     "navbar_end": [
         "navbar-icon-links",
+        "version-switcher",
     ],  # this defaults to ["navbar-icon-links", "theme-switcher"], but I'm electing to remove
     # light theme for sake of diagrams
     "navigation_with_keys": False,
