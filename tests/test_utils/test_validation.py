@@ -2,6 +2,7 @@
 # Subject to FAR 52.227-11 – Patent Rights – Ownership by the Contractor (May 2014).
 # SPDX-License-Identifier: MIT
 
+import math
 import re
 from collections.abc import Collection
 from enum import Enum, Flag
@@ -150,12 +151,12 @@ def test_inequality(kwargs):
     incl_low=st.booleans(),
 )
 def test_valid_inequalities(
-    lower,
-    upper,
+    lower: float | None,
+    upper: float | None,
     data: st.DataObject,
     incl_up: bool,
     incl_low: bool,
-):
+) -> None:
     if lower is None:
         incl_low = True
     if upper is None:
@@ -168,15 +169,18 @@ def test_valid_inequalities(
     if lower is not None and upper is not None:
         lower, upper = (upper, lower) if upper < lower else (lower, upper)
 
-    if incl_low is False or incl_up is False and lower == upper:
-        assume(False)
-        raise AssertionError
-    if lower is None and upper is None:
-        assume(False)
-        raise AssertionError
+        # Skip bounds that leave no float to draw: lower == upper with an
+        # exclusive bound, or adjacent floats with both bounds exclusive.
+        lowest = lower if incl_low else math.nextafter(lower, math.inf)
+        highest = upper if incl_up else math.nextafter(upper, -math.inf)
+        if lowest > highest:
+            assume(False)
+            raise AssertionError
 
-    arg = (
-        data.draw(
+    if lower is not None and lower == upper:
+        arg = lower
+    else:
+        arg = data.draw(
             st.floats(
                 min_value=lower,
                 max_value=upper,
@@ -185,18 +189,14 @@ def test_valid_inequalities(
             ),
             label="arg",
         )
-        if lower != upper
-        else lower
-    )
 
-    check_domain(
-        "dummy",
-        arg=arg,
-        lower=lower,
-        upper=upper,
-        incl_up=incl_up,
-        incl_low=incl_low,
-    )
+    # `check_domain`'s overloads require at least one bound; branch so that
+    # pyright can see which one is set.
+    if lower is not None:
+        check_domain("dummy", arg=arg, lower=lower, upper=upper, incl_up=incl_up, incl_low=incl_low)
+    else:
+        assert upper is not None
+        check_domain("dummy", arg=arg, lower=lower, upper=upper, incl_up=incl_up, incl_low=incl_low)
 
 
 class CheckOneOfInputs(NamedTuple):
