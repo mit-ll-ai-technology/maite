@@ -90,6 +90,8 @@ dev = [
 ]
 
 [project.optional-dependencies]
+# Note: optional-dependencies ARE also called 'extras' and are installable by non-devs
+# (The name collision between 'optional-dependencies' and 'dependency groups' is unfortunate but historical)
 
 # dependencies required to use YOLO model wrappers
 
