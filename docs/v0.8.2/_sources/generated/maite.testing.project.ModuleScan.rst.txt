@@ -1,0 +1,11 @@
+﻿  
+project.ModuleScan
+==================
+
+.. currentmodule:: maite.testing.project
+
+.. autoclass:: ModuleScan
+
+   
+   
+   

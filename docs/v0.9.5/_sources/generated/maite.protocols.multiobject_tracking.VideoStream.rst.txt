@@ -1,0 +1,9 @@
+﻿  
+VideoStream
+===========
+
+.. loaded base.rst remplate
+
+.. currentmodule:: maite.protocols.multiobject_tracking
+
+.. autodata:: VideoStream

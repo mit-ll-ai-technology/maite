@@ -1,0 +1,7 @@
+﻿  
+predict
+=======
+
+.. currentmodule:: maite.tasks
+
+.. autofunction:: predict

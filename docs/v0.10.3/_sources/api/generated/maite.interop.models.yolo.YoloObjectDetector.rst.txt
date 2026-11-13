@@ -1,0 +1,10 @@
+﻿  
+YoloObjectDetector
+==================
+
+.. loaded class.rst template
+
+.. currentmodule:: maite.interop.models.yolo
+
+.. autoclass:: YoloObjectDetector
+

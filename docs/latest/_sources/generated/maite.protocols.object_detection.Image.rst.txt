@@ -1,0 +1,9 @@
+﻿  
+Image
+=====
+
+.. loaded base.rst remplate
+
+.. currentmodule:: maite.protocols.object_detection
+
+.. autotype:: Image

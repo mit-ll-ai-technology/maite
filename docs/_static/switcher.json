@@ -1,0 +1,27 @@
+[
+    {
+        "name": "latest (dev)",
+        "version": "latest",
+        "url": "/maite/latest/"
+    },
+    {
+        "name": "v0.10.3 (stable)",
+        "version": "v0.10.3",
+        "url": "/maite/v0.10.3/"
+    },
+    {
+        "name": "v0.9.5",
+        "version": "v0.9.5",
+        "url": "/maite/v0.9.5/"
+    },
+    {
+        "name": "v0.8.2",
+        "version": "v0.8.2",
+        "url": "/maite/v0.8.2/"
+    },
+    {
+        "name": "v0.7.3",
+        "version": "v0.7.3",
+        "url": "/maite/v0.7.3/"
+    }
+]

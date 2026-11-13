@@ -1,0 +1,7 @@
+﻿  
+pytest.cleandir
+===============
+
+.. currentmodule:: maite.testing.pytest
+
+.. autofunction:: cleandir
