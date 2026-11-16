@@ -35,10 +35,6 @@ classifiers = [
 
 [dependency-groups]
 
-experimental = [
-  "beartype>=0.22.9"
-]
-
 # Dev tools are pinned to exact versions so new releases can't break CI.
 # Bump them deliberately in an MR. Keep ruff in sync with `required-version`
 # under [tool.ruff] and with the ruff-pre-commit `rev` in .pre-commit-config.yaml.
@@ -94,6 +90,8 @@ dev = [
 ]
 
 [project.optional-dependencies]
+# Note: optional-dependencies ARE also called 'extras' and are installable by non-devs
+# (The name collision between 'optional-dependencies' and 'dependency groups' is unfortunate but historical)
 
 # dependencies required to use YOLO model wrappers
 
@@ -120,12 +118,18 @@ mot-utils = [
   "av>=16.0.1"
 ]
 
+# dependencies required to use experimental runtime verification (maite.spotcheck,
+# maite.protocols.runtime_verify)
+experimental = [
+  "beartype>=0.22.9"
+]
+
 # dependencies required to use TorchMetrics metric wrappers
 torchmetrics = ["torchmetrics[detection] (>=1.7.0,<2.0.0)"]
 
 # `all` extra: installs every optional feature at once (`pip install maite[all]`).
 # Kept equivalent to the union of the individual extras by tests/test_extras_all.py.
-all = ["maite[mot-utils,torchmetrics,yolo-models]"]
+all = ["maite[experimental,mot-utils,torchmetrics,yolo-models]"]
 
 [project.urls]
 "Homepage" = "https://github.com/mit-ll-ai-technology/maite"
