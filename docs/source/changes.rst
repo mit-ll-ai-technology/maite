@@ -5,16 +5,24 @@
 Changelog
 =========
 
-This is a record of all past maite releases and what went into them, in reverse 
+This is a record of all past maite releases and what went into them, in reverse
 chronological order.
 
-.. _unreleased:
+.. _v0.10.4:
 
 ---------------------
-Unreleased
+0.10.4 - 2026-11-13
 ---------------------
 
-- Make the optional parameters of the ``TMClassificationMetric`` and ``TMDetectionMetric`` constructors keyword-only - backwards breaking change for positional call sites
+- Materialize destructive iterators into tuples in ``evaluate`` and ``predict`` when ``return_augmented_data=True`` (with a one-time ``UserWarning``)
+- Restore ``isinstance`` support for protocol-class primitive types by moving their checkable predicates to the new ``maite.protocols.runtime_verify`` subpackage (requires ``experimental`` extra); existing ``spotcheck`` call sites are unaffected
+- Add ``all`` extra to install every optional feature (``experimental``, ``mot-utils``, ``torchmetrics``, ``yolo-models``)
+- Add a version switcher to documentation build
+- Switch build backend from poetry to hatchling (with hatch-vcs versioning); move development dependencies to ``[dependency-groups]``;
+- Update CONTRIBUTING.md to describe the uv-based workflow (replacing poetry)
+- Test optional features separately, using per-extra pytest markers
+- Pin pyright and ruff to exact versions for CI stability
+- Tighten ruff standards (McCabe complexity limit, at most 3 positional arguments) - pos args update is small breaking change to ``TMClassificationMetric`` and ``TMDetectionMetric`` constructors at positional call sites
 
 .. _v0.10.3:
 
@@ -47,7 +55,7 @@ Unreleased
 - Improve documentation (add glossary, new crosslinks between `interop` module and tutorials/how-tos/)
 - Tighten ruff formatting standards
 - Increase CI-based security testing
-  
+
 .. _v0.9.5:
 
 ---------------------
@@ -68,13 +76,6 @@ Unreleased
 - Provide working implementations for sampling from common video file formats into memory and tracking objects within multi-object tracking AI problem (within `source/maite/_internals/interop/utils.py`)
 - Update reference documentation to include discussion and reference pages for primitive types within each AI problem; include role-based aliases
 - Upgrade sphinx doc-building engine to 9.1.0; improve crosslinking in reference pages, permit `TypeAlias` documentation
- 
----------------------
-0.9.2 - 2025-12-18
----------------------
-
-- Change return type of `Metric.compute` from `dict[str,Any]` -> `Mapping[str,Any]` to enable `TypedDict` classes to more easily structurally subclass this return type
-
 
 .. _v0.9.2:
 
@@ -92,7 +93,7 @@ Unreleased
 
 - Add prototype advertisement/verification mechanism of components/tasks within installed packages (`_internals/testing/project:statically_verify_exposed_component_entrypoints`)
 - Implement selective dataset loading with dataset protocol subclass (`FieldwiseDataset`)
-- Increase use of pytest raises (over 'xfails') for semantically correct exceptions raised in unit testing 
+- Increase use of pytest raises (over 'xfails') for semantically correct exceptions raised in unit testing
 - Temporarily pin ipykernel dependency until upstream fix implemented (https://github.com/huggingface/xet-core/issues/526)
 - Reorganize API reference section for better scalability and clarity
 - Crosslink type-aliases and generics within docs
@@ -230,13 +231,13 @@ These updated protocols should enable a wider variety of use cases, but do conta
 High-level overview:
 
 - A tutorial has been added to show `use of core protocols in object detection domain <https://github.com/mit-ll-ai-technology/maite/blob/main/examples/torchvision_object_detection/torchvision_object_detection.ipynb>`_
-- An `overview of updated core protocols <https://github.com/mit-ll-ai-technology/maite/blob/main/examples/protocol_overview.ipynb>`_ has been provided 
+- An `overview of updated core protocols <https://github.com/mit-ll-ai-technology/maite/blob/main/examples/protocol_overview.ipynb>`_ has been provided
 
 More details:
 
 - Class structure of core component protocols is now ML subproblem agnostic -- e.g. `Model` objects must all implement the same named methods.
 - Type signatures of core component protocols are specific to ML subproblem domain, permitting subproblem specific component implementers to know more about their expected inputs/outputs.
-- Within an ML subproblem, the model input type, model target type, datum metadata type (and the 3 respective batched versions of these types) are prescribed. 
+- Within an ML subproblem, the model input type, model target type, datum metadata type (and the 3 respective batched versions of these types) are prescribed.
 - Core protocols (with the exception of `Dataset`) are only required to handle data in batched form (this may change)
 - `evaluate` and `predict` functions now exist under `maite.workflows` to separate them from core protocols
 - `evaluate` function takes ML components from either image processing or object detection domain (component domain compatibility enforced statically)
@@ -259,7 +260,7 @@ More details:
 ---------------------
 0.3.6 - 2024-01-17
 ---------------------
-   
+
 This release includes the following changes:
 
 - Fix issue with loading datasets from huggingface hub (e.g., cifar10) (bugfix)
@@ -272,7 +273,7 @@ This release includes the following changes:
 ---------------------
 0.3.5 - 2024-01-05
 ---------------------
-   
+
 This release includes two new features:
 
 - Add dataset and datum level metadata
