@@ -23,7 +23,7 @@ chronological order.
 ---------------------
 
 - Actively support ``isinstance`` for protocol-class primitive types by moving their checkable predicates to the new ``maite.protocols.runtime_verify`` subpackage (requires ``experimental`` extra); existing ``spotcheck`` call sites are unaffected
-- Materialize destructive iterators into tuples in ``evaluate`` and ``predict`` when ``return_augmented_data=True`` (with a one-time ``UserWarning`` for potential increased memory useage)
+- Materialize destructive iterators into tuples in ``evaluate`` and ``predict`` when ``return_augmented_data=True`` (with a one-time ``UserWarning`` for potential increased memory usage)
 - Add ``all`` extra to install every optional feature (``experimental``, ``mot-utils``, ``torchmetrics``, ``yolo-models``)
 - Enforce McCabe complexity limit, and maximum 3 positional arguments - pos args update is small breaking change to ``TMClassificationMetric`` and ``TMDetectionMetric`` constructors at positional call sites
 - Test optional features separately, using per-extra pytest markers
