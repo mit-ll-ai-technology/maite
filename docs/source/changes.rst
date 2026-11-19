@@ -8,21 +8,30 @@ Changelog
 This is a record of all past maite releases and what went into them, in reverse
 chronological order.
 
+.. _v0.10.5:
+
+---------------------
+0.10.5 - 2026-11-19
+---------------------
+
+- Update pyproject.toml to permit doc-related testing for conda-forge deployment
+
 .. _v0.10.4:
 
 ---------------------
-0.10.4 - 2026-11-13
+0.10.4 - 2026-11-18
 ---------------------
 
-- Materialize destructive iterators into tuples in ``evaluate`` and ``predict`` when ``return_augmented_data=True`` (with a one-time ``UserWarning``)
-- Restore ``isinstance`` support for protocol-class primitive types by moving their checkable predicates to the new ``maite.protocols.runtime_verify`` subpackage (requires ``experimental`` extra); existing ``spotcheck`` call sites are unaffected
+- Actively support ``isinstance`` for protocol-class primitive types by moving their checkable predicates to the new ``maite.protocols.runtime_verify`` subpackage (requires ``experimental`` extra); existing ``spotcheck`` call sites are unaffected
+- Materialize destructive iterators into tuples in ``evaluate`` and ``predict`` when ``return_augmented_data=True`` (with a one-time ``UserWarning`` for potential increased memory useage)
 - Add ``all`` extra to install every optional feature (``experimental``, ``mot-utils``, ``torchmetrics``, ``yolo-models``)
+- Enforce McCabe complexity limit, and maximum 3 positional arguments - pos args update is small breaking change to ``TMClassificationMetric`` and ``TMDetectionMetric`` constructors at positional call sites
+- Test optional features separately, using per-extra pytest markers
+- Update CONTRIBUTING.md to describe the uv-based workflow (replacing poetry)
+- Pin pyright and ruff to exact versions for CI stability
+- Update uv.lock file
 - Add a version switcher to documentation build
 - Switch build backend from poetry to hatchling (with hatch-vcs versioning); move development dependencies to ``[dependency-groups]``;
-- Update CONTRIBUTING.md to describe the uv-based workflow (replacing poetry)
-- Test optional features separately, using per-extra pytest markers
-- Pin pyright and ruff to exact versions for CI stability
-- Tighten ruff standards (McCabe complexity limit, at most 3 positional arguments) - pos args update is small breaking change to ``TMClassificationMetric`` and ``TMDetectionMetric`` constructors at positional call sites
 
 .. _v0.10.3:
 

@@ -153,7 +153,7 @@ packages = ["src/maite"]
 
 [tool.hatch.build.targets.sdist]
 # include tests dir in the sdist.
-include = ["src/maite", "tests"]
+include = ["src/maite", "tests", "docs"]
 
 
 [tool.isort]
