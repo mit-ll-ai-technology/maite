@@ -1,0 +1,9 @@
+﻿  
+DatumMetadata
+=============
+
+.. loaded base.rst remplate
+
+.. currentmodule:: maite.protocols.image_classification
+
+.. autoclass:: DatumMetadata

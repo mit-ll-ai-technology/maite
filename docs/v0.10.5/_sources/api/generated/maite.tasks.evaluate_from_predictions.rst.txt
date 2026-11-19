@@ -1,0 +1,11 @@
+﻿  
+evaluate\_from\_predictions
+===========================
+
+.. loaded protocol_class.rst
+
+
+
+.. currentmodule:: maite.tasks
+
+.. autofunction:: evaluate_from_predictions

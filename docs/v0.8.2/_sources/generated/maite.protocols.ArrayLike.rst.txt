@@ -1,0 +1,7 @@
+﻿  
+ArrayLike
+=========
+
+.. currentmodule:: maite.protocols
+
+.. autodata:: ArrayLike

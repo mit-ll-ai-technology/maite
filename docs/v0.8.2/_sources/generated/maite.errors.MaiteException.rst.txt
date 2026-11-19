@@ -1,0 +1,7 @@
+﻿  
+MaiteException
+==============
+
+.. currentmodule:: maite.errors
+
+.. autoexception:: MaiteException

@@ -1,0 +1,11 @@
+﻿  
+Metric
+======
+
+.. loaded protocol_class.rst
+
+
+
+.. currentmodule:: maite.protocols.object_detection
+
+.. autoclass:: Metric

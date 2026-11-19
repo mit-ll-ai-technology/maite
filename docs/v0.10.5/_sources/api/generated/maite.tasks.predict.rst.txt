@@ -1,0 +1,11 @@
+﻿  
+predict
+=======
+
+.. loaded protocol_class.rst
+
+
+
+.. currentmodule:: maite.tasks
+
+.. autofunction:: predict
